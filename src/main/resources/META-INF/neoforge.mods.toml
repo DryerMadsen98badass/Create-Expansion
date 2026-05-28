@@ -1,0 +1,48 @@
+modLoader="javafxmod"
+loaderVersion="[2,)"
+license="MIT"
+issueTrackerURL="https://github.com/DryerMadsen98badass/Create-Expansion/issues"
+
+[[mods]]
+modId="create_expansion"
+version="0.0.1"
+displayName="Create Expansion"
+logoFile="icon.png"
+logoBlur=true
+authors="DryerMadsen98badass"
+description="""An expansion mod for the Create mod, adding new machinery and features."""
+
+[[dependencies.create_expansion]]
+    modId="neoforge"
+    mandatory=true
+    versionRange="[21.1,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.create_expansion]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.21.1,1.22)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.create_expansion]]
+    modId="create"
+    mandatory=true
+    versionRange="[6.0.10,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.create_expansion]]
+    modId="flywheel"
+    mandatory=true
+    versionRange="${flywheel_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.create_expansion]]
+    modId="ponder"
+    mandatory=false
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="CLIENT"
