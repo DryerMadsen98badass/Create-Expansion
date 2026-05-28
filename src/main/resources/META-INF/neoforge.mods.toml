@@ -36,7 +36,7 @@ description="""An expansion mod for the Create mod, adding new machinery and fea
 [[dependencies.create_expansion]]
     modId="flywheel"
     mandatory=true
-    versionRange="${flywheel_version_range}"
+    versionRange="[1.0.5,2.0)"
     ordering="AFTER"
     side="BOTH"
 
@@ -44,5 +44,19 @@ description="""An expansion mod for the Create mod, adding new machinery and fea
     modId="ponder"
     mandatory=false
     versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="CLIENT"
+
+[[dependencies.create_expansion]]
+    modId="jei"
+    mandatory=false
+    versionRange="[19.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.create_expansion]]
+    modId="jade"
+    mandatory=false
+    versionRange="[11.0,)"
     ordering="AFTER"
     side="CLIENT"
