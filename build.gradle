@@ -35,6 +35,7 @@ repositories {
     maven { url = "https://maven.ithundxr.dev/snapshots" }
     maven { url = "https://modmaven.dev" }
     maven { url = "https://maven.blamejared.com/" }
+    maven { url = 'https://maven.neoforged.net/releases' }
 }
 
 base {
