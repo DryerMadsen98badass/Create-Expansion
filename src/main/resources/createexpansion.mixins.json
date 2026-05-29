@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "priority": 1000,
+  "package": "net.mads.createexpansion.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+
+  ],
+  "minVersion": "0.8.5"
+}
