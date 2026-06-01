@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/metallic/ingot",
+  "textures": {
+    "layer1": "create_expansion:item/material_sets/radioactive/ingot_secondary"
+  }
+}

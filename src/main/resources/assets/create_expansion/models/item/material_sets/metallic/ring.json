@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/dull/ring",
+  "textures": {
+    "layer2": "create_expansion:item/material_sets/shiny/ring_overlay"
+  }
+}

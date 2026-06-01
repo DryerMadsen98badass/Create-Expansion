@@ -1,0 +1,7 @@
+{
+	"parent": "create_expansion:item/material_sets/rough/plate",
+	"textures": {
+        "layer0": "create_expansion:item/material_sets/rough/plate_double",
+        "layer1": "create_expansion:item/material_sets/rough/plate_double_secondary"
+	}
+}

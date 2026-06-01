@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/metallic/plate",
+  "textures": {
+    "layer3": "create_expansion:item/material_sets/magnetic/magnetic_overlay"
+  }
+}

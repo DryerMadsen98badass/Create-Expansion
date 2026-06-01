@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/dull/spring",
+  "textures": {
+    "layer1": "create_expansion:item/material_sets/radioactive/spring_secondary"
+  }
+}

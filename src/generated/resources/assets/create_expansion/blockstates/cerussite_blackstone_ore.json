@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/cerussite_blackstone_ore"
+    }
+  }
+}

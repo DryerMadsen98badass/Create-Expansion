@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/galena_andesite_ore"
+    }
+  }
+}

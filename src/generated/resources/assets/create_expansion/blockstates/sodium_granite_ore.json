@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/sodium_granite_ore"
+    }
+  }
+}

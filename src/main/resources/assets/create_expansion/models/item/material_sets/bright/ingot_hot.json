@@ -1,0 +1,9 @@
+{
+  "parent": "create_expansion:item/material_sets/bright/ingot",
+  "textures": {
+    "layer0": "create_expansion:item/material_sets/bright/ingot",
+    "layer1": "create_expansion:item/material_sets/bright/ingot_secondary",
+    "layer2": "create_expansion:item/material_sets/bright/ingot_overlay",
+    "layer3": "create_expansion:item/material_sets/bright/ingot_hot_overlay"
+  }
+}

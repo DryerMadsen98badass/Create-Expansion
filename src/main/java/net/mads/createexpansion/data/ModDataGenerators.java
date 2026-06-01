@@ -1,0 +1,20 @@
+package net.mads.createexpansion.data;
+
+import net.mads.createexpansion.CreateExpansion;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+
+public class ModDataGenerators {
+    @SubscribeEvent
+    public static void gatherData(GatherDataEvent event) {
+        if (!event.includeClient()) {
+            return;
+        }
+
+        event.addProvider(new ModLanguageProvider(event.getGenerator().getPackOutput()));
+        event.addProvider(new MaterialItemModelProvider(event.getGenerator().getPackOutput(), event.getExistingFileHelper()));
+        event.addProvider(new MaterialBlockStateProvider(event.getGenerator().getPackOutput(), event.getExistingFileHelper()));
+
+        CreateExpansion.LOGGER.info("Generating Create Expansion client data");
+    }
+}

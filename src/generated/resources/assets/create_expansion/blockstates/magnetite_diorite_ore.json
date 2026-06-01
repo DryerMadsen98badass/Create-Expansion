@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/magnetite_diorite_ore"
+    }
+  }
+}

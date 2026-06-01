@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/gallium_deepslate_ore"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/dolomite_granite_ore"
+    }
+  }
+}

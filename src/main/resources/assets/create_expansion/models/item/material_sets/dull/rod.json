@@ -1,0 +1,7 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "create_expansion:item/material_sets/dull/rod",
+    "layer1": "create_expansion:item/material_sets/dull/rod_secondary"
+  }
+}

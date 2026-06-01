@@ -1,0 +1,9 @@
+{
+  "parent": "create_expansion:item/material_sets/metallic/ingot",
+  "textures": {
+    "layer0": "create_expansion:item/material_sets/metallic/ingot",
+    "layer1": "create_expansion:item/material_sets/metallic/ingot_secondary",
+    "layer2": "create_expansion:item/material_sets/metallic/ingot_overlay",
+    "layer3": "create_expansion:item/material_sets/metallic/ingot_hot_overlay"
+  }
+}

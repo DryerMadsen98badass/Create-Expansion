@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/metallic/ring",
+  "textures": {
+    "layer1": "create_expansion:item/material_sets/radioactive/ring_secondary"
+  }
+}

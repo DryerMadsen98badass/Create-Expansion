@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/dull/wire_fine",
+  "textures": {
+    "layer1": "create_expansion:item/material_sets/radioactive/wire_fine_secondary"
+  }
+}

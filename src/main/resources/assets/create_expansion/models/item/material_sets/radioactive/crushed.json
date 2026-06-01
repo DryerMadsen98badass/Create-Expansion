@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/dull/crushed",
+  "textures": {
+    "layer1": "create_expansion:item/material_sets/radioactive/crushed_secondary"
+  }
+}

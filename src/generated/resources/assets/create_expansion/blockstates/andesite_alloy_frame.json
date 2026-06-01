@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/andesite_alloy_frame"
+    }
+  }
+}

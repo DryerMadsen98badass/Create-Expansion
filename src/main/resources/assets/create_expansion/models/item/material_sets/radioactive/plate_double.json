@@ -1,0 +1,6 @@
+{
+    "parent": "create_expansion:item/material_sets/metallic/plate_double",
+    "textures": {
+        "layer1": "create_expansion:item/material_sets/radioactive/plate_double_secondary"
+    }
+}

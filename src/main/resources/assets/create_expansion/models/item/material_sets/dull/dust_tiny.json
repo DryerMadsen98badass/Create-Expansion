@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "create_expansion:item/material_sets/dull/dust_tiny",
+    "layer1": "create_expansion:item/material_sets/dull/dust_tiny_secondary"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/shiny/screw",
+  "textures": {
+    "layer2": "create_expansion:item/material_sets/bright/screw_overlay"
+  }
+}

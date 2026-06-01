@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/pitchblende_granite_ore"
+    }
+  }
+}

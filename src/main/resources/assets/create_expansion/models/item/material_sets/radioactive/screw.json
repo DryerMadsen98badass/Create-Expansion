@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/metallic/screw",
+  "textures": {
+    "layer1": "create_expansion:item/material_sets/radioactive/screw_secondary"
+  }
+}

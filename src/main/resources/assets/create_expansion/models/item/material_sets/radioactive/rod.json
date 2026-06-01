@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/metallic/rod",
+  "textures": {
+    "layer1": "create_expansion:item/material_sets/radioactive/rod_secondary"
+  }
+}

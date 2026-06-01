@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/dull/tool_head_buzz_saw",
+  "textures": {
+    "layer1": "create_expansion:item/material_sets/radioactive/tool_head_buzz_saw_secondary"
+  }
+}

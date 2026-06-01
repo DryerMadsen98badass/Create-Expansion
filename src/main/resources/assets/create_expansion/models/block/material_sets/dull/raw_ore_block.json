@@ -1,0 +1,7 @@
+{
+  "parent": "create_expansion:block/cube_2_layer/tinted_both/all_translucent",
+  "textures": {
+    "bot_all": "create_expansion:block/material_sets/dull/raw_ore_block",
+    "top_all": "create_expansion:block/material_sets/dull/raw_ore_block_secondary"
+  }
+}

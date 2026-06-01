@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:block/cube/tinted/all_0",
+  "textures": {
+    "all": "create_expansion:block/material_sets/paper/frame_gt"
+  }
+}

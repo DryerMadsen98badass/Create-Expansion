@@ -1,0 +1,6 @@
+{
+  "parent": "create_expansion:item/material_sets/dull/turbine_blade",
+  "textures": {
+    "layer1": "create_expansion:item/material_sets/radioactive/turbine_blade_secondary"
+  }
+}

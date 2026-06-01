@@ -1,0 +1,9 @@
+{
+  "parent": "create_expansion:item/material_sets/shiny/ingot",
+  "textures": {
+    "layer0": "create_expansion:item/material_sets/shiny/ingot",
+    "layer1": "create_expansion:item/material_sets/shiny/ingot_secondary",
+    "layer2": "create_expansion:item/material_sets/shiny/ingot_overlay",
+    "layer3": "create_expansion:item/material_sets/shiny/ingot_hot_overlay"
+  }
+}

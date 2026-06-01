@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/native_gold_tuff_ore"
+    }
+  }
+}
