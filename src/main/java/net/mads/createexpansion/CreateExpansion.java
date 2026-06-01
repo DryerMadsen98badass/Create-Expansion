@@ -11,6 +11,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.mads.createexpansion.commands.MyCommand;
+import net.mads.createexpansion.data.ModDataGenerators;
 
 @Mod("create_expansion")
 public class CreateExpansion {
@@ -21,12 +22,16 @@ public class CreateExpansion {
     public CreateExpansion(IEventBus modEventBus, ModContainer container) {
         this.container = container;
         // Register all registries
+        FluidRegistry.register(modEventBus);
         ItemRegistry.register(modEventBus);
         BlockRegistry.register(modEventBus);
         BlockEntityRegistry.register(modEventBus);
         CreativeTabRegistry.register(modEventBus);
+        WorldgenRegistry.register(modEventBus);
         
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(ModDataGenerators::gatherData);
+        modEventBus.addListener(FluidRegistry::registerCapabilities);
         
         NeoForge.EVENT_BUS.register(this);
     }
