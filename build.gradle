@@ -140,6 +140,7 @@ dependencies {
 
     // Optional integrations
     compileOnly ("curse.maven:jade-324717:${jade_version}")
+    implementation "maven.modrinth:fusion-connected-textures:${fusion_version}-neoforge-mc${minecraft_version}"
 
     // Ponder (Create's documentation/tutorial system)
     implementation "com.google.code.gson:gson:2.10.1"

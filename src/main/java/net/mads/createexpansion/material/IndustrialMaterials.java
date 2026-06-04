@@ -11,13 +11,6 @@ import java.util.Optional;
 import static net.mads.createexpansion.material.MaterialPart.*;
 
 public class IndustrialMaterials {
-    public static final IndustrialMaterial TEST = material("test", "Test Material", 0xFFFF00)
-            .allMetals()
-            .allGems()
-            .allMaterials()
-            .strength(2)
-            .meltingPoint(950)
-            .build();
 
     public static final IndustrialMaterial IRON = material("iron", "Iron", 0xD8D8D8)
             .element("Fe")
@@ -228,15 +221,8 @@ public class IndustrialMaterials {
             .allMaterials()
             .build();
 
-    public static final IndustrialMaterial ANDESITE_ALLOY = material("andesite_alloy", "Andesite Alloy", 0x8A8A78)
-            .strength(2)
-            .meltingPoint(1200)
-            .allMaterials()
-            .existing(INGOT, "create:andesite_alloy")
-            .existing(BLOCK, "create:andesite_alloy_block")
-            .build();
-
     public static final IndustrialMaterial DIAMOND = material("diamond", "Diamond", 0x5DECF5)
+            .strength(10)
             .contains(component(CARBON, 1))
             .allGems()
             .existing(ORE, "minecraft:diamond_ore")
@@ -523,6 +509,27 @@ public class IndustrialMaterials {
             .allGems()
             .build();
 
+    public static final IndustrialMaterial ANDESITE = material("andesite", "Andesite", 0xB8B8B8)
+            .contains(component(CALCIUM, 1), component(ALUMINUM, 2), component(SILICON, 2), component(OXYGEN, 8))
+            .parts(DUST)
+            .build();
+
+    public static final IndustrialMaterial ANDESITE_ALLOY = material("andesite_alloy", "Andesite Alloy", 0xB8B8B8)
+            .contains(component(ANDESITE, 9), component(IRON, 1))
+            .strength(2)
+            .meltingPoint(1200)
+            .allMaterials()
+            .existing(INGOT, "create:andesite_alloy")
+            .existing(BLOCK, "create:andesite_alloy_block")
+            .build();
+
+    public static final IndustrialMaterial WROUGH_IRON = material("wrough_iron", "Wrough Iron", 0x878787)
+            .contains(component(IRON, 1))
+            .strength(7)
+            .meltingPoint(1538)
+            .allMaterials()
+            .build();
+
     public static final List<IndustrialMaterial> PERIODIC_ELEMENTS = List.of(
             HYDROGEN,
             HELIUM,
@@ -646,8 +653,8 @@ public class IndustrialMaterials {
 
     public static final List<IndustrialMaterial> ALL = java.util.stream.Stream.concat(
             List.of(
-                    TEST,
                     BRONZE,
+                    WROUGH_IRON,
                     BRASS,
                     ELECTRUM,
                     ANDESITE_ALLOY,
@@ -732,7 +739,8 @@ public class IndustrialMaterials {
                     XENOTIME,
                     TOPAZ,
                     RUBY,
-                    SAPPHIRE
+                    SAPPHIRE,
+                    ANDESITE
             ).stream(),
             PERIODIC_ELEMENTS.stream()
     ).toList();
@@ -785,6 +793,7 @@ public class IndustrialMaterials {
         private String elementSymbol;
         private final List<MaterialComponent> components = new java.util.ArrayList<>();
         private final List<FormulaComponent> formulaComponents = new java.util.ArrayList<>();
+        private boolean strengthSet;
         private boolean meltingPointSet;
 
         private MaterialBuilder(String id, String displayName, int color) {
@@ -1001,6 +1010,7 @@ public class IndustrialMaterials {
             }
 
             this.strength = strength;
+            this.strengthSet = true;
             return this;
         }
 
@@ -1068,6 +1078,8 @@ public class IndustrialMaterials {
                     Map.copyOf(existingParts),
                     strength,
                     resolvedMeltingPoint(),
+                    strengthSet,
+                    meltingPointSet,
                     temperature,
                     radioactivity,
                     Optional.ofNullable(elementSymbol),
@@ -1105,6 +1117,8 @@ public class IndustrialMaterials {
                                         Map.of(),
                                         1,
                                         300,
+                                        false,
+                                        false,
                                         300,
                                         0,
                                         Optional.of(component.symbol()),

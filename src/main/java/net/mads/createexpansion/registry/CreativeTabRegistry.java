@@ -18,6 +18,9 @@ public class CreativeTabRegistry {
             .title(Component.translatable("itemGroup.create_expansion.industry"))
             .icon(() -> new ItemStack(ItemRegistry.getMaterialItem(IndustrialMaterials.BRONZE, MaterialPart.INGOT).get()))
             .displayItems((parameters, output) -> {
+                ItemRegistry.getAllMachineCasingItems().forEach(item -> output.accept(item.get()));
+                ItemRegistry.getAllMachinePortItems().forEach(item -> output.accept(item.get()));
+                ItemRegistry.getAllStaticMachinePortItems().forEach(item -> output.accept(item.get()));
             })
             .build());
 

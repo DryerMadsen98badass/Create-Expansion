@@ -67,3 +67,10 @@ type="optional"
 versionRange="[11.0,)"
 ordering="AFTER"
 side="CLIENT"
+
+[[dependencies.create_expansion]]
+modId="fusion"
+type="required"
+versionRange="[1.0.0,)"
+ordering="NONE"
+side="CLIENT"

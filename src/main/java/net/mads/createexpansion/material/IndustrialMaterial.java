@@ -17,17 +17,19 @@ public record IndustrialMaterial(
         Map<MaterialPart, ResourceLocation> existingParts,
         int strength,
         int meltingPoint,
+        boolean hasExplicitStrength,
+        boolean hasExplicitMeltingPoint,
         int temperature,
         int radioactivity,
         Optional<String> elementSymbol,
         List<MaterialComponent> components
 ) {
     public IndustrialMaterial(String id, String displayName, int color, Set<MaterialPart> parts) {
-        this(id, displayName, color, "dull", "dull", parts, Map.of(), 1, 300, 300, 0, Optional.empty(), List.of());
+        this(id, displayName, color, "dull", "dull", parts, Map.of(), 1, 300, false, false, 300, 0, Optional.empty(), List.of());
     }
 
     public IndustrialMaterial(String id, String displayName, int color, Set<MaterialPart> parts, Map<MaterialPart, ResourceLocation> existingParts) {
-        this(id, displayName, color, "dull", "dull", parts, existingParts, 1, 300, 300, 0, Optional.empty(), List.of());
+        this(id, displayName, color, "dull", "dull", parts, existingParts, 1, 300, false, false, 300, 0, Optional.empty(), List.of());
     }
 
     public boolean has(MaterialPart part) {

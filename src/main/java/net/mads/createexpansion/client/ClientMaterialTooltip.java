@@ -49,14 +49,19 @@ public final class ClientMaterialTooltip {
                 colored("State: ", 0xFF66CC)
                         .append(colored(materialState(material, target.part()), 0xFF66CC))
         );
-        tooltip.add(
-                colored("Strength: ", 0x2ECC40)
-                        .append(colored(Integer.toString(material.strength()), 0xFFFFFF))
-        );
-        tooltip.add(
-                colored("Melting Point: ", 0xFFD800)
-                        .append(colored(material.meltingPoint() + " C", 0xFF3333))
-        );
+        if (material.hasExplicitStrength()) {
+            tooltip.add(
+                    colored("Strength: ", 0x2ECC40)
+                            .append(colored(Integer.toString(material.strength()), 0xFFFFFF))
+            );
+        }
+
+        if (material.hasExplicitMeltingPoint()) {
+            tooltip.add(
+                    colored("Melting Point: ", 0xFFD800)
+                            .append(colored(material.meltingPoint() + " C", 0xFF3333))
+            );
+        }
         if (material.radioactivity() > 0) {
             tooltip.add(
                     colored("Radioactivity: ", 0xBFFF00)

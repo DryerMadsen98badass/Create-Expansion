@@ -35,7 +35,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     private static final double ORE_DENSITY_MULTIPLIER = 2.35D;
     private static final double HALO_DENSITY = 0.34D;
     private static final double HALO_EDGE_FADE_START = 0.70D;
-    private static final double SURFACE_INDICATOR_CHANCE = 0.82D;
+    private static final double SURFACE_INDICATOR_CHANCE = 1.0D;
 
     public OreDepositFeature(Codec<NoneFeatureConfiguration> codec) {
         super(codec);

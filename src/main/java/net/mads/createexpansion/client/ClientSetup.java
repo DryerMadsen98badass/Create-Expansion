@@ -3,6 +3,8 @@ package net.mads.createexpansion.client;
 import net.mads.createexpansion.material.MaterialBlock;
 import net.mads.createexpansion.material.MaterialItem;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.machine.MachineCasingBlock;
+import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.registry.FluidRegistry;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -11,7 +13,6 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.client.model.DynamicFluidContainerModel;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.registry.BlockRegistry;
 import net.mads.createexpansion.registry.ItemRegistry;
@@ -24,16 +25,20 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 public class ClientSetup {
 
     @SubscribeEvent
-    public static void onClientSetup(FMLClientSetupEvent event) {
-        // Client-side setup goes here
-    }
-
-    @SubscribeEvent
     public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
         Item[] materialItems = ItemRegistry.getAllMaterialItems().stream()
                 .map(item -> item.get())
                 .toArray(Item[]::new);
         Item[] fluidBuckets = FluidRegistry.getAllBucketItems().stream()
+                .map(item -> item.get())
+                .toArray(Item[]::new);
+        Item[] machineCasings = ItemRegistry.getAllMachineCasingItems().stream()
+                .map(item -> item.get())
+                .toArray(Item[]::new);
+        Item[] machinePorts = ItemRegistry.getAllMachinePortItems().stream()
+                .map(item -> item.get())
+                .toArray(Item[]::new);
+        Item[] staticMachinePorts = ItemRegistry.getAllStaticMachinePortItems().stream()
                 .map(item -> item.get())
                 .toArray(Item[]::new);
 
@@ -73,11 +78,44 @@ public class ClientSetup {
 
             return new DynamicFluidContainerModel.Colors().getColor(stack, tintIndex);
         }, fluidBuckets);
+
+        event.register((stack, tintIndex) -> {
+            if (tintIndex != 0) {
+                return -1;
+            }
+
+            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof MachineCasingBlock casing) {
+                return opaque(casing.tier().color());
+            }
+
+            return -1;
+        }, machineCasings);
+
+        event.register((stack, tintIndex) -> {
+            if (tintIndex != 0) {
+                return -1;
+            }
+
+            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof MachinePortBlock port && port.usesTint()) {
+                return opaque(port.tintColor());
+            }
+
+            return -1;
+        }, merge(machinePorts, staticMachinePorts));
     }
 
     @SubscribeEvent
     public static void registerBlockColors(RegisterColorHandlersEvent.Block event) {
         Block[] materialBlocks = BlockRegistry.getAllMaterialBlocks().stream()
+                .map(block -> block.get())
+                .toArray(Block[]::new);
+        Block[] machineCasings = BlockRegistry.getAllMachineCasings().stream()
+                .map(block -> block.get())
+                .toArray(Block[]::new);
+        Block[] machinePorts = BlockRegistry.getAllMachinePorts().stream()
+                .map(block -> block.get())
+                .toArray(Block[]::new);
+        Block[] staticMachinePorts = BlockRegistry.getAllStaticMachinePorts().stream()
                 .map(block -> block.get())
                 .toArray(Block[]::new);
 
@@ -92,6 +130,30 @@ public class ClientSetup {
 
             return -1;
         }, materialBlocks);
+
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex != 0) {
+                return -1;
+            }
+
+            if (state.getBlock() instanceof MachineCasingBlock casing) {
+                return opaque(casing.tier().color());
+            }
+
+            return -1;
+        }, machineCasings);
+
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex != 0) {
+                return -1;
+            }
+
+            if (state.getBlock() instanceof MachinePortBlock port && port.usesTint()) {
+                return opaque(port.tintColor());
+            }
+
+            return -1;
+        }, merge(machinePorts, staticMachinePorts));
     }
 
     @SubscribeEvent
@@ -122,6 +184,20 @@ public class ClientSetup {
 
     private static int opaque(int color) {
         return 0xFF000000 | color;
+    }
+
+    private static Item[] merge(Item[] first, Item[] second) {
+        Item[] merged = new Item[first.length + second.length];
+        System.arraycopy(first, 0, merged, 0, first.length);
+        System.arraycopy(second, 0, merged, first.length, second.length);
+        return merged;
+    }
+
+    private static Block[] merge(Block[] first, Block[] second) {
+        Block[] merged = new Block[first.length + second.length];
+        System.arraycopy(first, 0, merged, 0, first.length);
+        System.arraycopy(second, 0, merged, first.length, second.length);
+        return merged;
     }
 
     private static boolean usesDarkerCastTint(MaterialPart part) {
