@@ -47,14 +47,21 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
         BlockPos origin = context.origin();
         int chunkX = Math.floorDiv(origin.getX(), CHUNK_SIZE);
         int chunkZ = Math.floorDiv(origin.getZ(), CHUNK_SIZE);
-        boolean placed = generateVillageBonusDeposits(level, chunkX, chunkZ);
-        GridDeposit gridDeposit = resolveGridDeposit(level, chunkX, chunkZ);
 
-        if (gridDeposit == null || !gridDeposit.contains(chunkX, chunkZ)) {
-            return placed;
+        try {
+            boolean placed = generateVillageBonusDeposits(level, chunkX, chunkZ);
+            GridDeposit gridDeposit = resolveGridDeposit(level, chunkX, chunkZ);
+
+            if (gridDeposit == null || !gridDeposit.contains(chunkX, chunkZ)) {
+                return placed;
+            }
+
+            return generateChunkDeposit(level, chunkX, chunkZ, gridDeposit) || placed;
+        } catch (Exception e) {
+            net.mads.createexpansion.CreateExpansion.LOGGER.error(
+                    "Failed to generate ore deposit at chunk [{}, {}]", chunkX, chunkZ, e);
+            return false;
         }
-
-        return generateChunkDeposit(level, chunkX, chunkZ, gridDeposit) || placed;
     }
 
     private static GridDeposit resolveGridDeposit(WorldGenLevel level, int chunkX, int chunkZ) {

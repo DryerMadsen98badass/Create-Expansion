@@ -1,5 +1,6 @@
 package net.mads.createexpansion.worldgen;
 
+import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.MaterialPart;
 import net.mads.createexpansion.registry.BlockRegistry;
@@ -50,6 +51,8 @@ final class OreDepositLayer {
         if (material.hasExistingPart(part)) {
             Block block = BuiltInRegistries.BLOCK.get(material.existingPart(part));
             if (block == Blocks.AIR) {
+                CreateExpansion.LOGGER.warn("Existing part {} for material '{}' resolved to air — check resource location '{}'",
+                        part, material.id(), material.existingPart(part));
                 return Optional.empty();
             }
 

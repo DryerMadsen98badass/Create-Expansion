@@ -17,6 +17,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.List;
+import java.util.Optional;
 
 @EventBusSubscriber(modid = CreateExpansion.MOD_ID, value = Dist.CLIENT)
 public final class ClientMaterialTooltip {
@@ -30,20 +31,14 @@ public final class ClientMaterialTooltip {
             return;
         }
 
-        MaterialLookup.MaterialTarget target = MaterialLookup.find(event.getItemStack());
-        if (target == null) {
-            return;
-        }
-
-        addMaterialTooltipLines(event.getToolTip(), target);
+        MaterialLookup.find(event.getItemStack()).ifPresent(target ->
+                addMaterialTooltipLines(event.getToolTip(), target)
+        );
     }
 
     public static void addMaterialTooltipLines(List<Component> tooltip, MaterialLookup.MaterialTarget target) {
         IndustrialMaterial material = target.material();
-        Component formula = formulaLine(material);
-        if (formula != null) {
-            tooltip.add(formula);
-        }
+        formulaLine(material).ifPresent(tooltip::add);
 
         tooltip.add(
                 colored("State: ", 0xFF66CC)
@@ -77,15 +72,17 @@ public final class ClientMaterialTooltip {
         }
     }
 
-    private static Component formulaLine(IndustrialMaterial material) {
+    private static Optional<Component> formulaLine(IndustrialMaterial material) {
         MutableComponent formula = formulaComponent(material, false);
         if (formula == null) {
-            return null;
+            return Optional.empty();
         }
 
-        return Component.literal("Formula: ")
-                .withStyle(ChatFormatting.BLUE)
-                .append(formula);
+        return Optional.of(
+                Component.literal("Formula: ")
+                        .withStyle(ChatFormatting.BLUE)
+                        .append(formula)
+        );
     }
 
     private static MutableComponent formulaComponent(IndustrialMaterial material, boolean nested) {

@@ -67,7 +67,17 @@ public class BlockRegistry {
     }
 
     public static DeferredHolder<Block, ? extends Block> getMaterialBlock(IndustrialMaterial material, MaterialPart part) {
-        return MATERIAL_BLOCKS.get(material.id()).get(part);
+        Map<MaterialPart, DeferredHolder<Block, ? extends Block>> blocks = MATERIAL_BLOCKS.get(material.id());
+        if (blocks == null) {
+            throw new IllegalStateException("No blocks registered for material '" + material.id() + "'");
+        }
+
+        DeferredHolder<Block, ? extends Block> holder = blocks.get(part);
+        if (holder == null) {
+            throw new IllegalStateException("No block registered for material '" + material.id() + "' part '" + part + "'");
+        }
+
+        return holder;
     }
 
     public static Collection<DeferredHolder<Block, ? extends Block>> getAllMaterialBlocks() {

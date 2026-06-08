@@ -41,7 +41,12 @@ public record IndustrialMaterial(
     }
 
     public ResourceLocation existingPart(MaterialPart part) {
-        return existingParts.get(part);
+        ResourceLocation location = existingParts.get(part);
+        if (location == null) {
+            throw new IllegalArgumentException("Material '" + id + "' has no existing part mapping for " + part);
+        }
+
+        return location;
     }
 
     public int castTemperature() {

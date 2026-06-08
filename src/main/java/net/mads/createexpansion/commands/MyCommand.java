@@ -47,7 +47,16 @@ public class MyCommand {
 
     private static int locateOreVein(CommandSourceStack source, String target) {
         BlockPos origin = BlockPos.containing(source.getPosition());
-        Optional<OreVeinLocator.Result> result = OreVeinLocator.locate(source.getLevel(), origin, target);
+
+        Optional<OreVeinLocator.Result> result;
+        try {
+            result = OreVeinLocator.locate(source.getLevel(), origin, target);
+        } catch (Exception e) {
+            net.mads.createexpansion.CreateExpansion.LOGGER.error("Error locating ore vein '{}'", target, e);
+            source.sendFailure(Component.literal("An error occurred while searching for '" + target + "'."));
+            return 0;
+        }
+
         if (result.isEmpty()) {
             source.sendFailure(Component.literal("No ore vein found for '" + target + "' nearby."));
             return 0;
