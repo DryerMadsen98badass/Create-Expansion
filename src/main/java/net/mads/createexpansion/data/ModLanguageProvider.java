@@ -8,6 +8,7 @@ import net.mads.createexpansion.machine.MachineDefinition;
 import net.mads.createexpansion.machine.MachinePortType;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.StaticMachinePortType;
+import net.mads.createexpansion.multiblock.MultiblockDefinitions;
 import net.mads.createexpansion.registry.FluidRegistry;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.minecraft.data.PackOutput;
@@ -22,6 +23,8 @@ public class ModLanguageProvider extends LanguageProvider {
         add("itemGroup.create_expansion", "Create Expansion");
         add("itemGroup.create_expansion.industry", "Create Expansion: Industry");
         add("itemGroup.create_expansion.materials", "Create Expansion: Materials");
+        MultiblockDefinitions.controllers().forEach(controller ->
+                add("block." + CreateExpansion.MOD_ID + "." + controller.registryName(), controller.displayName()));
         for (MachineTier tier : MachineTier.ALL) {
             add("block." + CreateExpansion.MOD_ID + "." + tier.casingRegistryName(), tier.casingDisplayName());
             for (MachinePortType portType : MachinePortType.ALL) {

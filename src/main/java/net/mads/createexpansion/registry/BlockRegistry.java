@@ -10,6 +10,9 @@ import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialBlock;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.multiblock.MultiblockDefinitions;
+import net.mads.createexpansion.multiblock.MultiblockControllerBlock;
+import net.mads.createexpansion.multiblock.MultiblockControllerDefinition;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;
@@ -25,9 +28,14 @@ public class BlockRegistry {
     public static final Map<String, DeferredHolder<Block, MachineCasingBlock>> MACHINE_CASINGS = new LinkedHashMap<>();
     public static final Map<String, Map<MachinePortType, DeferredHolder<Block, MachinePortBlock>>> MACHINE_PORTS = new LinkedHashMap<>();
     public static final Map<StaticMachinePortType, DeferredHolder<Block, MachinePortBlock>> STATIC_MACHINE_PORTS = new LinkedHashMap<>();
+    public static final Map<String, DeferredHolder<Block, MultiblockControllerBlock>> MULTIBLOCK_CONTROLLERS = new LinkedHashMap<>();
     public static final Map<String, Map<MaterialPart, DeferredHolder<Block, ? extends Block>>> MATERIAL_BLOCKS = new LinkedHashMap<>();
 
     static {
+        for (MultiblockControllerDefinition controller : MultiblockDefinitions.controllers()) {
+            MULTIBLOCK_CONTROLLERS.put(controller.registryName(), BLOCKS.register(controller.registryName(), () -> new MultiblockControllerBlock(controller)));
+        }
+
         for (MachineTier tier : MachineTier.ALL) {
             MACHINE_CASINGS.put(tier.id(), BLOCKS.register(tier.casingRegistryName(), () -> new MachineCasingBlock(tier)));
 
@@ -88,5 +96,9 @@ public class BlockRegistry {
 
     public static Collection<DeferredHolder<Block, MachinePortBlock>> getAllStaticMachinePorts() {
         return STATIC_MACHINE_PORTS.values();
+    }
+
+    public static Collection<DeferredHolder<Block, MultiblockControllerBlock>> getAllMultiblockControllers() {
+        return MULTIBLOCK_CONTROLLERS.values();
     }
 }

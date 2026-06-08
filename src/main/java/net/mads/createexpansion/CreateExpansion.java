@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.mads.createexpansion.commands.MyCommand;
 import net.mads.createexpansion.data.ModDataGenerators;
+import net.mads.createexpansion.multiblock.MultiblockDefinitions;
 
 @Mod("create_expansion")
 public class CreateExpansion {
@@ -26,18 +27,22 @@ public class CreateExpansion {
         ItemRegistry.register(modEventBus);
         BlockRegistry.register(modEventBus);
         BlockEntityRegistry.register(modEventBus);
+        MenuRegistry.register(modEventBus);
+        RecipeRegistry.register(modEventBus);
         CreativeTabRegistry.register(modEventBus);
         WorldgenRegistry.register(modEventBus);
         
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(ModDataGenerators::gatherData);
         modEventBus.addListener(FluidRegistry::registerCapabilities);
+        modEventBus.addListener(BlockEntityRegistry::registerCapabilities);
         
         NeoForge.EVENT_BUS.register(this);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("Create Expansion is loading!");
+        MultiblockDefinitions.bootstrap();
     }
 
 

@@ -1,15 +1,23 @@
 package net.mads.createexpansion.client;
 
+import net.mads.createexpansion.client.screen.MachinePortScreen;
+import net.mads.createexpansion.client.screen.MultiblockControllerScreen;
 import net.mads.createexpansion.material.MaterialBlock;
 import net.mads.createexpansion.material.MaterialItem;
 import net.mads.createexpansion.material.MaterialPart;
 import net.mads.createexpansion.machine.MachineCasingBlock;
 import net.mads.createexpansion.machine.MachinePortBlock;
+import net.mads.createexpansion.machine.MachinePortBlockEntity;
+import net.mads.createexpansion.multiblock.MultiblockControllerBlock;
 import net.mads.createexpansion.registry.FluidRegistry;
+import net.mads.createexpansion.registry.MenuRegistry;
+import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.model.DynamicFluidContainerModel;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -17,12 +25,18 @@ import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.registry.BlockRegistry;
 import net.mads.createexpansion.registry.ItemRegistry;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
 @EventBusSubscriber(modid = CreateExpansion.MOD_ID, value = Dist.CLIENT, bus = Bus.MOD)
 public class ClientSetup {
+
+    @SubscribeEvent
+    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(BlockEntityRegistry.MACHINE_PORT.get(), MachinePortOverlayRenderer::new);
+    }
 
     @SubscribeEvent
     public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
@@ -39,6 +53,9 @@ public class ClientSetup {
                 .map(item -> item.get())
                 .toArray(Item[]::new);
         Item[] staticMachinePorts = ItemRegistry.getAllStaticMachinePortItems().stream()
+                .map(item -> item.get())
+                .toArray(Item[]::new);
+        Item[] multiblockControllers = ItemRegistry.getAllMultiblockControllerItems().stream()
                 .map(item -> item.get())
                 .toArray(Item[]::new);
 
@@ -92,16 +109,29 @@ public class ClientSetup {
         }, machineCasings);
 
         event.register((stack, tintIndex) -> {
-            if (tintIndex != 0) {
-                return -1;
-            }
-
-            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof MachinePortBlock port && port.usesTint()) {
-                return opaque(port.tintColor());
+            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof MachinePortBlock port) {
+                if (tintIndex == 0 && port.usesTint()) {
+                    return opaque(port.tintColor());
+                }
+                if (tintIndex == 1 && port.hasTier() && portColorable(port)) {
+                    return dyeColor(DyeColor.GRAY);
+                }
             }
 
             return -1;
         }, merge(machinePorts, staticMachinePorts));
+
+        event.register((stack, tintIndex) -> {
+            if (tintIndex != 0) {
+                return -1;
+            }
+
+            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof MultiblockControllerBlock controller && controller.usesTint()) {
+                return opaque(controller.tintColor());
+            }
+
+            return -1;
+        }, multiblockControllers);
     }
 
     @SubscribeEvent
@@ -116,6 +146,9 @@ public class ClientSetup {
                 .map(block -> block.get())
                 .toArray(Block[]::new);
         Block[] staticMachinePorts = BlockRegistry.getAllStaticMachinePorts().stream()
+                .map(block -> block.get())
+                .toArray(Block[]::new);
+        Block[] multiblockControllers = BlockRegistry.getAllMultiblockControllers().stream()
                 .map(block -> block.get())
                 .toArray(Block[]::new);
 
@@ -144,16 +177,29 @@ public class ClientSetup {
         }, machineCasings);
 
         event.register((state, level, pos, tintIndex) -> {
-            if (tintIndex != 0) {
-                return -1;
-            }
-
-            if (state.getBlock() instanceof MachinePortBlock port && port.usesTint()) {
-                return opaque(port.tintColor());
+            if (state.getBlock() instanceof MachinePortBlock port) {
+                if (tintIndex == 0 && port.usesTint()) {
+                    return opaque(port.tintColor());
+                }
+                if (tintIndex == 1 && port.hasTier() && level != null && pos != null && level.getBlockEntity(pos) instanceof MachinePortBlockEntity portEntity && portEntity.supportsIoColor()) {
+                    return dyeColor(portEntity.ioColor());
+                }
             }
 
             return -1;
         }, merge(machinePorts, staticMachinePorts));
+
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex != 0) {
+                return -1;
+            }
+
+            if (state.getBlock() instanceof MultiblockControllerBlock controller && controller.usesTint()) {
+                return opaque(controller.tintColor());
+            }
+
+            return -1;
+        }, multiblockControllers);
     }
 
     @SubscribeEvent
@@ -176,6 +222,12 @@ public class ClientSetup {
                 }
             }, fluid.type());
         }
+    }
+
+    @SubscribeEvent
+    public static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(MenuRegistry.MACHINE_PORT.get(), MachinePortScreen::new);
+        event.register(MenuRegistry.MULTIBLOCK_CONTROLLER.get(), MultiblockControllerScreen::new);
     }
 
     private static boolean isMaterialTintLayer(int tintIndex) {
@@ -242,5 +294,34 @@ public class ClientSetup {
         int green = (int) (((color >> 8) & 0xFF) * multiplier);
         int blue = (int) ((color & 0xFF) * multiplier);
         return (red << 16) | (green << 8) | blue;
+    }
+
+    private static boolean portColorable(MachinePortBlock port) {
+        return port.abilities().contains(net.mads.createexpansion.multiblock.MultiblockAbility.ITEM_INPUT)
+                || port.abilities().contains(net.mads.createexpansion.multiblock.MultiblockAbility.ITEM_OUTPUT)
+                || port.abilities().contains(net.mads.createexpansion.multiblock.MultiblockAbility.FLUID_INPUT)
+                || port.abilities().contains(net.mads.createexpansion.multiblock.MultiblockAbility.FLUID_OUTPUT)
+                || port.abilities().contains(net.mads.createexpansion.multiblock.MultiblockAbility.IO_INTERFACE);
+    }
+
+    private static int dyeColor(DyeColor color) {
+        return switch (color) {
+            case WHITE -> 0xFFF9FFFE;
+            case ORANGE -> 0xFFF9801D;
+            case MAGENTA -> 0xFFC74EBD;
+            case LIGHT_BLUE -> 0xFF3AB3DA;
+            case YELLOW -> 0xFFFED83D;
+            case LIME -> 0xFF80C71F;
+            case PINK -> 0xFFF38BAA;
+            case GRAY -> 0xFF474F52;
+            case LIGHT_GRAY -> 0xFF9D9D97;
+            case CYAN -> 0xFF169C9C;
+            case PURPLE -> 0xFF8932B8;
+            case BLUE -> 0xFF3C44AA;
+            case BROWN -> 0xFF835432;
+            case GREEN -> 0xFF5E7C16;
+            case RED -> 0xFFB02E26;
+            case BLACK -> 0xFF1D1D21;
+        };
     }
 }

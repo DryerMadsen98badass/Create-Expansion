@@ -7,6 +7,8 @@ import net.mads.createexpansion.material.MaterialPart;
 import net.mads.createexpansion.machine.MachinePortType;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.StaticMachinePortType;
+import net.mads.createexpansion.multiblock.MultiblockDefinitions;
+import net.mads.createexpansion.multiblock.MultiblockControllerDefinition;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -24,9 +26,15 @@ public class ItemRegistry {
     public static final Map<String, DeferredHolder<Item, BlockItem>> MACHINE_CASINGS = new LinkedHashMap<>();
     public static final Map<String, Map<MachinePortType, DeferredHolder<Item, BlockItem>>> MACHINE_PORTS = new LinkedHashMap<>();
     public static final Map<StaticMachinePortType, DeferredHolder<Item, BlockItem>> STATIC_MACHINE_PORTS = new LinkedHashMap<>();
+    public static final Map<String, DeferredHolder<Item, BlockItem>> MULTIBLOCK_CONTROLLERS = new LinkedHashMap<>();
     public static final Map<String, Map<MaterialPart, DeferredHolder<Item, ? extends Item>>> MATERIAL_ITEMS = new LinkedHashMap<>();
 
     static {
+        for (MultiblockControllerDefinition controller : MultiblockDefinitions.controllers()) {
+            MULTIBLOCK_CONTROLLERS.put(controller.registryName(), ITEMS.register(controller.registryName(), () ->
+                    new BlockItem(BlockRegistry.MULTIBLOCK_CONTROLLERS.get(controller.registryName()).get(), new Item.Properties())));
+        }
+
         for (MachineTier tier : MachineTier.ALL) {
             MACHINE_CASINGS.put(tier.id(), ITEMS.register(tier.casingRegistryName(), () ->
                     new BlockItem(BlockRegistry.MACHINE_CASINGS.get(tier.id()).get(), new Item.Properties())));
@@ -98,5 +106,9 @@ public class ItemRegistry {
 
     public static Collection<DeferredHolder<Item, BlockItem>> getAllStaticMachinePortItems() {
         return STATIC_MACHINE_PORTS.values();
+    }
+
+    public static Collection<DeferredHolder<Item, BlockItem>> getAllMultiblockControllerItems() {
+        return MULTIBLOCK_CONTROLLERS.values();
     }
 }

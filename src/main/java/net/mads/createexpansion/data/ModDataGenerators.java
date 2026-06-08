@@ -9,6 +9,7 @@ public class ModDataGenerators {
     public static void gatherData(GatherDataEvent event) {
         if (event.includeServer()) {
             event.addProvider(new MaterialBlockTagProvider(event.getGenerator().getPackOutput(), event.getLookupProvider(), event.getExistingFileHelper()));
+            event.addProvider(new CERecipeProvider(event.getGenerator().getPackOutput(), event.getLookupProvider()));
         }
 
         if (event.includeClient()) {
