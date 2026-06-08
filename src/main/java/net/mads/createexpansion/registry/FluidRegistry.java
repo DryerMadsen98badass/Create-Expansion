@@ -8,6 +8,7 @@ import net.mads.createexpansion.fluid.NonPlaceableBucketItem;
 import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.material.MaterialProperties;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -99,7 +100,7 @@ public class FluidRegistry {
     }
 
     private static IndustrialFluid materialFluid(IndustrialMaterial material) {
-        if (isGasAtRoomTemperature(material)) {
+        if (MaterialProperties.isGasAtRoomTemperature(material)) {
             return IndustrialFluids.gas(material.id(), material.displayName(), material.color())
                     .temperature(300)
                     .build();
@@ -112,24 +113,6 @@ public class FluidRegistry {
         }
 
         return IndustrialFluids.molten(material.id(), material.displayName(), material.color(), material.meltingPoint()).build();
-    }
-
-    private static boolean isGasAtRoomTemperature(IndustrialMaterial material) {
-        return switch (material.id()) {
-            case "hydrogen",
-                 "helium",
-                 "nitrogen",
-                 "oxygen",
-                 "fluorine",
-                 "neon",
-                 "chlorine",
-                 "argon",
-                 "krypton",
-                 "xenon",
-                 "radon",
-                 "oganesson" -> true;
-            default -> false;
-        };
     }
 
     public record RegisteredFluid(

@@ -60,7 +60,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     private static GridDeposit resolveGridDeposit(WorldGenLevel level, int chunkX, int chunkZ) {
         int gridX = Math.floorDiv(chunkX, OreDepositDefinitions.GRID_SIZE_CHUNKS);
         int gridZ = Math.floorDiv(chunkZ, OreDepositDefinitions.GRID_SIZE_CHUNKS);
-        long gridSeed = mixedSeed(level.getSeed(), gridX, gridZ, 0x5349A85D);
+        long gridSeed = OreDepositUtils.mixedSeed(level.getSeed(), gridX, gridZ, 0x5349A85D);
         RandomSource layoutRandom = RandomSource.create(gridSeed);
         int maxOffset = OreDepositDefinitions.GRID_SIZE_CHUNKS - OreDepositDefinitions.DEPOSIT_SIZE_CHUNKS;
         int startChunkX = gridX * OreDepositDefinitions.GRID_SIZE_CHUNKS + layoutRandom.nextInt(maxOffset + 1);
@@ -89,14 +89,14 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
 
         int totalWeight = candidates.stream().mapToInt(OreDeposit::weight).sum();
         int spawnChance = Math.min(totalWeight, OreDepositDefinitions.CHANCE_SCALE);
-        RandomSource chanceRandom = RandomSource.create(mixedSeed(level.getSeed(), gridX, gridZ, 0x29C9D35F));
+        RandomSource chanceRandom = RandomSource.create(OreDepositUtils.mixedSeed(level.getSeed(), gridX, gridZ, 0x29C9D35F));
         if (chanceRandom.nextInt(OreDepositDefinitions.CHANCE_SCALE) >= spawnChance) {
             return null;
         }
 
-        RandomSource pickRandom = RandomSource.create(mixedSeed(level.getSeed(), gridX, gridZ, 0x713F4A7B));
-        OreDeposit deposit = pickDeposit(candidates, pickRandom.nextInt(totalWeight));
-        RandomSource heightRandom = RandomSource.create(mixedSeed(level.getSeed(), gridX, gridZ, deposit.id().hashCode()));
+        RandomSource pickRandom = RandomSource.create(OreDepositUtils.mixedSeed(level.getSeed(), gridX, gridZ, 0x713F4A7B));
+        OreDeposit deposit = OreDepositUtils.pickDeposit(candidates, pickRandom.nextInt(totalWeight));
+        RandomSource heightRandom = RandomSource.create(OreDepositUtils.mixedSeed(level.getSeed(), gridX, gridZ, deposit.id().hashCode()));
         int centerY = OreDepositPlacement.chooseCenterY(level, deposit, centerX, centerZ, heightRandom);
 
         return new GridDeposit(deposit, startChunkX, startChunkZ, centerX, centerY, centerZ, gridSeed, true);
@@ -116,18 +116,6 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
         if (!biomes.contains(biome)) {
             biomes.add(biome);
         }
-    }
-
-    private static OreDeposit pickDeposit(List<OreDeposit> candidates, int roll) {
-        int cursor = roll;
-        for (OreDeposit deposit : candidates) {
-            cursor -= deposit.weight();
-            if (cursor < 0) {
-                return deposit;
-            }
-        }
-
-        return candidates.get(candidates.size() - 1);
     }
 
     private static boolean generateChunkDeposit(WorldGenLevel level, int chunkX, int chunkZ, GridDeposit gridDeposit) {
@@ -155,7 +143,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
                         continue;
                     }
 
-                    double shapeNoise = randomUnit(mixedSeed(gridDeposit.seed(), x, z, y)) * 0.35D - 0.12D;
+                    double shapeNoise = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), x, z, y)) * 0.35D - 0.12D;
                     if (distance + shapeNoise > 1.0D) {
                         continue;
                     }
@@ -168,7 +156,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
                     }
 
                     double density = Math.min(0.92D, deposit.density() * ORE_DENSITY_MULTIPLIER) * Math.max(0.38D, 1.25D - distance);
-                    if (randomUnit(mixedSeed(gridDeposit.seed(), x, y, z + 0x51D)) > density) {
+                    if (OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), x, y, z + 0x51D)) > density) {
                         continue;
                     }
 
@@ -203,7 +191,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
             return false;
         }
 
-        if (randomUnit(mixedSeed(gridDeposit.seed(), gridDeposit.centerX(), gridDeposit.centerZ(), 0x5F2A19C7)) > SURFACE_INDICATOR_CHANCE) {
+        if (OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), gridDeposit.centerX(), gridDeposit.centerZ(), 0x5F2A19C7)) > SURFACE_INDICATOR_CHANCE) {
             return false;
         }
 
@@ -222,7 +210,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
 
     private static SurfaceIndicator pickSurfaceIndicator(OreDeposit deposit, long seed) {
         int totalWeight = deposit.surfaceIndicators().stream().mapToInt(SurfaceIndicator::weight).sum();
-        int roll = (int) (randomUnit(mixedSeed(seed, deposit.id().hashCode(), totalWeight, 0x43B7E21D)) * totalWeight);
+        int roll = (int) (OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, deposit.id().hashCode(), totalWeight, 0x43B7E21D)) * totalWeight);
         int cursor = roll;
 
         for (SurfaceIndicator indicator : deposit.surfaceIndicators()) {
@@ -258,7 +246,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
                 double distance = Math.sqrt(dx * dx + dz * dz) / radius;
-                double noise = randomUnit(mixedSeed(gridDeposit.seed(), dx, dz, 0x1A7A)) * 0.35D - 0.12D;
+                double noise = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), dx, dz, 0x1A7A)) * 0.35D - 0.12D;
                 if (distance + noise > 1.0D) {
                     continue;
                 }
@@ -291,11 +279,11 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
 
     private static boolean placeCrystalSpot(WorldGenLevel level, GridDeposit gridDeposit) {
         boolean placed = placeGroundPatch(level, gridDeposit, 4, 0xC257A1, (seed, x, z) -> crystalGroundBlock(seed, x, z));
-        int crystals = 2 + (int) (randomUnit(mixedSeed(gridDeposit.seed(), 0xAC, 0xDC, 0x11)) * 3.0D);
+        int crystals = 2 + (int) (OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), 0xAC, 0xDC, 0x11)) * 3.0D);
 
         for (int i = 0; i < crystals; i++) {
-            int dx = (int) Math.floor(randomUnit(mixedSeed(gridDeposit.seed(), i, 0xCA1, 0xA)) * 7.0D) - 3;
-            int dz = (int) Math.floor(randomUnit(mixedSeed(gridDeposit.seed(), i, 0xCA1, 0xB)) * 7.0D) - 3;
+            int dx = (int) Math.floor(OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), i, 0xCA1, 0xA)) * 7.0D) - 3;
+            int dz = (int) Math.floor(OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), i, 0xCA1, 0xB)) * 7.0D) - 3;
             BlockPos ground = findSurfaceGround(level, gridDeposit.centerX() + dx, gridDeposit.centerZ() + dz);
             if (ground == null) {
                 continue;
@@ -323,7 +311,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
                     continue;
                 }
 
-                if (randomUnit(mixedSeed(gridDeposit.seed(), dx, dz, 0xB05)) > 0.28D) {
+                if (OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), dx, dz, 0xB05)) > 0.28D) {
                     continue;
                 }
 
@@ -345,17 +333,17 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
 
     private static boolean placeBoulderCluster(WorldGenLevel level, GridDeposit gridDeposit) {
         boolean placed = false;
-        int boulders = 5 + (int) (randomUnit(mixedSeed(gridDeposit.seed(), 0xB0, 0x1D, 0xE2)) * 5.0D);
+        int boulders = 5 + (int) (OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), 0xB0, 0x1D, 0xE2)) * 5.0D);
 
         for (int i = 0; i < boulders; i++) {
-            int dx = (int) Math.floor(randomUnit(mixedSeed(gridDeposit.seed(), i, 0xB01, 0xA)) * 9.0D) - 4;
-            int dz = (int) Math.floor(randomUnit(mixedSeed(gridDeposit.seed(), i, 0xB01, 0xB)) * 9.0D) - 4;
+            int dx = (int) Math.floor(OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), i, 0xB01, 0xA)) * 9.0D) - 4;
+            int dz = (int) Math.floor(OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), i, 0xB01, 0xB)) * 9.0D) - 4;
             BlockPos ground = findSurfaceGround(level, gridDeposit.centerX() + dx, gridDeposit.centerZ() + dz);
             if (ground == null) {
                 continue;
             }
 
-            int height = 1 + (int) (randomUnit(mixedSeed(gridDeposit.seed(), i, dx, dz)) * 3.0D);
+            int height = 1 + (int) (OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(gridDeposit.seed(), i, dx, dz)) * 3.0D);
             for (int y = 1; y <= height; y++) {
                 BlockPos pos = ground.above(y);
                 if (!level.getBlockState(pos).isAir() || !level.ensureCanWrite(pos)) {
@@ -396,7 +384,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
 
     private static boolean insideSurfacePatch(long seed, int dx, int dz, int radius, int salt) {
         double distance = Math.sqrt(dx * dx + dz * dz) / radius;
-        double noise = randomUnit(mixedSeed(seed, dx, dz, salt)) * 0.45D - 0.16D;
+        double noise = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, dx, dz, salt)) * 0.45D - 0.16D;
         return distance + noise <= 1.0D;
     }
 
@@ -463,7 +451,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static BlockState stoneSpotBlock(long seed, int x, int z) {
-        double roll = randomUnit(mixedSeed(seed, x, z, 0x570));
+        double roll = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, x, z, 0x570));
         if (roll < 0.28D) {
             return Blocks.TUFF.defaultBlockState();
         }
@@ -484,7 +472,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static BlockState deadSoilBlock(long seed, int x, int z) {
-        double roll = randomUnit(mixedSeed(seed, x, z, 0xD1E7));
+        double roll = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, x, z, 0xD1E7));
         if (roll < 0.45D) {
             return Blocks.COARSE_DIRT.defaultBlockState();
         }
@@ -497,7 +485,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static BlockState gravelPatchBlock(long seed, int x, int z) {
-        double roll = randomUnit(mixedSeed(seed, x, z, 0x67A));
+        double roll = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, x, z, 0x67A));
         if (roll < 0.65D) {
             return Blocks.GRAVEL.defaultBlockState();
         }
@@ -510,7 +498,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static BlockState crackedGroundBlock(long seed, int x, int z) {
-        double roll = randomUnit(mixedSeed(seed, x, z, 0xC2A));
+        double roll = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, x, z, 0xC2A));
         if (roll < 0.12D) {
             return Blocks.MAGMA_BLOCK.defaultBlockState();
         }
@@ -527,7 +515,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static BlockState crystalGroundBlock(long seed, int x, int z) {
-        double roll = randomUnit(mixedSeed(seed, x, z, 0xC457A1));
+        double roll = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, x, z, 0xC457A1));
         if (roll < 0.55D) {
             return Blocks.CALCITE.defaultBlockState();
         }
@@ -540,7 +528,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static BlockState lavaRimBlock(long seed, int x, int z) {
-        double roll = randomUnit(mixedSeed(seed, x, z, 0x1A7A));
+        double roll = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, x, z, 0x1A7A));
         if (roll < 0.12D) {
             return Blocks.MAGMA_BLOCK.defaultBlockState();
         }
@@ -557,7 +545,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static BlockState boulderBlock(long seed, int index, int y) {
-        double roll = randomUnit(mixedSeed(seed, index, y, 0xB01D));
+        double roll = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, index, y, 0xB01D));
         if (roll < 0.35D) {
             return Blocks.TUFF.defaultBlockState();
         }
@@ -591,7 +579,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
                 ? Math.max(0.0D, 1.0D - (distance - HALO_EDGE_FADE_START) / (1.0D - HALO_EDGE_FADE_START))
                 : 1.0D;
         double chance = HALO_DENSITY * Math.max(0.35D, edgeFade);
-        if (randomUnit(mixedSeed(seed, x, z, y + 0x42B)) > chance) {
+        if (OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, x, z, y + 0x42B)) > chance) {
             return false;
         }
 
@@ -611,7 +599,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static BlockState indicatorRockFor(long seed, int x, int y, int z) {
-        double roll = randomUnit(mixedSeed(seed, x + 0x2D7, y, z));
+        double roll = OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, x + 0x2D7, y, z));
         if (roll < 0.34D) {
             return Blocks.TUFF.defaultBlockState();
         }
@@ -658,7 +646,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
         BoundingBox box = start.getBoundingBox();
         BlockPos center = box.getCenter();
         ChunkPos centerChunk = new ChunkPos(center);
-        long seed = mixedSeed(level.getSeed(), start.getChunkPos().x, start.getChunkPos().z, 0x612E3A1D);
+        long seed = OreDepositUtils.mixedSeed(level.getSeed(), start.getChunkPos().x, start.getChunkPos().z, 0x612E3A1D);
         RandomSource random = RandomSource.create(seed);
         OreDeposit deposit = OreDepositDefinitions.VILLAGE_BONUS.get(random.nextInt(OreDepositDefinitions.VILLAGE_BONUS.size()));
         int minY = Math.max(level.getMinBuildHeight(), deposit.minY());
@@ -726,7 +714,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static OreDepositLayer pickLayer(OreDeposit deposit, int x, int y, int z, long seed) {
-        int roll = (int) (randomUnit(mixedSeed(seed, x, y, z)) * deposit.layerWeight());
+        int roll = (int) (OreDepositUtils.randomUnit(OreDepositUtils.mixedSeed(seed, x, y, z)) * deposit.layerWeight());
         int cursor = roll;
 
         for (OreDepositLayer layer : deposit.layers()) {
@@ -737,27 +725,6 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
         }
 
         return deposit.layers().get(deposit.layers().size() - 1);
-    }
-
-    private static long mixedSeed(long seed, int a, int b, int c) {
-        long value = seed;
-        value ^= (long) a * 0x9E3779B97F4A7C15L;
-        value ^= (long) b * 0xC2B2AE3D27D4EB4FL;
-        value ^= (long) c * 0x165667B19E3779F9L;
-        return mix(value);
-    }
-
-    private static long mix(long value) {
-        value ^= value >>> 33;
-        value *= 0xff51afd7ed558ccdL;
-        value ^= value >>> 33;
-        value *= 0xc4ceb9fe1a85ec53L;
-        value ^= value >>> 33;
-        return value;
-    }
-
-    private static double randomUnit(long seed) {
-        return (double) (mix(seed) >>> 11) * 0x1.0p-53;
     }
 
     private interface SurfaceBlockPicker {

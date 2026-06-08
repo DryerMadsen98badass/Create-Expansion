@@ -6,6 +6,7 @@ import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.MaterialComponent;
 import net.mads.createexpansion.material.MaterialLookup;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.material.MaterialProperties;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -125,38 +126,14 @@ public final class ClientMaterialTooltip {
 
     private static String materialState(IndustrialMaterial material, MaterialPart part) {
         if (part == MaterialPart.MOLTEN_FLUID) {
-            return isGasAtRoomTemperature(material) ? "Gas" : "Fluid";
+            return MaterialProperties.isGasAtRoomTemperature(material) ? "Gas" : "Fluid";
         }
 
-        return isFluidAtRoomTemperature(material) ? "Fluid" : "Solid";
-    }
-
-    private static boolean isFluidAtRoomTemperature(IndustrialMaterial material) {
-        return material.meltingPoint() <= 20 || isGasAtRoomTemperature(material);
-    }
-
-    private static boolean isGasAtRoomTemperature(IndustrialMaterial material) {
-        return switch (material.id()) {
-            case "hydrogen",
-                 "helium",
-                 "nitrogen",
-                 "oxygen",
-                 "fluorine",
-                 "neon",
-                 "chlorine",
-                 "argon",
-                 "krypton",
-                 "xenon",
-                 "radon",
-                 "oganesson" -> true;
-            default -> false;
-        };
+        return MaterialProperties.isFluidAtRoomTemperature(material) ? "Fluid" : "Solid";
     }
 
     private static boolean showsTemperature(MaterialPart part) {
-        return part == MaterialPart.MOLTEN_FLUID
-                || part.name().startsWith("CAST_")
-                || part.name().startsWith("HOT_CAST_");
+        return part == MaterialPart.MOLTEN_FLUID || part.isCastPart();
     }
 
     private static MutableComponent colored(String text, int color) {

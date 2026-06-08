@@ -1,6 +1,7 @@
 package net.mads.createexpansion.fluid;
 
 import net.mads.createexpansion.CreateExpansion;
+import net.mads.createexpansion.util.ColorUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.neoforged.neoforge.common.SoundActions;
@@ -23,7 +24,7 @@ public class MaterialFluidType extends FluidType {
                 CreateExpansion.MOD_ID,
                 "block/material_sets/dull/" + fluid.textureName()
         );
-        this.color = 0xFF000000 | fluid.color();
+        this.color = ColorUtils.opaque(fluid.color());
     }
 
     public ResourceLocation texture() {

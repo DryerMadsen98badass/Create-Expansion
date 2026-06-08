@@ -5,6 +5,7 @@ import net.mads.createexpansion.client.screen.MultiblockControllerScreen;
 import net.mads.createexpansion.material.MaterialBlock;
 import net.mads.createexpansion.material.MaterialItem;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.util.ColorUtils;
 import net.mads.createexpansion.machine.MachineCasingBlock;
 import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
@@ -29,6 +30,8 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+
+import java.util.Arrays;
 
 @EventBusSubscriber(modid = CreateExpansion.MOD_ID, value = Dist.CLIENT, bus = Bus.MOD)
 public class ClientSetup {
@@ -69,14 +72,14 @@ public class ClientSetup {
             if (item instanceof MaterialItem materialItem) {
                 int color = materialItem.material().color();
                 if (usesDarkerCastTint(materialItem.part())) {
-                    color = darken(color, 0.65F);
+                    color = ColorUtils.darken(color, 0.65F);
                 }
 
-                return opaque(color);
+                return ColorUtils.opaque(color);
             }
 
             if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof MaterialBlock materialBlock) {
-                return opaque(materialBlock.material().color());
+                return ColorUtils.opaque(materialBlock.material().color());
             }
 
             return -1;
@@ -102,7 +105,7 @@ public class ClientSetup {
             }
 
             if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof MachineCasingBlock casing) {
-                return opaque(casing.tier().color());
+                return ColorUtils.opaque(casing.tier().color());
             }
 
             return -1;
@@ -111,7 +114,7 @@ public class ClientSetup {
         event.register((stack, tintIndex) -> {
             if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof MachinePortBlock port) {
                 if (tintIndex == 0 && port.usesTint()) {
-                    return opaque(port.tintColor());
+                    return ColorUtils.opaque(port.tintColor());
                 }
                 if (tintIndex == 1 && port.hasTier() && portColorable(port)) {
                     return dyeColor(DyeColor.GRAY);
@@ -127,7 +130,7 @@ public class ClientSetup {
             }
 
             if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof MultiblockControllerBlock controller && controller.usesTint()) {
-                return opaque(controller.tintColor());
+                return ColorUtils.opaque(controller.tintColor());
             }
 
             return -1;
@@ -158,7 +161,7 @@ public class ClientSetup {
             }
 
             if (state.getBlock() instanceof MaterialBlock materialBlock) {
-                return opaque(materialBlock.material().color());
+                return ColorUtils.opaque(materialBlock.material().color());
             }
 
             return -1;
@@ -170,7 +173,7 @@ public class ClientSetup {
             }
 
             if (state.getBlock() instanceof MachineCasingBlock casing) {
-                return opaque(casing.tier().color());
+                return ColorUtils.opaque(casing.tier().color());
             }
 
             return -1;
@@ -179,7 +182,7 @@ public class ClientSetup {
         event.register((state, level, pos, tintIndex) -> {
             if (state.getBlock() instanceof MachinePortBlock port) {
                 if (tintIndex == 0 && port.usesTint()) {
-                    return opaque(port.tintColor());
+                    return ColorUtils.opaque(port.tintColor());
                 }
                 if (tintIndex == 1 && port.hasTier() && level != null && pos != null && level.getBlockEntity(pos) instanceof MachinePortBlockEntity portEntity && portEntity.supportsIoColor()) {
                     return dyeColor(portEntity.ioColor());
@@ -195,7 +198,7 @@ public class ClientSetup {
             }
 
             if (state.getBlock() instanceof MultiblockControllerBlock controller && controller.usesTint()) {
-                return opaque(controller.tintColor());
+                return ColorUtils.opaque(controller.tintColor());
             }
 
             return -1;
@@ -234,66 +237,18 @@ public class ClientSetup {
         return tintIndex == 0 || tintIndex == 1;
     }
 
-    private static int opaque(int color) {
-        return 0xFF000000 | color;
-    }
-
-    private static Item[] merge(Item[] first, Item[] second) {
-        Item[] merged = new Item[first.length + second.length];
-        System.arraycopy(first, 0, merged, 0, first.length);
-        System.arraycopy(second, 0, merged, first.length, second.length);
-        return merged;
-    }
-
-    private static Block[] merge(Block[] first, Block[] second) {
-        Block[] merged = new Block[first.length + second.length];
-        System.arraycopy(first, 0, merged, 0, first.length);
+    private static <T> T[] merge(T[] first, T[] second) {
+        T[] merged = Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, merged, first.length, second.length);
         return merged;
     }
 
     private static boolean usesDarkerCastTint(MaterialPart part) {
-        return switch (part) {
-            case CAST_NUGGET,
-                 CAST_BLOCK,
-                 CAST_PLATE,
-                 CAST_ROD,
-                 CAST_LONG_ROD,
-                 CAST_BOLT,
-                 CAST_SCREW,
-                 CAST_RING,
-                 CAST_SMALL_RING,
-                 CAST_LARGE_RING,
-                 CAST_GEAR,
-                 CAST_SMALL_GEAR,
-                 CAST_BEARING_BALL,
-                 CAST_BEARING,
-                 CAST_ROTOR,
-                 HOT_CAST_NUGGET_MOLD,
-                 HOT_CAST_BLOCK_MOLD,
-                 HOT_CAST_BEARING_BALL_MOLD,
-                 HOT_CAST_ROTOR_MOLD,
-                 HOT_CAST_INGOT_MOLD,
-                 HOT_CAST_PLATE_MOLD,
-                 HOT_CAST_ROD_MOLD,
-                 HOT_CAST_LONG_ROD_MOLD,
-                 HOT_CAST_BOLT_MOLD,
-                 HOT_CAST_RING_MOLD,
-                 HOT_CAST_SMALL_RING_MOLD,
-                 HOT_CAST_LARGE_RING_MOLD,
-                 HOT_CAST_GEAR_MOLD,
-                 HOT_CAST_SMALL_GEAR_MOLD,
-                 HOT_CAST_BEARING_MOLD,
-                 HOT_CAST_SCREW_MOLD -> true;
-            default -> false;
-        };
-    }
+        if (part.isHotCast()) {
+            return true;
+        }
 
-    private static int darken(int color, float multiplier) {
-        int red = (int) (((color >> 16) & 0xFF) * multiplier);
-        int green = (int) (((color >> 8) & 0xFF) * multiplier);
-        int blue = (int) ((color & 0xFF) * multiplier);
-        return (red << 16) | (green << 8) | blue;
+        return part.isCastPart() && !part.isCastMold() && part != MaterialPart.CAST_INGOT;
     }
 
     private static boolean portColorable(MachinePortBlock port) {
