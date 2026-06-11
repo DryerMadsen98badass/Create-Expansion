@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:plutonium_granite_ore",
+    "create_expansion:plutonium_tuff_ore",
+    "create_expansion:plutonium_andesite_ore",
+    "create_expansion:plutonium_end_stone_ore",
+    "create_expansion:plutonium_blackstone_ore",
+    "create_expansion:plutonium_deepslate_ore",
+    "create_expansion:plutonium_netherrack_ore",
+    "create_expansion:plutonium_diorite_ore",
+    "create_expansion:plutonium_ore"
+  ]
+}

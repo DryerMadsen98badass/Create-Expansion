@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:beryllium_granite_ore",
+    "create_expansion:beryllium_tuff_ore",
+    "create_expansion:beryllium_andesite_ore",
+    "create_expansion:beryllium_end_stone_ore",
+    "create_expansion:beryllium_blackstone_ore",
+    "create_expansion:beryllium_deepslate_ore",
+    "create_expansion:beryllium_netherrack_ore",
+    "create_expansion:beryllium_diorite_ore",
+    "create_expansion:beryllium_ore"
+  ]
+}

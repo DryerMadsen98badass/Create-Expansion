@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:promethium_granite_ore",
+    "create_expansion:promethium_tuff_ore",
+    "create_expansion:promethium_andesite_ore",
+    "create_expansion:promethium_end_stone_ore",
+    "create_expansion:promethium_blackstone_ore",
+    "create_expansion:promethium_deepslate_ore",
+    "create_expansion:promethium_netherrack_ore",
+    "create_expansion:promethium_diorite_ore",
+    "create_expansion:promethium_ore"
+  ]
+}

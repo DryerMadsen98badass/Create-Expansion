@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:goethite_granite_ore",
+    "create_expansion:goethite_tuff_ore",
+    "create_expansion:goethite_andesite_ore",
+    "create_expansion:goethite_end_stone_ore",
+    "create_expansion:goethite_blackstone_ore",
+    "create_expansion:goethite_deepslate_ore",
+    "create_expansion:goethite_netherrack_ore",
+    "create_expansion:goethite_diorite_ore",
+    "create_expansion:goethite_ore"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:hassium_granite_ore",
+    "create_expansion:hassium_tuff_ore",
+    "create_expansion:hassium_andesite_ore",
+    "create_expansion:hassium_end_stone_ore",
+    "create_expansion:hassium_blackstone_ore",
+    "create_expansion:hassium_deepslate_ore",
+    "create_expansion:hassium_netherrack_ore",
+    "create_expansion:hassium_diorite_ore",
+    "create_expansion:hassium_ore"
+  ]
+}

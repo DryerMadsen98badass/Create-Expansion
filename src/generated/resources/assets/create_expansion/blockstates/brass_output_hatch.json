@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "create_expansion:block/machine_port/brass_output_hatch",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "create_expansion:block/machine_port/brass_output_hatch",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "create_expansion:block/machine_port/brass_output_hatch"
+    },
+    "facing=south": {
+      "model": "create_expansion:block/machine_port/brass_output_hatch",
+      "y": 180
+    },
+    "facing=up": {
+      "model": "create_expansion:block/machine_port/brass_output_hatch",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "create_expansion:block/machine_port/brass_output_hatch",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:pitchblende_granite_ore",
+    "create_expansion:pitchblende_tuff_ore",
+    "create_expansion:pitchblende_andesite_ore",
+    "create_expansion:pitchblende_end_stone_ore",
+    "create_expansion:pitchblende_blackstone_ore",
+    "create_expansion:pitchblende_deepslate_ore",
+    "create_expansion:pitchblende_netherrack_ore",
+    "create_expansion:pitchblende_diorite_ore",
+    "create_expansion:pitchblende_ore"
+  ]
+}

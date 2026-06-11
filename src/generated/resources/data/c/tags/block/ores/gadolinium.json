@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:gadolinium_granite_ore",
+    "create_expansion:gadolinium_tuff_ore",
+    "create_expansion:gadolinium_andesite_ore",
+    "create_expansion:gadolinium_end_stone_ore",
+    "create_expansion:gadolinium_blackstone_ore",
+    "create_expansion:gadolinium_deepslate_ore",
+    "create_expansion:gadolinium_netherrack_ore",
+    "create_expansion:gadolinium_diorite_ore",
+    "create_expansion:gadolinium_ore"
+  ]
+}

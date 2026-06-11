@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:topaz_granite_ore",
+    "create_expansion:topaz_tuff_ore",
+    "create_expansion:topaz_andesite_ore",
+    "create_expansion:topaz_end_stone_ore",
+    "create_expansion:topaz_blackstone_ore",
+    "create_expansion:topaz_deepslate_ore",
+    "create_expansion:topaz_netherrack_ore",
+    "create_expansion:topaz_diorite_ore",
+    "create_expansion:topaz_ore"
+  ]
+}

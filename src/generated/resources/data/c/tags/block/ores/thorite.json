@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:thorite_granite_ore",
+    "create_expansion:thorite_tuff_ore",
+    "create_expansion:thorite_andesite_ore",
+    "create_expansion:thorite_end_stone_ore",
+    "create_expansion:thorite_blackstone_ore",
+    "create_expansion:thorite_deepslate_ore",
+    "create_expansion:thorite_netherrack_ore",
+    "create_expansion:thorite_diorite_ore",
+    "create_expansion:thorite_ore"
+  ]
+}

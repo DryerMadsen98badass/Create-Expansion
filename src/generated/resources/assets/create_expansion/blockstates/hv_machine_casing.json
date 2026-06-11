@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/hv_machine_casing"
+    }
+  }
+}

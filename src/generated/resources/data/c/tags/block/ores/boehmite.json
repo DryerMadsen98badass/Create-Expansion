@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:boehmite_granite_ore",
+    "create_expansion:boehmite_tuff_ore",
+    "create_expansion:boehmite_andesite_ore",
+    "create_expansion:boehmite_end_stone_ore",
+    "create_expansion:boehmite_blackstone_ore",
+    "create_expansion:boehmite_deepslate_ore",
+    "create_expansion:boehmite_netherrack_ore",
+    "create_expansion:boehmite_diorite_ore",
+    "create_expansion:boehmite_ore"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:cadmium_granite_ore",
+    "create_expansion:cadmium_tuff_ore",
+    "create_expansion:cadmium_andesite_ore",
+    "create_expansion:cadmium_end_stone_ore",
+    "create_expansion:cadmium_blackstone_ore",
+    "create_expansion:cadmium_deepslate_ore",
+    "create_expansion:cadmium_netherrack_ore",
+    "create_expansion:cadmium_diorite_ore",
+    "create_expansion:cadmium_ore"
+  ]
+}

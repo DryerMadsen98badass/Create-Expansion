@@ -1,0 +1,324 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#casing",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#casing"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#casing",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        0.0,
+        15.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#casing"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#casing",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#casing"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#casing",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "to": [
+        1.0,
+        15.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#casing"
+        }
+      },
+      "from": [
+        15.0,
+        1.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        15.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        1.0,
+        14.0,
+        0.0
+      ],
+      "to": [
+        15.0,
+        15.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "to": [
+        15.0,
+        2.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        1.0,
+        2.0,
+        0.0
+      ],
+      "to": [
+        2.0,
+        14.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "north",
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#kinetic_casing_single",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        14.0,
+        2.0,
+        0.0
+      ],
+      "to": [
+        15.0,
+        14.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "north",
+          "texture": "#kinetic_inside_frame",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        2.0,
+        2.0,
+        0.5
+      ],
+      "to": [
+        14.0,
+        14.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#kinetic_hole"
+        }
+      },
+      "from": [
+        3.0,
+        3.0,
+        0.49
+      ],
+      "to": [
+        13.0,
+        13.0,
+        0.5
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "casing": "create_expansion:block/casings/universal_textures/casing",
+    "kinetic_casing_single": "create_expansion:block/machines/ino/kinetic_casing_single",
+    "kinetic_hole": "create_expansion:block/machines/ino/kinetic_hole",
+    "kinetic_inside_frame": "create_expansion:block/machines/ino/kinetic_inside_frame",
+    "particle": "create_expansion:block/casings/universal_textures/casing"
+  }
+}

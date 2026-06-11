@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:cooperite_granite_ore",
+    "create_expansion:cooperite_tuff_ore",
+    "create_expansion:cooperite_andesite_ore",
+    "create_expansion:cooperite_end_stone_ore",
+    "create_expansion:cooperite_blackstone_ore",
+    "create_expansion:cooperite_deepslate_ore",
+    "create_expansion:cooperite_netherrack_ore",
+    "create_expansion:cooperite_diorite_ore",
+    "create_expansion:cooperite_ore"
+  ]
+}

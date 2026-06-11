@@ -1,0 +1,599 @@
+package net.mads.createexpansion.machine;
+
+import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
+import net.mads.createexpansion.multiblock.MultiblockAbility;
+import net.mads.createexpansion.multiblock.MultiblockPart;
+import net.mads.createexpansion.menu.MachinePortMenu;
+import net.mads.createexpansion.registry.BlockEntityRegistry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+public class MachinePortBlockEntity extends KineticBlockEntity implements MultiblockPart, MenuProvider {
+    private final MachineTier tier;
+    private final boolean tieredPort;
+    private final Set<MultiblockAbility> abilities;
+    private final ItemStackHandler items;
+    private final List<FluidTank> fluidTanks;
+    private final IItemHandler itemCapability;
+    private final IFluidHandler fluidCapability;
+    private final int ceCapacity;
+    private final float kineticStressPerRpm;
+
+    private BlockPos controllerPos;
+    private ResourceLocation assembledOverlayTexture;
+    private DyeColor ioColor = DyeColor.GRAY;
+    private int circuit;
+    private boolean autoOutput;
+
+    public MachinePortBlockEntity(BlockPos pos, BlockState state) {
+        super(BlockEntityRegistry.MACHINE_PORT.get(), pos, state);
+        MachinePortBlock block = (MachinePortBlock) state.getBlock();
+        this.tier = block.effectiveTier();
+        this.tieredPort = block.hasTier();
+        this.abilities = block.abilities();
+        this.items = createItemHandler(itemSlots());
+        this.fluidTanks = createFluidTanks();
+        this.itemCapability = createItemCapability();
+        this.fluidCapability = createFluidCapability();
+        this.ceCapacity = energyCapacity();
+        this.kineticStressPerRpm = block.isKineticPort() ? MachineTierStats.kineticStressPerRpm(tier) : 0;
+    }
+
+    public ItemStackHandler items() {
+        return items;
+    }
+
+    public List<FluidTank> fluidTanks() {
+        return fluidTanks;
+    }
+
+    @Nullable
+    public IItemHandler itemCapability() {
+        return items.getSlots() > 0 ? itemCapability : null;
+    }
+
+    @Nullable
+    public IFluidHandler fluidCapability() {
+        return fluidTanks.isEmpty() ? null : fluidCapability;
+    }
+
+    public int ceCapacity() {
+        return ceCapacity;
+    }
+
+    public MachineTier tier() {
+        return tier;
+    }
+
+    public float kineticStressPerRpm() {
+        return kineticStressPerRpm;
+    }
+
+    public int kineticRpm() {
+        return Math.round(Math.abs(getSpeed()));
+    }
+
+    @Nullable
+    public ResourceLocation assembledOverlayTexture() {
+        return assembledOverlayTexture;
+    }
+
+    public void setAssembledOverlayTexture(@Nullable ResourceLocation assembledOverlayTexture) {
+        if (java.util.Objects.equals(this.assembledOverlayTexture, assembledOverlayTexture)) {
+            return;
+        }
+        this.assembledOverlayTexture = assembledOverlayTexture;
+        contentChanged();
+    }
+
+    public DyeColor ioColor() {
+        return ioColor;
+    }
+
+    public int ioColorId() {
+        return ioColor.getId();
+    }
+
+    public void cycleIoColor() {
+        adjustIoColor(1);
+    }
+
+    public void adjustIoColor(int amount) {
+        setIoColor(DyeColor.byId(Math.floorMod(ioColor.getId() + amount, DyeColor.values().length)));
+    }
+
+    public void resetIoColor() {
+        setIoColor(DyeColor.GRAY);
+    }
+
+    public void setIoColor(DyeColor ioColor) {
+        if (!supportsIoColor()) {
+            return;
+        }
+        this.ioColor = ioColor == null ? DyeColor.GRAY : ioColor;
+        contentChanged();
+    }
+
+    public int circuit() {
+        return circuit;
+    }
+
+    public void adjustCircuit(int amount) {
+        if (amount == 0) {
+            return;
+        }
+        int next = Math.floorMod(circuit + amount, 33);
+        setCircuit(next);
+    }
+
+    public void resetCircuit() {
+        setCircuit(0);
+    }
+
+    public void setCircuit(int circuit) {
+        if (!supportsCircuit()) {
+            return;
+        }
+        this.circuit = Math.max(0, Math.min(32, circuit));
+        contentChanged();
+    }
+
+    public void cycleCircuit() {
+        adjustCircuit(1);
+    }
+
+    public boolean autoOutput() {
+        return autoOutput;
+    }
+
+    public void toggleAutoOutput() {
+        setAutoOutput(!autoOutput);
+    }
+
+    public void setAutoOutput(boolean autoOutput) {
+        if (!supportsAutoOutput()) {
+            return;
+        }
+        this.autoOutput = autoOutput;
+        contentChanged();
+    }
+
+    public boolean supportsIoColor() {
+        return tieredPort
+                && (abilities.contains(MultiblockAbility.ITEM_INPUT)
+                || abilities.contains(MultiblockAbility.ITEM_OUTPUT)
+                || abilities.contains(MultiblockAbility.FLUID_INPUT)
+                || abilities.contains(MultiblockAbility.FLUID_OUTPUT)
+                || abilities.contains(MultiblockAbility.IO_INTERFACE));
+    }
+
+    public boolean supportsCircuit() {
+        return abilities.contains(MultiblockAbility.ITEM_INPUT)
+                || abilities.contains(MultiblockAbility.FLUID_INPUT)
+                || abilities.contains(MultiblockAbility.IO_INTERFACE);
+    }
+
+    public boolean supportsAutoOutput() {
+        return abilities.contains(MultiblockAbility.ITEM_OUTPUT)
+                || abilities.contains(MultiblockAbility.FLUID_OUTPUT);
+    }
+
+    public boolean canConnectColor(DyeColor other) {
+        return colorsConnect(ioColor, other);
+    }
+
+    public static boolean colorsConnect(DyeColor first, DyeColor second) {
+        return first == DyeColor.GRAY || second == DyeColor.GRAY || first == second;
+    }
+
+    public void tickAutoOutput() {
+        if (level == null || level.isClientSide() || !autoOutput || !supportsAutoOutput()) {
+            return;
+        }
+
+        Direction facing = getBlockState().getValue(MachinePortBlock.FACING);
+        BlockPos targetPos = worldPosition.relative(facing);
+        Direction targetSide = facing.getOpposite();
+
+        if (abilities.contains(MultiblockAbility.ITEM_OUTPUT)) {
+            exportItems(targetPos, targetSide);
+        }
+        if (abilities.contains(MultiblockAbility.FLUID_OUTPUT)) {
+            exportFluids(targetPos, targetSide);
+        }
+    }
+
+    @Override
+    public Set<MultiblockAbility> abilities() {
+        return abilities;
+    }
+
+    @Override
+    @Nullable
+    public MachineTier partTier() {
+        return tieredPort ? tier : null;
+    }
+
+    @Override
+    public void attachToMultiblock(BlockPos controllerPos) {
+        this.controllerPos = controllerPos;
+        setChanged();
+    }
+
+    @Override
+    public void detachFromMultiblock() {
+        this.controllerPos = null;
+        setChanged();
+    }
+
+    @Override
+    public BlockPos controllerPos() {
+        return controllerPos;
+    }
+
+    @Override
+    public float calculateStressApplied() {
+        if (abilities.contains(MultiblockAbility.KINETIC_INPUT)) {
+            this.lastStressApplied = kineticStressPerRpm;
+            return kineticStressPerRpm;
+        }
+
+        return super.calculateStressApplied();
+    }
+
+    @Override
+    public float calculateAddedStressCapacity() {
+        if (abilities.contains(MultiblockAbility.KINETIC_OUTPUT)) {
+            this.lastCapacityProvided = kineticStressPerRpm;
+            return kineticStressPerRpm;
+        }
+
+        return super.calculateAddedStressCapacity();
+    }
+
+    @Override
+    protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+        super.write(tag, registries, clientPacket);
+        if (items.getSlots() > 0) {
+            tag.put("Items", items.serializeNBT(registries));
+        }
+        if (!fluidTanks.isEmpty()) {
+            ListTag tanks = new ListTag();
+            for (FluidTank tank : fluidTanks) {
+                tanks.add(tank.writeToNBT(registries, new CompoundTag()));
+            }
+            tag.put("FluidTanks", tanks);
+        }
+        if (controllerPos != null) {
+            tag.putInt("ControllerX", controllerPos.getX());
+            tag.putInt("ControllerY", controllerPos.getY());
+            tag.putInt("ControllerZ", controllerPos.getZ());
+        }
+        if (assembledOverlayTexture != null) {
+            tag.putString("AssembledOverlayTexture", assembledOverlayTexture.toString());
+        }
+        tag.putInt("IoColor", ioColor.getId());
+        tag.putInt("Circuit", circuit);
+        tag.putBoolean("AutoOutput", autoOutput);
+    }
+
+    @Override
+    protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+        super.read(tag, registries, clientPacket);
+        if (tag.contains("Items") && items.getSlots() > 0) {
+            items.deserializeNBT(registries, tag.getCompound("Items"));
+        }
+        if (tag.contains("FluidTanks")) {
+            ListTag tanks = tag.getList("FluidTanks", Tag.TAG_COMPOUND);
+            for (int i = 0; i < Math.min(tanks.size(), fluidTanks.size()); i++) {
+                fluidTanks.get(i).readFromNBT(registries, tanks.getCompound(i));
+            }
+        }
+        if (tag.contains("ControllerX")) {
+            controllerPos = new BlockPos(tag.getInt("ControllerX"), tag.getInt("ControllerY"), tag.getInt("ControllerZ"));
+        } else {
+            controllerPos = null;
+        }
+        assembledOverlayTexture = tag.contains("AssembledOverlayTexture")
+                ? ResourceLocation.parse(tag.getString("AssembledOverlayTexture"))
+                : null;
+        ioColor = tag.contains("IoColor") ? DyeColor.byId(tag.getInt("IoColor")) : DyeColor.GRAY;
+        if (!supportsIoColor()) {
+            ioColor = DyeColor.GRAY;
+        }
+        circuit = Math.max(0, Math.min(32, tag.getInt("Circuit")));
+        autoOutput = tag.getBoolean("AutoOutput");
+    }
+
+    private int itemSlots() {
+        if (abilities.contains(MultiblockAbility.IO_INTERFACE)) {
+            return MachineTierStats.ioInterfaceItemSlots(tier);
+        }
+        if (abilities.contains(MultiblockAbility.ITEM_INPUT) || abilities.contains(MultiblockAbility.ITEM_OUTPUT)) {
+            return MachineTierStats.itemBusSlots(tier);
+        }
+        if (abilities.contains(MultiblockAbility.MUFFLER)) {
+            return MachineTierStats.mufflerSlots(tier);
+        }
+        return 0;
+    }
+
+    private List<FluidTank> createFluidTanks() {
+        List<FluidTank> tanks = new ArrayList<>();
+        int capacity = MachineTierStats.fluidTankCapacity(tier);
+        int tankCount = 0;
+        if (abilities.contains(MultiblockAbility.IO_INTERFACE)) {
+            tankCount = MachineTierStats.ioInterfaceFluidTanks();
+        } else if (abilities.contains(MultiblockAbility.FLUID_INPUT) || abilities.contains(MultiblockAbility.FLUID_OUTPUT)) {
+            tankCount = 1;
+        }
+
+        for (int i = 0; i < tankCount; i++) {
+            tanks.add(new FluidTank(capacity) {
+                @Override
+                protected void onContentsChanged() {
+                    contentChanged();
+                }
+            });
+        }
+        return tanks;
+    }
+
+    private int energyCapacity() {
+        if (abilities.contains(MultiblockAbility.ENERGY_INPUT) || abilities.contains(MultiblockAbility.ENERGY_OUTPUT)) {
+            return MachineTierStats.ceCapacity(tier);
+        }
+        return 0;
+    }
+
+    private ItemStackHandler createItemHandler(int slots) {
+        return new ItemStackHandler(slots) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                contentChanged();
+            }
+        };
+    }
+
+    public void syncToClient() {
+        contentChanged();
+    }
+
+    private void contentChanged() {
+        setChanged();
+        if (level != null && !level.isClientSide()) {
+            BlockState state = getBlockState();
+            level.sendBlockUpdated(worldPosition, state, state, 3);
+        }
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable(getBlockState().getBlock().getDescriptionId());
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+        return new MachinePortMenu(containerId, playerInventory, this);
+    }
+
+    private IItemHandler createItemCapability() {
+        boolean allowInsert = abilities.contains(MultiblockAbility.ITEM_INPUT) || abilities.contains(MultiblockAbility.IO_INTERFACE);
+        boolean allowExtract = abilities.contains(MultiblockAbility.ITEM_OUTPUT) || abilities.contains(MultiblockAbility.IO_INTERFACE) || abilities.contains(MultiblockAbility.MUFFLER);
+        return new PortItemHandler(items, allowInsert, allowExtract);
+    }
+
+    private IFluidHandler createFluidCapability() {
+        boolean allowFill = abilities.contains(MultiblockAbility.FLUID_INPUT) || abilities.contains(MultiblockAbility.IO_INTERFACE);
+        boolean allowDrain = abilities.contains(MultiblockAbility.FLUID_OUTPUT) || abilities.contains(MultiblockAbility.IO_INTERFACE);
+        return new PortFluidHandler(fluidTanks, allowFill, allowDrain);
+    }
+
+    private void exportItems(BlockPos targetPos, Direction targetSide) {
+        IItemHandler target = level.getCapability(Capabilities.ItemHandler.BLOCK, targetPos, targetSide);
+        if (target == null) {
+            return;
+        }
+
+        for (int slot = 0; slot < items.getSlots(); slot++) {
+            ItemStack extracted = items.extractItem(slot, 64, true);
+            if (extracted.isEmpty()) {
+                continue;
+            }
+
+            ItemStack remaining = extracted.copy();
+            for (int targetSlot = 0; targetSlot < target.getSlots(); targetSlot++) {
+                remaining = target.insertItem(targetSlot, remaining, false);
+                if (remaining.isEmpty()) {
+                    break;
+                }
+            }
+
+            int moved = extracted.getCount() - remaining.getCount();
+            if (moved > 0) {
+                items.extractItem(slot, moved, false);
+            }
+        }
+    }
+
+    private void exportFluids(BlockPos targetPos, Direction targetSide) {
+        IFluidHandler target = level.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, targetSide);
+        if (target == null) {
+            return;
+        }
+
+        for (FluidTank tank : fluidTanks) {
+            FluidStack available = tank.drain(tank.getCapacity(), IFluidHandler.FluidAction.SIMULATE);
+            if (available.isEmpty()) {
+                continue;
+            }
+
+            int filled = target.fill(available, IFluidHandler.FluidAction.EXECUTE);
+            if (filled > 0) {
+                tank.drain(filled, IFluidHandler.FluidAction.EXECUTE);
+            }
+        }
+    }
+
+    private record PortItemHandler(ItemStackHandler items, boolean allowInsert, boolean allowExtract) implements IItemHandler {
+        @Override
+        public int getSlots() {
+            return items.getSlots();
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return items.getStackInSlot(slot);
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            return allowInsert ? items.insertItem(slot, stack, simulate) : stack;
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return allowExtract ? items.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return items.getSlotLimit(slot);
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return allowInsert && items.isItemValid(slot, stack);
+        }
+    }
+
+    private record PortFluidHandler(List<FluidTank> tanks, boolean allowFill, boolean allowDrain) implements IFluidHandler {
+        @Override
+        public int getTanks() {
+            return tanks.size();
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            return tanks.get(tank).getFluid();
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return tanks.get(tank).getCapacity();
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return allowFill && tanks.get(tank).isFluidValid(stack);
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            if (!allowFill || resource.isEmpty()) {
+                return 0;
+            }
+
+            int filled = 0;
+            FluidStack remaining = resource.copy();
+            for (FluidTank tank : tanks) {
+                if (remaining.isEmpty()) {
+                    break;
+                }
+
+                int tankFilled = tank.fill(remaining, action);
+                filled += tankFilled;
+                remaining.shrink(tankFilled);
+            }
+            return filled;
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            if (!allowDrain || resource.isEmpty()) {
+                return FluidStack.EMPTY;
+            }
+
+            FluidStack drained = FluidStack.EMPTY;
+            int remaining = resource.getAmount();
+            for (FluidTank tank : tanks) {
+                if (remaining <= 0) {
+                    break;
+                }
+
+                FluidStack request = resource.copyWithAmount(remaining);
+                FluidStack tankDrained = tank.drain(request, action);
+                if (tankDrained.isEmpty()) {
+                    continue;
+                }
+
+                if (drained.isEmpty()) {
+                    drained = tankDrained.copy();
+                } else {
+                    drained.grow(tankDrained.getAmount());
+                }
+                remaining -= tankDrained.getAmount();
+            }
+            return drained;
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            if (!allowDrain || maxDrain <= 0) {
+                return FluidStack.EMPTY;
+            }
+
+            FluidStack drained = FluidStack.EMPTY;
+            int remaining = maxDrain;
+            for (FluidTank tank : tanks) {
+                if (remaining <= 0) {
+                    break;
+                }
+
+                FluidStack simulated = tank.drain(remaining, FluidAction.SIMULATE);
+                if (simulated.isEmpty()) {
+                    continue;
+                }
+
+                if (!drained.isEmpty() && !FluidStack.isSameFluidSameComponents(drained, simulated)) {
+                    continue;
+                }
+
+                FluidStack tankDrained = tank.drain(simulated.copyWithAmount(Math.min(remaining, simulated.getAmount())), action);
+                if (drained.isEmpty()) {
+                    drained = tankDrained.copy();
+                } else {
+                    drained.grow(tankDrained.getAmount());
+                }
+
+                remaining -= tankDrained.getAmount();
+            }
+            return drained;
+        }
+    }
+}

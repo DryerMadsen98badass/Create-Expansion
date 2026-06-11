@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:nickel_granite_ore",
+    "create_expansion:nickel_tuff_ore",
+    "create_expansion:nickel_andesite_ore",
+    "create_expansion:nickel_end_stone_ore",
+    "create_expansion:nickel_blackstone_ore",
+    "create_expansion:nickel_deepslate_ore",
+    "create_expansion:nickel_netherrack_ore",
+    "create_expansion:nickel_diorite_ore",
+    "create_expansion:nickel_ore"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:xenotime_granite_ore",
+    "create_expansion:xenotime_tuff_ore",
+    "create_expansion:xenotime_andesite_ore",
+    "create_expansion:xenotime_end_stone_ore",
+    "create_expansion:xenotime_blackstone_ore",
+    "create_expansion:xenotime_deepslate_ore",
+    "create_expansion:xenotime_netherrack_ore",
+    "create_expansion:xenotime_diorite_ore",
+    "create_expansion:xenotime_ore"
+  ]
+}

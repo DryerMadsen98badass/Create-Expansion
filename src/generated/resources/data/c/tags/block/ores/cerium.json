@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:cerium_granite_ore",
+    "create_expansion:cerium_tuff_ore",
+    "create_expansion:cerium_andesite_ore",
+    "create_expansion:cerium_end_stone_ore",
+    "create_expansion:cerium_blackstone_ore",
+    "create_expansion:cerium_deepslate_ore",
+    "create_expansion:cerium_netherrack_ore",
+    "create_expansion:cerium_diorite_ore",
+    "create_expansion:cerium_ore"
+  ]
+}

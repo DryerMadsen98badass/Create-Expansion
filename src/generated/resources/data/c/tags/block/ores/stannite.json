@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:stannite_granite_ore",
+    "create_expansion:stannite_tuff_ore",
+    "create_expansion:stannite_andesite_ore",
+    "create_expansion:stannite_end_stone_ore",
+    "create_expansion:stannite_blackstone_ore",
+    "create_expansion:stannite_deepslate_ore",
+    "create_expansion:stannite_netherrack_ore",
+    "create_expansion:stannite_diorite_ore",
+    "create_expansion:stannite_ore"
+  ]
+}

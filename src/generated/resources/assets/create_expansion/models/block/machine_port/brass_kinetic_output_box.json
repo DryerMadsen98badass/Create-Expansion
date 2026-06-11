@@ -1,0 +1,258 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#casing"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#casing"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#casing"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#casing"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#casing"
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#casing"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#casing"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#casing"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#casing"
+        }
+      },
+      "from": [
+        0.0,
+        15.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#casing"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#casing"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#casing"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#casing"
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "north",
+          "texture": "#casing"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#casing"
+        }
+      },
+      "from": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "to": [
+        1.0,
+        15.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#casing"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#casing"
+        }
+      },
+      "from": [
+        15.0,
+        1.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        15.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#front"
+        },
+        "east": {
+          "texture": "#front"
+        },
+        "north": {
+          "texture": "#front"
+        },
+        "west": {
+          "texture": "#front"
+        }
+      },
+      "from": [
+        1.0,
+        14.0,
+        0.0
+      ],
+      "to": [
+        15.0,
+        15.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#front"
+        },
+        "north": {
+          "texture": "#front"
+        },
+        "up": {
+          "texture": "#front"
+        },
+        "west": {
+          "texture": "#front"
+        }
+      },
+      "from": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "to": [
+        15.0,
+        2.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#front"
+        },
+        "north": {
+          "texture": "#front"
+        }
+      },
+      "from": [
+        1.0,
+        2.0,
+        0.0
+      ],
+      "to": [
+        2.0,
+        14.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "west": {
+          "texture": "#front"
+        }
+      },
+      "from": [
+        14.0,
+        2.0,
+        0.0
+      ],
+      "to": [
+        15.0,
+        14.0,
+        1.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#front"
+        }
+      },
+      "from": [
+        2.0,
+        2.0,
+        0.5
+      ],
+      "to": [
+        14.0,
+        14.0,
+        1.0
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "casing": "create:block/brass_casing",
+    "front": "create_expansion:block/machines/ino/brass_gearbox",
+    "particle": "create:block/brass_casing"
+  }
+}

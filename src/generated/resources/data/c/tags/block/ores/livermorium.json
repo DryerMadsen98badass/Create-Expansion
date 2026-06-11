@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:livermorium_granite_ore",
+    "create_expansion:livermorium_tuff_ore",
+    "create_expansion:livermorium_andesite_ore",
+    "create_expansion:livermorium_end_stone_ore",
+    "create_expansion:livermorium_blackstone_ore",
+    "create_expansion:livermorium_deepslate_ore",
+    "create_expansion:livermorium_netherrack_ore",
+    "create_expansion:livermorium_diorite_ore",
+    "create_expansion:livermorium_ore"
+  ]
+}

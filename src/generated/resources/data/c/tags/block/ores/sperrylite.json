@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:sperrylite_granite_ore",
+    "create_expansion:sperrylite_tuff_ore",
+    "create_expansion:sperrylite_andesite_ore",
+    "create_expansion:sperrylite_end_stone_ore",
+    "create_expansion:sperrylite_blackstone_ore",
+    "create_expansion:sperrylite_deepslate_ore",
+    "create_expansion:sperrylite_netherrack_ore",
+    "create_expansion:sperrylite_diorite_ore",
+    "create_expansion:sperrylite_ore"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:palladium_granite_ore",
+    "create_expansion:palladium_tuff_ore",
+    "create_expansion:palladium_andesite_ore",
+    "create_expansion:palladium_end_stone_ore",
+    "create_expansion:palladium_blackstone_ore",
+    "create_expansion:palladium_deepslate_ore",
+    "create_expansion:palladium_netherrack_ore",
+    "create_expansion:palladium_diorite_ore",
+    "create_expansion:palladium_ore"
+  ]
+}

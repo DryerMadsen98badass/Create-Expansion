@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "create_expansion:block/machine_port/brass_kinetic_output_box",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "create_expansion:block/machine_port/brass_kinetic_output_box",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "create_expansion:block/machine_port/brass_kinetic_output_box"
+    },
+    "facing=south": {
+      "model": "create_expansion:block/machine_port/brass_kinetic_output_box",
+      "y": 180
+    },
+    "facing=up": {
+      "model": "create_expansion:block/machine_port/brass_kinetic_output_box",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "create_expansion:block/machine_port/brass_kinetic_output_box",
+      "y": 270
+    }
+  }
+}

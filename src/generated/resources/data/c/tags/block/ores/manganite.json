@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:manganite_granite_ore",
+    "create_expansion:manganite_tuff_ore",
+    "create_expansion:manganite_andesite_ore",
+    "create_expansion:manganite_end_stone_ore",
+    "create_expansion:manganite_blackstone_ore",
+    "create_expansion:manganite_deepslate_ore",
+    "create_expansion:manganite_netherrack_ore",
+    "create_expansion:manganite_diorite_ore",
+    "create_expansion:manganite_ore"
+  ]
+}

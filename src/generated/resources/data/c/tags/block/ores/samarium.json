@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:samarium_granite_ore",
+    "create_expansion:samarium_tuff_ore",
+    "create_expansion:samarium_andesite_ore",
+    "create_expansion:samarium_end_stone_ore",
+    "create_expansion:samarium_blackstone_ore",
+    "create_expansion:samarium_deepslate_ore",
+    "create_expansion:samarium_netherrack_ore",
+    "create_expansion:samarium_diorite_ore",
+    "create_expansion:samarium_ore"
+  ]
+}

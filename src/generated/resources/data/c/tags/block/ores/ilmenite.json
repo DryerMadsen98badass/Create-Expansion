@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:ilmenite_granite_ore",
+    "create_expansion:ilmenite_tuff_ore",
+    "create_expansion:ilmenite_andesite_ore",
+    "create_expansion:ilmenite_end_stone_ore",
+    "create_expansion:ilmenite_blackstone_ore",
+    "create_expansion:ilmenite_deepslate_ore",
+    "create_expansion:ilmenite_netherrack_ore",
+    "create_expansion:ilmenite_diorite_ore",
+    "create_expansion:ilmenite_ore"
+  ]
+}

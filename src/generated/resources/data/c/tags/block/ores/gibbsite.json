@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:gibbsite_granite_ore",
+    "create_expansion:gibbsite_tuff_ore",
+    "create_expansion:gibbsite_andesite_ore",
+    "create_expansion:gibbsite_end_stone_ore",
+    "create_expansion:gibbsite_blackstone_ore",
+    "create_expansion:gibbsite_deepslate_ore",
+    "create_expansion:gibbsite_netherrack_ore",
+    "create_expansion:gibbsite_diorite_ore",
+    "create_expansion:gibbsite_ore"
+  ]
+}

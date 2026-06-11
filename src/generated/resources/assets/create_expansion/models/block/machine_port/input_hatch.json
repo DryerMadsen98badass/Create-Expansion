@@ -1,0 +1,91 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#casing",
+          "tintindex": 0
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#casing",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#color_overlay",
+          "tintindex": 1
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        -0.01
+      ],
+      "to": [
+        16.0,
+        16.0,
+        0.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#overlay"
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        -0.02
+      ],
+      "to": [
+        16.0,
+        16.0,
+        -0.01
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "casing": "create_expansion:block/machines/ino/casing",
+    "color_overlay": "create_expansion:block/machines/ino/frame_coler_overlay",
+    "overlay": "create_expansion:block/machines/ino/input_hatch",
+    "particle": "create_expansion:block/machines/ino/casing"
+  }
+}

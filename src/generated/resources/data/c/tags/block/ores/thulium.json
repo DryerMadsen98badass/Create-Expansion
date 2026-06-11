@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:thulium_granite_ore",
+    "create_expansion:thulium_tuff_ore",
+    "create_expansion:thulium_andesite_ore",
+    "create_expansion:thulium_end_stone_ore",
+    "create_expansion:thulium_blackstone_ore",
+    "create_expansion:thulium_deepslate_ore",
+    "create_expansion:thulium_netherrack_ore",
+    "create_expansion:thulium_diorite_ore",
+    "create_expansion:thulium_ore"
+  ]
+}

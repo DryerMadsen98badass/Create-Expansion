@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:dolomite_granite_ore",
+    "create_expansion:dolomite_tuff_ore",
+    "create_expansion:dolomite_andesite_ore",
+    "create_expansion:dolomite_end_stone_ore",
+    "create_expansion:dolomite_blackstone_ore",
+    "create_expansion:dolomite_deepslate_ore",
+    "create_expansion:dolomite_netherrack_ore",
+    "create_expansion:dolomite_diorite_ore",
+    "create_expansion:dolomite_ore"
+  ]
+}

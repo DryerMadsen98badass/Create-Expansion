@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:francium_granite_ore",
+    "create_expansion:francium_tuff_ore",
+    "create_expansion:francium_andesite_ore",
+    "create_expansion:francium_end_stone_ore",
+    "create_expansion:francium_blackstone_ore",
+    "create_expansion:francium_deepslate_ore",
+    "create_expansion:francium_netherrack_ore",
+    "create_expansion:francium_diorite_ore",
+    "create_expansion:francium_ore"
+  ]
+}
