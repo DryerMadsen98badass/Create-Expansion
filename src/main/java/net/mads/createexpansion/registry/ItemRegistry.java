@@ -4,6 +4,8 @@ import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialItem;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.energy.WireThickness;
+import net.mads.createexpansion.energy.EnergyWireBlock;
 import net.mads.createexpansion.machine.MachinePortType;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.StaticMachinePortType;
@@ -28,6 +30,12 @@ public class ItemRegistry {
     public static final Map<StaticMachinePortType, DeferredHolder<Item, BlockItem>> STATIC_MACHINE_PORTS = new LinkedHashMap<>();
     public static final Map<String, DeferredHolder<Item, BlockItem>> MULTIBLOCK_CONTROLLERS = new LinkedHashMap<>();
     public static final Map<String, Map<MaterialPart, DeferredHolder<Item, ? extends Item>>> MATERIAL_ITEMS = new LinkedHashMap<>();
+    public static final Map<String, Map<WireThickness, DeferredHolder<Item, BlockItem>>> ENERGY_WIRES = new LinkedHashMap<>();
+    public static final Map<String, Map<WireThickness, DeferredHolder<Item, BlockItem>>> INSULATED_ENERGY_WIRES = new LinkedHashMap<>();
+    public static final DeferredHolder<Item, BlockItem> CREATIVE_ENERGY_PROVIDER = ITEMS.register("creative_energy_provider", () ->
+            new BlockItem(BlockRegistry.CREATIVE_ENERGY_PROVIDER.get(), new Item.Properties()));
+    public static final DeferredHolder<Item, BlockItem> CREATIVE_ENERGY_CONSUMER = ITEMS.register("creative_energy_consumer", () ->
+            new BlockItem(BlockRegistry.CREATIVE_ENERGY_CONSUMER.get(), new Item.Properties()));
 
     static {
         for (MultiblockControllerDefinition controller : MultiblockDefinitions.controllers()) {
@@ -38,6 +46,17 @@ public class ItemRegistry {
         for (MachineTier tier : MachineTier.ALL) {
             MACHINE_CASINGS.put(tier.id(), ITEMS.register(tier.casingRegistryName(), () ->
                     new BlockItem(BlockRegistry.MACHINE_CASINGS.get(tier.id()).get(), new Item.Properties())));
+
+            Map<WireThickness, DeferredHolder<Item, BlockItem>> wires = new LinkedHashMap<>();
+            Map<WireThickness, DeferredHolder<Item, BlockItem>> insulatedWires = new LinkedHashMap<>();
+            for (WireThickness thickness : WireThickness.ALL) {
+                wires.put(thickness, ITEMS.register(EnergyWireBlock.registryName(tier, thickness, false), () ->
+                        new BlockItem(BlockRegistry.ENERGY_WIRES.get(tier.id()).get(thickness).get(), new Item.Properties())));
+                insulatedWires.put(thickness, ITEMS.register(EnergyWireBlock.registryName(tier, thickness, true), () ->
+                        new BlockItem(BlockRegistry.INSULATED_ENERGY_WIRES.get(tier.id()).get(thickness).get(), new Item.Properties())));
+            }
+            ENERGY_WIRES.put(tier.id(), wires);
+            INSULATED_ENERGY_WIRES.put(tier.id(), insulatedWires);
 
             Map<MachinePortType, DeferredHolder<Item, BlockItem>> ports = new LinkedHashMap<>();
             for (MachinePortType portType : MachinePortType.ALL) {
@@ -110,5 +129,17 @@ public class ItemRegistry {
 
     public static Collection<DeferredHolder<Item, BlockItem>> getAllMultiblockControllerItems() {
         return MULTIBLOCK_CONTROLLERS.values();
+    }
+
+    public static Collection<DeferredHolder<Item, BlockItem>> getAllEnergyWireItems() {
+        return ENERGY_WIRES.values().stream()
+                .flatMap(wires -> wires.values().stream())
+                .toList();
+    }
+
+    public static Collection<DeferredHolder<Item, BlockItem>> getAllInsulatedEnergyWireItems() {
+        return INSULATED_ENERGY_WIRES.values().stream()
+                .flatMap(wires -> wires.values().stream())
+                .toList();
     }
 }

@@ -2,6 +2,7 @@ package net.mads.createexpansion.recipe;
 
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.machine.MachineTier;
+import net.mads.createexpansion.machine.MachineTierStats;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -121,13 +122,17 @@ public class CERecipeBuilder {
         return this;
     }
 
-    public CERecipeBuilder cet(int cet) {
-        return CEt(cet);
+    public CERecipeBuilder CEt(MachineTier tier) {
+        return CEt(Math.max(1, MachineTierStats.ceTier(tier) / 2));
     }
 
     public CERecipeBuilder generateCEt(int cet) {
         this.cet = -Math.abs(cet);
         return this;
+    }
+
+    public CERecipeBuilder generateCEt(MachineTier tier) {
+        return generateCEt(Math.max(1, MachineTierStats.ceTier(tier) / 2));
     }
 
     public CERecipeBuilder circuit(int circuit) {
@@ -201,10 +206,10 @@ public class CERecipeBuilder {
         if (fluidOutputs.size() > type.maxFluidOutputs()) {
             throw new IllegalStateException("Recipe " + id + " has too many fluid outputs for " + type.id());
         }
-        if (!type.usesRpm() && (minRpm.isPresent() || maxRpm.isPresent())) {
+        if (!type.acceptsRpm() && (minRpm.isPresent() || maxRpm.isPresent())) {
             throw new IllegalStateException("Recipe " + id + " uses RPM but " + type.id() + " does not allow RPM");
         }
-        if (!type.usesRpm() && kineticTier.isPresent()) {
+        if (!type.acceptsRpm() && kineticTier.isPresent()) {
             throw new IllegalStateException("Recipe " + id + " uses kinetic tier but " + type.id() + " does not allow RPM");
         }
         validateEnergyMode();

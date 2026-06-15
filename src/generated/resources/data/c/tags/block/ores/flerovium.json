@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:flerovium_granite_ore",
-    "create_expansion:flerovium_tuff_ore",
-    "create_expansion:flerovium_andesite_ore",
     "create_expansion:flerovium_end_stone_ore",
+    "create_expansion:flerovium_tuff_ore",
     "create_expansion:flerovium_blackstone_ore",
     "create_expansion:flerovium_deepslate_ore",
-    "create_expansion:flerovium_netherrack_ore",
+    "create_expansion:flerovium_granite_ore",
     "create_expansion:flerovium_diorite_ore",
-    "create_expansion:flerovium_ore"
+    "create_expansion:flerovium_ore",
+    "create_expansion:flerovium_andesite_ore",
+    "create_expansion:flerovium_netherrack_ore"
   ]
 }

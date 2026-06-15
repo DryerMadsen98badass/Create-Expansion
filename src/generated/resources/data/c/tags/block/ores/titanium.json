@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:titanium_granite_ore",
-    "create_expansion:titanium_tuff_ore",
-    "create_expansion:titanium_andesite_ore",
     "create_expansion:titanium_end_stone_ore",
+    "create_expansion:titanium_tuff_ore",
     "create_expansion:titanium_blackstone_ore",
     "create_expansion:titanium_deepslate_ore",
-    "create_expansion:titanium_netherrack_ore",
+    "create_expansion:titanium_granite_ore",
     "create_expansion:titanium_diorite_ore",
-    "create_expansion:titanium_ore"
+    "create_expansion:titanium_ore",
+    "create_expansion:titanium_andesite_ore",
+    "create_expansion:titanium_netherrack_ore"
   ]
 }

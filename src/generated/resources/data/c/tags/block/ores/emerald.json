@@ -1,19 +1,19 @@
 {
   "values": [
-    "create_expansion:emerald_granite_ore",
-    "create_expansion:emerald_tuff_ore",
-    "create_expansion:emerald_andesite_ore",
     "create_expansion:emerald_end_stone_ore",
+    "create_expansion:emerald_tuff_ore",
     "create_expansion:emerald_blackstone_ore",
     {
       "id": "minecraft:deepslate_emerald_ore",
       "required": false
     },
-    "create_expansion:emerald_netherrack_ore",
+    "create_expansion:emerald_granite_ore",
     "create_expansion:emerald_diorite_ore",
     {
       "id": "minecraft:emerald_ore",
       "required": false
-    }
+    },
+    "create_expansion:emerald_andesite_ore",
+    "create_expansion:emerald_netherrack_ore"
   ]
 }

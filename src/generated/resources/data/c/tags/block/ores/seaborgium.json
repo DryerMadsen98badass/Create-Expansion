@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:seaborgium_granite_ore",
-    "create_expansion:seaborgium_tuff_ore",
-    "create_expansion:seaborgium_andesite_ore",
     "create_expansion:seaborgium_end_stone_ore",
+    "create_expansion:seaborgium_tuff_ore",
     "create_expansion:seaborgium_blackstone_ore",
     "create_expansion:seaborgium_deepslate_ore",
-    "create_expansion:seaborgium_netherrack_ore",
+    "create_expansion:seaborgium_granite_ore",
     "create_expansion:seaborgium_diorite_ore",
-    "create_expansion:seaborgium_ore"
+    "create_expansion:seaborgium_ore",
+    "create_expansion:seaborgium_andesite_ore",
+    "create_expansion:seaborgium_netherrack_ore"
   ]
 }

@@ -3,6 +3,7 @@ package net.mads.createexpansion.commands;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.CommandDispatcher;
+import net.mads.createexpansion.debug.CEPerformanceProfiler;
 import net.mads.createexpansion.worldgen.OreVeinLocator;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.CommandSourceStack;
@@ -42,7 +43,36 @@ public class MyCommand {
                                 .executes(ctx -> locateOreVein(
                                         ctx.getSource(),
                                         StringArgumentType.getString(ctx, "target")
-                                ))));
+                                ))))
+                .then(Commands.literal("profile")
+                        .executes(ctx -> showProfileStats(ctx.getSource()))
+                        .then(Commands.literal("on")
+                                .executes(ctx -> {
+                                    CEPerformanceProfiler.enable();
+                                    ctx.getSource().sendSuccess(() -> Component.literal("CE profiler enabled."), false);
+                                    return 1;
+                                }))
+                        .then(Commands.literal("off")
+                                .executes(ctx -> {
+                                    CEPerformanceProfiler.disable();
+                                    ctx.getSource().sendSuccess(() -> Component.literal("CE profiler disabled."), false);
+                                    return 1;
+                                }))
+                        .then(Commands.literal("reset")
+                                .executes(ctx -> {
+                                    CEPerformanceProfiler.reset();
+                                    ctx.getSource().sendSuccess(() -> Component.literal("CE profiler reset."), false);
+                                    return 1;
+                                }))
+                        .then(Commands.literal("stats")
+                                .executes(ctx -> showProfileStats(ctx.getSource()))));
+    }
+
+    private static int showProfileStats(CommandSourceStack source) {
+        for (Component line : CEPerformanceProfiler.stats()) {
+            source.sendSuccess(() -> line, false);
+        }
+        return 1;
     }
 
     private static int locateOreVein(CommandSourceStack source, String target) {

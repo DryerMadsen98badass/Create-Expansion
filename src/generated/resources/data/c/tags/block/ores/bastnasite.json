@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:bastnasite_granite_ore",
-    "create_expansion:bastnasite_tuff_ore",
-    "create_expansion:bastnasite_andesite_ore",
     "create_expansion:bastnasite_end_stone_ore",
+    "create_expansion:bastnasite_tuff_ore",
     "create_expansion:bastnasite_blackstone_ore",
     "create_expansion:bastnasite_deepslate_ore",
-    "create_expansion:bastnasite_netherrack_ore",
+    "create_expansion:bastnasite_granite_ore",
     "create_expansion:bastnasite_diorite_ore",
-    "create_expansion:bastnasite_ore"
+    "create_expansion:bastnasite_ore",
+    "create_expansion:bastnasite_andesite_ore",
+    "create_expansion:bastnasite_netherrack_ore"
   ]
 }

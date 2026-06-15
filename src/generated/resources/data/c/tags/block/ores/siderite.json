@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:siderite_granite_ore",
-    "create_expansion:siderite_tuff_ore",
-    "create_expansion:siderite_andesite_ore",
     "create_expansion:siderite_end_stone_ore",
+    "create_expansion:siderite_tuff_ore",
     "create_expansion:siderite_blackstone_ore",
     "create_expansion:siderite_deepslate_ore",
-    "create_expansion:siderite_netherrack_ore",
+    "create_expansion:siderite_granite_ore",
     "create_expansion:siderite_diorite_ore",
-    "create_expansion:siderite_ore"
+    "create_expansion:siderite_ore",
+    "create_expansion:siderite_andesite_ore",
+    "create_expansion:siderite_netherrack_ore"
   ]
 }

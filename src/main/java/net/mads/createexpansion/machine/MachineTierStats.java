@@ -45,24 +45,46 @@ public final class MachineTierStats {
     }
 
     public static int ceCapacity(MachineTier tier) {
-        long capacity = 128L;
+        long capacity = (long) ceTier(tier) * 32L;
+        return (int) Math.min(capacity, Integer.MAX_VALUE);
+    }
+
+    public static int ceTier(MachineTier tier) {
+        long ce = 8L;
         for (int i = 0; i < tierIndex(tier); i++) {
-            capacity *= 4L;
-            if (capacity > Integer.MAX_VALUE) {
+            ce *= 4L;
+            if (ce > Integer.MAX_VALUE) {
                 return Integer.MAX_VALUE;
             }
         }
-        return (int) capacity;
+        return (int) ce;
+    }
+
+    public static int ceBaseAmps(MachineTier tier) {
+        int index = Math.min(tierIndex(tier), 30);
+        return 1 << index;
     }
 
     public static MachineTier tierForCEt(int cet) {
         int required = Math.abs(cet);
         for (MachineTier tier : MachineTier.ALL) {
-            if (ceCapacity(tier) >= required) {
+            if (ceTier(tier) >= required) {
                 return tier;
             }
         }
         return MachineTier.ALL.get(MachineTier.ALL.size() - 1);
+    }
+
+    public static MachineTier tierForVoltage(int voltage) {
+        int required = Math.abs(voltage);
+        MachineTier result = MachineTier.ULV;
+        for (MachineTier tier : MachineTier.ALL) {
+            result = tier;
+            if (ceTier(tier) >= required) {
+                return tier;
+            }
+        }
+        return result;
     }
 
     public static int tierOverclockFactor(MachineTier required, MachineTier actual) {

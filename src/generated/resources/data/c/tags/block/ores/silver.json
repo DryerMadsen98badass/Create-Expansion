@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:silver_granite_ore",
-    "create_expansion:silver_tuff_ore",
-    "create_expansion:silver_andesite_ore",
     "create_expansion:silver_end_stone_ore",
+    "create_expansion:silver_tuff_ore",
     "create_expansion:silver_blackstone_ore",
     "create_expansion:silver_deepslate_ore",
-    "create_expansion:silver_netherrack_ore",
+    "create_expansion:silver_granite_ore",
     "create_expansion:silver_diorite_ore",
-    "create_expansion:silver_ore"
+    "create_expansion:silver_ore",
+    "create_expansion:silver_andesite_ore",
+    "create_expansion:silver_netherrack_ore"
   ]
 }

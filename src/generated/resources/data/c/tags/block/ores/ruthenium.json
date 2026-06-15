@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:ruthenium_granite_ore",
-    "create_expansion:ruthenium_tuff_ore",
-    "create_expansion:ruthenium_andesite_ore",
     "create_expansion:ruthenium_end_stone_ore",
+    "create_expansion:ruthenium_tuff_ore",
     "create_expansion:ruthenium_blackstone_ore",
     "create_expansion:ruthenium_deepslate_ore",
-    "create_expansion:ruthenium_netherrack_ore",
+    "create_expansion:ruthenium_granite_ore",
     "create_expansion:ruthenium_diorite_ore",
-    "create_expansion:ruthenium_ore"
+    "create_expansion:ruthenium_ore",
+    "create_expansion:ruthenium_andesite_ore",
+    "create_expansion:ruthenium_netherrack_ore"
   ]
 }

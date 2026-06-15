@@ -122,22 +122,22 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
         int index = 0;
         if (menu.supportsIoColor()) {
             if (isHoveringArea(mouseX, mouseY, configButtonX(leftPos), configButtonY(topPos, index), BUTTON_WIDTH, BUTTON_HEIGHT)) {
-                return mouseButton == 1 && hasShiftDown()
+                return mouseButton == 0 && hasShiftDown()
                         ? MachinePortMenu.BUTTON_COLOR_RESET
-                        : mouseButton == 1 ? MachinePortMenu.BUTTON_COLOR_INCREMENT : MachinePortMenu.BUTTON_COLOR_DECREMENT;
+                        : mouseButton == 0 ? MachinePortMenu.BUTTON_COLOR_INCREMENT : MachinePortMenu.BUTTON_COLOR_DECREMENT;
             }
             index++;
         }
         if (menu.supportsCircuit()) {
             if (isHoveringArea(mouseX, mouseY, configButtonX(leftPos), configButtonY(topPos, index), BUTTON_WIDTH, BUTTON_HEIGHT)) {
-                return mouseButton == 1 && hasShiftDown()
+                return mouseButton == 0 && hasShiftDown()
                         ? MachinePortMenu.BUTTON_CIRCUIT_RESET
-                        : mouseButton == 1 ? MachinePortMenu.BUTTON_CIRCUIT_INCREMENT : MachinePortMenu.BUTTON_CIRCUIT_DECREMENT;
+                        : mouseButton == 0 ? MachinePortMenu.BUTTON_CIRCUIT_INCREMENT : MachinePortMenu.BUTTON_CIRCUIT_DECREMENT;
             }
             index++;
         }
         if (menu.supportsAutoOutput() && isHoveringArea(mouseX, mouseY, configButtonX(leftPos), configButtonY(topPos, index), BUTTON_WIDTH, BUTTON_HEIGHT)) {
-            return mouseButton == 1 && hasShiftDown() ? MachinePortMenu.BUTTON_AUTO_RESET : MachinePortMenu.BUTTON_AUTO_TOGGLE;
+            return mouseButton == 0 && hasShiftDown() ? MachinePortMenu.BUTTON_AUTO_RESET : MachinePortMenu.BUTTON_AUTO_TOGGLE;
         }
         return -1;
     }
@@ -149,9 +149,9 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
                 DyeColor color = menu.blockEntity().ioColor();
                 graphics.renderComponentTooltip(font, List.of(
                         Component.literal("Color: " + color.getName()),
-                        Component.literal("Left: previous").withStyle(ChatFormatting.GRAY),
-                        Component.literal("Right: next").withStyle(ChatFormatting.GRAY),
-                        Component.literal("Shift Right: gray").withStyle(ChatFormatting.GRAY)
+                        Component.literal("Left: next").withStyle(ChatFormatting.GRAY),
+                        Component.literal("Right: previous").withStyle(ChatFormatting.GRAY),
+                        Component.literal("Shift Left: gray").withStyle(ChatFormatting.GRAY)
                 ), mouseX, mouseY);
                 return;
             }
@@ -161,9 +161,9 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
             if (isHoveringArea(mouseX, mouseY, configButtonX(leftPos), configButtonY(topPos, index), BUTTON_WIDTH, BUTTON_HEIGHT)) {
                 graphics.renderComponentTooltip(font, List.of(
                         Component.literal("Circuit: " + menu.blockEntity().circuit()),
-                        Component.literal("Left: down").withStyle(ChatFormatting.GRAY),
-                        Component.literal("Right: up").withStyle(ChatFormatting.GRAY),
-                        Component.literal("Shift Right: default").withStyle(ChatFormatting.GRAY)
+                        Component.literal("Left: up").withStyle(ChatFormatting.GRAY),
+                        Component.literal("Right: down").withStyle(ChatFormatting.GRAY),
+                        Component.literal("Shift Left: default").withStyle(ChatFormatting.GRAY)
                 ), mouseX, mouseY);
                 return;
             }
@@ -173,7 +173,7 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
             graphics.renderComponentTooltip(font, List.of(
                     Component.literal("Auto Output: " + (menu.blockEntity().autoOutput() ? "On" : "Off")),
                     Component.literal("Left/Right: toggle").withStyle(ChatFormatting.GRAY),
-                    Component.literal("Shift Right: off").withStyle(ChatFormatting.GRAY)
+                    Component.literal("Shift Left: off").withStyle(ChatFormatting.GRAY)
             ), mouseX, mouseY);
         }
     }

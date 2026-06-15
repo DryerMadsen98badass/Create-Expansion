@@ -13,7 +13,7 @@ public record CERecipeTypeDefinition(
         int maxItemOutputs,
         int maxFluidInputs,
         int maxFluidOutputs,
-        boolean usesRpm,
+        KineticMode kineticMode,
         EnergyMode energyMode,
         List<ResourceLocation> supportedLogic
 ) {
@@ -27,6 +27,25 @@ public record CERecipeTypeDefinition(
 
     public boolean supportsLogic(ResourceLocation logicId) {
         return supportedLogic.contains(logicId);
+    }
+
+    public boolean usesRpm() {
+        return acceptsRpm();
+    }
+
+    public boolean acceptsRpm() {
+        return kineticMode == KineticMode.CONSUMES || kineticMode == KineticMode.BOTH;
+    }
+
+    public boolean outputsRpm() {
+        return kineticMode == KineticMode.GENERATES || kineticMode == KineticMode.BOTH;
+    }
+
+    public enum KineticMode {
+        NONE,
+        CONSUMES,
+        GENERATES,
+        BOTH
     }
 
     public enum EnergyMode {
@@ -51,7 +70,7 @@ public record CERecipeTypeDefinition(
         private int maxItemOutputs;
         private int maxFluidInputs;
         private int maxFluidOutputs;
-        private boolean usesRpm;
+        private KineticMode kineticMode = KineticMode.NONE;
         private EnergyMode energyMode = EnergyMode.CONSUMES;
         private final List<ResourceLocation> supportedLogic = new ArrayList<>();
 
@@ -84,8 +103,28 @@ public record CERecipeTypeDefinition(
         }
 
         public Builder rpm(boolean usesRpm) {
-            this.usesRpm = usesRpm;
+            return kineticMode(usesRpm ? KineticMode.CONSUMES : KineticMode.NONE);
+        }
+
+        public Builder kineticMode(KineticMode kineticMode) {
+            this.kineticMode = kineticMode;
             return this;
+        }
+
+        public Builder noKinetic() {
+            return kineticMode(KineticMode.NONE);
+        }
+
+        public Builder kineticInput() {
+            return kineticMode(KineticMode.CONSUMES);
+        }
+
+        public Builder kineticOutput() {
+            return kineticMode(KineticMode.GENERATES);
+        }
+
+        public Builder kineticInputAndOutput() {
+            return kineticMode(KineticMode.BOTH);
         }
 
         public Builder energyMode(EnergyMode energyMode) {
@@ -115,7 +154,13 @@ public record CERecipeTypeDefinition(
         }
 
         public CERecipeTypeDefinition build() {
-            return new CERecipeTypeDefinition(id, displayName, maxItemInputs, maxItemOutputs, maxFluidInputs, maxFluidOutputs, usesRpm, energyMode, supportedLogic);
+            return new CERecipeTypeDefinition(id, displayName, maxItemInputs, maxItemOutputs, maxFluidInputs, maxFluidOutputs, kineticMode, energyMode, supportedLogic);
+        }
+
+        public Builder maxIO(int itemInputs, int itemOutputs, int fluidInputs, int fluidOutputs, KineticMode kineticMode, EnergyMode energyMode) {
+            return maxIO(itemInputs, itemOutputs, fluidInputs, fluidOutputs)
+                    .kineticMode(kineticMode)
+                    .energyMode(energyMode);
         }
     }
 }

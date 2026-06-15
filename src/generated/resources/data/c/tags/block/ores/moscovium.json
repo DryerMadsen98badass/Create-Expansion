@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:moscovium_granite_ore",
-    "create_expansion:moscovium_tuff_ore",
-    "create_expansion:moscovium_andesite_ore",
     "create_expansion:moscovium_end_stone_ore",
+    "create_expansion:moscovium_tuff_ore",
     "create_expansion:moscovium_blackstone_ore",
     "create_expansion:moscovium_deepslate_ore",
-    "create_expansion:moscovium_netherrack_ore",
+    "create_expansion:moscovium_granite_ore",
     "create_expansion:moscovium_diorite_ore",
-    "create_expansion:moscovium_ore"
+    "create_expansion:moscovium_ore",
+    "create_expansion:moscovium_andesite_ore",
+    "create_expansion:moscovium_netherrack_ore"
   ]
 }

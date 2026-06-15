@@ -2,6 +2,7 @@ package net.mads.createexpansion.client;
 
 import net.mads.createexpansion.client.screen.MachinePortScreen;
 import net.mads.createexpansion.client.screen.MultiblockControllerScreen;
+import net.mads.createexpansion.energy.EnergyWireBlock;
 import net.mads.createexpansion.material.MaterialBlock;
 import net.mads.createexpansion.material.MaterialItem;
 import net.mads.createexpansion.material.MaterialPart;
@@ -47,6 +48,12 @@ public class ClientSetup {
                 .map(item -> item.get())
                 .toArray(Item[]::new);
         Item[] machineCasings = ItemRegistry.getAllMachineCasingItems().stream()
+                .map(item -> item.get())
+                .toArray(Item[]::new);
+        Item[] energyWires = ItemRegistry.getAllEnergyWireItems().stream()
+                .map(item -> item.get())
+                .toArray(Item[]::new);
+        Item[] insulatedEnergyWires = ItemRegistry.getAllInsulatedEnergyWireItems().stream()
                 .map(item -> item.get())
                 .toArray(Item[]::new);
         Item[] machinePorts = ItemRegistry.getAllMachinePortItems().stream()
@@ -109,6 +116,18 @@ public class ClientSetup {
         }, machineCasings);
 
         event.register((stack, tintIndex) -> {
+            if (tintIndex != 0) {
+                return -1;
+            }
+
+            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof EnergyWireBlock wire) {
+                return opaque(wire.tier().color());
+            }
+
+            return -1;
+        }, merge(energyWires, insulatedEnergyWires));
+
+        event.register((stack, tintIndex) -> {
             if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof MachinePortBlock port) {
                 if (tintIndex == 0 && port.usesTint()) {
                     return opaque(port.tintColor());
@@ -140,6 +159,12 @@ public class ClientSetup {
                 .map(block -> block.get())
                 .toArray(Block[]::new);
         Block[] machineCasings = BlockRegistry.getAllMachineCasings().stream()
+                .map(block -> block.get())
+                .toArray(Block[]::new);
+        Block[] energyWires = BlockRegistry.getAllEnergyWires().stream()
+                .map(block -> block.get())
+                .toArray(Block[]::new);
+        Block[] insulatedEnergyWires = BlockRegistry.getAllInsulatedEnergyWires().stream()
                 .map(block -> block.get())
                 .toArray(Block[]::new);
         Block[] machinePorts = BlockRegistry.getAllMachinePorts().stream()
@@ -175,6 +200,21 @@ public class ClientSetup {
 
             return -1;
         }, machineCasings);
+
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex != 0) {
+                return -1;
+            }
+
+            if (state.getBlock() instanceof EnergyWireBlock wire) {
+                if (wire.insulated()) {
+                    return -1;
+                }
+                return opaque(wire.tier().color());
+            }
+
+            return -1;
+        }, merge(energyWires, insulatedEnergyWires));
 
         event.register((state, level, pos, tintIndex) -> {
             if (state.getBlock() instanceof MachinePortBlock port) {

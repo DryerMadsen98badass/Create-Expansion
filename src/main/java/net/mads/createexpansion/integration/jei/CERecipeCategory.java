@@ -158,8 +158,8 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
 
         if (hasTierButton(recipe) && inside(mouseX, mouseY, TIER_BUTTON_X, tierButtonY(getHeight()), TIER_BUTTON_WIDTH, TIER_BUTTON_HEIGHT)) {
             tooltip.add(Component.literal("Tier: " + selectedTier.displayName()));
-            tooltip.add(Component.literal("Right click: higher tier"));
-            tooltip.add(Component.literal("Left click: lower tier"));
+            tooltip.add(Component.literal("Left click: higher tier"));
+            tooltip.add(Component.literal("Right click: lower tier"));
             return;
         }
 
@@ -449,7 +449,7 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
                 return false;
             }
 
-            category.adjustSelectedTier(recipe, button == 0 ? -1 : 1);
+            category.adjustSelectedTier(recipe, button == 0 ? 1 : -1);
             return true;
         }
     }

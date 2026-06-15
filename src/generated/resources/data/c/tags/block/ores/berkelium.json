@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:berkelium_granite_ore",
-    "create_expansion:berkelium_tuff_ore",
-    "create_expansion:berkelium_andesite_ore",
     "create_expansion:berkelium_end_stone_ore",
+    "create_expansion:berkelium_tuff_ore",
     "create_expansion:berkelium_blackstone_ore",
     "create_expansion:berkelium_deepslate_ore",
-    "create_expansion:berkelium_netherrack_ore",
+    "create_expansion:berkelium_granite_ore",
     "create_expansion:berkelium_diorite_ore",
-    "create_expansion:berkelium_ore"
+    "create_expansion:berkelium_ore",
+    "create_expansion:berkelium_andesite_ore",
+    "create_expansion:berkelium_netherrack_ore"
   ]
 }

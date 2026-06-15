@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:arsenic_granite_ore",
-    "create_expansion:arsenic_tuff_ore",
-    "create_expansion:arsenic_andesite_ore",
     "create_expansion:arsenic_end_stone_ore",
+    "create_expansion:arsenic_tuff_ore",
     "create_expansion:arsenic_blackstone_ore",
     "create_expansion:arsenic_deepslate_ore",
-    "create_expansion:arsenic_netherrack_ore",
+    "create_expansion:arsenic_granite_ore",
     "create_expansion:arsenic_diorite_ore",
-    "create_expansion:arsenic_ore"
+    "create_expansion:arsenic_ore",
+    "create_expansion:arsenic_andesite_ore",
+    "create_expansion:arsenic_netherrack_ore"
   ]
 }

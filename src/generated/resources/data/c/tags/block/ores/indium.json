@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:indium_granite_ore",
-    "create_expansion:indium_tuff_ore",
-    "create_expansion:indium_andesite_ore",
     "create_expansion:indium_end_stone_ore",
+    "create_expansion:indium_tuff_ore",
     "create_expansion:indium_blackstone_ore",
     "create_expansion:indium_deepslate_ore",
-    "create_expansion:indium_netherrack_ore",
+    "create_expansion:indium_granite_ore",
     "create_expansion:indium_diorite_ore",
-    "create_expansion:indium_ore"
+    "create_expansion:indium_ore",
+    "create_expansion:indium_andesite_ore",
+    "create_expansion:indium_netherrack_ore"
   ]
 }

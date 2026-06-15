@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:malachite_granite_ore",
-    "create_expansion:malachite_tuff_ore",
-    "create_expansion:malachite_andesite_ore",
     "create_expansion:malachite_end_stone_ore",
+    "create_expansion:malachite_tuff_ore",
     "create_expansion:malachite_blackstone_ore",
     "create_expansion:malachite_deepslate_ore",
-    "create_expansion:malachite_netherrack_ore",
+    "create_expansion:malachite_granite_ore",
     "create_expansion:malachite_diorite_ore",
-    "create_expansion:malachite_ore"
+    "create_expansion:malachite_ore",
+    "create_expansion:malachite_andesite_ore",
+    "create_expansion:malachite_netherrack_ore"
   ]
 }

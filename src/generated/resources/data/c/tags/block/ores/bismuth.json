@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:bismuth_granite_ore",
-    "create_expansion:bismuth_tuff_ore",
-    "create_expansion:bismuth_andesite_ore",
     "create_expansion:bismuth_end_stone_ore",
+    "create_expansion:bismuth_tuff_ore",
     "create_expansion:bismuth_blackstone_ore",
     "create_expansion:bismuth_deepslate_ore",
-    "create_expansion:bismuth_netherrack_ore",
+    "create_expansion:bismuth_granite_ore",
     "create_expansion:bismuth_diorite_ore",
-    "create_expansion:bismuth_ore"
+    "create_expansion:bismuth_ore",
+    "create_expansion:bismuth_andesite_ore",
+    "create_expansion:bismuth_netherrack_ore"
   ]
 }

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:lead_granite_ore",
-    "create_expansion:lead_tuff_ore",
-    "create_expansion:lead_andesite_ore",
     "create_expansion:lead_end_stone_ore",
+    "create_expansion:lead_tuff_ore",
     "create_expansion:lead_blackstone_ore",
     "create_expansion:lead_deepslate_ore",
-    "create_expansion:lead_netherrack_ore",
+    "create_expansion:lead_granite_ore",
     "create_expansion:lead_diorite_ore",
-    "create_expansion:lead_ore"
+    "create_expansion:lead_ore",
+    "create_expansion:lead_andesite_ore",
+    "create_expansion:lead_netherrack_ore"
   ]
 }

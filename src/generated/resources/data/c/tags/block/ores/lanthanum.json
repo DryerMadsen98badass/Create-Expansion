@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:lanthanum_granite_ore",
-    "create_expansion:lanthanum_tuff_ore",
-    "create_expansion:lanthanum_andesite_ore",
     "create_expansion:lanthanum_end_stone_ore",
+    "create_expansion:lanthanum_tuff_ore",
     "create_expansion:lanthanum_blackstone_ore",
     "create_expansion:lanthanum_deepslate_ore",
-    "create_expansion:lanthanum_netherrack_ore",
+    "create_expansion:lanthanum_granite_ore",
     "create_expansion:lanthanum_diorite_ore",
-    "create_expansion:lanthanum_ore"
+    "create_expansion:lanthanum_ore",
+    "create_expansion:lanthanum_andesite_ore",
+    "create_expansion:lanthanum_netherrack_ore"
   ]
 }

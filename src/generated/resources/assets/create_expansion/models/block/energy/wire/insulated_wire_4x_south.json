@@ -1,0 +1,78 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#wire",
+          "uv": [
+            4.0,
+            12.0,
+            12.0,
+            16.0
+          ]
+        },
+        "east": {
+          "texture": "#wire",
+          "uv": [
+            12.0,
+            4.0,
+            16.0,
+            12.0
+          ]
+        },
+        "north": {
+          "texture": "#wire",
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ]
+        },
+        "south": {
+          "texture": "#wire",
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ]
+        },
+        "up": {
+          "texture": "#wire",
+          "uv": [
+            4.0,
+            12.0,
+            12.0,
+            16.0
+          ]
+        },
+        "west": {
+          "texture": "#wire",
+          "uv": [
+            12.0,
+            4.0,
+            16.0,
+            12.0
+          ]
+        }
+      },
+      "from": [
+        4.0,
+        4.0,
+        12.0
+      ],
+      "to": [
+        12.0,
+        12.0,
+        16.0
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "create_expansion:block/energy/wire/insulation_5",
+    "wire": "create_expansion:block/energy/wire/insulation_5"
+  }
+}

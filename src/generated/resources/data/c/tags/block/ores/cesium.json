@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:cesium_granite_ore",
-    "create_expansion:cesium_tuff_ore",
-    "create_expansion:cesium_andesite_ore",
     "create_expansion:cesium_end_stone_ore",
+    "create_expansion:cesium_tuff_ore",
     "create_expansion:cesium_blackstone_ore",
     "create_expansion:cesium_deepslate_ore",
-    "create_expansion:cesium_netherrack_ore",
+    "create_expansion:cesium_granite_ore",
     "create_expansion:cesium_diorite_ore",
-    "create_expansion:cesium_ore"
+    "create_expansion:cesium_ore",
+    "create_expansion:cesium_andesite_ore",
+    "create_expansion:cesium_netherrack_ore"
   ]
 }

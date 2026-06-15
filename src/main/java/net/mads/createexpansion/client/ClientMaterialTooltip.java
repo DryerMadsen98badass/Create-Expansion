@@ -2,6 +2,8 @@ package net.mads.createexpansion.client;
 
 import com.simibubi.create.content.equipment.goggles.GogglesItem;
 import net.mads.createexpansion.CreateExpansion;
+import net.mads.createexpansion.energy.EnergyWireBlock;
+import net.mads.createexpansion.machine.MachineTierStats;
 import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.MaterialComponent;
 import net.mads.createexpansion.material.MaterialLookup;
@@ -11,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -31,11 +34,27 @@ public final class ClientMaterialTooltip {
         }
 
         MaterialLookup.MaterialTarget target = MaterialLookup.find(event.getItemStack());
-        if (target == null) {
-            return;
+        if (target != null) {
+            addMaterialTooltipLines(event.getToolTip(), target);
         }
 
-        addMaterialTooltipLines(event.getToolTip(), target);
+        if (event.getItemStack().getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof EnergyWireBlock wire) {
+            addWireTooltipLines(event.getToolTip(), wire);
+        }
+    }
+
+    private static void addWireTooltipLines(List<Component> tooltip, EnergyWireBlock wire) {
+        tooltip.add(
+                colored("CE: ", 0x4E8FDC)
+                        .append(colored(wire.tier().displayName() + " " + MachineTierStats.ceTier(wire.tier()), 0xFFFFFF))
+        );
+        tooltip.add(
+                colored("Amps: ", 0xE0A83A)
+                        .append(colored(Integer.toString(wire.maxAmps()), 0xFFFFFF))
+        );
+        if (wire.insulated()) {
+            tooltip.add(colored("Insulated", 0xB0B0B0));
+        }
     }
 
     public static void addMaterialTooltipLines(List<Component> tooltip, MaterialLookup.MaterialTarget target) {

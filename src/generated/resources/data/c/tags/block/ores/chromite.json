@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:chromite_granite_ore",
-    "create_expansion:chromite_tuff_ore",
-    "create_expansion:chromite_andesite_ore",
     "create_expansion:chromite_end_stone_ore",
+    "create_expansion:chromite_tuff_ore",
     "create_expansion:chromite_blackstone_ore",
     "create_expansion:chromite_deepslate_ore",
-    "create_expansion:chromite_netherrack_ore",
+    "create_expansion:chromite_granite_ore",
     "create_expansion:chromite_diorite_ore",
-    "create_expansion:chromite_ore"
+    "create_expansion:chromite_ore",
+    "create_expansion:chromite_andesite_ore",
+    "create_expansion:chromite_netherrack_ore"
   ]
 }

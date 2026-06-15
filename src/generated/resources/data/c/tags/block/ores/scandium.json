@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:scandium_granite_ore",
-    "create_expansion:scandium_tuff_ore",
-    "create_expansion:scandium_andesite_ore",
     "create_expansion:scandium_end_stone_ore",
+    "create_expansion:scandium_tuff_ore",
     "create_expansion:scandium_blackstone_ore",
     "create_expansion:scandium_deepslate_ore",
-    "create_expansion:scandium_netherrack_ore",
+    "create_expansion:scandium_granite_ore",
     "create_expansion:scandium_diorite_ore",
-    "create_expansion:scandium_ore"
+    "create_expansion:scandium_ore",
+    "create_expansion:scandium_andesite_ore",
+    "create_expansion:scandium_netherrack_ore"
   ]
 }

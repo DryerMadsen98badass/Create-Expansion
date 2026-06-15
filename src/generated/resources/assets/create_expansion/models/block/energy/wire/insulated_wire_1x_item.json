@@ -1,0 +1,177 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#wire",
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#wire",
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#wire",
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#wire",
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#wire",
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#wire",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        6.0,
+        6.0,
+        0.0
+      ],
+      "to": [
+        10.0,
+        10.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#insulation"
+        },
+        "east": {
+          "texture": "#insulation"
+        },
+        "north": {
+          "texture": "#insulation"
+        },
+        "south": {
+          "texture": "#insulation"
+        },
+        "up": {
+          "texture": "#insulation"
+        },
+        "west": {
+          "texture": "#insulation"
+        }
+      },
+      "from": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "to": [
+        6.0,
+        11.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#insulation"
+        },
+        "east": {
+          "texture": "#insulation"
+        },
+        "north": {
+          "texture": "#insulation"
+        },
+        "south": {
+          "texture": "#insulation"
+        },
+        "up": {
+          "texture": "#insulation"
+        },
+        "west": {
+          "texture": "#insulation"
+        }
+      },
+      "from": [
+        10.0,
+        5.0,
+        0.0
+      ],
+      "to": [
+        11.0,
+        11.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#insulation"
+        },
+        "east": {
+          "texture": "#insulation"
+        },
+        "north": {
+          "texture": "#insulation"
+        },
+        "south": {
+          "texture": "#insulation"
+        },
+        "up": {
+          "texture": "#insulation"
+        },
+        "west": {
+          "texture": "#insulation"
+        }
+      },
+      "from": [
+        6.0,
+        5.0,
+        0.0
+      ],
+      "to": [
+        10.0,
+        6.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#insulation"
+        },
+        "east": {
+          "texture": "#insulation"
+        },
+        "north": {
+          "texture": "#insulation"
+        },
+        "south": {
+          "texture": "#insulation"
+        },
+        "up": {
+          "texture": "#insulation"
+        },
+        "west": {
+          "texture": "#insulation"
+        }
+      },
+      "from": [
+        6.0,
+        10.0,
+        0.0
+      ],
+      "to": [
+        10.0,
+        11.0,
+        16.0
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "insulation": "create_expansion:block/energy/wire/insulation_5",
+    "particle": "create_expansion:block/energy/wire/insulation_5",
+    "wire": "create_expansion:block/energy/wire/wire_side"
+  }
+}

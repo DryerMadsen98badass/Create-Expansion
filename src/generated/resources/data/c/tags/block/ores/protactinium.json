@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:protactinium_granite_ore",
-    "create_expansion:protactinium_tuff_ore",
-    "create_expansion:protactinium_andesite_ore",
     "create_expansion:protactinium_end_stone_ore",
+    "create_expansion:protactinium_tuff_ore",
     "create_expansion:protactinium_blackstone_ore",
     "create_expansion:protactinium_deepslate_ore",
-    "create_expansion:protactinium_netherrack_ore",
+    "create_expansion:protactinium_granite_ore",
     "create_expansion:protactinium_diorite_ore",
-    "create_expansion:protactinium_ore"
+    "create_expansion:protactinium_ore",
+    "create_expansion:protactinium_andesite_ore",
+    "create_expansion:protactinium_netherrack_ore"
   ]
 }

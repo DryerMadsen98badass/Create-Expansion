@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:spodumene_granite_ore",
-    "create_expansion:spodumene_tuff_ore",
-    "create_expansion:spodumene_andesite_ore",
     "create_expansion:spodumene_end_stone_ore",
+    "create_expansion:spodumene_tuff_ore",
     "create_expansion:spodumene_blackstone_ore",
     "create_expansion:spodumene_deepslate_ore",
-    "create_expansion:spodumene_netherrack_ore",
+    "create_expansion:spodumene_granite_ore",
     "create_expansion:spodumene_diorite_ore",
-    "create_expansion:spodumene_ore"
+    "create_expansion:spodumene_ore",
+    "create_expansion:spodumene_andesite_ore",
+    "create_expansion:spodumene_netherrack_ore"
   ]
 }

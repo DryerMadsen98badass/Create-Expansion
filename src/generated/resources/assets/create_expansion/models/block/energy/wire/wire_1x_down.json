@@ -1,0 +1,84 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#wire",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ]
+        },
+        "east": {
+          "texture": "#wire",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            10.0,
+            6.0
+          ]
+        },
+        "north": {
+          "texture": "#wire",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            10.0,
+            6.0
+          ]
+        },
+        "south": {
+          "texture": "#wire",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            10.0,
+            6.0
+          ]
+        },
+        "up": {
+          "texture": "#wire",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ]
+        },
+        "west": {
+          "texture": "#wire",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            10.0,
+            6.0
+          ]
+        }
+      },
+      "from": [
+        6.0,
+        0.0,
+        6.0
+      ],
+      "to": [
+        10.0,
+        6.0,
+        10.0
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "create_expansion:block/energy/wire/wire_side",
+    "wire": "create_expansion:block/energy/wire/wire_side"
+  }
+}

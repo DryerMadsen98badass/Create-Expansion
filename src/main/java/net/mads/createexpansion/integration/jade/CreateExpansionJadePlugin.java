@@ -1,16 +1,28 @@
 package net.mads.createexpansion.integration.jade;
 
 import net.mads.createexpansion.CreateExpansion;
+import net.mads.createexpansion.energy.CEEnergyContainer;
+import net.mads.createexpansion.energy.CreativeEnergyBlock;
+import net.mads.createexpansion.energy.CreativeEnergyBlockEntity;
+import net.mads.createexpansion.energy.EnergyWireBlock;
+import net.mads.createexpansion.energy.EnergyWireBlockEntity;
+import net.mads.createexpansion.machine.MachinePortBlock;
+import net.mads.createexpansion.machine.MachinePortBlockEntity;
 import net.mads.createexpansion.multiblock.MultiblockControllerBlock;
 import net.mads.createexpansion.multiblock.MultiblockControllerBlockEntity;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
+import snownee.jade.api.IServerDataProvider;
+import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.WailaPlugin;
@@ -19,9 +31,125 @@ import snownee.jade.api.config.IPluginConfig;
 @WailaPlugin(CreateExpansion.MOD_ID)
 public class CreateExpansionJadePlugin implements IWailaPlugin {
     @Override
+    public void register(IWailaCommonRegistration registration) {
+        registration.registerBlockDataProvider(EnergyStorageProvider.INSTANCE, BlockEntity.class);
+        registration.registerBlockDataProvider(WireProvider.INSTANCE, BlockEntity.class);
+    }
+
+    @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.addConfig(MultiblockStatusProvider.UID, true);
+        registration.addConfig(EnergyStorageProvider.UID, true);
+        registration.addConfig(WireProvider.UID, true);
         registration.registerBlockComponent(MultiblockStatusProvider.INSTANCE, MultiblockControllerBlock.class);
+        registration.registerBlockComponent(EnergyStorageProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(WireProvider.INSTANCE, Block.class);
+    }
+
+    private enum EnergyStorageProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+        INSTANCE;
+
+        private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(CreateExpansion.MOD_ID, "ce_energy_storage");
+
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+            CompoundTag data = accessor.getServerData().getCompound(UID.toString());
+            if (data.contains("Capacity")) {
+                appendEnergyTooltip(tooltip, data);
+                return;
+            }
+
+            CEEnergyContainer energy = energyContainer(accessor);
+            if (energy == null || energy.capacity() <= 0) {
+                return;
+            }
+
+            CompoundTag fallback = new CompoundTag();
+            writeEnergy(fallback, energy);
+            appendEnergyTooltip(tooltip, fallback);
+        }
+
+        private static void appendEnergyTooltip(ITooltip tooltip, CompoundTag data) {
+            int outputAmps = data.getInt("OutputAmps");
+            int inputAmps = data.getInt("InputAmps");
+            String io = outputAmps > 0 ? "out " + outputAmps + "A" : "in " + inputAmps + "A";
+
+            tooltip.add(Component.literal("CE: " + data.getInt("Stored") + " / " + data.getInt("Capacity")).withStyle(ChatFormatting.AQUA));
+            tooltip.add(Component.literal(data.getString("Tier") + " " + data.getInt("Voltage") + " CE, " + io)
+                    .withStyle(ChatFormatting.GRAY));
+        }
+
+        @Override
+        public void appendServerData(CompoundTag root, BlockAccessor accessor) {
+            CEEnergyContainer energy = energyContainer(accessor);
+            if (energy == null || energy.capacity() <= 0) {
+                return;
+            }
+
+            CompoundTag data = root.getCompound(UID.toString());
+            writeEnergy(data, energy);
+            root.put(UID.toString(), data);
+        }
+
+        private static CEEnergyContainer energyContainer(BlockAccessor accessor) {
+            if (accessor.getBlockEntity() instanceof MachinePortBlockEntity port) {
+                return port.ceContainer();
+            }
+            if (accessor.getBlockEntity() instanceof CreativeEnergyBlockEntity creative) {
+                return creative.ceContainer();
+            }
+            return null;
+        }
+
+        private static void writeEnergy(CompoundTag data, CEEnergyContainer energy) {
+            data.putInt("Stored", energy.stored());
+            data.putInt("Capacity", energy.capacity());
+            data.putString("Tier", energy.tier().displayName());
+            data.putInt("Voltage", energy.voltage());
+            data.putInt("InputAmps", energy.maxInputAmps());
+            data.putInt("OutputAmps", energy.maxOutputAmps());
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return UID;
+        }
+    }
+
+    private enum WireProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+        INSTANCE;
+
+        private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(CreateExpansion.MOD_ID, "ce_wire");
+
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+            if (!(accessor.getBlock() instanceof EnergyWireBlock)) {
+                return;
+            }
+
+            CompoundTag data = accessor.getServerData().getCompound(UID.toString());
+            tooltip.add(Component.literal("Flow: " + data.getInt("Amps") + "A").withStyle(ChatFormatting.AQUA));
+            tooltip.add(Component.literal("Tier: " + (data.contains("Tier") ? data.getString("Tier") : "none")).withStyle(ChatFormatting.GRAY));
+        }
+
+        @Override
+        public void appendServerData(CompoundTag root, BlockAccessor accessor) {
+            if (!(accessor.getBlock() instanceof EnergyWireBlock)) {
+                return;
+            }
+            CompoundTag data = root.getCompound(UID.toString());
+            if (accessor.getBlockEntity() instanceof EnergyWireBlockEntity wire) {
+                data.putInt("Amps", wire.currentAmperage());
+                data.putInt("Voltage", wire.currentVoltage());
+                data.putString("Tier", wire.currentVoltage() <= 0 ? "none" : net.mads.createexpansion.machine.MachineTierStats.tierForVoltage(wire.currentVoltage()).displayName());
+                root.put(UID.toString(), data);
+            }
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return UID;
+        }
     }
 
     private enum MultiblockStatusProvider implements IBlockComponentProvider {

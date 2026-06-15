@@ -18,6 +18,7 @@ public class ModDataGenerators {
             event.addProvider(new MaterialBlockStateProvider(event.getGenerator().getPackOutput(), event.getExistingFileHelper()));
             event.addProvider(new MachineCasingModelProvider(event.getGenerator().getPackOutput()));
             event.addProvider(new MachinePortModelProvider(event.getGenerator().getPackOutput()));
+            event.addProvider(new EnergyWireModelProvider(event.getGenerator().getPackOutput()));
         }
 
         CreateExpansion.LOGGER.info("Generating Create Expansion data");

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:magnesite_granite_ore",
-    "create_expansion:magnesite_tuff_ore",
-    "create_expansion:magnesite_andesite_ore",
     "create_expansion:magnesite_end_stone_ore",
+    "create_expansion:magnesite_tuff_ore",
     "create_expansion:magnesite_blackstone_ore",
     "create_expansion:magnesite_deepslate_ore",
-    "create_expansion:magnesite_netherrack_ore",
+    "create_expansion:magnesite_granite_ore",
     "create_expansion:magnesite_diorite_ore",
-    "create_expansion:magnesite_ore"
+    "create_expansion:magnesite_ore",
+    "create_expansion:magnesite_andesite_ore",
+    "create_expansion:magnesite_netherrack_ore"
   ]
 }

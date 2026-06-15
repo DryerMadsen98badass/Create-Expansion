@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:corundum_granite_ore",
-    "create_expansion:corundum_tuff_ore",
-    "create_expansion:corundum_andesite_ore",
     "create_expansion:corundum_end_stone_ore",
+    "create_expansion:corundum_tuff_ore",
     "create_expansion:corundum_blackstone_ore",
     "create_expansion:corundum_deepslate_ore",
-    "create_expansion:corundum_netherrack_ore",
+    "create_expansion:corundum_granite_ore",
     "create_expansion:corundum_diorite_ore",
-    "create_expansion:corundum_ore"
+    "create_expansion:corundum_ore",
+    "create_expansion:corundum_andesite_ore",
+    "create_expansion:corundum_netherrack_ore"
   ]
 }

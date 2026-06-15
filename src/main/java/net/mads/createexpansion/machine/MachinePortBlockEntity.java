@@ -1,6 +1,9 @@
 package net.mads.createexpansion.machine;
 
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
+import net.mads.createexpansion.energy.CEEnergyContainer;
+import net.mads.createexpansion.energy.CEEnergyNetwork;
+import net.mads.createexpansion.energy.CEEnergyStorage;
 import net.mads.createexpansion.multiblock.MultiblockAbility;
 import net.mads.createexpansion.multiblock.MultiblockPart;
 import net.mads.createexpansion.menu.MachinePortMenu;
@@ -19,6 +22,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -41,6 +45,7 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
     private final IItemHandler itemCapability;
     private final IFluidHandler fluidCapability;
     private final int ceCapacity;
+    private final CEEnergyStorage ceStorage;
     private final float kineticStressPerRpm;
 
     private BlockPos controllerPos;
@@ -60,6 +65,7 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         this.itemCapability = createItemCapability();
         this.fluidCapability = createFluidCapability();
         this.ceCapacity = energyCapacity();
+        this.ceStorage = createEnergyStorage();
         this.kineticStressPerRpm = block.isKineticPort() ? MachineTierStats.kineticStressPerRpm(tier) : 0;
     }
 
@@ -83,6 +89,15 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
 
     public int ceCapacity() {
         return ceCapacity;
+    }
+
+    @Nullable
+    public CEEnergyContainer ceContainer() {
+        return ceStorage;
+    }
+
+    public int ceStored() {
+        return ceStorage == null ? 0 : ceStorage.stored();
     }
 
     public MachineTier tier() {
@@ -168,6 +183,18 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
 
     public boolean autoOutput() {
         return autoOutput;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+        tickAutoOutput();
+        if (ceStorage != null && abilities.contains(MultiblockAbility.ENERGY_OUTPUT)) {
+            CEEnergyNetwork.outputToAdjacentWires(level, worldPosition, ceStorage);
+        }
     }
 
     public void toggleAutoOutput() {
@@ -299,6 +326,9 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         tag.putInt("IoColor", ioColor.getId());
         tag.putInt("Circuit", circuit);
         tag.putBoolean("AutoOutput", autoOutput);
+        if (ceStorage != null) {
+            tag.putInt("CE", ceStorage.stored());
+        }
     }
 
     @Override
@@ -327,6 +357,9 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         }
         circuit = Math.max(0, Math.min(32, tag.getInt("Circuit")));
         autoOutput = tag.getBoolean("AutoOutput");
+        if (ceStorage != null) {
+            ceStorage.setStored(tag.getInt("CE"));
+        }
     }
 
     private int itemSlots() {
@@ -368,6 +401,27 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
             return MachineTierStats.ceCapacity(tier);
         }
         return 0;
+    }
+
+    @Nullable
+    private CEEnergyStorage createEnergyStorage() {
+        if (ceCapacity <= 0) {
+            return null;
+        }
+        return new CEEnergyStorage(
+                tier,
+                ceCapacity,
+                () -> abilities.contains(MultiblockAbility.ENERGY_INPUT),
+                () -> abilities.contains(MultiblockAbility.ENERGY_OUTPUT),
+                ignored -> contentChanged(),
+                ignored -> explodeEnergyBlock());
+    }
+
+    private void explodeEnergyBlock() {
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+        level.explode(null, worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D, 4.0F, Level.ExplosionInteraction.BLOCK);
     }
 
     private ItemStackHandler createItemHandler(int slots) {

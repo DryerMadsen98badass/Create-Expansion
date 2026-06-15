@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:trona_granite_ore",
-    "create_expansion:trona_tuff_ore",
-    "create_expansion:trona_andesite_ore",
     "create_expansion:trona_end_stone_ore",
+    "create_expansion:trona_tuff_ore",
     "create_expansion:trona_blackstone_ore",
     "create_expansion:trona_deepslate_ore",
-    "create_expansion:trona_netherrack_ore",
+    "create_expansion:trona_granite_ore",
     "create_expansion:trona_diorite_ore",
-    "create_expansion:trona_ore"
+    "create_expansion:trona_ore",
+    "create_expansion:trona_andesite_ore",
+    "create_expansion:trona_netherrack_ore"
   ]
 }

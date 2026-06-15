@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:thallium_granite_ore",
-    "create_expansion:thallium_tuff_ore",
-    "create_expansion:thallium_andesite_ore",
     "create_expansion:thallium_end_stone_ore",
+    "create_expansion:thallium_tuff_ore",
     "create_expansion:thallium_blackstone_ore",
     "create_expansion:thallium_deepslate_ore",
-    "create_expansion:thallium_netherrack_ore",
+    "create_expansion:thallium_granite_ore",
     "create_expansion:thallium_diorite_ore",
-    "create_expansion:thallium_ore"
+    "create_expansion:thallium_ore",
+    "create_expansion:thallium_andesite_ore",
+    "create_expansion:thallium_netherrack_ore"
   ]
 }

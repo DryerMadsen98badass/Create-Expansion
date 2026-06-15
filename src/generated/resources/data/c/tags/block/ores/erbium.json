@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:erbium_granite_ore",
-    "create_expansion:erbium_tuff_ore",
-    "create_expansion:erbium_andesite_ore",
     "create_expansion:erbium_end_stone_ore",
+    "create_expansion:erbium_tuff_ore",
     "create_expansion:erbium_blackstone_ore",
     "create_expansion:erbium_deepslate_ore",
-    "create_expansion:erbium_netherrack_ore",
+    "create_expansion:erbium_granite_ore",
     "create_expansion:erbium_diorite_ore",
-    "create_expansion:erbium_ore"
+    "create_expansion:erbium_ore",
+    "create_expansion:erbium_andesite_ore",
+    "create_expansion:erbium_netherrack_ore"
   ]
 }

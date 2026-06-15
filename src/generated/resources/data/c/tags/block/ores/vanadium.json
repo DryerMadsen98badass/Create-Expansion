@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:vanadium_granite_ore",
-    "create_expansion:vanadium_tuff_ore",
-    "create_expansion:vanadium_andesite_ore",
     "create_expansion:vanadium_end_stone_ore",
+    "create_expansion:vanadium_tuff_ore",
     "create_expansion:vanadium_blackstone_ore",
     "create_expansion:vanadium_deepslate_ore",
-    "create_expansion:vanadium_netherrack_ore",
+    "create_expansion:vanadium_granite_ore",
     "create_expansion:vanadium_diorite_ore",
-    "create_expansion:vanadium_ore"
+    "create_expansion:vanadium_ore",
+    "create_expansion:vanadium_andesite_ore",
+    "create_expansion:vanadium_netherrack_ore"
   ]
 }

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:azurite_granite_ore",
-    "create_expansion:azurite_tuff_ore",
-    "create_expansion:azurite_andesite_ore",
     "create_expansion:azurite_end_stone_ore",
+    "create_expansion:azurite_tuff_ore",
     "create_expansion:azurite_blackstone_ore",
     "create_expansion:azurite_deepslate_ore",
-    "create_expansion:azurite_netherrack_ore",
+    "create_expansion:azurite_granite_ore",
     "create_expansion:azurite_diorite_ore",
-    "create_expansion:azurite_ore"
+    "create_expansion:azurite_ore",
+    "create_expansion:azurite_andesite_ore",
+    "create_expansion:azurite_netherrack_ore"
   ]
 }

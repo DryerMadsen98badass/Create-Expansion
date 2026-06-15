@@ -1,6 +1,6 @@
 {
   "type": "create_expansion:machine",
-  "cet": 0,
+  "cet": 16,
   "duration": 20,
   "item_inputs": [
     {
@@ -16,6 +16,5 @@
       }
     }
   ],
-  "kinetic": "lv",
   "recipe_type": "create_expansion:test_foundry"
 }

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:magnetite_granite_ore",
-    "create_expansion:magnetite_tuff_ore",
-    "create_expansion:magnetite_andesite_ore",
     "create_expansion:magnetite_end_stone_ore",
+    "create_expansion:magnetite_tuff_ore",
     "create_expansion:magnetite_blackstone_ore",
     "create_expansion:magnetite_deepslate_ore",
-    "create_expansion:magnetite_netherrack_ore",
+    "create_expansion:magnetite_granite_ore",
     "create_expansion:magnetite_diorite_ore",
-    "create_expansion:magnetite_ore"
+    "create_expansion:magnetite_ore",
+    "create_expansion:magnetite_andesite_ore",
+    "create_expansion:magnetite_netherrack_ore"
   ]
 }

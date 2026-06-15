@@ -422,8 +422,15 @@ public final class MultiblockDefinition {
                 if (recipeType.maxFluidOutputs() > 0) {
                     abilities.add(MultiblockAbility.FLUID_OUTPUT);
                 }
-                if (recipeType.usesRpm()) {
-                    abilities.add(MultiblockAbility.KINETIC_INPUT);
+                switch (recipeType.kineticMode()) {
+                    case CONSUMES -> abilities.add(MultiblockAbility.KINETIC_INPUT);
+                    case GENERATES -> abilities.add(MultiblockAbility.KINETIC_OUTPUT);
+                    case BOTH -> {
+                        abilities.add(MultiblockAbility.KINETIC_INPUT);
+                        abilities.add(MultiblockAbility.KINETIC_OUTPUT);
+                    }
+                    case NONE -> {
+                    }
                 }
 
                 switch (recipeType.energyMode()) {

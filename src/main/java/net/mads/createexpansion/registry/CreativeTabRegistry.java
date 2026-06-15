@@ -20,6 +20,10 @@ public class CreativeTabRegistry {
             .displayItems((parameters, output) -> {
                 ItemRegistry.getAllMultiblockControllerItems().forEach(item -> output.accept(item.get()));
                 ItemRegistry.getAllMachineCasingItems().forEach(item -> output.accept(item.get()));
+                ItemRegistry.getAllEnergyWireItems().forEach(item -> output.accept(item.get()));
+                ItemRegistry.getAllInsulatedEnergyWireItems().forEach(item -> output.accept(item.get()));
+                output.accept(ItemRegistry.CREATIVE_ENERGY_PROVIDER.get());
+                output.accept(ItemRegistry.CREATIVE_ENERGY_CONSUMER.get());
                 ItemRegistry.getAllMachinePortItems().forEach(item -> output.accept(item.get()));
                 ItemRegistry.getAllStaticMachinePortItems().forEach(item -> output.accept(item.get()));
             })

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:europium_granite_ore",
-    "create_expansion:europium_tuff_ore",
-    "create_expansion:europium_andesite_ore",
     "create_expansion:europium_end_stone_ore",
+    "create_expansion:europium_tuff_ore",
     "create_expansion:europium_blackstone_ore",
     "create_expansion:europium_deepslate_ore",
-    "create_expansion:europium_netherrack_ore",
+    "create_expansion:europium_granite_ore",
     "create_expansion:europium_diorite_ore",
-    "create_expansion:europium_ore"
+    "create_expansion:europium_ore",
+    "create_expansion:europium_andesite_ore",
+    "create_expansion:europium_netherrack_ore"
   ]
 }

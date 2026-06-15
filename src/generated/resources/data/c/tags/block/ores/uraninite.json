@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:uraninite_granite_ore",
-    "create_expansion:uraninite_tuff_ore",
-    "create_expansion:uraninite_andesite_ore",
     "create_expansion:uraninite_end_stone_ore",
+    "create_expansion:uraninite_tuff_ore",
     "create_expansion:uraninite_blackstone_ore",
     "create_expansion:uraninite_deepslate_ore",
-    "create_expansion:uraninite_netherrack_ore",
+    "create_expansion:uraninite_granite_ore",
     "create_expansion:uraninite_diorite_ore",
-    "create_expansion:uraninite_ore"
+    "create_expansion:uraninite_ore",
+    "create_expansion:uraninite_andesite_ore",
+    "create_expansion:uraninite_netherrack_ore"
   ]
 }

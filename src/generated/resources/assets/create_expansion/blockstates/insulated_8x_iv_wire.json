@@ -1,0 +1,57 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "create_expansion:block/energy/wire/insulated_wire_8x_core"
+      }
+    },
+    {
+      "apply": {
+        "model": "create_expansion:block/energy/wire/insulated_wire_8x_down"
+      },
+      "when": {
+        "down": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "create_expansion:block/energy/wire/insulated_wire_8x_up"
+      },
+      "when": {
+        "up": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "create_expansion:block/energy/wire/insulated_wire_8x_north"
+      },
+      "when": {
+        "north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "create_expansion:block/energy/wire/insulated_wire_8x_south"
+      },
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "create_expansion:block/energy/wire/insulated_wire_8x_west"
+      },
+      "when": {
+        "west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "create_expansion:block/energy/wire/insulated_wire_8x_east"
+      },
+      "when": {
+        "east": "true"
+      }
+    }
+  ]
+}

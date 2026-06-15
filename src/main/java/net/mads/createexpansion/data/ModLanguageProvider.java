@@ -1,6 +1,8 @@
 package net.mads.createexpansion.data;
 
 import net.mads.createexpansion.CreateExpansion;
+import net.mads.createexpansion.energy.EnergyWireBlock;
+import net.mads.createexpansion.energy.WireThickness;
 import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialPart;
@@ -27,6 +29,10 @@ public class ModLanguageProvider extends LanguageProvider {
                 add("block." + CreateExpansion.MOD_ID + "." + controller.registryName(), controller.displayName()));
         for (MachineTier tier : MachineTier.ALL) {
             add("block." + CreateExpansion.MOD_ID + "." + tier.casingRegistryName(), tier.casingDisplayName());
+            for (WireThickness thickness : WireThickness.ALL) {
+                add("block." + CreateExpansion.MOD_ID + "." + EnergyWireBlock.registryName(tier, thickness, false), EnergyWireBlock.displayName(tier, thickness, false));
+                add("block." + CreateExpansion.MOD_ID + "." + EnergyWireBlock.registryName(tier, thickness, true), EnergyWireBlock.displayName(tier, thickness, true));
+            }
             for (MachinePortType portType : MachinePortType.ALL) {
                 add("block." + CreateExpansion.MOD_ID + "." + portType.registryName(tier), portType.displayName(tier));
             }

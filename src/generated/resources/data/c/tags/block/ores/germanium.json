@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:germanium_granite_ore",
-    "create_expansion:germanium_tuff_ore",
-    "create_expansion:germanium_andesite_ore",
     "create_expansion:germanium_end_stone_ore",
+    "create_expansion:germanium_tuff_ore",
     "create_expansion:germanium_blackstone_ore",
     "create_expansion:germanium_deepslate_ore",
-    "create_expansion:germanium_netherrack_ore",
+    "create_expansion:germanium_granite_ore",
     "create_expansion:germanium_diorite_ore",
-    "create_expansion:germanium_ore"
+    "create_expansion:germanium_ore",
+    "create_expansion:germanium_andesite_ore",
+    "create_expansion:germanium_netherrack_ore"
   ]
 }

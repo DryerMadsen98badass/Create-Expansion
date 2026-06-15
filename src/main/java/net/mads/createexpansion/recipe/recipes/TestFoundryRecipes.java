@@ -1,7 +1,6 @@
 package net.mads.createexpansion.recipe.recipes;
 
 import net.mads.createexpansion.machine.MachineTier;
-import net.mads.createexpansion.recipe.CERecipeLogics;
 import net.mads.createexpansion.recipe.CERecipeTypes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -15,7 +14,7 @@ public final class TestFoundryRecipes {
                 .inputItem("minecraft:diamond", 1)
                 .outputItem("minecraft:dirt", 1)
                 .duration(20)
-                .kinetic(MachineTier.LV)
+                .CEt(MachineTier.LV)
                 .save(output);
     }
 }

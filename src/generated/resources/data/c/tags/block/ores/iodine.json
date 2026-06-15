@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:iodine_granite_ore",
-    "create_expansion:iodine_tuff_ore",
-    "create_expansion:iodine_andesite_ore",
     "create_expansion:iodine_end_stone_ore",
+    "create_expansion:iodine_tuff_ore",
     "create_expansion:iodine_blackstone_ore",
     "create_expansion:iodine_deepslate_ore",
-    "create_expansion:iodine_netherrack_ore",
+    "create_expansion:iodine_granite_ore",
     "create_expansion:iodine_diorite_ore",
-    "create_expansion:iodine_ore"
+    "create_expansion:iodine_ore",
+    "create_expansion:iodine_andesite_ore",
+    "create_expansion:iodine_netherrack_ore"
   ]
 }
