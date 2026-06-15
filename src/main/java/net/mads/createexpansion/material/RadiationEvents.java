@@ -66,11 +66,8 @@ public final class RadiationEvents {
             return 0;
         }
 
-        MaterialLookup.MaterialTarget target = MaterialLookup.find(stack);
-        if (target == null) {
-            return 0;
-        }
-
-        return target.material().radioactivity() * stack.getCount();
+        return MaterialLookup.find(stack)
+                .map(target -> target.material().radioactivity() * stack.getCount())
+                .orElse(0);
     }
 }

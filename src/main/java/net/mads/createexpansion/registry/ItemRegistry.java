@@ -85,7 +85,17 @@ public class ItemRegistry {
     }
 
     public static DeferredHolder<Item, ? extends Item> getMaterialItem(IndustrialMaterial material, MaterialPart part) {
-        return MATERIAL_ITEMS.get(material.id()).get(part);
+        Map<MaterialPart, DeferredHolder<Item, ? extends Item>> items = MATERIAL_ITEMS.get(material.id());
+        if (items == null) {
+            throw new IllegalStateException("No items registered for material '" + material.id() + "'");
+        }
+
+        DeferredHolder<Item, ? extends Item> holder = items.get(part);
+        if (holder == null) {
+            throw new IllegalStateException("No item registered for material '" + material.id() + "' part '" + part + "'");
+        }
+
+        return holder;
     }
 
     public static Collection<DeferredHolder<Item, ? extends Item>> getAllMaterialItems() {

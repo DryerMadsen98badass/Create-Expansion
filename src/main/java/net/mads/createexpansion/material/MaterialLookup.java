@@ -8,32 +8,34 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.Optional;
+
 public final class MaterialLookup {
     private MaterialLookup() {
     }
 
-    public static MaterialTarget find(ItemStack stack) {
+    public static Optional<MaterialTarget> find(ItemStack stack) {
         Item item = stack.getItem();
 
         if (item instanceof MaterialItem materialItem) {
-            return new MaterialTarget(materialItem.material(), materialItem.part());
+            return Optional.of(new MaterialTarget(materialItem.material(), materialItem.part()));
         }
 
         if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof MaterialBlock materialBlock) {
-            return new MaterialTarget(materialBlock.material(), materialBlock.part());
+            return Optional.of(new MaterialTarget(materialBlock.material(), materialBlock.part()));
         }
 
-        MaterialTarget existingTarget = findExistingMaterialPart(item);
-        if (existingTarget != null) {
+        Optional<MaterialTarget> existingTarget = findExistingMaterialPart(item);
+        if (existingTarget.isPresent()) {
             return existingTarget;
         }
 
         return findMoltenBucket(stack);
     }
 
-    public static MaterialTarget find(FluidStack stack) {
+    public static Optional<MaterialTarget> find(FluidStack stack) {
         if (stack.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         for (FluidRegistry.RegisteredFluid fluid : FluidRegistry.MATERIAL_FLUIDS.values()) {
@@ -43,28 +45,28 @@ public final class MaterialLookup {
 
             for (IndustrialMaterial material : IndustrialMaterials.ALL) {
                 if (material.id().equals(fluid.definition().id())) {
-                    return new MaterialTarget(material, MaterialPart.MOLTEN_FLUID);
+                    return Optional.of(new MaterialTarget(material, MaterialPart.MOLTEN_FLUID));
                 }
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 
-    private static MaterialTarget findExistingMaterialPart(Item item) {
+    private static Optional<MaterialTarget> findExistingMaterialPart(Item item) {
         ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
         for (IndustrialMaterial material : IndustrialMaterials.ALL) {
             for (MaterialPart part : material.parts()) {
                 if (itemId.equals(material.existingParts().get(part))) {
-                    return new MaterialTarget(material, part);
+                    return Optional.of(new MaterialTarget(material, part));
                 }
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 
-    private static MaterialTarget findMoltenBucket(ItemStack stack) {
+    private static Optional<MaterialTarget> findMoltenBucket(ItemStack stack) {
         for (FluidRegistry.RegisteredFluid fluid : FluidRegistry.MATERIAL_FLUIDS.values()) {
             if (!stack.is(fluid.bucket().get())) {
                 continue;
@@ -72,12 +74,12 @@ public final class MaterialLookup {
 
             for (IndustrialMaterial material : IndustrialMaterials.ALL) {
                 if (material.id().equals(fluid.definition().id())) {
-                    return new MaterialTarget(material, MaterialPart.MOLTEN_FLUID);
+                    return Optional.of(new MaterialTarget(material, MaterialPart.MOLTEN_FLUID));
                 }
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 
     public record MaterialTarget(IndustrialMaterial material, MaterialPart part) {
