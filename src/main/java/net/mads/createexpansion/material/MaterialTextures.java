@@ -12,7 +12,7 @@ public class MaterialTextures {
             return Optional.empty();
         }
 
-        if (isCastMold(part)) {
+        if (part.isCastMold()) {
             return Optional.of(itemMaterialSetModel("mold", modelName));
         }
 
@@ -51,44 +51,6 @@ public class MaterialTextures {
                 CreateExpansion.MOD_ID,
                 "item/material_sets/" + materialSet + "/" + modelName
         );
-    }
-
-    private static boolean isCastMold(MaterialPart part) {
-        return switch (part) {
-            case CAST_NUGGET_MOLD,
-                 CAST_BLOCK_MOLD,
-                 CAST_BEARING_BALL_MOLD,
-                 CAST_ROTOR_MOLD,
-                 CAST_INGOT_MOLD,
-                 CAST_PLATE_MOLD,
-                 CAST_ROD_MOLD,
-                 CAST_LONG_ROD_MOLD,
-                 CAST_BOLT_MOLD,
-                 CAST_RING_MOLD,
-                 CAST_SMALL_RING_MOLD,
-                 CAST_LARGE_RING_MOLD,
-                 CAST_GEAR_MOLD,
-                 CAST_SMALL_GEAR_MOLD,
-                 CAST_BEARING_MOLD,
-                 CAST_SCREW_MOLD,
-                 HOT_CAST_NUGGET_MOLD,
-                 HOT_CAST_BLOCK_MOLD,
-                 HOT_CAST_BEARING_BALL_MOLD,
-                 HOT_CAST_ROTOR_MOLD,
-                 HOT_CAST_INGOT_MOLD,
-                 HOT_CAST_PLATE_MOLD,
-                 HOT_CAST_ROD_MOLD,
-                 HOT_CAST_LONG_ROD_MOLD,
-                 HOT_CAST_BOLT_MOLD,
-                 HOT_CAST_RING_MOLD,
-                 HOT_CAST_SMALL_RING_MOLD,
-                 HOT_CAST_LARGE_RING_MOLD,
-                 HOT_CAST_GEAR_MOLD,
-                 HOT_CAST_SMALL_GEAR_MOLD,
-                 HOT_CAST_BEARING_MOLD,
-                 HOT_CAST_SCREW_MOLD -> true;
-            default -> false;
-        };
     }
 
     private static ResourceLocation blockMaterialSetModel(IndustrialMaterial material, String modelName) {

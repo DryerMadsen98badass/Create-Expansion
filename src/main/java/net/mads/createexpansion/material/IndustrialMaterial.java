@@ -53,7 +53,7 @@ public record IndustrialMaterial(
             return meltingPoint;
         }
 
-        if (part.name().startsWith("CAST_") || part.name().startsWith("HOT_CAST_")) {
+        if (part.isCastPart()) {
             return castTemperature();
         }
 

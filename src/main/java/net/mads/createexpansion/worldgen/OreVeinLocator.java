@@ -77,7 +77,7 @@ public final class OreVeinLocator {
     }
 
     private static Optional<GridResult> resolveGrid(ServerLevel level, int gridX, int gridZ) {
-        long gridSeed = mixedSeed(level.getSeed(), gridX, gridZ, 0x5349A85D);
+        long gridSeed = OreDepositUtils.mixedSeed(level.getSeed(), gridX, gridZ, 0x5349A85D);
         RandomSource layoutRandom = RandomSource.create(gridSeed);
         int maxOffset = OreDepositDefinitions.GRID_SIZE_CHUNKS - OreDepositDefinitions.DEPOSIT_SIZE_CHUNKS;
         int startChunkX = gridX * OreDepositDefinitions.GRID_SIZE_CHUNKS + layoutRandom.nextInt(maxOffset + 1);
@@ -98,14 +98,14 @@ public final class OreVeinLocator {
 
         int totalWeight = candidates.stream().mapToInt(OreDeposit::weight).sum();
         int spawnChance = Math.min(totalWeight, OreDepositDefinitions.CHANCE_SCALE);
-        RandomSource chanceRandom = RandomSource.create(mixedSeed(level.getSeed(), gridX, gridZ, 0x29C9D35F));
+        RandomSource chanceRandom = RandomSource.create(OreDepositUtils.mixedSeed(level.getSeed(), gridX, gridZ, 0x29C9D35F));
         if (chanceRandom.nextInt(OreDepositDefinitions.CHANCE_SCALE) >= spawnChance) {
             return Optional.empty();
         }
 
-        RandomSource pickRandom = RandomSource.create(mixedSeed(level.getSeed(), gridX, gridZ, 0x713F4A7B));
-        OreDeposit deposit = pickDeposit(candidates, pickRandom.nextInt(totalWeight));
-        RandomSource heightRandom = RandomSource.create(mixedSeed(level.getSeed(), gridX, gridZ, deposit.id().hashCode()));
+        RandomSource pickRandom = RandomSource.create(OreDepositUtils.mixedSeed(level.getSeed(), gridX, gridZ, 0x713F4A7B));
+        OreDeposit deposit = OreDepositUtils.pickDeposit(candidates, pickRandom.nextInt(totalWeight));
+        RandomSource heightRandom = RandomSource.create(OreDepositUtils.mixedSeed(level.getSeed(), gridX, gridZ, deposit.id().hashCode()));
         int centerY = OreDepositPlacement.chooseCenterY(level, deposit, centerX, centerZ, heightRandom);
 
         return Optional.of(new GridResult(deposit, centerX, centerY, centerZ));
@@ -127,18 +127,6 @@ public final class OreVeinLocator {
         }
     }
 
-    private static OreDeposit pickDeposit(List<OreDeposit> candidates, int roll) {
-        int cursor = roll;
-        for (OreDeposit deposit : candidates) {
-            cursor -= deposit.weight();
-            if (cursor < 0) {
-                return deposit;
-            }
-        }
-
-        return candidates.get(candidates.size() - 1);
-    }
-
     private static boolean matches(OreDeposit deposit, String normalizedQuery) {
         if (normalize(deposit.id()).equals(normalizedQuery) || normalize(deposit.id()).contains(normalizedQuery)) {
             return true;
@@ -152,23 +140,6 @@ public final class OreVeinLocator {
 
     private static String normalize(String value) {
         return value.toLowerCase(Locale.ROOT).replace(' ', '_');
-    }
-
-    private static long mixedSeed(long seed, int a, int b, int c) {
-        long value = seed;
-        value ^= (long) a * 0x9E3779B97F4A7C15L;
-        value ^= (long) b * 0xC2B2AE3D27D4EB4FL;
-        value ^= (long) c * 0x165667B19E3779F9L;
-        return mix(value);
-    }
-
-    private static long mix(long value) {
-        value ^= value >>> 33;
-        value *= 0xff51afd7ed558ccdL;
-        value ^= value >>> 33;
-        value *= 0xc4ceb9fe1a85ec53L;
-        value ^= value >>> 33;
-        return value;
     }
 
     private record GridResult(OreDeposit deposit, int centerX, int centerY, int centerZ) {

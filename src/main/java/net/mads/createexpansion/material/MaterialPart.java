@@ -148,6 +148,18 @@ public enum MaterialPart {
         return kind == Kind.FLUID;
     }
 
+    public boolean isCastPart() {
+        return name().startsWith("CAST_") || name().startsWith("HOT_CAST_");
+    }
+
+    public boolean isCastMold() {
+        return id.endsWith("_mold");
+    }
+
+    public boolean isHotCast() {
+        return name().startsWith("HOT_CAST_");
+    }
+
     public String registryName(IndustrialMaterial material) {
         return material.id() + "_" + id;
     }
