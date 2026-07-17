@@ -38,3 +38,8 @@ run/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
+
+### Local workspace artifacts ###
+/.tmp/
+/.codex_tmp/
+/assets/
