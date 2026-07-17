@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:strontium_hot_cast_rotor_mold"
+    }
+  ],
+  "processingTime": 800,
+  "results": [
+    {
+      "id": "create_expansion:strontium_cast_rotor_mold"
+    }
+  ]
+}

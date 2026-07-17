@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:thallium_cast_bolt"
+    }
+  ],
+  "processingTime": 50,
+  "results": [
+    {
+      "id": "create_expansion:thallium_bolt"
+    }
+  ]
+}

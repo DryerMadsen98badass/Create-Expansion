@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:cadmium_cast_bearing_ball"
+    }
+  ],
+  "processingTime": 50,
+  "results": [
+    {
+      "id": "create_expansion:cadmium_bearing_ball"
+    }
+  ]
+}

@@ -3,7 +3,7 @@ package net.mads.createexpansion.machine;
 import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.foundation.block.IBE;
-import net.mads.createexpansion.multiblock.MultiblockAbility;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

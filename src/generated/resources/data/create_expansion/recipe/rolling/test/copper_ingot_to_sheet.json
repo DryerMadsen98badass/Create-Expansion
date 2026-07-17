@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:rolling",
+  "ingredients": [
+    {
+      "item": "minecraft:copper_ingot"
+    }
+  ],
+  "min_rpm": 16,
+  "results": [
+    {
+      "id": "create:copper_sheet"
+    }
+  ]
+}

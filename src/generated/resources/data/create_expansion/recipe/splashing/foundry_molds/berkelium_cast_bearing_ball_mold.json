@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:berkelium_hot_cast_bearing_ball_mold"
+    }
+  ],
+  "processingTime": 50,
+  "results": [
+    {
+      "id": "create_expansion:berkelium_cast_bearing_ball_mold"
+    }
+  ]
+}

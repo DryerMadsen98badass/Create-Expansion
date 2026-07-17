@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:electrum_hot_cast_small_ring_mold"
+    }
+  ],
+  "processingTime": 50,
+  "results": [
+    {
+      "id": "create_expansion:electrum_cast_small_ring_mold"
+    }
+  ]
+}

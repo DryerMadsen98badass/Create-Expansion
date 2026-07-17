@@ -26,6 +26,7 @@ public class IndustrialMaterials {
             .existing(NUGGET, "minecraft:iron_nugget")
             .existing(BLOCK, "minecraft:iron_block")
             .existing(CRUSHED_ORE, "create:crushed_raw_iron")
+            .existing(PLATE, "create:iron_sheet")
             .build();
 
     public static final IndustrialMaterial ZINC = material("zinc", "Zinc", 0xC8C8B0)
@@ -58,6 +59,7 @@ public class IndustrialMaterials {
             .existing(NUGGET, "minecraft:gold_nugget")
             .existing(BLOCK, "minecraft:gold_block")
             .existing(CRUSHED_ORE, "create:crushed_raw_gold")
+            .existing(PLATE, "create:golden_sheet")
             .build();
 
     public static final IndustrialMaterial COPPER = material("copper", "Copper", 0xD17A45)
@@ -74,6 +76,7 @@ public class IndustrialMaterials {
             .existing(NUGGET, "create:copper_nugget")
             .existing(BLOCK, "minecraft:copper_block")
             .existing(CRUSHED_ORE, "create:crushed_raw_copper")
+            .existing(PLATE, "create:copper_sheet")
             .build();
 
     public static final IndustrialMaterial TIN = material("tin", "Tin", 0xD6D6C8)
@@ -523,7 +526,7 @@ public class IndustrialMaterials {
             .existing(BLOCK, "create:andesite_alloy_block")
             .build();
 
-    public static final IndustrialMaterial WROUGH_IRON = material("wrough_iron", "Wrough Iron", 0x878787)
+    public static final IndustrialMaterial WROUGHT_IRON = material("wrought_iron", "WroughT Iron", 0x878787)
             .contains(component(IRON, 1))
             .strength(7)
             .meltingPoint(1538)
@@ -654,7 +657,7 @@ public class IndustrialMaterials {
     public static final List<IndustrialMaterial> ALL = java.util.stream.Stream.concat(
             List.of(
                     BRONZE,
-                    WROUGH_IRON,
+                    WROUGHT_IRON,
                     BRASS,
                     ELECTRUM,
                     ANDESITE_ALLOY,
@@ -927,7 +930,6 @@ public class IndustrialMaterials {
                     CAST_BEARING,
                     CAST_ROTOR,
                     CAST_NUGGET_MOLD,
-                    CAST_BLOCK_MOLD,
                     CAST_BEARING_BALL_MOLD,
                     CAST_ROTOR_MOLD,
                     CAST_INGOT_MOLD,
@@ -943,7 +945,6 @@ public class IndustrialMaterials {
                     CAST_BEARING_MOLD,
                     CAST_SCREW_MOLD,
                     HOT_CAST_NUGGET_MOLD,
-                    HOT_CAST_BLOCK_MOLD,
                     HOT_CAST_BEARING_BALL_MOLD,
                     HOT_CAST_ROTOR_MOLD,
                     HOT_CAST_INGOT_MOLD,
@@ -1093,14 +1094,15 @@ public class IndustrialMaterials {
         }
 
         private int resolvedMeltingPoint() {
-            if (meltingPointSet || components.isEmpty()) {
+            if (components.isEmpty()) {
                 return meltingPoint;
             }
 
-            return components.stream()
+            int componentMeltingPoint = components.stream()
                     .mapToInt(component -> component.material().meltingPoint())
                     .max()
                     .orElse(meltingPoint);
+            return Math.max(meltingPoint, componentMeltingPoint);
         }
 
         private List<MaterialComponent> resolvedComponents() {

@@ -1,0 +1,96 @@
+Adding elements, materials, alloys, and minerals
+================================================
+
+Main file:
+
+src/main/java/net/mads/createexpansion/material/IndustrialMaterials.java
+
+Material objects are IndustrialMaterial records. They are usually built with the private
+MaterialBuilder methods in IndustrialMaterials.
+
+Common builder methods
+----------------------
+- material(id, displayName, color)
+- elementMaterial(id, displayName, symbol, color, strength, meltingPoint)
+- oreMineral(id, displayName, color)
+- .element("Fe")
+- .strength(6)
+- .meltingPoint(1538)
+- .radioactivity(4)
+- .solidMetal()
+- .gemElement()
+- .fluidOnly()
+- .allMetals()
+- .allMaterials()
+- .allOreProcessing()
+- .parts(MaterialPart...)
+- .contains(component(IRON, 1), component(CARBON, 1))
+- .components(component("Ca", 1), component("C", 1), component("O", 3))
+- .existing(MaterialPart.INGOT, "minecraft:iron_ingot")
+- .itemMaterialSet("shiny")
+- .blockMaterialSet("dull")
+- .materialSet("bright")
+- .build()
+
+Example: simple new element metal
+---------------------------------
+public static final IndustrialMaterial EXAMPLEIUM = elementMaterial("exampleium", "Exampleium", "Ex", 0x77CCFF, 5, 1200)
+        .solidMetal()
+        .build();
+
+Then add EXAMPLEIUM to the correct list:
+
+- PERIODIC_ELEMENTS if it is a periodic element.
+- ALL if it is an alloy, mineral, gem, or custom material.
+
+Example: new alloy
+------------------
+public static final IndustrialMaterial EXAMPLE_ALLOY = material("example_alloy", "Example Alloy", 0xBBAA88)
+        .contains(component(IRON, 2), component(COPPER, 1))
+        .strength(7)
+        .meltingPoint(1450)
+        .allMaterials()
+        .build();
+
+Then add EXAMPLE_ALLOY to the custom material list inside ALL.
+
+Example: mineral with formula
+-----------------------------
+public static final IndustrialMaterial EXAMPLE_ORE = oreMineral("example_ore", "Example Ore", 0x8899AA)
+        .components(component("Fe", 1), component("S", 2))
+        .strength(4)
+        .meltingPoint(900)
+        .build();
+
+Existing vanilla/Create parts
+-----------------------------
+Use .existing(part, "namespace:id") when another mod or Minecraft already has that item/block.
+The registry skips generated blocks/items for existing parts.
+
+Example:
+
+.existing(INGOT, "minecraft:iron_ingot")
+.existing(ORE, "minecraft:iron_ore")
+.existing(CRUSHED_ORE, "create:crushed_raw_iron")
+
+What gets created automatically
+-------------------------------
+- item parts from MaterialPart where part.kind is ITEM
+- block parts from MaterialPart where part.kind is BLOCK
+- fluid parts from MaterialPart where part.kind is FLUID, if the fluid registry supports it
+- language entries
+- item models if MaterialTextures has a model mapping
+- blockstates and block models if MaterialTextures has a model mapping
+- block tags from MaterialBlockTagProvider
+- material lookup/tooltips/tints through existing material systems
+
+Important files
+---------------
+- IndustrialMaterials.java
+- IndustrialMaterial.java
+- MaterialComponent.java
+- MaterialPart.java
+- MaterialTextures.java
+- MaterialItem.java
+- MaterialBlock.java
+- MaterialLookup.java

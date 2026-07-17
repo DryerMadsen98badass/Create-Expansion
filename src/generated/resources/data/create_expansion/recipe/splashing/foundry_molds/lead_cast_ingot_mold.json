@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:lead_hot_cast_ingot_mold"
+    }
+  ],
+  "processingTime": 200,
+  "results": [
+    {
+      "id": "create_expansion:lead_cast_ingot_mold"
+    }
+  ]
+}

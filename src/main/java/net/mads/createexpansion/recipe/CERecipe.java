@@ -39,6 +39,7 @@ public record CERecipe(
         Optional<String> kineticTier,
         Optional<Integer> minRpm,
         Optional<Integer> maxRpm,
+        Optional<Integer> requiredTemp,
         List<ResourceLocation> requiredLogic,
         List<ResourceLocation> optionalLogic
 ) implements Recipe<CERecipeInput> {
@@ -58,8 +59,7 @@ public record CERecipe(
             ExtraCodecs.intRange(1, 32).optionalFieldOf("circuit").forGetter(CERecipe::circuit),
             ExtraCodecs.NON_EMPTY_STRING.optionalFieldOf("tier").forGetter(CERecipe::tier),
             ExtraCodecs.NON_EMPTY_STRING.optionalFieldOf("kinetic").forGetter(CERecipe::kineticTier),
-            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("min_rpm").forGetter(CERecipe::minRpm),
-            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_rpm").forGetter(CERecipe::maxRpm),
+            RuntimeFields.CODEC.forGetter(recipe -> new RuntimeFields(recipe.minRpm(), recipe.maxRpm(), recipe.requiredTemp())),
             LogicFields.CODEC.forGetter(recipe -> new LogicFields(recipe.requiredLogic(), recipe.optionalLogic()))
     ).apply(instance, CERecipe::fromCodec));
 
@@ -88,12 +88,19 @@ public record CERecipe(
             Optional<Integer> circuit,
             Optional<String> tier,
             Optional<String> kineticTier,
-            Optional<Integer> minRpm,
-            Optional<Integer> maxRpm,
+            RuntimeFields runtimeFields,
             LogicFields logicFields
     ) {
         int signedCet = energyDirection == EnergyDirection.GENERATE ? -cet : cet;
-        return new CERecipe(recipeType, itemInputs, fluidInputs, notConsumableItems, notConsumableFluids, itemOutputs, fluidOutputs, duration, signedCet, circuit, tier, kineticTier, minRpm, maxRpm, logicFields.requiredLogic(), logicFields.optionalLogic());
+        return new CERecipe(recipeType, itemInputs, fluidInputs, notConsumableItems, notConsumableFluids, itemOutputs, fluidOutputs, duration, signedCet, circuit, tier, kineticTier, runtimeFields.minRpm(), runtimeFields.maxRpm(), runtimeFields.requiredTemp(), logicFields.requiredLogic(), logicFields.optionalLogic());
+    }
+
+    private record RuntimeFields(Optional<Integer> minRpm, Optional<Integer> maxRpm, Optional<Integer> requiredTemp) {
+        private static final MapCodec<RuntimeFields> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("min_rpm").forGetter(RuntimeFields::minRpm),
+                ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_rpm").forGetter(RuntimeFields::maxRpm),
+                ExtraCodecs.POSITIVE_INT.optionalFieldOf("temp").forGetter(RuntimeFields::requiredTemp)
+        ).apply(instance, RuntimeFields::new));
     }
 
     private record LogicFields(List<ResourceLocation> requiredLogic, List<ResourceLocation> optionalLogic) {
@@ -218,6 +225,9 @@ public record CERecipe(
             return false;
         }
         if (usesRpm() && input.rpm() < 1) {
+            return false;
+        }
+        if (requiredTemp.isPresent() && input.coilHeat() < requiredTemp.get()) {
             return false;
         }
         if (!input.availableLogic().containsAll(requiredLogic)) {

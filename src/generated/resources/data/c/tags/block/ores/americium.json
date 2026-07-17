@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:americium_deepslate_ore",
+    "create_expansion:americium_andesite_ore",
+    "create_expansion:americium_netherrack_ore",
+    "create_expansion:americium_blackstone_ore",
     "create_expansion:americium_end_stone_ore",
     "create_expansion:americium_tuff_ore",
-    "create_expansion:americium_blackstone_ore",
-    "create_expansion:americium_deepslate_ore",
-    "create_expansion:americium_granite_ore",
-    "create_expansion:americium_diorite_ore",
     "create_expansion:americium_ore",
-    "create_expansion:americium_andesite_ore",
-    "create_expansion:americium_netherrack_ore"
+    "create_expansion:americium_diorite_ore",
+    "create_expansion:americium_granite_ore"
   ]
 }

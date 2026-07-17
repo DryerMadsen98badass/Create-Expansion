@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:platinum_deepslate_ore",
+    "create_expansion:platinum_andesite_ore",
+    "create_expansion:platinum_netherrack_ore",
+    "create_expansion:platinum_blackstone_ore",
     "create_expansion:platinum_end_stone_ore",
     "create_expansion:platinum_tuff_ore",
-    "create_expansion:platinum_blackstone_ore",
-    "create_expansion:platinum_deepslate_ore",
-    "create_expansion:platinum_granite_ore",
-    "create_expansion:platinum_diorite_ore",
     "create_expansion:platinum_ore",
-    "create_expansion:platinum_andesite_ore",
-    "create_expansion:platinum_netherrack_ore"
+    "create_expansion:platinum_diorite_ore",
+    "create_expansion:platinum_granite_ore"
   ]
 }

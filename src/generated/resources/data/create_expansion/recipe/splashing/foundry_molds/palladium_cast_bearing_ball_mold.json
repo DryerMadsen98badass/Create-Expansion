@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:palladium_hot_cast_bearing_ball_mold"
+    }
+  ],
+  "processingTime": 50,
+  "results": [
+    {
+      "id": "create_expansion:palladium_cast_bearing_ball_mold"
+    }
+  ]
+}

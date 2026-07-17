@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:zirconium_cast_rod"
+    }
+  ],
+  "processingTime": 100,
+  "results": [
+    {
+      "id": "create_expansion:zirconium_rod"
+    }
+  ]
+}

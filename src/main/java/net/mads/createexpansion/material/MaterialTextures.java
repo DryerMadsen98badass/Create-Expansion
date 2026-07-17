@@ -56,7 +56,6 @@ public class MaterialTextures {
     private static boolean isCastMold(MaterialPart part) {
         return switch (part) {
             case CAST_NUGGET_MOLD,
-                 CAST_BLOCK_MOLD,
                  CAST_BEARING_BALL_MOLD,
                  CAST_ROTOR_MOLD,
                  CAST_INGOT_MOLD,
@@ -72,7 +71,6 @@ public class MaterialTextures {
                  CAST_BEARING_MOLD,
                  CAST_SCREW_MOLD,
                  HOT_CAST_NUGGET_MOLD,
-                 HOT_CAST_BLOCK_MOLD,
                  HOT_CAST_BEARING_BALL_MOLD,
                  HOT_CAST_ROTOR_MOLD,
                  HOT_CAST_INGOT_MOLD,
@@ -161,7 +159,6 @@ public class MaterialTextures {
             case CAST_BEARING -> "bearing";
             case CAST_ROTOR -> "rotor";
             case CAST_NUGGET_MOLD -> "cast_nugget_mold";
-            case CAST_BLOCK_MOLD -> "cast_block_mold";
             case CAST_BEARING_BALL_MOLD -> "cast_bearing_ball_mold";
             case CAST_ROTOR_MOLD -> "cast_rotor_mold";
             case CAST_INGOT_MOLD -> "cast_ingot_mold";
@@ -177,7 +174,6 @@ public class MaterialTextures {
             case CAST_BEARING_MOLD -> "cast_bearing_mold";
             case CAST_SCREW_MOLD -> "cast_screw_mold";
             case HOT_CAST_NUGGET_MOLD -> "cast_nugget_mold";
-            case HOT_CAST_BLOCK_MOLD -> "cast_block_mold";
             case HOT_CAST_BEARING_BALL_MOLD -> "cast_bearing_ball_mold";
             case HOT_CAST_ROTOR_MOLD -> "cast_rotor_mold";
             case HOT_CAST_INGOT_MOLD -> "cast_ingot_mold";

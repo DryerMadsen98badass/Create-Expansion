@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:rubidium_cast_large_ring"
+    }
+  ],
+  "processingTime": 200,
+  "results": [
+    {
+      "id": "create_expansion:rubidium_large_ring"
+    }
+  ]
+}

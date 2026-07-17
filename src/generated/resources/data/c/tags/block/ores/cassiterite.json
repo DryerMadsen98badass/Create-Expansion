@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:cassiterite_deepslate_ore",
+    "create_expansion:cassiterite_andesite_ore",
+    "create_expansion:cassiterite_netherrack_ore",
+    "create_expansion:cassiterite_blackstone_ore",
     "create_expansion:cassiterite_end_stone_ore",
     "create_expansion:cassiterite_tuff_ore",
-    "create_expansion:cassiterite_blackstone_ore",
-    "create_expansion:cassiterite_deepslate_ore",
-    "create_expansion:cassiterite_granite_ore",
-    "create_expansion:cassiterite_diorite_ore",
     "create_expansion:cassiterite_ore",
-    "create_expansion:cassiterite_andesite_ore",
-    "create_expansion:cassiterite_netherrack_ore"
+    "create_expansion:cassiterite_diorite_ore",
+    "create_expansion:cassiterite_granite_ore"
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:vanadium_hot_cast_ingot_mold"
+    }
+  ],
+  "processingTime": 200,
+  "results": [
+    {
+      "id": "create_expansion:vanadium_cast_ingot_mold"
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+How to make coils
+=================
+
+Main files
+==========
+
+- src/main/java/net/mads/createexpansion/machine/coil/CoilDefinition.java
+- src/main/java/net/mads/createexpansion/machine/coil/CoilDefinitions.java
+- src/main/java/net/mads/createexpansion/machine/coil/CoilBlock.java
+- src/main/java/net/mads/createexpansion/data/CoilModelProvider.java
+- src/main/java/net/mads/createexpansion/data/CoilLootProvider.java
+- src/main/java/net/mads/createexpansion/data/ModLanguageProvider.java
+- src/main/java/net/mads/createexpansion/registry/BlockRegistry.java
+- src/main/java/net/mads/createexpansion/registry/ItemRegistry.java
+
+
+How coils are defined
+=====================
+
+Add coils in CoilDefinitions.java.
+
+Example:
+
+public static final CoilDefinition COPPER = new CoilDefinition("Copper", "copper", 1000);
+public static final CoilDefinition KANTHAL = new CoilDefinition("Kanthal", "kanthal", 1500);
+
+public static final List<CoilDefinition> ALL = List.of(
+        COPPER,
+        KANTHAL
+);
+
+The CoilDefinition arguments are:
+
+- display material name, for example "Copper"
+- id prefix, for example "copper"
+- heat value, for example 1000
+
+
+Generated ids
+=============
+
+For new CoilDefinition("Copper", "copper", 1000):
+
+- block id: create_expansion:copper_coil
+- item id: create_expansion:copper_heating_coil
+- display name: Copper Coil
+- off texture: create_expansion:block/casings/coils/copper_coil_off
+- on texture: create_expansion:block/casings/coils/copper_coil_on
+- frame texture: create_expansion:block/casings/coils/coil_frame
+
+Do not manually register the block or item. BlockRegistry and ItemRegistry loop over
+CoilDefinitions.ALL.
+
+
+Texture files
+=============
+
+Put hand-authored coil textures here:
+
+src/main/resources/assets/create_expansion/textures/block/casings/coils/
+
+For each coil id prefix, add:
+
+- <id>_coil_off.png
+- <id>_coil_on.png
+
+Example for copper:
+
+- copper_coil_off.png
+- copper_coil_on.png
+
+Shared frame texture:
+
+- coil_frame.png
+
+The generated block model uses the off/on texture as the base layer and coil_frame as an overlay.
+
+
+Datagen
+=======
+
+After adding a new coil definition or texture-backed coil id, run runData.
+
+CoilModelProvider generates:
+
+- blockstate with active=false and active=true variants
+- off block model
+- on block model
+- item model using the off model
+
+CoilLootProvider generates:
+
+- loot table dropping the generated coil item
+
+ModLanguageProvider generates:
+
+- block.<modid>.<coil_block_id>
+- item.<modid>.<coil_item_id>
+
+
+Runtime behavior
+================
+
+CoilBlock has one blockstate:
+
+- active=false
+- active=true
+
+When active=true:
+
+- the block model uses the generated *_on model
+- the block emits light level 10
+
+The multiblock controller toggles coil active state through setCoilsActive(...).
+
+
+Using coils in a multiblock
+===========================
+
+In a multiblock definition, import:
+
+import static net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.coils;
+
+Then use:
+
+.where(c, coils())
+
+If the same symbol can also be a hatch/port:
+
+.where(c, coils().or(ability(MultiblockAbility.ENERGY_INPUT).max(1)))
+
+If you want an overlay on the allowed block:
+
+.where(c, coils().overlay("create_expansion:block/casings/coils/coil_frame"))
+
+
+Coil validation rules
+=====================
+
+If a multiblock has CoilLogic.TEMP:
+
+.logic(CoilLogic.TEMP)
+
+then:
+
+- the formed structure must contain coils
+- all coils in the formed structure must be the same coil type
+- mixed coil types make the multiblock fail to form
+- formedCoilHeat is the heat value from the coil definition
+- formedCoilCount is the number of coils in the formed structure
+
+
+Large Heater heat and energy
+============================
+
+Large Heater uses coil heat to heat the Foundry.
+
+Current CE/t formula:
+
+CE/t = ceil(coilHeat * coilCount * foundryInsideBlocks / 500)
+
+foundryInsideBlocks means inside width * inside length * inside height:
+
+- 3x3x2 Foundry: 1
+- 3x3x3 Foundry: 2
+- 5x5x2 Foundry: 9
+- 5x5x3 Foundry: 18
+
+Examples:
+
+- 1 kanthal coil, 1500 heat, 2 inside blocks: ceil(1500 * 1 * 2 / 500) = 6 CE/t
+- 1 copper coil, 1000 heat, 3x3x2 Foundry: ceil(1000 * 1 * 1 / 500) = 2 CE/t
+- 9 copper coils, 1000 heat, 5x5x2 Foundry: ceil(1000 * 9 * 9 / 500) = 162 CE/t
+- 9 kanthal coils, 1500 heat, 5x5x3 Foundry: ceil(1500 * 9 * 18 / 500) = 486 CE/t
+
+
+Checklist for adding a coil
+===========================
+
+1. Add textures:
+   - src/main/resources/assets/create_expansion/textures/block/casings/coils/<id>_coil_off.png
+   - src/main/resources/assets/create_expansion/textures/block/casings/coils/<id>_coil_on.png
+
+2. Add the CoilDefinition in CoilDefinitions.java:
+
+public static final CoilDefinition NEW_COIL = new CoilDefinition("New Coil Name", "new_coil_id", heat);
+
+3. Add it to CoilDefinitions.ALL.
+
+4. Run runData.
+
+5. Check generated files under src/generated/resources:
+   - blockstates/<id>_coil.json
+   - models/block/casings/coils/<id>_coil_off.json
+   - models/block/casings/coils/<id>_coil_on.json
+   - models/item/<id>_heating_coil.json
+   - loot table
+   - lang entries
+
+6. Test in game:
+   - item appears in creative tab
+   - active=false uses off texture
+   - active=true uses on texture
+   - multiblock forms with one coil type
+   - mixed coil types fail if CoilLogic.TEMP is used

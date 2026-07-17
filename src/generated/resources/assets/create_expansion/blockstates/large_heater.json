@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=east,formed=false,active=false": {
+      "model": "create_expansion:block/large_heater",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true": {
+      "model": "create_expansion:block/large_heater",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false": {
+      "model": "create_expansion:block/large_heater",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true": {
+      "model": "create_expansion:block/large_heater_formed",
+      "y": 90
+    },
+    "facing=north,formed=false,active=false": {
+      "model": "create_expansion:block/large_heater"
+    },
+    "facing=north,formed=false,active=true": {
+      "model": "create_expansion:block/large_heater"
+    },
+    "facing=north,formed=true,active=false": {
+      "model": "create_expansion:block/large_heater"
+    },
+    "facing=north,formed=true,active=true": {
+      "model": "create_expansion:block/large_heater_formed"
+    },
+    "facing=south,formed=false,active=false": {
+      "model": "create_expansion:block/large_heater",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true": {
+      "model": "create_expansion:block/large_heater",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false": {
+      "model": "create_expansion:block/large_heater",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true": {
+      "model": "create_expansion:block/large_heater_formed",
+      "y": 180
+    },
+    "facing=west,formed=false,active=false": {
+      "model": "create_expansion:block/large_heater",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true": {
+      "model": "create_expansion:block/large_heater",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false": {
+      "model": "create_expansion:block/large_heater",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true": {
+      "model": "create_expansion:block/large_heater_formed",
+      "y": 270
+    }
+  }
+}

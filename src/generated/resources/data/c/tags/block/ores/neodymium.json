@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:neodymium_deepslate_ore",
+    "create_expansion:neodymium_andesite_ore",
+    "create_expansion:neodymium_netherrack_ore",
+    "create_expansion:neodymium_blackstone_ore",
     "create_expansion:neodymium_end_stone_ore",
     "create_expansion:neodymium_tuff_ore",
-    "create_expansion:neodymium_blackstone_ore",
-    "create_expansion:neodymium_deepslate_ore",
-    "create_expansion:neodymium_granite_ore",
-    "create_expansion:neodymium_diorite_ore",
     "create_expansion:neodymium_ore",
-    "create_expansion:neodymium_andesite_ore",
-    "create_expansion:neodymium_netherrack_ore"
+    "create_expansion:neodymium_diorite_ore",
+    "create_expansion:neodymium_granite_ore"
   ]
 }

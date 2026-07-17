@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:potassium_hot_cast_large_ring_mold"
+    }
+  ],
+  "processingTime": 200,
+  "results": [
+    {
+      "id": "create_expansion:potassium_cast_large_ring_mold"
+    }
+  ]
+}

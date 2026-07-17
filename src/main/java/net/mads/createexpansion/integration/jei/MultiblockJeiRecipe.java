@@ -1,18 +1,19 @@
 package net.mads.createexpansion.integration.jei;
 
 import net.mads.createexpansion.machine.MachineTier;
-import net.mads.createexpansion.multiblock.MultiblockAbility;
-import net.mads.createexpansion.multiblock.MultiblockDefinition;
-import net.mads.createexpansion.multiblock.MultiblockPattern;
-import net.mads.createexpansion.multiblock.MultiblockPredicate;
-import net.mads.createexpansion.multiblock.MultiblockVisualization;
-import net.mads.createexpansion.multiblock.PatternVariant;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockDefinition;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPattern;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicate;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockVisualization;
+import net.mads.createexpansion.machine.machines.electric.multiblock.PatternVariant;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,7 +34,7 @@ public class MultiblockJeiRecipe {
 
     public MultiblockJeiRecipe(MultiblockDefinition definition) {
         this.definition = definition;
-        this.variantIndex = firstVariantIndex(definition);
+        this.variantIndex = 0;
     }
 
     public MultiblockDefinition definition() {
@@ -41,7 +42,8 @@ public class MultiblockJeiRecipe {
     }
 
     public PatternVariant variant() {
-        return definition.variants().get(Math.floorMod(variantIndex, definition.variants().size()));
+        List<PatternVariant> variants = variantsForJei();
+        return variants.get(Math.floorMod(variantIndex, variants.size()));
     }
 
     public MachineTier tier() {
@@ -111,7 +113,7 @@ public class MultiblockJeiRecipe {
     }
 
     public void nextVariant() {
-        variantIndex = Math.floorMod(variantIndex + 1, definition.variants().size());
+        variantIndex = Math.floorMod(variantIndex + 1, variantsForJei().size());
         if (layerIndex >= variant().width()) {
             layerIndex = -1;
         }
@@ -363,17 +365,15 @@ public class MultiblockJeiRecipe {
         return stack.getItem().builtInRegistryHolder().key().location().toString();
     }
 
-    private static int firstVariantIndex(MultiblockDefinition definition) {
-        int bestIndex = 0;
-        int bestLevel = Integer.MAX_VALUE;
-        for (int i = 0; i < definition.variants().size(); i++) {
-            int level = definition.variants().get(i).variantLevel();
-            if (level > 0 && level < bestLevel) {
-                bestLevel = level;
-                bestIndex = i;
-            }
-        }
-        return bestIndex;
+    private List<PatternVariant> variantsForJei() {
+        return definition.variants().stream()
+                .sorted(Comparator.comparingInt(MultiblockJeiRecipe::displayVariantLevel))
+                .toList();
+    }
+
+    private static int displayVariantLevel(PatternVariant variant) {
+        int level = variant.variantLevel();
+        return level > 0 ? level : Integer.MAX_VALUE;
     }
 
     private static float clamp(float value, float min, float max) {

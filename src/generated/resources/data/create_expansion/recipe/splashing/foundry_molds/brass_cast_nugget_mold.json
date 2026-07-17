@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:brass_hot_cast_nugget_mold"
+    }
+  ],
+  "processingTime": 22,
+  "results": [
+    {
+      "id": "create_expansion:brass_cast_nugget_mold"
+    }
+  ]
+}

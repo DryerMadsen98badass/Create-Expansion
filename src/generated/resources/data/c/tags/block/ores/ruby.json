@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:ruby_deepslate_ore",
+    "create_expansion:ruby_andesite_ore",
+    "create_expansion:ruby_netherrack_ore",
+    "create_expansion:ruby_blackstone_ore",
     "create_expansion:ruby_end_stone_ore",
     "create_expansion:ruby_tuff_ore",
-    "create_expansion:ruby_blackstone_ore",
-    "create_expansion:ruby_deepslate_ore",
-    "create_expansion:ruby_granite_ore",
-    "create_expansion:ruby_diorite_ore",
     "create_expansion:ruby_ore",
-    "create_expansion:ruby_andesite_ore",
-    "create_expansion:ruby_netherrack_ore"
+    "create_expansion:ruby_diorite_ore",
+    "create_expansion:ruby_granite_ore"
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:gallium_cast_large_ring"
+    }
+  ],
+  "processingTime": 200,
+  "results": [
+    {
+      "id": "create_expansion:gallium_large_ring"
+    }
+  ]
+}

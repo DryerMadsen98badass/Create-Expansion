@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:thorium_hot_cast_rod_mold"
+    }
+  ],
+  "processingTime": 100,
+  "results": [
+    {
+      "id": "create_expansion:thorium_cast_rod_mold"
+    }
+  ]
+}

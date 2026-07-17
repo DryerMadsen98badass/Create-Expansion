@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:mendelevium_cast_rotor"
+    }
+  ],
+  "processingTime": 800,
+  "results": [
+    {
+      "id": "create_expansion:mendelevium_rotor"
+    }
+  ]
+}

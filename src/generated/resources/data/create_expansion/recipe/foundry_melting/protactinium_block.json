@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:protactinium_block"
+  },
+  "nuggets": 81,
+  "result": {
+    "amount": 1296,
+    "id": "create_expansion:molten_protactinium"
+  },
+  "temperature": 1572
+}

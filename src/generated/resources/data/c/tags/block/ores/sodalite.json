@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:sodalite_deepslate_ore",
+    "create_expansion:sodalite_andesite_ore",
+    "create_expansion:sodalite_netherrack_ore",
+    "create_expansion:sodalite_blackstone_ore",
     "create_expansion:sodalite_end_stone_ore",
     "create_expansion:sodalite_tuff_ore",
-    "create_expansion:sodalite_blackstone_ore",
-    "create_expansion:sodalite_deepslate_ore",
-    "create_expansion:sodalite_granite_ore",
-    "create_expansion:sodalite_diorite_ore",
     "create_expansion:sodalite_ore",
-    "create_expansion:sodalite_andesite_ore",
-    "create_expansion:sodalite_netherrack_ore"
+    "create_expansion:sodalite_diorite_ore",
+    "create_expansion:sodalite_granite_ore"
   ]
 }

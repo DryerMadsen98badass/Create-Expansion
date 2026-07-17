@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:dysprosium_hot_cast_ring_mold"
+    }
+  ],
+  "processingTime": 100,
+  "results": [
+    {
+      "id": "create_expansion:dysprosium_cast_ring_mold"
+    }
+  ]
+}

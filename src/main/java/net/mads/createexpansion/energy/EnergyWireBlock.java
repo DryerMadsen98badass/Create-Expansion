@@ -5,7 +5,7 @@ import net.mads.createexpansion.machine.WrenchPickupHelper;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.MachineTierStats;
 import net.mads.createexpansion.machine.MachinePortBlock;
-import net.mads.createexpansion.multiblock.MultiblockAbility;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

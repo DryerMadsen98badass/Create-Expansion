@@ -1,0 +1,263 @@
+Adding multiblocks
+==================
+
+Main folder:
+
+src/main/java/net/mads/createexpansion/machine/machines/electric/multiblock/
+
+Example machine folder:
+
+src/main/java/net/mads/createexpansion/machine/machines/electric/multiblock/machines/
+
+The current example is:
+
+machines/TestFoundry.java
+
+
+How to add a new multiblock
+===========================
+
+1. Create a new class in the machines folder.
+
+Example:
+
+public final class ArcFurnace {
+    private static final char c = 'c';
+    private static final char p = 'p';
+
+    public static final MultiblockControllerDefinition CONTROLLER = MultiblockControllerDefinition.of(
+            "arc_furnace_controller",
+            "Arc Furnace Controller",
+            "block/machines/ino/casing",
+            "block/machines/overlay/foundry/foundry_off",
+            "block/machines/overlay/foundry/foundry_on"
+    );
+
+    public static final MultiblockDefinition DEFINITION = MultiblockDefinition.controller(CONTROLLER)
+            .displayName("Arc Furnace")
+            .tooltip(
+                    "Short description shown on the controller item.",
+                    "Second tooltip line."
+            )
+            .recipeTypes(CERecipeTypes.ARC_FURNACE)
+            .variant("1", pattern -> pattern
+                    .layer(row(c, c, c), row(c, c, c), row(c, c, c))
+                    .layer(row(c, p, c), row(c, controller, c), row(c, p, c))
+                    .layer(row(c, c, c), row(c, c, c), row(c, c, c))
+            )
+            .where(c, tieredMachineCasings())
+            .where(p, ability(needed))
+            .build();
+
+    private ArcFurnace() {
+    }
+}
+
+2. Add imports for row/controller/predicates, like TestFoundry does.
+
+Useful static imports:
+
+import static net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPattern.controller;
+import static net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPattern.row;
+import static net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.ability;
+import static net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.needed;
+import static net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.tieredMachineCasings;
+
+3. Add the definition to MultiblockDefinitions.ALL.
+
+Main file:
+
+src/main/java/net/mads/createexpansion/machine/machines/electric/multiblock/MultiblockDefinitions.java
+
+Example:
+
+public static final List<MultiblockDefinition> ALL = List.of(
+        TestFoundry.DEFINITION,
+        ArcFurnace.DEFINITION
+);
+
+
+What gets created automatically
+===============================
+
+- controller block registration
+- controller item registration
+- controller language entry
+- controller blockstate
+- controller item model
+- off/on controller block models
+- client tint handling if the controller is tinted
+- multiblock preview info from predicates/visualization
+- controller item tooltip from `.tooltip(...)` on the multiblock definition
+
+
+Pattern rules
+=============
+
+- MultiblockPattern.controller is '@'.
+- MultiblockPattern.air is '#'.
+- row(...) defines one row.
+- layer(...) defines one layer.
+- The controller must be written directly into the pattern with the imported `controller` symbol.
+- Do not invent another controller character like `at`; use `controller`.
+- The controller can be placed anywhere in the pattern, but the pattern must show exactly where it is.
+- The match code rotates the structure based on the controller facing.
+- Variants are sorted by variant level, highest first.
+- Variant ids are priority/variant numbers, not physical size names. If a machine has four sizes, use "1", "2", "3", "4"; largest should normally be "4" so it matches first.
+- Do not generate a multiblock shape with helper formulas unless the user explicitly asks for generated dynamic pattern code.
+- For fixed machines, write every `.layer(...)` block-for-block in the Java definition so the real shape is obvious.
+- If a port/hatch can replace normal structure blocks, put it in the same symbol predicate with `.or(ability(...))`.
+- Do not force one energy hatch on a fixed opposite side unless the machine design really requires a fixed hatch.
+- Example: `.where(g, coils().or(ability(MultiblockAbility.ENERGY_INPUT)).overlay("create_expansion:block/casings/coils/coil_frame"))`.
+- For simple 2-high test heaters, the controller is written on the left side of the upper row in the middle X layer.
+
+
+Large Heater rules
+==================
+
+Current file:
+
+src/main/java/net/mads/createexpansion/machine/machines/electric/multiblock/machines/Heater.java
+
+- Large Heater is currently a simple dirt multiblock test, not the final coil heater.
+- It must be written explicitly block-for-block in `Heater.java`.
+- Normal test block symbol is `d`.
+- `d` currently means `block("minecraft:dirt")`.
+- Controller is written directly as `controller`, not as a custom character.
+- Variant "1" = 1x1x2.
+- Variant "2" = 3x3x2.
+- Variant "3" = 5x5x2.
+- Variant "4" = 7x7x2.
+- Do not use a helper like `heaterPattern(pattern, size)` for this test shape.
+- Later, when the structure is confirmed, dirt can be replaced by coils/casings/ports.
+
+
+Useful predicates
+=================
+
+- block("minecraft:dirt")
+- block("minecraft:dirt").min(10)
+- block("minecraft:dirt").max(20)
+- block("minecraft:dirt").tier(MachineTier.LV)
+- ability(MultiblockAbility.ITEM_INPUT)
+- ability(needed)
+- anyAbility(...)
+- tieredMachineCasings()
+- anyMachineCasing()
+- overlay(predicate, "namespace:texture")
+- predicate.or(otherPredicate)
+
+
+Tier rule
+=========
+
+When a multiblock uses tiered blocks or tiered ports, the formed machine tier becomes the lowest
+tier found in the structure. For example, mostly HV parts with one LV port forms as LV.
+
+
+Controller textures
+===================
+
+MultiblockControllerDefinition.of takes:
+
+- registryName
+- displayName
+- casingTexture
+- offOverlayTexture
+- onOverlayTexture
+
+Use tinted(...) instead of of(...) if the controller casing should use a tint color.
+
+
+Controller tooltips
+===================
+
+Add controller item tooltip lines directly on the multiblock definition:
+
+public static final MultiblockDefinition DEFINITION = MultiblockDefinition.controller(CONTROLLER)
+        .displayName("Large Heater")
+        .externalHeatSource()
+        .tooltip(
+                "Electric heat source for the Foundry.",
+                "Energy use: ceil(coil heat * coil count * foundry inside blocks / 500) CE/t."
+        )
+        .variant(...);
+
+The tooltip is shown by MultiblockControllerBlock by looking up the formed definition through
+the controller id. This means the tooltip stays next to the machine definition instead of being
+hardcoded in the block class.
+
+Large Heater energy rule:
+
+CE/t = ceil(coilHeat * coilCount * foundryInsideBlocks / 500)
+
+Examples:
+- 1 kanthal coil at 1500 heat below a Foundry with 2 inside blocks = 6 CE/t.
+- 1 copper coil at 1000 heat below a 3x3x2 Foundry, inside blocks 1 = 2 CE/t.
+- 9 copper coils at 1000 heat below a 5x5x2 Foundry, inside blocks 9 = 162 CE/t.
+- 9 kanthal coils at 1500 heat below a 5x5x3 Foundry, inside blocks 18 = 486 CE/t.
+
+External heat source multiblocks
+=================================
+
+Use `.externalHeatSource()` on multiblocks that should be allowed to turn on without a normal
+machine recipe when another block requests heat from them. This is used by Large Heater.
+
+Important behavior:
+
+- `consumeExternalHeatEnergy(energyPerTick, ticks)` only works if the definition has `.externalHeatSource()`.
+- The controller and coils stay active while the external heat request is alive.
+- `isProcessing()` returns true for active recipe processing or active external heat output.
+- External heat sources without recipes use a 20 tick pseudo-operation duration for GUI progress.
+- External heat sources draw their requested CE/t every tick while active, not the whole interval upfront.
+- Normal recipe machines should not use `.externalHeatSource()`.
+
+Input-only GUI metadata
+=======================
+
+Use input-only metadata for multiblocks that do not produce recipe outputs, but should still show
+their required/consumed inputs in the controller GUI.
+
+Example:
+
+public static final MultiblockDefinition DEFINITION = MultiblockDefinition.controller(CONTROLLER)
+        .displayName("Example Input Machine")
+        .inputOnly(100, 60)
+        .inputItem("minecraft:dirt", 5)
+        .inputFluid("minecraft:water", 100)
+        .variant(...);
+
+This displays:
+
+- Inputs
+- `CE/t: 60`
+- `Duration: 100 ticks`
+- `5x minecraft:dirt`
+- `100 mB minecraft:water`
+
+Use `.inputOnly(durationTicks)` when CE/t is dynamic at runtime. Large Heater uses this because
+its CE/t comes from `ceil(coilHeat * coilCount * foundryInsideBlocks / 500)`.
+Dynamic CE/t input-only displays, like Large Heater, only show CE/t in the GUI. They do not show
+duration or empty item/fluid input text.
+
+Foundry electric heat requires the Large Heater to have run for at least 20 ticks before it starts
+raising Foundry temperature. Keep external heat progress alive across repeated requests; do not reset
+the input-only progress every second while the heater is already active.
+
+Foundry temperature changes by 1 C every 20 ticks. This applies to heating and cooling.
+Foundry metal melting is separate from temperature movement: melting recipes use 80 ticks per
+nugget-equivalent as their base duration, so a nugget takes 4 seconds, an ingot takes
+36 seconds, and a block takes 324 seconds before temperature speed scaling.
+
+
+Important files
+===============
+
+- MultiblockDefinitions.java
+- MultiblockDefinition.java
+- MultiblockControllerDefinition.java
+- MultiblockRegistrations.java
+- MultiblockPredicates.java
+- MultiblockPattern.java
+- MultiblockAbility.java
+- machines/TestFoundry.java

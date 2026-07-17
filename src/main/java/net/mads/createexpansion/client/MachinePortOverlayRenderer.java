@@ -6,6 +6,7 @@ import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -35,7 +36,7 @@ public class MachinePortOverlayRenderer implements BlockEntityRenderer<MachinePo
         VertexConsumer consumer = buffer.getBuffer(RenderType.entityCutoutNoCull(textureLocation(overlay)));
         PoseStack.Pose pose = poseStack.last();
         for (Direction direction : Direction.values()) {
-            renderFace(pose, consumer, direction, front, packedLight);
+            renderFace(pose, consumer, direction, front, LightTexture.FULL_BRIGHT);
         }
     }
 

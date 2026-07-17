@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "create_expansion:block/casings/coils/copper_coil_off"
+    },
+    "active=true": {
+      "model": "create_expansion:block/casings/coils/copper_coil_on"
+    }
+  }
+}

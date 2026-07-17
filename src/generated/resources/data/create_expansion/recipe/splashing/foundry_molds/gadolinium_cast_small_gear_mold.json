@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:gadolinium_hot_cast_small_gear_mold"
+    }
+  ],
+  "processingTime": 200,
+  "results": [
+    {
+      "id": "create_expansion:gadolinium_cast_small_gear_mold"
+    }
+  ]
+}

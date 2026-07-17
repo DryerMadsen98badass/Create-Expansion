@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:brass_hot_cast_rod_mold"
+    }
+  ],
+  "processingTime": 100,
+  "results": [
+    {
+      "id": "create_expansion:brass_cast_rod_mold"
+    }
+  ]
+}

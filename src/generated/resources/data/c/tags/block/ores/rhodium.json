@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:rhodium_deepslate_ore",
+    "create_expansion:rhodium_andesite_ore",
+    "create_expansion:rhodium_netherrack_ore",
+    "create_expansion:rhodium_blackstone_ore",
     "create_expansion:rhodium_end_stone_ore",
     "create_expansion:rhodium_tuff_ore",
-    "create_expansion:rhodium_blackstone_ore",
-    "create_expansion:rhodium_deepslate_ore",
-    "create_expansion:rhodium_granite_ore",
-    "create_expansion:rhodium_diorite_ore",
     "create_expansion:rhodium_ore",
-    "create_expansion:rhodium_andesite_ore",
-    "create_expansion:rhodium_netherrack_ore"
+    "create_expansion:rhodium_diorite_ore",
+    "create_expansion:rhodium_granite_ore"
   ]
 }

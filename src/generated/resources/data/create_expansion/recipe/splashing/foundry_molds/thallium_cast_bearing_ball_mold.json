@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:thallium_hot_cast_bearing_ball_mold"
+    }
+  ],
+  "processingTime": 50,
+  "results": [
+    {
+      "id": "create_expansion:thallium_cast_bearing_ball_mold"
+    }
+  ]
+}

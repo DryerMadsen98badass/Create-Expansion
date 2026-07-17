@@ -36,6 +36,7 @@ public class CERecipeBuilder {
     private Optional<String> kineticTier = Optional.empty();
     private Optional<Integer> minRpm = Optional.empty();
     private Optional<Integer> maxRpm = Optional.empty();
+    private Optional<Integer> requiredTemp = Optional.empty();
     private final List<ResourceLocation> requiredLogic = new ArrayList<>();
     private final List<ResourceLocation> optionalLogic = new ArrayList<>();
 
@@ -167,6 +168,14 @@ public class CERecipeBuilder {
         return minRpm(minRpm).maxRpm(maxRpm);
     }
 
+    public CERecipeBuilder temp(int requiredTemp) {
+        if (requiredTemp <= 0) {
+            throw new IllegalArgumentException("Temperature requirement must be positive");
+        }
+        this.requiredTemp = Optional.of(requiredTemp);
+        return this;
+    }
+
     public CERecipeBuilder logic(CERecipeLogicDefinition logic) {
         return requiredLogic(logic);
     }
@@ -183,7 +192,7 @@ public class CERecipeBuilder {
 
     public CERecipe build() {
         validate();
-        return new CERecipe(type.id(), itemInputs, fluidInputs, notConsumableItems, notConsumableFluids, itemOutputs, fluidOutputs, duration, cet, circuit, tier, kineticTier, minRpm, maxRpm, requiredLogic, optionalLogic);
+        return new CERecipe(type.id(), itemInputs, fluidInputs, notConsumableItems, notConsumableFluids, itemOutputs, fluidOutputs, duration, cet, circuit, tier, kineticTier, minRpm, maxRpm, requiredTemp, requiredLogic, optionalLogic);
     }
 
     public void save(RecipeOutput output) {

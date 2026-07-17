@@ -7,9 +7,11 @@ import java.util.List;
 
 public final class CERecipeLogics {
     public static final CERecipeLogicDefinition LUBRICATED = logic("lubricated", "Lubricated");
+    public static final CERecipeLogicDefinition COIL_TEMP = logic("coil_temp", "Coil Temperature");
 
     public static final List<CERecipeLogicDefinition> ALL = List.of(
-            LUBRICATED
+            LUBRICATED,
+            COIL_TEMP
     );
 
     private CERecipeLogics() {

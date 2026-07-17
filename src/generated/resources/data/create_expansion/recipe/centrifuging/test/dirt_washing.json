@@ -1,0 +1,27 @@
+{
+  "type": "create_expansion:centrifuging",
+  "fluid_ingredients": [
+    {
+      "amount": 1000,
+      "fluid": "minecraft:water"
+    }
+  ],
+  "fluid_results": [
+    {
+      "amount": 1000,
+      "id": "minecraft:water"
+    }
+  ],
+  "ingredients": [
+    {
+      "item": "minecraft:dirt"
+    }
+  ],
+  "max_rpm": 256,
+  "min_rpm": 16,
+  "results": [
+    {
+      "id": "minecraft:clay_ball"
+    }
+  ]
+}

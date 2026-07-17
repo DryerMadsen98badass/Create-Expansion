@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:francium_cast_bearing"
+    }
+  ],
+  "processingTime": 400,
+  "results": [
+    {
+      "id": "create_expansion:francium_bearing"
+    }
+  ]
+}

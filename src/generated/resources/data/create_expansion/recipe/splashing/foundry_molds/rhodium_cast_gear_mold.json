@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:rhodium_hot_cast_gear_mold"
+    }
+  ],
+  "processingTime": 800,
+  "results": [
+    {
+      "id": "create_expansion:rhodium_cast_gear_mold"
+    }
+  ]
+}

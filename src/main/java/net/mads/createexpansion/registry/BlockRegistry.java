@@ -9,13 +9,37 @@ import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.machine.MachinePortType;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.StaticMachinePortType;
+import net.mads.createexpansion.machine.coil.CoilBlock;
+import net.mads.createexpansion.machine.coil.CoilDefinition;
+import net.mads.createexpansion.machine.coil.CoilDefinitions;
+import net.mads.createexpansion.machine.machines.foundry.FoundryCasingBlock;
+import net.mads.createexpansion.machine.machines.foundry.FoundryControllerBlock;
+import net.mads.createexpansion.machine.machines.foundry.FoundryDrainBlock;
+import net.mads.createexpansion.machine.machines.foundry.FoundryHatchBlock;
+import net.mads.createexpansion.machine.machines.foundry.FoundryHatchType;
+import net.mads.createexpansion.machine.machines.foundry.FoundryMoldCasterBlock;
+import net.mads.createexpansion.machine.machines.kinetic.centrifuge.KineticCentrifugeBlock;
+import net.mads.createexpansion.machine.machines.kinetic.centrifuge.KineticCentrifugePartBlock;
+import net.mads.createexpansion.machine.machines.kinetic.centrifuge.KineticCentrifugeRegistration;
+import net.mads.createexpansion.machine.machines.kinetic.coiling.KineticCoilingMachineBlock;
+import net.mads.createexpansion.machine.machines.kinetic.coiling.KineticCoilingMachineRegistration;
+import net.mads.createexpansion.machine.machines.kinetic.hydraulicpress.HydraulicPressBlock;
+import net.mads.createexpansion.machine.machines.kinetic.hydraulicpress.HydraulicPressRegistration;
+import net.mads.createexpansion.machine.machines.kinetic.lathe.KineticLatheBlock;
+import net.mads.createexpansion.machine.machines.kinetic.lathe.KineticLatheRegistration;
+import net.mads.createexpansion.machine.machines.kinetic.rollingmill.KineticRollingMillBlock;
+import net.mads.createexpansion.machine.machines.kinetic.rollingmill.KineticRollingMillRegistration;
+import net.mads.createexpansion.machine.machines.kinetic.sifter.KineticSifterBlock;
+import net.mads.createexpansion.machine.machines.kinetic.sifter.KineticSifterRegistration;
+import net.mads.createexpansion.machine.machines.kinetic.wiredrawer.KineticWireDrawerBlock;
+import net.mads.createexpansion.machine.machines.kinetic.wiredrawer.KineticWireDrawerPartBlock;
+import net.mads.createexpansion.machine.machines.kinetic.wiredrawer.KineticWireDrawerRegistration;
 import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialBlock;
 import net.mads.createexpansion.material.MaterialPart;
-import net.mads.createexpansion.multiblock.MultiblockDefinitions;
-import net.mads.createexpansion.multiblock.MultiblockControllerBlock;
-import net.mads.createexpansion.multiblock.MultiblockControllerDefinition;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockRegistrations;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;
@@ -32,15 +56,35 @@ public class BlockRegistry {
     public static final Map<String, Map<MachinePortType, DeferredHolder<Block, MachinePortBlock>>> MACHINE_PORTS = new LinkedHashMap<>();
     public static final Map<StaticMachinePortType, DeferredHolder<Block, MachinePortBlock>> STATIC_MACHINE_PORTS = new LinkedHashMap<>();
     public static final Map<String, DeferredHolder<Block, MultiblockControllerBlock>> MULTIBLOCK_CONTROLLERS = new LinkedHashMap<>();
+    public static final Map<String, DeferredHolder<Block, CoilBlock>> COILS = new LinkedHashMap<>();
     public static final Map<String, Map<MaterialPart, DeferredHolder<Block, ? extends Block>>> MATERIAL_BLOCKS = new LinkedHashMap<>();
     public static final Map<String, Map<WireThickness, DeferredHolder<Block, EnergyWireBlock>>> ENERGY_WIRES = new LinkedHashMap<>();
     public static final Map<String, Map<WireThickness, DeferredHolder<Block, EnergyWireBlock>>> INSULATED_ENERGY_WIRES = new LinkedHashMap<>();
     public static final DeferredHolder<Block, CreativeEnergyBlock> CREATIVE_ENERGY_PROVIDER = BLOCKS.register("creative_energy_provider", () -> new CreativeEnergyBlock(true));
     public static final DeferredHolder<Block, CreativeEnergyBlock> CREATIVE_ENERGY_CONSUMER = BLOCKS.register("creative_energy_consumer", () -> new CreativeEnergyBlock(false));
+    public static final DeferredHolder<Block, KineticSifterBlock> KINETIC_SIFTER = KineticSifterRegistration.registerBlock(BLOCKS);
+    public static final DeferredHolder<Block, KineticCentrifugeBlock> KINETIC_CENTRIFUGE = KineticCentrifugeRegistration.registerBlock(BLOCKS);
+    public static final DeferredHolder<Block, KineticCentrifugePartBlock> KINETIC_CENTRIFUGE_PART = KineticCentrifugeRegistration.registerPartBlock(BLOCKS);
+    public static final DeferredHolder<Block, KineticLatheBlock> KINETIC_LATHE = KineticLatheRegistration.registerBlock(BLOCKS);
+    public static final DeferredHolder<Block, KineticRollingMillBlock> KINETIC_ROLLING_MILL = KineticRollingMillRegistration.registerBlock(BLOCKS);
+    public static final DeferredHolder<Block, KineticWireDrawerBlock> KINETIC_WIRE_DRAWER = KineticWireDrawerRegistration.registerBlock(BLOCKS);
+    public static final DeferredHolder<Block, KineticWireDrawerPartBlock> KINETIC_WIRE_DRAWER_PART = KineticWireDrawerRegistration.registerPartBlock(BLOCKS);
+    public static final DeferredHolder<Block, HydraulicPressBlock> HYDRAULIC_PRESS = HydraulicPressRegistration.registerBlock(BLOCKS);
+    public static final DeferredHolder<Block, KineticCoilingMachineBlock> SPRING_COILING_MACHINE = KineticCoilingMachineRegistration.registerBlock(BLOCKS);
+    public static final DeferredHolder<Block, FoundryCasingBlock> FOUNDRY_CASING = BLOCKS.register("foundry_casing", FoundryCasingBlock::new);
+    public static final DeferredHolder<Block, FoundryControllerBlock> FOUNDRY_CONTROLLER = BLOCKS.register("foundry_controller", () -> new FoundryControllerBlock());
+    public static final DeferredHolder<Block, FoundryControllerBlock> CREATIVE_FOUNDRY_CONTROLLER = BLOCKS.register("creative_foundry_controller", () -> new FoundryControllerBlock());
+    public static final DeferredHolder<Block, FoundryHatchBlock> FOUNDRY_INPUT_HATCH = BLOCKS.register(FoundryHatchType.INPUT.id(), () -> new FoundryHatchBlock(FoundryHatchType.INPUT));
+    public static final DeferredHolder<Block, FoundryHatchBlock> FOUNDRY_OUTPUT_HATCH = BLOCKS.register(FoundryHatchType.OUTPUT.id(), () -> new FoundryHatchBlock(FoundryHatchType.OUTPUT));
+    public static final DeferredHolder<Block, FoundryHatchBlock> FOUNDRY_INPUT_BUS = BLOCKS.register(FoundryHatchType.INPUT_BUS.id(), () -> new FoundryHatchBlock(FoundryHatchType.INPUT_BUS));
+    public static final DeferredHolder<Block, FoundryDrainBlock> FOUNDRY_DRAIN = BLOCKS.register("foundry_drain", () -> new FoundryDrainBlock());
+    public static final DeferredHolder<Block, FoundryMoldCasterBlock> FOUNDRY_MOLD_CASTER = BLOCKS.register("foundry_mold_caster", () -> new FoundryMoldCasterBlock());
 
     static {
-        for (MultiblockControllerDefinition controller : MultiblockDefinitions.controllers()) {
-            MULTIBLOCK_CONTROLLERS.put(controller.registryName(), BLOCKS.register(controller.registryName(), () -> new MultiblockControllerBlock(controller)));
+        MultiblockRegistrations.registerControllerBlocks(BLOCKS, MULTIBLOCK_CONTROLLERS);
+
+        for (CoilDefinition coil : CoilDefinitions.ALL) {
+            COILS.put(coil.id(), BLOCKS.register(coil.blockId(), () -> new CoilBlock(coil)));
         }
 
         for (MachineTier tier : MachineTier.ALL) {
@@ -116,6 +160,10 @@ public class BlockRegistry {
 
     public static Collection<DeferredHolder<Block, MultiblockControllerBlock>> getAllMultiblockControllers() {
         return MULTIBLOCK_CONTROLLERS.values();
+    }
+
+    public static Collection<DeferredHolder<Block, CoilBlock>> getAllCoils() {
+        return COILS.values();
     }
 
     public static Collection<DeferredHolder<Block, EnergyWireBlock>> getAllEnergyWires() {

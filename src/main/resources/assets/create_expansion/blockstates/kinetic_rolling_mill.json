@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/machines/kinetic/rolling_mill/rolling_mill_static"
+    }
+  }
+}

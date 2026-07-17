@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:plutonium_nugget"
+  },
+  "nuggets": 1,
+  "result": {
+    "amount": 16,
+    "id": "create_expansion:molten_plutonium"
+  },
+  "temperature": 640
+}

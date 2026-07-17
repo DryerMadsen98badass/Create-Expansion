@@ -1,0 +1,107 @@
+Sifting recipes
+===============
+
+Recipe type:
+
+create_expansion:sifting
+
+Main files:
+
+src/main/java/net/mads/createexpansion/recipe/recipes/sifter/SifterRecipes.java
+src/main/java/net/mads/createexpansion/recipe/recipes/sifter/SifterRecipeBuilder.java
+src/main/java/net/mads/createexpansion/recipe/recipes/sifter/SiftingRecipe.java
+
+Generated folder:
+
+src/generated/resources/data/create_expansion/recipe/sifting/
+
+
+Builder example
+===============
+
+Add recipes inside SifterRecipes.build.
+
+Example:
+
+recipe("ore_processing/gravel")
+        .inputItem("minecraft:gravel")
+        .outputItem("minecraft:flint")
+        .chancedOutput("minecraft:iron_nugget", 0.25F)
+        .duration(100)
+        .minRpm(16)
+        .save(output);
+
+
+Builder methods
+===============
+
+Inputs:
+
+- inputItem("namespace:item")
+- inputItem(ItemLike item)
+- inputTag("namespace:tag")
+
+Outputs:
+
+- outputItem("namespace:item")
+- outputItem("namespace:item", count)
+- outputItem(ItemLike item, count)
+- chancedOutput("namespace:item", chance)
+- chancedOutput("namespace:item", count, chance)
+
+Processing settings:
+
+- duration(ticks)
+- minRpm(rpm)
+- maxRpm(rpm)
+
+
+Limits
+======
+
+From SiftingRecipe:
+
+- max input count: 1 item
+- max output count: 4 item outputs
+- duration can be specified
+- min_rpm defaults to 0 if not set
+- max_rpm is optional
+
+Validation:
+
+- recipe id cannot be blank
+- minRpm cannot be negative
+- maxRpm cannot be lower than minRpm
+
+
+Generated json shape
+====================
+
+Example generated json:
+
+{
+  "type": "create_expansion:sifting",
+  "ingredients": [
+    {
+      "item": "minecraft:gravel"
+    }
+  ],
+  "min_rpm": 16,
+  "processing_time": 100,
+  "results": [
+    {
+      "id": "minecraft:flint"
+    },
+    {
+      "chance": 0.25,
+      "id": "minecraft:iron_nugget"
+    }
+  ]
+}
+
+
+Notes
+=====
+
+Use sifting for mesh/filter recipes like gravel, sand, dusts, crushed ore, small byproducts, flint,
+ore nuggets, and mineral fragments.

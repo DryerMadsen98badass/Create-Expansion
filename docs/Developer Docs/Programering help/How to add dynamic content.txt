@@ -1,0 +1,48 @@
+Create Expansion - Programming Help Index
+=========================================
+
+This folder explains the dynamic systems in smaller topic files.
+
+Start here:
+
+- tiers ports and wires.txt
+- elements.txt
+- components and material parts.txt
+- simple items.txt
+- recipes and recipe logic.txt
+- recipes\sifting recipes.txt
+- recipes\centrifuging recipes.txt
+- recipes\turning recipes.txt
+- recipes\machine recipes.txt
+- recipes\adding recipe types.txt
+- Create\How to implement a Create kinetic block.txt
+- multiblocks.txt
+- kinetic machines.txt
+
+Main rule
+---------
+Add the new thing to the correct definition list first. Then run datagen. Avoid manually creating
+generated json files unless the system does not support that thing yet.
+
+Datagen command
+---------------
+Run:
+
+gradlew runData
+
+Generated resources go to:
+
+src/generated/resources
+
+The build already includes this folder as a resource folder.
+
+Checklist after adding anything dynamic
+---------------------------------------
+1. Add the new definition, enum value, or list entry.
+2. Add textures or material set assets if the generated model needs them.
+3. Run gradlew runData.
+4. Check src/generated/resources for the expected json files.
+5. Start the client and check the creative tabs.
+6. Check names, colors/tints, blockstates, item models, and tooltips.
+7. For multiblocks, place the controller and verify preview/formation.
+8. For recipes, verify recipe matching and required ports.

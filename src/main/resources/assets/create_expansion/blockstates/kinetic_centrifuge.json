@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/machines/kinetic/centrifuge/centrifuge_static"
+    }
+  }
+}

@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:astatine_deepslate_ore",
+    "create_expansion:astatine_andesite_ore",
+    "create_expansion:astatine_netherrack_ore",
+    "create_expansion:astatine_blackstone_ore",
     "create_expansion:astatine_end_stone_ore",
     "create_expansion:astatine_tuff_ore",
-    "create_expansion:astatine_blackstone_ore",
-    "create_expansion:astatine_deepslate_ore",
-    "create_expansion:astatine_granite_ore",
-    "create_expansion:astatine_diorite_ore",
     "create_expansion:astatine_ore",
-    "create_expansion:astatine_andesite_ore",
-    "create_expansion:astatine_netherrack_ore"
+    "create_expansion:astatine_diorite_ore",
+    "create_expansion:astatine_granite_ore"
   ]
 }

@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:petalite_deepslate_ore",
+    "create_expansion:petalite_andesite_ore",
+    "create_expansion:petalite_netherrack_ore",
+    "create_expansion:petalite_blackstone_ore",
     "create_expansion:petalite_end_stone_ore",
     "create_expansion:petalite_tuff_ore",
-    "create_expansion:petalite_blackstone_ore",
-    "create_expansion:petalite_deepslate_ore",
-    "create_expansion:petalite_granite_ore",
-    "create_expansion:petalite_diorite_ore",
     "create_expansion:petalite_ore",
-    "create_expansion:petalite_andesite_ore",
-    "create_expansion:petalite_netherrack_ore"
+    "create_expansion:petalite_diorite_ore",
+    "create_expansion:petalite_granite_ore"
   ]
 }

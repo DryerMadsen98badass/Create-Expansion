@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:wire_drawing",
+  "ingredients": [
+    {
+      "item": "minecraft:copper_ingot"
+    }
+  ],
+  "min_rpm": 16,
+  "results": [
+    {
+      "id": "create_expansion:copper_wire"
+    }
+  ]
+}

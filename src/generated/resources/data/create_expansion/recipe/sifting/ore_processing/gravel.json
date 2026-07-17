@@ -1,0 +1,19 @@
+{
+  "type": "create_expansion:sifting",
+  "ingredients": [
+    {
+      "item": "minecraft:gravel"
+    }
+  ],
+  "min_rpm": 16,
+  "processing_time": 100,
+  "results": [
+    {
+      "id": "minecraft:flint"
+    },
+    {
+      "chance": 0.25,
+      "id": "minecraft:iron_nugget"
+    }
+  ]
+}

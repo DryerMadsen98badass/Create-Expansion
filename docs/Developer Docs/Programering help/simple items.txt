@@ -1,0 +1,74 @@
+Create Expansion - Simple Items
+===============================
+
+Use this system for normal inventory items with no custom behavior, durability, tint, tooltip,
+block, or special model logic. Crafting and machine recipes remain separate.
+
+Add an item
+-----------
+
+Open:
+
+src/main/java/net/mads/createexpansion/item/SimpleItems.java
+
+Add one line inside `ALL`:
+
+    item("spool", "Spool"),
+    item("steel_spring", "Steel Spring"),
+    item("machine_frame", "Machine Frame")
+
+Rules:
+
+- First value is the registry id: lowercase, numbers, slash, underscore, period, or hyphen.
+- Second value is the English display name.
+- Every line except the final line needs a comma.
+- Do not register the same id anywhere else.
+
+Texture
+-------
+
+Put a PNG with the exact same id here:
+
+src/main/resources/assets/create_expansion/textures/item/standalone/materials/<id>.png
+
+For `spool`, the file is:
+
+src/main/resources/assets/create_expansion/textures/item/standalone/materials/spool.png
+
+The generated model automatically uses `minecraft:item/generated` and this texture. Do not create
+the item model manually.
+
+What happens automatically
+--------------------------
+
+- ItemRegistry registers `create_expansion:<id>`.
+- The Materials creative tab includes it.
+- ModLanguageProvider generates its English name.
+- MaterialItemModelProvider also generates SimpleItems `models/item/<id>.json`; do not add a second
+  ItemModelProvider for the same mod id, because NeoForge data generation rejects duplicate
+  `Item Models: create_expansion` providers.
+- Code can access it with `ItemRegistry.getSimpleItem("<id>").get()`.
+
+Recipes
+-------
+
+Use the normal item id in recipe JSON or recipe builders:
+
+    "create_expansion:spool"
+
+This system intentionally does not create recipes. Crafting and machine recipes define how the
+item is made and used.
+
+Verification
+------------
+
+1. Add the definition line.
+2. Add the PNG.
+3. Run `gradlew runData`.
+4. Confirm `src/generated/resources/assets/create_expansion/models/item/<id>.json` exists.
+5. Start the client and check the Materials tab, name, and texture.
+
+Current example
+---------------
+
+`item("spool", "Spool")` is the canonical example and uses the existing `spool.png` texture.

@@ -6,8 +6,8 @@ import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.machine.MachinePortType;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.StaticMachinePortType;
-import net.mads.createexpansion.multiblock.MultiblockControllerDefinition;
-import net.mads.createexpansion.multiblock.MultiblockDefinitions;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerDefinition;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockDefinitions;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -583,11 +583,11 @@ public class MachinePortModelProvider implements DataProvider {
         faces.add(direction, face);
     }
 
-    private static boolean colorable(java.util.Set<net.mads.createexpansion.multiblock.MultiblockAbility> abilities) {
-        return abilities.contains(net.mads.createexpansion.multiblock.MultiblockAbility.ITEM_INPUT)
-                || abilities.contains(net.mads.createexpansion.multiblock.MultiblockAbility.ITEM_OUTPUT)
-                || abilities.contains(net.mads.createexpansion.multiblock.MultiblockAbility.FLUID_INPUT)
-                || abilities.contains(net.mads.createexpansion.multiblock.MultiblockAbility.FLUID_OUTPUT)
-                || abilities.contains(net.mads.createexpansion.multiblock.MultiblockAbility.IO_INTERFACE);
+    private static boolean colorable(java.util.Set<net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility> abilities) {
+        return abilities.contains(net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.ITEM_INPUT)
+                || abilities.contains(net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.ITEM_OUTPUT)
+                || abilities.contains(net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.FLUID_INPUT)
+                || abilities.contains(net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.FLUID_OUTPUT)
+                || abilities.contains(net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.IO_INTERFACE);
     }
 }

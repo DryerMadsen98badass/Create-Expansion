@@ -1,0 +1,150 @@
+Adding tiers, machine ports, and wires
+======================================
+
+
+Adding a new machine tier
+=========================
+
+Main file:
+
+src/main/java/net/mads/createexpansion/machine/MachineTier.java
+
+Current tiers are:
+
+ULV, LV, MV, HV, EV, IV
+
+To add a new tier:
+
+1. Add a new constant in MachineTier.
+
+Example:
+
+public static final MachineTier LuV = new MachineTier("luv", "LuV", 0xFFAAEE);
+
+2. Add it to MachineTier.ALL in the correct order.
+
+Example:
+
+public static final List<MachineTier> ALL = List.of(
+        ULV,
+        LV,
+        MV,
+        HV,
+        EV,
+        IV,
+        LuV
+);
+
+What gets created automatically from MachineTier.ALL:
+
+- <tier>_machine_casing block and item
+- <tier>_<port_type> blocks and items
+- <thickness>_<tier>_wire blocks and items
+- <thickness>_<tier>_insulated_wire blocks and items
+- language entries for casings, ports, and wires
+- generated casing models/blockstates/item models
+- generated port models/blockstates/item models
+- generated wire models/blockstates/item models
+
+Important connected files:
+
+- MachineTierStats.java controls tier scaling.
+- BlockRegistry.java loops through MachineTier.ALL for blocks.
+- ItemRegistry.java loops through MachineTier.ALL for items.
+- ModLanguageProvider.java loops through MachineTier.ALL for names.
+- MachineCasingModelProvider.java generates tier casing assets.
+- MachinePortModelProvider.java generates tier port assets.
+- EnergyWireModelProvider.java generates tier wire assets.
+
+MachineTierStats scaling:
+
+- itemBusSlots: inventory size by tier index.
+- fluidTankCapacity: fluid storage by tier index.
+- ceTier: energy/tier power scale, multiplied by 4 each tier.
+- ceBaseAmps: base amps, doubled each tier.
+- kineticStressPerRpm: kinetic stress capacity, multiplied by 4 each tier.
+
+If you add many tiers, check the array in MachineTierStats:
+
+private static final int[] ITEM_SLOTS = {1, 4, 9, 16, 25, 36, 49, 64, 81, 100};
+
+If there are more tiers than entries, the last entry is reused.
+
+
+Adding a new machine port type
+==============================
+
+Main file:
+
+src/main/java/net/mads/createexpansion/machine/MachinePortType.java
+
+MachinePortType is an enum. Each port added here is automatically created for every MachineTier.
+
+Example:
+
+CATALYST_BUS("catalyst_bus", "Catalyst Bus", MultiblockAbility.ITEM_INPUT)
+
+What gets created automatically:
+
+- ulv_catalyst_bus, lv_catalyst_bus, mv_catalyst_bus, etc.
+- block registration
+- item registration
+- language entries
+- blockstate and item model entries from datagen
+
+Abilities are from:
+
+src/main/java/net/mads/createexpansion/machine/machines/electric/multiblock/MultiblockAbility.java
+
+Current abilities:
+
+- ITEM_INPUT
+- ITEM_OUTPUT
+- FLUID_INPUT
+- FLUID_OUTPUT
+- ENERGY_INPUT
+- ENERGY_OUTPUT
+- KINETIC_INPUT
+- KINETIC_OUTPUT
+- MUFFLER
+- REDSTONE
+- IO_INTERFACE
+
+Texture rule:
+
+MachinePortType.texturePath() points to:
+
+block/machines/ino/<textureId>
+
+So a normal new port usually needs a texture in:
+
+src/main/resources/assets/create_expansion/textures/block/machines/ino/
+
+
+Adding a new wire thickness
+===========================
+
+Main file:
+
+src/main/java/net/mads/createexpansion/energy/WireThickness.java
+
+WireThickness is an enum. Each thickness is generated for every MachineTier, both normal and
+insulated.
+
+Example:
+
+X32("32x", "32x", 14, 32)
+
+What gets created automatically:
+
+- 32x_ulv_wire, 32x_lv_wire, etc.
+- 32x_ulv_insulated_wire, 32x_lv_insulated_wire, etc.
+- block registration
+- item registration
+- language entries
+- generated wire models/blockstates/item models
+
+Important:
+
+EnergyWireModelProvider currently has insulationIndex only for X1, X2, X4, X8, X16. If the new
+thickness needs a different insulation texture, update that switch too.

@@ -1,5 +1,8 @@
 package net.mads.createexpansion.client;
 
+import com.simibubi.create.foundation.item.KineticStats;
+import com.simibubi.create.foundation.item.TooltipModifier;
+import net.mads.createexpansion.client.screen.FoundryControllerScreen;
 import net.mads.createexpansion.client.screen.MachinePortScreen;
 import net.mads.createexpansion.client.screen.MultiblockControllerScreen;
 import net.mads.createexpansion.energy.EnergyWireBlock;
@@ -9,12 +12,21 @@ import net.mads.createexpansion.material.MaterialPart;
 import net.mads.createexpansion.machine.MachineCasingBlock;
 import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
-import net.mads.createexpansion.multiblock.MultiblockControllerBlock;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
+import net.mads.createexpansion.machine.machines.foundry.FoundryMoldCasterRenderer;
+import net.mads.createexpansion.machine.machines.kinetic.centrifuge.KineticCentrifugeRenderer;
+import net.mads.createexpansion.machine.machines.kinetic.coiling.KineticCoilingMachineRenderer;
+import net.mads.createexpansion.machine.machines.kinetic.hydraulicpress.HydraulicPressRenderer;
+import net.mads.createexpansion.machine.machines.kinetic.lathe.KineticLatheRenderer;
+import net.mads.createexpansion.machine.machines.kinetic.rollingmill.KineticRollingMillRenderer;
+import net.mads.createexpansion.machine.machines.kinetic.sifter.KineticSifterRenderer;
+import net.mads.createexpansion.machine.machines.kinetic.wiredrawer.KineticWireDrawerRenderer;
 import net.mads.createexpansion.registry.FluidRegistry;
 import net.mads.createexpansion.registry.MenuRegistry;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
@@ -35,8 +47,44 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 public class ClientSetup {
 
     @SubscribeEvent
+    public static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> TooltipModifier.REGISTRY.register(
+                ItemRegistry.KINETIC_SIFTER.get(),
+                new KineticStats(BlockRegistry.KINETIC_SIFTER.get())
+        ));
+        event.enqueueWork(() -> TooltipModifier.REGISTRY.register(
+                ItemRegistry.KINETIC_CENTRIFUGE.get(),
+                new KineticStats(BlockRegistry.KINETIC_CENTRIFUGE.get())
+        ));
+        event.enqueueWork(() -> TooltipModifier.REGISTRY.register(
+                ItemRegistry.KINETIC_LATHE.get(),
+                new KineticStats(BlockRegistry.KINETIC_LATHE.get())
+        ));
+        event.enqueueWork(() -> TooltipModifier.REGISTRY.register(
+                ItemRegistry.KINETIC_ROLLING_MILL.get(),
+                new KineticStats(BlockRegistry.KINETIC_ROLLING_MILL.get())
+        ));
+        event.enqueueWork(() -> TooltipModifier.REGISTRY.register(
+                ItemRegistry.KINETIC_WIRE_DRAWER.get(),
+                new KineticStats(BlockRegistry.KINETIC_WIRE_DRAWER.get())
+        ));
+        event.enqueueWork(() -> TooltipModifier.REGISTRY.register(
+                ItemRegistry.SPRING_COILING_MACHINE.get(),
+                new KineticStats(BlockRegistry.SPRING_COILING_MACHINE.get())
+        ));
+    }
+
+    @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(BlockEntityRegistry.MACHINE_PORT.get(), MachinePortOverlayRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.KINETIC_SIFTER.get(), KineticSifterRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.KINETIC_CENTRIFUGE.get(), KineticCentrifugeRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.KINETIC_LATHE.get(), KineticLatheRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.KINETIC_ROLLING_MILL.get(), KineticRollingMillRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.KINETIC_WIRE_DRAWER.get(), KineticWireDrawerRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.HYDRAULIC_PRESS.get(), HydraulicPressRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.SPRING_COILING_MACHINE.get(), KineticCoilingMachineRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.FOUNDRY_MOLD_CASTER.get(), FoundryMoldCasterRenderer::new);
     }
 
     @SubscribeEvent
@@ -268,6 +316,7 @@ public class ClientSetup {
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(MenuRegistry.MACHINE_PORT.get(), MachinePortScreen::new);
         event.register(MenuRegistry.MULTIBLOCK_CONTROLLER.get(), MultiblockControllerScreen::new);
+        event.register(MenuRegistry.FOUNDRY_CONTROLLER.get(), FoundryControllerScreen::new);
     }
 
     private static boolean isMaterialTintLayer(int tintIndex) {
@@ -310,7 +359,6 @@ public class ClientSetup {
                  CAST_BEARING,
                  CAST_ROTOR,
                  HOT_CAST_NUGGET_MOLD,
-                 HOT_CAST_BLOCK_MOLD,
                  HOT_CAST_BEARING_BALL_MOLD,
                  HOT_CAST_ROTOR_MOLD,
                  HOT_CAST_INGOT_MOLD,
@@ -337,11 +385,11 @@ public class ClientSetup {
     }
 
     private static boolean portColorable(MachinePortBlock port) {
-        return port.abilities().contains(net.mads.createexpansion.multiblock.MultiblockAbility.ITEM_INPUT)
-                || port.abilities().contains(net.mads.createexpansion.multiblock.MultiblockAbility.ITEM_OUTPUT)
-                || port.abilities().contains(net.mads.createexpansion.multiblock.MultiblockAbility.FLUID_INPUT)
-                || port.abilities().contains(net.mads.createexpansion.multiblock.MultiblockAbility.FLUID_OUTPUT)
-                || port.abilities().contains(net.mads.createexpansion.multiblock.MultiblockAbility.IO_INTERFACE);
+        return port.abilities().contains(net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.ITEM_INPUT)
+                || port.abilities().contains(net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.ITEM_OUTPUT)
+                || port.abilities().contains(net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.FLUID_INPUT)
+                || port.abilities().contains(net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.FLUID_OUTPUT)
+                || port.abilities().contains(net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.IO_INTERFACE);
     }
 
     private static int dyeColor(DyeColor color) {

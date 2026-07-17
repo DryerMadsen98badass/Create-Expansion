@@ -1,0 +1,109 @@
+Turning recipes
+===============
+
+Recipe type:
+
+create_expansion:turning
+
+Machine:
+
+Mechanical Lathe / kinetic_lathe
+
+Main files:
+
+src/main/java/net/mads/createexpansion/recipe/recipes/lathe/KineticLatheRecipes.java
+src/main/java/net/mads/createexpansion/recipe/recipes/lathe/TurningRecipeBuilder.java
+src/main/java/net/mads/createexpansion/recipe/recipes/lathe/TurningRecipe.java
+
+Generated folder:
+
+src/generated/resources/data/create_expansion/recipe/turning/
+
+
+Builder example
+===============
+
+Add recipes inside KineticLatheRecipes.build.
+
+Example:
+
+recipe("test/oak_log_to_stick")
+        .inputItem("minecraft:oak_log")
+        .outputItem("minecraft:stick", 4)
+        .duration(120)
+        .minRpm(32)
+        .maxRpm(256)
+        .save(output);
+
+
+Builder methods
+===============
+
+Inputs:
+
+- inputItem("namespace:item")
+- inputItem(ItemLike item)
+- inputTag("namespace:tag")
+
+Outputs:
+
+- outputItem("namespace:item")
+- outputItem("namespace:item", count)
+- outputItem(ItemLike item, count)
+- chancedOutput("namespace:item", chance)
+- chancedOutput("namespace:item", count, chance)
+
+Processing settings:
+
+- duration(ticks)
+- minRpm(rpm)
+- maxRpm(rpm)
+
+
+Limits
+======
+
+From TurningRecipeBuilder validation:
+
+- exactly 1 item input
+- exactly 1 item output
+- no fluid input/output
+- duration must be positive
+- minRpm cannot be negative
+- maxRpm cannot be lower than minRpm
+
+Important:
+
+The builder has chancedOutput methods, but validation still requires exactly one output. Use one
+normal output or one chanced output, not several outputs.
+
+
+Generated json shape
+====================
+
+Example generated json:
+
+{
+  "type": "create_expansion:turning",
+  "ingredients": [
+    {
+      "item": "minecraft:oak_log"
+    }
+  ],
+  "max_rpm": 256,
+  "min_rpm": 32,
+  "processing_time": 120,
+  "results": [
+    {
+      "count": 4,
+      "id": "minecraft:stick"
+    }
+  ]
+}
+
+
+Notes
+=====
+
+Use turning for lathe recipes: logs to rods, ingots to rods, rods to screws, shafts, rings, lenses,
+tool handles, turbine shafts, and precise round parts.

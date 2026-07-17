@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:manganese_deepslate_ore",
+    "create_expansion:manganese_andesite_ore",
+    "create_expansion:manganese_netherrack_ore",
+    "create_expansion:manganese_blackstone_ore",
     "create_expansion:manganese_end_stone_ore",
     "create_expansion:manganese_tuff_ore",
-    "create_expansion:manganese_blackstone_ore",
-    "create_expansion:manganese_deepslate_ore",
-    "create_expansion:manganese_granite_ore",
-    "create_expansion:manganese_diorite_ore",
     "create_expansion:manganese_ore",
-    "create_expansion:manganese_andesite_ore",
-    "create_expansion:manganese_netherrack_ore"
+    "create_expansion:manganese_diorite_ore",
+    "create_expansion:manganese_granite_ore"
   ]
 }

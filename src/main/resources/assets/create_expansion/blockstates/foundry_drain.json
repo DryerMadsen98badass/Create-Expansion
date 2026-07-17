@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,pouring=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/drain",
+      "y": 90
+    },
+    "facing=east,pouring=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/drain",
+      "y": 180
+    },
+    "facing=south,pouring=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/drain",
+      "y": 270
+    },
+    "facing=west,pouring=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/drain"
+    },
+    "facing=north,pouring=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/drain",
+      "y": 90
+    },
+    "facing=east,pouring=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/drain",
+      "y": 180
+    },
+    "facing=south,pouring=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/drain",
+      "y": 270
+    },
+    "facing=west,pouring=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/drain"
+    }
+  }
+}

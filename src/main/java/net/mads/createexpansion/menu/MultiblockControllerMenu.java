@@ -1,6 +1,6 @@
 package net.mads.createexpansion.menu;
 
-import net.mads.createexpansion.multiblock.MultiblockControllerBlockEntity;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlockEntity;
 import net.mads.createexpansion.registry.MenuRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;

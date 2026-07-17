@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:einsteinium_deepslate_ore",
+    "create_expansion:einsteinium_andesite_ore",
+    "create_expansion:einsteinium_netherrack_ore",
+    "create_expansion:einsteinium_blackstone_ore",
     "create_expansion:einsteinium_end_stone_ore",
     "create_expansion:einsteinium_tuff_ore",
-    "create_expansion:einsteinium_blackstone_ore",
-    "create_expansion:einsteinium_deepslate_ore",
-    "create_expansion:einsteinium_granite_ore",
-    "create_expansion:einsteinium_diorite_ore",
     "create_expansion:einsteinium_ore",
-    "create_expansion:einsteinium_andesite_ore",
-    "create_expansion:einsteinium_netherrack_ore"
+    "create_expansion:einsteinium_diorite_ore",
+    "create_expansion:einsteinium_granite_ore"
   ]
 }

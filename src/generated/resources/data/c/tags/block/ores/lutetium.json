@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:lutetium_deepslate_ore",
+    "create_expansion:lutetium_andesite_ore",
+    "create_expansion:lutetium_netherrack_ore",
+    "create_expansion:lutetium_blackstone_ore",
     "create_expansion:lutetium_end_stone_ore",
     "create_expansion:lutetium_tuff_ore",
-    "create_expansion:lutetium_blackstone_ore",
-    "create_expansion:lutetium_deepslate_ore",
-    "create_expansion:lutetium_granite_ore",
-    "create_expansion:lutetium_diorite_ore",
     "create_expansion:lutetium_ore",
-    "create_expansion:lutetium_andesite_ore",
-    "create_expansion:lutetium_netherrack_ore"
+    "create_expansion:lutetium_diorite_ore",
+    "create_expansion:lutetium_granite_ore"
   ]
 }

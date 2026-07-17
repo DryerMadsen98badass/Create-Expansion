@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:hassium_cast_gear"
+    }
+  ],
+  "processingTime": 800,
+  "results": [
+    {
+      "id": "create_expansion:hassium_gear"
+    }
+  ]
+}

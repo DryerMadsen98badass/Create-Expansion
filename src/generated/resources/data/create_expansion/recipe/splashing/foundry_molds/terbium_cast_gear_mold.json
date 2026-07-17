@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:terbium_hot_cast_gear_mold"
+    }
+  ],
+  "processingTime": 800,
+  "results": [
+    {
+      "id": "create_expansion:terbium_cast_gear_mold"
+    }
+  ]
+}

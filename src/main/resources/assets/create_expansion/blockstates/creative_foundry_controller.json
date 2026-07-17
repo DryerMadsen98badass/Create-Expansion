@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,formed=false,active=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller"
+    },
+    "facing=east,formed=false,active=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller",
+      "y": 90
+    },
+    "facing=south,formed=false,active=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller",
+      "y": 180
+    },
+    "facing=west,formed=false,active=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller",
+      "y": 270
+    },
+    "facing=north,formed=true,active=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller"
+    },
+    "facing=east,formed=true,active=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller",
+      "y": 90
+    },
+    "facing=south,formed=true,active=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller",
+      "y": 180
+    },
+    "facing=west,formed=true,active=false": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller",
+      "y": 270
+    },
+    "facing=north,formed=false,active=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller_formed"
+    },
+    "facing=east,formed=false,active=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller_formed",
+      "y": 90
+    },
+    "facing=south,formed=false,active=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller_formed",
+      "y": 180
+    },
+    "facing=west,formed=false,active=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller_formed",
+      "y": 270
+    },
+    "facing=north,formed=true,active=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller_formed"
+    },
+    "facing=east,formed=true,active=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller_formed",
+      "y": 90
+    },
+    "facing=south,formed=true,active=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller_formed",
+      "y": 180
+    },
+    "facing=west,formed=true,active=true": {
+      "model": "create_expansion:block/machines/without_energy/foundry/foundry_controller_formed",
+      "y": 270
+    }
+  }
+}

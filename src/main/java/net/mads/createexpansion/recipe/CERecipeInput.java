@@ -18,7 +18,8 @@ public record CERecipeInput(
         Optional<MachineTier> machineTier,
         Optional<MachineTier> kineticTier,
         Optional<MachineTier> energyTier,
-        int rpm
+        int rpm,
+        int coilHeat
 ) implements RecipeInput {
     public CERecipeInput {
         items = List.copyOf(items);
@@ -27,7 +28,7 @@ public record CERecipeInput(
     }
 
     public static CERecipeInput of(List<ItemStack> items, List<FluidStack> fluids) {
-        return new CERecipeInput(items, fluids, Optional.empty(), Set.of(), Optional.empty(), Optional.empty(), Optional.empty(), 0);
+        return new CERecipeInput(items, fluids, Optional.empty(), Set.of(), Optional.empty(), Optional.empty(), Optional.empty(), 0, 0);
     }
 
     @Override

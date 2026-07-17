@@ -1,0 +1,70 @@
+{
+  "credit": "Made with Blockbench",
+  "textures": {
+    "basin": "create:block/basin",
+    "particle": "create:block/basin"
+  },
+  "elements": [
+    {
+      "name": "Basin Base",
+      "from": [2, 0, 2],
+      "to": [14, 2, 14],
+      "faces": {
+        "north": {"uv": [1, 7, 7, 8], "texture": "#basin"},
+        "east": {"uv": [1, 7, 7, 8], "texture": "#basin"},
+        "south": {"uv": [1, 7, 7, 8], "texture": "#basin"},
+        "west": {"uv": [1, 7, 7, 8], "texture": "#basin"},
+        "up": {"uv": [9, 9, 15, 15], "texture": "#basin"},
+        "down": {"uv": [9, 9, 15, 15], "texture": "#basin"}
+      }
+    },
+    {
+      "name": "Basin North Wall",
+      "from": [0, 2, 0],
+      "to": [16, 16, 2],
+      "faces": {
+        "north": {"uv": [0, 0, 8, 7], "texture": "#basin"},
+        "east": {"uv": [7, 0, 8, 7], "texture": "#basin"},
+        "south": {"uv": [8, 0, 16, 7], "texture": "#basin"},
+        "west": {"uv": [0, 0, 1, 7], "texture": "#basin"},
+        "up": {"uv": [0, 15, 8, 16], "texture": "#basin"},
+        "down": {"uv": [0, 15, 8, 16], "texture": "#basin"}
+      }
+    },
+    {
+      "name": "Basin West Wall",
+      "from": [0, 2, 2],
+      "to": [2, 16, 14],
+      "faces": {
+        "east": {"uv": [9, 0, 15, 7], "texture": "#basin"},
+        "west": {"uv": [1, 0, 7, 7], "texture": "#basin"},
+        "up": {"uv": [7, 9, 8, 15], "texture": "#basin"},
+        "down": {"uv": [7, 9, 8, 15], "texture": "#basin"}
+      }
+    },
+    {
+      "name": "Basin South Wall",
+      "from": [0, 2, 14],
+      "to": [16, 16, 16],
+      "faces": {
+        "north": {"uv": [8, 0, 16, 7], "texture": "#basin"},
+        "east": {"uv": [0, 0, 1, 7], "texture": "#basin"},
+        "south": {"uv": [0, 0, 8, 7], "texture": "#basin"},
+        "west": {"uv": [7, 0, 8, 7], "texture": "#basin"},
+        "up": {"uv": [0, 8, 7.5, 9], "texture": "#basin"},
+        "down": {"uv": [0, 8, 8, 9], "texture": "#basin"}
+      }
+    },
+    {
+      "name": "Basin East Wall",
+      "from": [14, 2, 2],
+      "to": [16, 16, 14],
+      "faces": {
+        "east": {"uv": [1, 0, 7, 7], "texture": "#basin"},
+        "west": {"uv": [9, 0, 15, 7], "texture": "#basin"},
+        "up": {"uv": [0, 9, 1, 15], "texture": "#basin"},
+        "down": {"uv": [0, 9, 1, 15], "texture": "#basin"}
+      }
+    }
+  ]
+}

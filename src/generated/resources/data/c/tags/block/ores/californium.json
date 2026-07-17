@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:californium_deepslate_ore",
+    "create_expansion:californium_andesite_ore",
+    "create_expansion:californium_netherrack_ore",
+    "create_expansion:californium_blackstone_ore",
     "create_expansion:californium_end_stone_ore",
     "create_expansion:californium_tuff_ore",
-    "create_expansion:californium_blackstone_ore",
-    "create_expansion:californium_deepslate_ore",
-    "create_expansion:californium_granite_ore",
-    "create_expansion:californium_diorite_ore",
     "create_expansion:californium_ore",
-    "create_expansion:californium_andesite_ore",
-    "create_expansion:californium_netherrack_ore"
+    "create_expansion:californium_diorite_ore",
+    "create_expansion:californium_granite_ore"
   ]
 }

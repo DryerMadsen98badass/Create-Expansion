@@ -1,0 +1,123 @@
+Centrifuging recipes
+====================
+
+Recipe type:
+
+create_expansion:centrifuging
+
+Main files:
+
+src/main/java/net/mads/createexpansion/recipe/recipes/centrifuge/CentrifugeRecipes.java
+src/main/java/net/mads/createexpansion/recipe/recipes/centrifuge/CentrifugeRecipeBuilder.java
+src/main/java/net/mads/createexpansion/recipe/recipes/centrifuge/CentrifugingRecipe.java
+
+Generated folder:
+
+src/generated/resources/data/create_expansion/recipe/centrifuging/
+
+
+Builder example
+===============
+
+Add recipes inside CentrifugeRecipes.build.
+
+Example:
+
+recipe("test/dirt_washing")
+        .inputItem("minecraft:dirt")
+        .inputFluid("minecraft:water", 1000)
+        .outputItem("minecraft:clay_ball")
+        .outputFluid("minecraft:water", 1000)
+        .duration(100)
+        .minRpm(16)
+        .maxRpm(256)
+        .save(output);
+
+
+Builder methods
+===============
+
+Item inputs:
+
+- inputItem("namespace:item")
+- inputItem(ItemLike item)
+- inputTag("namespace:tag")
+
+Fluid inputs:
+
+- inputFluid("namespace:fluid", amount)
+
+Item outputs:
+
+- outputItem("namespace:item")
+- outputItem("namespace:item", count)
+- outputItem(ItemLike item, count)
+- chancedOutput("namespace:item", chance)
+- chancedOutput("namespace:item", count, chance)
+
+Fluid outputs:
+
+- outputFluid("namespace:fluid", amount)
+
+Processing settings:
+
+- duration(ticks)
+- minRpm(rpm)
+- maxRpm(rpm)
+
+
+Limits
+======
+
+From CentrifugeRecipeBuilder validation:
+
+- max 1 item input
+- max 1 fluid input
+- max 4 item outputs
+- max 1 fluid output
+- must have at least one item or fluid input
+- must have at least one item or fluid output
+- duration must be positive
+- minRpm cannot be negative
+- maxRpm cannot be lower than minRpm
+
+
+Generated json shape
+====================
+
+Example generated json:
+
+{
+  "type": "create_expansion:centrifuging",
+  "fluid_ingredients": [
+    {
+      "amount": 1000,
+      "fluid": "minecraft:water"
+    }
+  ],
+  "fluid_results": [
+    {
+      "amount": 1000,
+      "id": "minecraft:water"
+    }
+  ],
+  "ingredients": [
+    {
+      "item": "minecraft:dirt"
+    }
+  ],
+  "max_rpm": 256,
+  "min_rpm": 16,
+  "results": [
+    {
+      "id": "minecraft:clay_ball"
+    }
+  ]
+}
+
+
+Notes
+=====
+
+Use centrifuging for separating mixtures, washed ore fractions, slurry, dirty fluids, rare
+byproducts, oil/water separation, and recipes that need item + fluid handling.

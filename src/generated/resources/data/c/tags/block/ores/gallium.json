@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:gallium_deepslate_ore",
+    "create_expansion:gallium_andesite_ore",
+    "create_expansion:gallium_netherrack_ore",
+    "create_expansion:gallium_blackstone_ore",
     "create_expansion:gallium_end_stone_ore",
     "create_expansion:gallium_tuff_ore",
-    "create_expansion:gallium_blackstone_ore",
-    "create_expansion:gallium_deepslate_ore",
-    "create_expansion:gallium_granite_ore",
-    "create_expansion:gallium_diorite_ore",
     "create_expansion:gallium_ore",
-    "create_expansion:gallium_andesite_ore",
-    "create_expansion:gallium_netherrack_ore"
+    "create_expansion:gallium_diorite_ore",
+    "create_expansion:gallium_granite_ore"
   ]
 }

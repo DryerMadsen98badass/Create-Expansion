@@ -26,7 +26,8 @@ import net.mads.createexpansion.commands.MyCommand;
 
 import net.mads.createexpansion.data.ModDataGenerators;
 
-import net.mads.createexpansion.multiblock.MultiblockDefinitions;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockDefinitions;
+import net.mads.createexpansion.machine.machines.kinetic.KineticMachineStress;
 
 
 
@@ -64,6 +65,7 @@ public class CreateExpansion {
 
         WorldgenRegistry.register(modEventBus);
 
+        CreateExpansionPartialModels.init();
 
         
 
@@ -88,6 +90,7 @@ public class CreateExpansion {
         LOGGER.info("Create Expansion is loading!");
 
         MultiblockDefinitions.bootstrap();
+        event.enqueueWork(KineticMachineStress::register);
 
     }
 

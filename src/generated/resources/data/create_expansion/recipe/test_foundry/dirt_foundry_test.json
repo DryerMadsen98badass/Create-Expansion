@@ -16,5 +16,9 @@
       }
     }
   ],
-  "recipe_type": "create_expansion:test_foundry"
+  "recipe_type": "create_expansion:test_foundry",
+  "required_logic": [
+    "create_expansion:coil_temp"
+  ],
+  "temp": 1000
 }

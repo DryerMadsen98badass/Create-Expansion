@@ -1,6 +1,6 @@
 package net.mads.createexpansion.recipe;
 
-import net.mads.createexpansion.recipe.types.TestFoundryRecipeType;
+import net.mads.createexpansion.recipe.recipetypes.TestFoundryRecipeType;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;

@@ -1,0 +1,176 @@
+Machine recipes / CERecipeBuilder
+=================================
+
+Base recipe serializer type:
+
+create_expansion:machine
+
+The actual machine recipe type is stored inside the json as recipe_type.
+
+Current example recipe type:
+
+create_expansion:test_foundry
+
+Main files:
+
+src/main/java/net/mads/createexpansion/recipe/CERecipeBuilder.java
+src/main/java/net/mads/createexpansion/recipe/CERecipe.java
+src/main/java/net/mads/createexpansion/recipe/CERecipeTypes.java
+src/main/java/net/mads/createexpansion/recipe/recipes/test_foundry/TestFoundryRecipes.java
+
+Generated folder:
+
+src/generated/resources/data/create_expansion/recipe/<recipe_type_path>/
+
+
+Builder example
+===============
+
+Add recipes inside the recipe class for that machine, for example TestFoundryRecipes.build.
+
+Example:
+
+CERecipeTypes.TEST_FOUNDRY.recipe("dirt_foundry_test")
+        .inputItem("minecraft:diamond", 1)
+        .outputItem("minecraft:dirt", 1)
+        .duration(20)
+        .CEt(MachineTier.LV)
+        .save(output);
+
+
+Builder methods
+===============
+
+Item inputs:
+
+- inputItem("namespace:item")
+- inputItem("namespace:item", count)
+- inputItem(ItemLike item, count)
+- inputTag("namespace:tag", count)
+
+Fluid inputs:
+
+- inputFluid("namespace:fluid", amount)
+
+Not-consumable inputs:
+
+- notConsumableItem("namespace:item")
+- notConsumableItem("namespace:item", count)
+- notConsumableItem(ItemLike item, count)
+- notConsumableFluid("namespace:fluid", amount)
+
+Item outputs:
+
+- outputItem("namespace:item")
+- outputItem("namespace:item", count)
+- outputItem(ItemLike item, count)
+- chancedOutput("namespace:item", chance)
+- chancedOutput("namespace:item", count, chance)
+
+Fluid outputs:
+
+- outputFluid("namespace:fluid", amount)
+
+Processing settings:
+
+- duration(ticks)
+- CEt(amount)
+- CEt(MachineTier tier)
+- generateCEt(amount)
+- generateCEt(MachineTier tier)
+- circuit(1-32)
+- tier(MachineTier tier)
+- kinetic(MachineTier tier)
+- minRpm(rpm)
+- maxRpm(rpm)
+- rpmRange(minRpm, maxRpm)
+- logic(CERecipeLogicDefinition logic)
+- requiredLogic(CERecipeLogicDefinition logic)
+- optionalLogic(CERecipeLogicDefinition logic)
+
+
+Energy rules
+============
+
+CEt(amount):
+
+- positive cet means the recipe consumes CE.
+- CEt(MachineTier tier) uses about half of that tier's CE value.
+
+generateCEt(amount):
+
+- negative cet in json means the recipe generates CE.
+- generateCEt(MachineTier tier) uses about half of that tier's CE value.
+
+The recipe type decides whether energy is allowed:
+
+- NONE
+- CONSUMES
+- GENERATES
+- BOTH
+
+
+RPM and kinetic tier rules
+==========================
+
+Only use minRpm, maxRpm, rpmRange, or kinetic(...) if the recipe type accepts RPM.
+
+The recipe type decides kinetic mode:
+
+- NONE
+- CONSUMES
+- GENERATES
+- BOTH
+
+
+Validation rules
+================
+
+CERecipeBuilder validates against the CERecipeTypeDefinition:
+
+- duration must be positive
+- item inputs cannot exceed maxItemInputs
+- item outputs cannot exceed maxItemOutputs
+- fluid inputs cannot exceed maxFluidInputs
+- fluid outputs cannot exceed maxFluidOutputs
+- RPM cannot be used if the recipe type does not accept RPM
+- kinetic tier cannot be used if the recipe type does not accept RPM
+- CE cannot be used if the recipe type does not allow energy
+- generated CE cannot be used on a consumes-only recipe type
+- consumed CE cannot be used on a generates-only recipe type
+- maxRpm cannot be lower than minRpm
+- required/optional logic must be supported by the recipe type
+
+
+Generated json shape
+====================
+
+Example generated json:
+
+{
+  "type": "create_expansion:machine",
+  "cet": 16,
+  "duration": 20,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "minecraft:diamond"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "minecraft:dirt"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:test_foundry"
+}
+
+
+Notes
+=====
+
+Use CERecipeBuilder for electric/multiblock-style machine recipes. The same base json type can
+support many machines because recipe_type tells the machine which recipe family it belongs to.

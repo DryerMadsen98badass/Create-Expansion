@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:sodium_deepslate_ore",
+    "create_expansion:sodium_andesite_ore",
+    "create_expansion:sodium_netherrack_ore",
+    "create_expansion:sodium_blackstone_ore",
     "create_expansion:sodium_end_stone_ore",
     "create_expansion:sodium_tuff_ore",
-    "create_expansion:sodium_blackstone_ore",
-    "create_expansion:sodium_deepslate_ore",
-    "create_expansion:sodium_granite_ore",
-    "create_expansion:sodium_diorite_ore",
     "create_expansion:sodium_ore",
-    "create_expansion:sodium_andesite_ore",
-    "create_expansion:sodium_netherrack_ore"
+    "create_expansion:sodium_diorite_ore",
+    "create_expansion:sodium_granite_ore"
   ]
 }

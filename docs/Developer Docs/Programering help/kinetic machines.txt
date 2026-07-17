@@ -1,0 +1,59 @@
+Adding single-block kinetic machines
+====================================
+
+Current examples:
+
+- machine/machines/kinetic/sifter
+- machine/machines/kinetic/centrifuge
+- machine/machines/kinetic/lathe
+
+Typical files per machine:
+
+- Kinetic<Name>Block.java
+- Kinetic<Name>BlockEntity.java
+- Kinetic<Name>Registration.java
+- optional renderer/menu/recipe files depending on the machine
+
+
+Registry locations to update
+============================
+
+- BlockRegistry.java: add registerBlock holder.
+- ItemRegistry.java: add registerItem holder.
+- BlockEntityRegistry.java: add block entity holder and capabilities.
+- CreativeTabRegistry.java: add item to tab.
+- ClientSetup.java: add renderer if needed.
+- ModLanguageProvider.java: call Registration.addTranslations if the registration class provides it.
+- CERecipeProvider.java: call the recipe builder class if the machine has datagen recipes.
+
+
+Recipe registry locations for current kinetic recipe styles
+===========================================================
+
+- RecipeRegistry.java registers sifting, centrifuging, and turning.
+- recipe/recipetypes contains recipe type ids.
+- recipe/recipes contains recipe classes and datagen recipe builders.
+
+Use the existing sifter/centrifuge/lathe folders as templates before creating a new pattern.
+
+
+Current kinetic machines
+========================
+
+Mechanical Sifter:
+
+- registry id: kinetic_sifter
+- recipe type: create_expansion:sifting
+- folder: machine/machines/kinetic/sifter
+
+Mechanical Centrifuge:
+
+- registry id: kinetic_centrifuge
+- recipe type: create_expansion:centrifuging
+- folder: machine/machines/kinetic/centrifuge
+
+Mechanical Lathe:
+
+- registry id: kinetic_lathe
+- recipe type: create_expansion:turning
+- folder: machine/machines/kinetic/lathe

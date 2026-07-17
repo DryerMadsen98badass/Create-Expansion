@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:monazite_deepslate_ore",
+    "create_expansion:monazite_andesite_ore",
+    "create_expansion:monazite_netherrack_ore",
+    "create_expansion:monazite_blackstone_ore",
     "create_expansion:monazite_end_stone_ore",
     "create_expansion:monazite_tuff_ore",
-    "create_expansion:monazite_blackstone_ore",
-    "create_expansion:monazite_deepslate_ore",
-    "create_expansion:monazite_granite_ore",
-    "create_expansion:monazite_diorite_ore",
     "create_expansion:monazite_ore",
-    "create_expansion:monazite_andesite_ore",
-    "create_expansion:monazite_netherrack_ore"
+    "create_expansion:monazite_diorite_ore",
+    "create_expansion:monazite_granite_ore"
   ]
 }

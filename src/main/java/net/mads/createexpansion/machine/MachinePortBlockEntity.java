@@ -4,8 +4,8 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import net.mads.createexpansion.energy.CEEnergyContainer;
 import net.mads.createexpansion.energy.CEEnergyNetwork;
 import net.mads.createexpansion.energy.CEEnergyStorage;
-import net.mads.createexpansion.multiblock.MultiblockAbility;
-import net.mads.createexpansion.multiblock.MultiblockPart;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPart;
 import net.mads.createexpansion.menu.MachinePortMenu;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
@@ -53,6 +53,12 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
     private DyeColor ioColor = DyeColor.GRAY;
     private int circuit;
     private boolean autoOutput;
+    private int lastInputCEt;
+    private int lastInputVoltage;
+    private long lastInputLoadTick = -1;
+    private int lastNetworkInputCEt;
+    private int lastNetworkInputVoltage;
+    private long lastNetworkInputTick = -1;
 
     public MachinePortBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityRegistry.MACHINE_PORT.get(), pos, state);
@@ -98,6 +104,49 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
 
     public int ceStored() {
         return ceStorage == null ? 0 : ceStorage.stored();
+    }
+
+    public void recordEnergyInputLoad(int cePerTick, int voltage) {
+        if (level == null || level.isClientSide() || cePerTick <= 0 || voltage <= 0) {
+            return;
+        }
+        lastInputCEt = cePerTick;
+        lastInputVoltage = voltage;
+        lastInputLoadTick = level.getGameTime();
+        contentChanged();
+    }
+
+    public void recordEnergyNetworkInput(int cePerTick, int voltage) {
+        if (level == null || level.isClientSide() || cePerTick <= 0 || voltage <= 0) {
+            return;
+        }
+        long now = level.getGameTime();
+        if (lastNetworkInputTick == now) {
+            lastNetworkInputCEt += cePerTick;
+            lastNetworkInputVoltage = Math.max(lastNetworkInputVoltage, voltage);
+        } else {
+            lastNetworkInputCEt = cePerTick;
+            lastNetworkInputVoltage = voltage;
+            lastNetworkInputTick = now;
+        }
+        contentChanged();
+    }
+
+    public int lastInputCEt() {
+        return isInputLoadVisible() ? lastInputCEt : 0;
+    }
+
+    public int lastInputVoltage() {
+        return isInputLoadVisible() ? lastInputVoltage : 0;
+    }
+
+    public int recentNetworkInputVoltage() {
+        return isNetworkInputVisible() ? lastNetworkInputVoltage : 0;
+    }
+
+    public int displayInputVoltage() {
+        int voltage = recentNetworkInputVoltage();
+        return voltage > 0 ? voltage : (ceStorage == null ? 0 : ceStorage.getInputVoltage());
     }
 
     public MachineTier tier() {
@@ -329,6 +378,10 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         if (ceStorage != null) {
             tag.putInt("CE", ceStorage.stored());
         }
+        tag.putInt("LastInputCEt", lastInputCEt());
+        tag.putInt("LastInputVoltage", lastInputVoltage());
+        tag.putInt("LastNetworkInputCEt", isNetworkInputVisible() ? lastNetworkInputCEt : 0);
+        tag.putInt("LastNetworkInputVoltage", recentNetworkInputVoltage());
     }
 
     @Override
@@ -359,6 +412,16 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         autoOutput = tag.getBoolean("AutoOutput");
         if (ceStorage != null) {
             ceStorage.setStored(tag.getInt("CE"));
+        }
+        lastInputCEt = Math.max(0, tag.getInt("LastInputCEt"));
+        lastInputVoltage = Math.max(0, tag.getInt("LastInputVoltage"));
+        if (lastInputCEt > 0 && lastInputVoltage > 0) {
+            lastInputLoadTick = level == null ? 0 : level.getGameTime();
+        }
+        lastNetworkInputCEt = Math.max(0, tag.getInt("LastNetworkInputCEt"));
+        lastNetworkInputVoltage = Math.max(0, tag.getInt("LastNetworkInputVoltage"));
+        if (lastNetworkInputCEt > 0 && lastNetworkInputVoltage > 0) {
+            lastNetworkInputTick = level == null ? 0 : level.getGameTime();
         }
     }
 
@@ -422,6 +485,14 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
             return;
         }
         level.explode(null, worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D, 4.0F, Level.ExplosionInteraction.BLOCK);
+    }
+
+    private boolean isInputLoadVisible() {
+        return level != null && lastInputLoadTick >= 0 && level.getGameTime() - lastInputLoadTick <= 40;
+    }
+
+    private boolean isNetworkInputVisible() {
+        return level != null && lastNetworkInputTick >= 0 && level.getGameTime() - lastNetworkInputTick <= 40;
     }
 
     private ItemStackHandler createItemHandler(int slots) {

@@ -1,0 +1,1493 @@
+HOW TO IMPLEMENT A COMPLETE CREATE KINETIC MACHINE
+==================================================
+
+Purpose
+=======
+
+This is the complete project guide for adding a Create-style kinetic processing machine to
+Create Expansion. It covers the block, kinetic connection, block entity, inventory, recipes,
+test recipe, data generation, world rendering, JEI, assets, multi-block footprints, registration,
+and verification.
+
+A machine is not complete when only the block can be placed. A complete processing machine must:
+
+- Place and break correctly.
+- Connect to the intended Create shaft axis.
+- Consume Create stress.
+- Render every animated part on the correct pivot.
+- Accept only valid recipe inputs.
+- Process while the RPM requirement is met.
+- Stop safely when speed, input, or output conditions fail.
+- Expose item automation correctly.
+- Have its own recipe type, serializer, builder, and data generator.
+- Generate at least one test recipe.
+- Show that recipe in JEI with the machine as a catalyst.
+- Have valid blockstate, models, item model, textures, loot table, and translations.
+- Compile, run data generation, load without recipe errors, and pass an in-game test.
+
+
+NON-NEGOTIABLE PROJECT RULES
+============================
+
+1. Read before editing
+----------------------
+
+Before creating files, read:
+
+- docs/Developer Docs/To Do.txt
+- This guide.
+- The closest existing machine implementation.
+- The model JSON files supplied for the new machine.
+
+Use these existing machines as references:
+
+- Sifter: Create ProcessingRecipe pattern and JEI animation.
+- Centrifuge: item/fluid recipe pattern, partial models, offsets, and JEI rendering.
+- Lathe: one-item recipe pattern, RPM limits, custom shaft partial, and JEI.
+- Rolling Mill: two independently animated parts with opposite rotation.
+- Wire Drawer: two-block footprint and controller/part forwarding.
+
+Do not assume filenames, model axes, pivots, or footprint dimensions. Inspect them.
+
+
+2. Preserve supplied assets
+---------------------------
+
+Models and textures supplied by the project owner are authoritative.
+
+- Do not replace them with generated placeholder models.
+- Do not create new textures when the required texture already exists.
+- Do not rename or rewrite finished models just to make renderer code easier.
+- Split moving parts into partials only when required for animation, and preserve the original
+  geometry, UVs, texture references, initial rotations, and final in-game placement.
+- If an existing model should be reused, reference that exact model instead of copying it.
+
+Before coding, list every relevant model and texture with `rg --files` and open every model JSON.
+
+
+3. Every processing machine gets a test recipe and JEI
+------------------------------------------------------
+
+A custom recipe JSON without a registered serializer is invalid.
+A registered recipe without JEI is not discoverable to players.
+
+For every new processing machine, always add:
+
+- A dedicated IRecipeTypeInfo class.
+- A dedicated recipe class.
+- A dedicated recipe input class.
+- A dedicated recipe builder.
+- A dedicated recipes/data-generation class.
+- RecipeRegistry serializer and type entries.
+- A CERecipeProvider build call.
+- At least one generated test recipe.
+- A dedicated JEI category.
+- JEI category, recipe, catalyst, type-list, and manager lookup registration.
+
+Do not hide unrelated machine recipe types in a generic `simplekinetic` folder. Shared helper
+interfaces are acceptable, but each machine must have an obvious source folder and named classes.
+
+
+PHASE 1: WRITE THE MACHINE CONTRACT
+===================================
+
+Before editing code, write down the following values:
+
+Machine identity
+----------------
+
+- Java name: example `RollingMill`.
+- Registry ID: example `kinetic_rolling_mill`.
+- Display name: example `Mechanical Rolling Mill`.
+- Recipe name: example `Rolling`.
+- Recipe type ID: example `rolling`.
+- Stress impact: example `24.0D`.
+
+Physical contract
+-----------------
+
+- Kinetic axis: X, Y, or Z.
+- Which faces show or accept a shaft.
+- Shaft model: normal Create shaft, existing custom partial, or supplied machine partial.
+- Footprint: one block, two blocks, or larger.
+- Exact collision/selection shape for every occupied block.
+- Placement direction and whether HORIZONTAL_FACING is required.
+
+Rendering contract
+------------------
+
+- Static model filename.
+- Item model filename.
+- Animated partial filenames.
+- Rotation axis of each animated part.
+- Pivot of each animated part in model coordinates.
+- Relationship between moving parts, such as rotor 2 = negative rotor 1 angle.
+- Whether a Blockbench element already has an initial baked rotation.
+
+Recipe contract
+---------------
+
+- Number of item inputs and outputs.
+- Whether outputs are deterministic or chanced.
+- Fluid inputs/outputs, if any.
+- Default processing time.
+- Minimum and optional maximum RPM.
+- Exact test input and output.
+
+Do not start implementation until these values are known from the request and supplied assets.
+
+
+PHASE 2: REQUIRED FILE LAYOUT
+=============================
+
+Replace `<machine>` and `<RecipeName>` with the real names.
+
+Machine Java files
+------------------
+
+src/main/java/net/mads/createexpansion/machine/machines/kinetic/<machine>/
+
+- Kinetic<Machine>Block.java
+- Kinetic<Machine>BlockEntity.java
+- Kinetic<Machine>Registration.java
+- Kinetic<Machine>Renderer.java
+- Kinetic<Machine>PartBlock.java, only for an additional occupied block
+- Kinetic<Machine>PartBlockEntity.java, only when the part must forward data/capabilities
+
+Recipe Java files
+-----------------
+
+src/main/java/net/mads/createexpansion/recipe/recipetypes/
+
+- <RecipeName>RecipeType.java
+
+src/main/java/net/mads/createexpansion/recipe/recipes/<machine>/
+
+- <RecipeName>Recipe.java
+- <RecipeName>RecipeInput.java
+- <RecipeName>RecipeBuilder.java
+- <RecipeName>Recipes.java
+- <RecipeName>RecipeParams.java, when using Create ProcessingRecipeParams
+
+JEI Java file
+--------------
+
+src/main/java/net/mads/createexpansion/integration/jei/
+
+- <RecipeName>Category.java
+
+Asset files
+-----------
+
+src/main/resources/assets/create_expansion/blockstates/
+
+- kinetic_<machine>.json
+- kinetic_<machine>_part.json, for every registered invisible footprint part
+
+src/main/resources/assets/create_expansion/models/block/machines/kinetic/<machine>/
+
+- supplied static model
+- supplied item model
+- supplied moving partial models
+
+src/main/resources/assets/create_expansion/models/item/
+
+- kinetic_<machine>.json
+
+src/main/resources/assets/create_expansion/textures/block/machines/machines/kinetic/<machine>/
+
+- supplied textures only
+
+Data files
+----------
+
+src/main/resources/data/create_expansion/loot_table/blocks/
+
+- kinetic_<machine>.json
+
+Generated test recipe after runData
+-----------------------------------
+
+src/generated/resources/data/create_expansion/recipe/<recipe_type>/test/
+
+- <test_recipe>.json
+
+Generated language file after runData
+-------------------------------------
+
+src/generated/resources/assets/create_expansion/lang/
+
+- en_us.json
+
+Do not edit the generated language JSON directly. Add the translation through
+`ModLanguageProvider.java` and the machine registration class, then run data generation.
+
+
+PHASE 3: REGISTRATION CLASS
+===========================
+
+Create `Kinetic<Machine>Registration.java` first. It is the single source for machine constants and
+registration helpers.
+
+It should define:
+
+```java
+public static final String ID = "kinetic_<machine>";
+public static final String DISPLAY_NAME = "Mechanical <Machine>";
+public static final String RECIPE_DISPLAY_NAME = "<Recipe Name>";
+public static final double STRESS_IMPACT = 16.0D;
+```
+
+It should provide:
+
+- `registerBlock(...)`
+- `registerItem(...)`
+- `registerBlockEntity(...)`
+- `addTranslations(...)`
+
+For a footprint part, also provide:
+
+- `PART_ID`
+- `registerPartBlock(...)`
+- `registerPartBlockEntity(...)`
+- A block translation for PART_ID using the same display name as the controller
+
+The invisible part normally has no BlockItem. The player places one controller item, which creates
+the complete footprint.
+
+
+PHASE 4: BLOCK AND CREATE KINETIC AXIS
+======================================
+
+The block must extend `KineticBlock`, directly or through a project helper, and implement `IBE` for
+its block entity.
+
+Required kinetic methods
+------------------------
+
+```java
+@Override
+public boolean hasShaftTowards(LevelReader level, BlockPos pos, BlockState state, Direction face) {
+    return face.getAxis() == getRotationAxis(state);
+}
+
+@Override
+public Direction.Axis getRotationAxis(BlockState state) {
+    return Direction.Axis.X;
+}
+```
+
+Axis meanings:
+
+- X: east/west shaft.
+- Y: vertical shaft.
+- Z: north/south shaft.
+
+Choose the axis from the visible hole and model geometry. Do not select an axis only because an
+existing renderer already uses it.
+
+If a supplied shaft model points along a different axis, either use a model aligned to the correct
+axis or rotate the reused model in the renderer. The block's kinetic axis must still match the
+actual world connection direction.
+
+Shapes
+------
+
+Explicitly implement both selection and collision shape when the machine is not a normal cube:
+
+```java
+@Override
+public VoxelShape getShape(...) {
+    return SHAPE;
+}
+
+@Override
+public VoxelShape getCollisionShape(...) {
+    return SHAPE;
+}
+```
+
+Do not infer collision from a model extending outside 0..16. Minecraft model geometry can extend
+into a neighboring block, but collision and selection do not automatically occupy that block.
+
+
+PHASE 5: TWO-BLOCK OR LARGER MACHINES
+======================================
+
+Use a controller plus explicit part blocks. Never fake a multi-block footprint using only model
+geometry.
+
+Controller placement flow
+-------------------------
+
+1. Calculate every required part position.
+2. In `getStateForPlacement`, confirm every position can be replaced.
+3. Return null when the complete footprint cannot be placed.
+4. In `setPlacedBy`, place every part block on the server.
+5. Store the controller position in each part block entity.
+6. In controller `onRemove`, remove only parts that point back to this controller.
+
+Part behavior
+-------------
+
+The part block should normally:
+
+- Use `RenderShape.INVISIBLE` when the controller model already renders the full machine.
+- Still have a blockstate definition, even though it is invisible.
+- Have the exact selection and collision shape required for its occupied space.
+- Forward right-click item insertion and empty-hand extraction to the controller.
+- Forward item capability access to the controller.
+- Destroy the controller when the player destroys the part.
+- Avoid dropping a second machine item.
+- Persist the controller BlockPos in NBT.
+
+Register the part block entity capability in `BlockEntityRegistry` if automation must work from the
+part block.
+
+Use the same translated display name for controller and part so Jade/debug views do not expose an
+internal name such as `kinetic_wire_drawer_part`.
+
+An invisible registered block without a blockstate still produces a model-loader warning. Point
+its blockstate to `minecraft:block/air`; it does not need a custom block model.
+
+Orientation
+-----------
+
+If the footprint should follow player facing, add `HORIZONTAL_FACING`, rotate the blockstate model,
+and calculate part positions from that property. Do not hard-code north/south unless the machine is
+intentionally fixed-direction.
+
+
+PHASE 6: BLOCK ENTITY, INVENTORY, AND PROCESSING
+================================================
+
+The block entity extends `KineticBlockEntity` or a suitable project base class.
+
+Minimum state
+-------------
+
+- Input `ItemStackHandler`.
+- Output `ItemStackHandler`.
+- Combined or sided item capability.
+- Processing timer.
+- Cached last recipe, invalidated when it no longer matches.
+
+Inventory rules
+---------------
+
+- Automation may insert only into input slots.
+- Automation may extract only from output slots.
+- Input validation must use the machine's own recipe type.
+- Output insertion must simulate capacity before consuming input.
+- Manual insertion should reject items with no recipe.
+- Avoid extracting an active input while processing unless explicitly intended.
+- Save inventories and timer to NBT.
+- Drop both inventories when the block entity is destroyed.
+- Invalidate capabilities when the block entity invalidates.
+
+Important input rule
+--------------------
+
+Recipe input acceptance and active recipe matching are different checks:
+
+- Acceptance checks whether any recipe ingredient matches the item, without requiring current RPM.
+- Active matching checks ingredient plus current RPM limits.
+
+If insertion is checked using an input with RPM 0, every recipe with `min_rpm > 0` will be rejected
+while the machine is stopped. Use `matchesItem(...)` for insertion and `matches(...)` for processing.
+
+Server tick flow
+----------------
+
+1. Call `super.tick()`.
+2. Return on the client.
+3. If speed is zero or Create's speed requirement is not fulfilled, reset/pause according to the
+   machine design.
+4. Read input and absolute RPM.
+5. Reuse the cached recipe only if it still matches input and RPM.
+6. Otherwise query the machine's own RecipeType.
+7. Confirm every output can fit.
+8. Initialize timer from the recipe processing duration.
+9. Reduce timer using a bounded speed-based value.
+10. On completion, consume input, insert outputs, reset timer, and sync data.
+
+Use absolute RPM for recipe requirements unless rotational direction intentionally changes recipe
+behavior.
+
+
+PHASE 7: COMPLETE RECIPE TYPE
+=============================
+
+Follow the source layout of turning, centrifuging, and sifting. Do not add only a JSON file.
+
+
+7.1 Recipe input
+----------------
+
+For one item and RPM:
+
+```java
+public record <RecipeName>RecipeInput(ItemStack item, int rpm) implements RecipeInput {
+    public <RecipeName>RecipeInput {
+        item = item.copy();
+    }
+
+    @Override
+    public ItemStack getItem(int index) {
+        if (index != 0) {
+            throw new IndexOutOfBoundsException(index);
+        }
+        return item;
+    }
+
+    @Override
+    public int size() {
+        return 1;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return item.isEmpty();
+    }
+}
+```
+
+Add fluid fields only when the machine genuinely supports fluids.
+
+
+7.2 Recipe class
+----------------
+
+The recipe class should implement `Recipe<<RecipeName>RecipeInput>` or extend Create's
+`ProcessingRecipe` when that pattern fits.
+
+For a direct codec pattern, include:
+
+- `ingredients`
+- `results`
+- `processing_time`
+- `min_rpm`
+- Optional `max_rpm`
+
+Use Create `ProcessingOutput` for deterministic or chanced item outputs.
+
+The class must provide:
+
+- `matches(...)`
+- `matchesItem(...)`
+- `canProcessAtRpm(...)`
+- Input/result accessors used by JEI
+- `processingDuration()`
+- `minRpm()` and `maxRpm()`
+- `assemble(...)`
+- `getResultItem(...)`
+- `getIngredients()`
+- `getToastSymbol()` using the correct machine block
+- `getSerializer()` using the correct RecipeRegistry entry
+- `getType()` using the correct RecipeRegistry entry
+- A nested `Serializer` with MapCodec and StreamCodec
+
+Critical codec rule
+-------------------
+
+Generated JSON field names must exactly match the codec.
+
+If the codec reads lists named `ingredients` and `results`, valid JSON looks like:
+
+```json
+{
+  "type": "create_expansion:<recipe_type>",
+  "ingredients": [
+    { "item": "minecraft:copper_ingot" }
+  ],
+  "results": [
+    { "id": "create:copper_sheet", "count": 1 }
+  ],
+  "processing_time": 100,
+  "min_rpm": 16
+}
+```
+
+Using singular `ingredient` and `result` with that codec will make recipe loading fail.
+
+
+7.3 IRecipeTypeInfo class
+-------------------------
+
+Create `recipe/recipetypes/<RecipeName>RecipeType.java`.
+
+It must define:
+
+```java
+public static final <RecipeName>RecipeType INSTANCE = new <RecipeName>RecipeType();
+public static final String NAME = "<recipe_type>";
+public static final ResourceLocation ID =
+        ResourceLocation.fromNamespaceAndPath(CreateExpansion.MOD_ID, NAME);
+```
+
+Implement:
+
+- `getId()`
+- `getSerializer()` returning the correct serializer registry entry
+- `getType()` returning the correct recipe type registry entry
+- `find(input, level)` querying that exact RecipeType
+
+Never point a machine's IRecipeTypeInfo at another machine's registry entry.
+
+
+7.4 Builder
+-----------
+
+Create `<RecipeName>RecipeBuilder.java` in the machine recipe folder.
+
+Recommended methods:
+
+- `inputItem(String)`
+- `inputItem(ItemLike)`
+- `inputTag(String)`
+- `outputItem(String)`
+- `outputItem(String, int)`
+- `chancedOutput(...)`, if supported
+- `duration(int)`
+- `minRpm(int)`
+- `maxRpm(int)`
+- `build()`
+- `save(RecipeOutput)`
+
+Validate before saving:
+
+- ID is not blank.
+- Input/output counts match the machine contract.
+- Duration is positive.
+- Minimum RPM is not negative.
+- Maximum RPM is not lower than minimum RPM.
+
+Save to:
+
+```java
+ResourceLocation.fromNamespaceAndPath(
+        CreateExpansion.MOD_ID,
+        "<recipe_type>/" + id
+)
+```
+
+
+7.5 Recipes/data-generation class
+---------------------------------
+
+Create `<RecipeName>Recipes.java` with:
+
+```java
+public static <RecipeName>RecipeBuilder recipe(String id) {
+    return new <RecipeName>RecipeBuilder(id);
+}
+
+public static void build(RecipeOutput output, HolderLookup.Provider holderLookup) {
+    recipe("test/<test_name>")
+            .inputItem("minecraft:copper_ingot")
+            .outputItem("create:copper_sheet")
+            .duration(100)
+            .minRpm(16)
+            .save(output);
+}
+```
+
+The first recipe is deliberately simple. Its purpose is to verify the complete machine pipeline.
+
+
+7.6 RecipeRegistry
+------------------
+
+Register both serializer and recipe type in:
+
+src/main/java/net/mads/createexpansion/registry/RecipeRegistry.java
+
+Pattern:
+
+```java
+public static final DeferredHolder<RecipeSerializer<?>, <RecipeName>Recipe.Serializer>
+        <RECIPE>_RECIPE_SERIALIZER =
+        RECIPE_SERIALIZERS.register(<RecipeName>RecipeType.NAME, <RecipeName>Recipe.Serializer::new);
+
+public static final DeferredHolder<RecipeType<?>, RecipeType<<RecipeName>Recipe>>
+        <RECIPE>_RECIPE_TYPE =
+        RECIPE_TYPES.register(<RecipeName>RecipeType.NAME, () -> new RecipeType<>() {
+            @Override
+            public String toString() {
+                return <RecipeName>RecipeType.ID.toString();
+            }
+        });
+```
+
+
+7.7 CERecipeProvider
+--------------------
+
+Import the recipes class and call it from:
+
+src/main/java/net/mads/createexpansion/data/CERecipeProvider.java
+
+```java
+<RecipeName>Recipes.build(output, holderLookup);
+```
+
+If this call is missing, `runData` will not generate the test recipe.
+
+
+PHASE 8: MODELS, BLOCKSTATE, AND ITEM MODEL
+============================================
+
+Blockstate
+----------
+
+The blockstate points to the supplied static model:
+
+```json
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/machines/kinetic/<machine>/<static_model>"
+    }
+  }
+}
+```
+
+If the block has facing properties, define every valid variant or use a multipart blockstate.
+
+Invisible footprint part blockstate
+-----------------------------------
+
+Every registered footprint part needs a blockstate file, even when its block returns
+`RenderShape.INVISIBLE`. Use:
+
+```json
+{
+  "variants": {
+    "": {
+      "model": "minecraft:block/air"
+    }
+  }
+}
+```
+
+Save it as:
+
+src/main/resources/assets/create_expansion/blockstates/kinetic_<machine>_part.json
+
+If the part has blockstate properties, include every valid property combination. The part still
+normally has no BlockItem, item model, loot table, or custom block model.
+
+Item model
+----------
+
+The item model should point to the supplied item model, not necessarily the static world model:
+
+```json
+{
+  "parent": "create_expansion:block/machines/kinetic/<machine>/<item_model>"
+}
+```
+
+The item model may contain static copies of moving parts so the inventory item looks complete.
+The world static model must not duplicate animated parts rendered by the block entity renderer.
+
+Texture paths
+-------------
+
+Check every texture path exactly. A valid file at a slightly different path still renders missing.
+Use `rg --files` to confirm each referenced PNG.
+
+Blockbench element rotations
+----------------------------
+
+Minecraft block model element rotation uses:
+
+```json
+"rotation": {
+  "angle": 45,
+  "axis": "x",
+  "origin": [8, 8, 8]
+}
+```
+
+A transform object containing separate `x`, `y`, and `z` rotation values is not a valid vanilla
+element rotation. Export or convert it to `angle`, `axis`, and `origin`.
+
+
+PHASE 9: PARTIAL MODEL REGISTRATION
+===================================
+
+Register every animated model in:
+
+src/main/java/net/mads/createexpansion/CreateExpansionPartialModels.java
+
+```java
+public static final PartialModel <MACHINE>_ROTOR =
+        block("machines/kinetic/<machine>/<rotor_model>");
+```
+
+Use one PartialModel per independently moving part.
+
+For two rollers:
+
+- Rotor 1 receives the driven angle.
+- Rotor 2 receives the negative driven angle.
+- Both remain part of one block entity and one Create kinetic network.
+- Do not fake opposite motion by changing block entity speed.
+
+
+PHASE 10: WORLD RENDERER
+========================
+
+Create `Kinetic<Machine>Renderer` extending `KineticBlockEntityRenderer`.
+
+Register it in `ClientSetup.registerRenderers`.
+
+Angle units
+-----------
+
+`getAngleForBe(...)` returns radians.
+
+Use radians with:
+
+```java
+poseStack.mulPose(com.mojang.math.Axis.XP.rotation(angle));
+```
+
+Do not pass this value to `rotationDegrees(...)`.
+
+
+Centered parts
+--------------
+
+For a partial centered at block center, use Create's helper:
+
+```java
+SuperByteBuffer rotor = CachedBuffers.partial(PARTIAL, state);
+kineticRotationTransform(rotor, blockEntity, Direction.Axis.X, angle, light)
+        .renderInto(poseStack, vertexConsumer);
+```
+
+
+Off-center parts and exact pivots
+---------------------------------
+
+`kineticRotationTransform(...)` rotates around block center [8,8,8]. An off-center roller will
+orbit unless it is rotated around its own pivot.
+
+World pattern:
+
+```java
+poseStack.pushPose();
+poseStack.translate(pivotX / 16F, pivotY / 16F, pivotZ / 16F);
+poseStack.mulPose(com.mojang.math.Axis.XP.rotation(angle));
+poseStack.translate(-pivotX / 16F, -pivotY / 16F, -pivotZ / 16F);
+partial.light(light).renderInto(poseStack, vertexConsumer);
+poseStack.popPose();
+```
+
+For the paired roller, use `-angle`.
+
+If the JSON element already has an initial baked rotation around a non-central origin, calculate
+the final visual center after that baked rotation. The runtime pivot must be the visual axis, not
+blindly the center of the unrotated `from` and `to` box.
+
+The rendered zero-angle placement must match the supplied model exactly.
+
+
+Shaft rendering
+---------------
+
+Option A: standard Create shaft
+
+Use when an ordinary full shaft is visible and appropriate:
+
+```java
+@Override
+protected BlockState getRenderedBlockState(Kinetic<Machine>BlockEntity be) {
+    return shaft(getRotationAxisOf(be));
+}
+```
+
+`getRotationAxisOf(be)` is provided by `KineticBlockEntityRenderer` and reads the axis through
+Create's `IRotate` contract.
+
+If this renderer also overrides `renderSafe(...)`, call the base renderer or the state returned
+above is never rendered:
+
+```java
+@Override
+protected void renderSafe(Kinetic<Machine>BlockEntity be, float partialTicks,
+                          PoseStack poseStack, MultiBufferSource buffer,
+                          int light, int overlay) {
+    super.renderSafe(be, partialTicks, poseStack, buffer, light, overlay);
+    // Render the machine's additional partials here.
+}
+```
+
+If the machine needs only the standard rotating block/shaft, do not override `renderSafe(...)` at
+all. Overriding `getRenderedBlockState(...)` is then enough.
+
+Option B: custom or reused partial
+
+Use when only a short stub should be visible, when the normal shaft is hidden by side faces, or
+when the project owner specifies an exact model.
+
+Render it with `standardKineticRotationTransform(...)` when its model axis matches the block axis.
+
+If a reused model is on another axis:
+
+1. Keep the block's real kinetic axis correct.
+2. Obtain the angle using the real world axis.
+3. Rotate the model spatially onto that axis using PoseStack.
+4. Animate around the model's original local axis.
+5. Correct the angle sign when a 90/180-degree spatial rotation reverses the axis direction.
+
+Create shafts normally use the block center height y=8. Do not add arbitrary vertical offsets.
+Only use an offset when the supplied model proves that the physical hole is elsewhere.
+
+
+PHASE 11: JEI CATEGORY
+=======================
+
+Create:
+
+src/main/java/net/mads/createexpansion/integration/jei/<RecipeName>Category.java
+
+The category implements:
+
+```java
+IRecipeCategory<RecipeHolder<<RecipeName>Recipe>>
+```
+
+JEI recipe type
+---------------
+
+```java
+public static final RecipeType<RecipeHolder<<RecipeName>Recipe>> TYPE =
+        createRecipeHolderType(<RecipeName>RecipeType.ID);
+```
+
+Category requirements
+---------------------
+
+- Machine item icon.
+- Recipe display title.
+- Stable width and height.
+- Input slots using recipe ingredients.
+- Output slots using ProcessingOutput.
+- Stochastic tooltip for chanced output.
+- Create GUI arrow/shadow where appropriate.
+- Minimum and optional maximum RPM text.
+- A machine visualization that includes static and animated parts.
+
+
+JEI visualization: follow Create and centrifuge
+------------------------------------------------
+
+Use `AnimatedKinetics`.
+
+Create's Mechanical Press separates camera and animation:
+
+```java
+PoseStack pose = graphics.pose();
+pose.pushPose();
+pose.translate(xOffset, yOffset, 200);
+pose.mulPose(Axis.XP.rotationDegrees(-15.5F));
+pose.mulPose(Axis.YP.rotationDegrees(22.5F));
+```
+
+Camera angles belong on PoseStack. Do not add camera angles to the kinetic `rotate(...)` or
+`rotateBlock(...)` values.
+
+Important angle difference:
+
+- World `getAngleForBe(...)` returns radians.
+- JEI `getCurrentAngle()` and GuiRenderBuilder `rotate(...)` use degrees.
+
+Centered JEI partial
+--------------------
+
+Use `rotateBlock(...)` only when the part rotates around block center:
+
+```java
+blockElement(PARTIAL)
+        .rotateBlock(angleDegrees, 0, 0)
+        .scale(scale)
+        .render(graphics);
+```
+
+Off-center JEI partial
+----------------------
+
+`rotateBlock(...)` always uses [0.5,0.5,0.5]. For an offset roller, use Catnip's exact pivot API:
+
+```java
+blockElement(PARTIAL)
+        .rotate(angleDegrees, 0, 0)
+        .withRotationOffset(new Vec3(
+                pivotX / 16D,
+                pivotY / 16D,
+                pivotZ / 16D
+        ))
+        .scale(scale)
+        .render(graphics);
+```
+
+For rotor 2, pass `-angleDegrees` and its own pivot.
+
+This is the JEI equivalent of the world renderer's translate-rotate-translate-back transform.
+Do not animate rotor position with a changing `atLocal(...)`; that produces press-like up/down or
+orbital movement.
+
+Static offsets such as centrifuge basins may use fixed `atLocal(...)` because those parts are
+intended to orbit with their parent rotor.
+
+Render the same visual parts shown in the world:
+
+- Static machine model.
+- Visible shaft, if needed.
+- Every animated rotor/head/basin.
+- Opposite rotation relationships.
+
+Use the centrifuge world renderer and CentrifugingCategory as the canonical comparison for matching
+world and JEI visuals.
+
+
+PHASE 12: REGISTER JEI IN EVERY REQUIRED PLACE
+===============================================
+
+Edit:
+
+src/main/java/net/mads/createexpansion/integration/jei/CreateExpansionJeiPlugin.java
+
+A custom JEI category is incomplete unless all of these are present.
+
+1. `registerCategories`
+
+```java
+registration.addRecipeCategories(
+        new <RecipeName>Category(registration.getJeiHelpers().getGuiHelper())
+);
+```
+
+2. `registerRecipes`
+
+```java
+registration.addRecipes(
+        <RecipeName>Category.TYPE,
+        recipeManager.getAllRecipesFor(RecipeRegistry.<RECIPE>_RECIPE_TYPE.get())
+);
+```
+
+3. `registerRecipeCatalysts`
+
+```java
+registration.addRecipeCatalyst(
+        ItemRegistry.KINETIC_<MACHINE>.get(),
+        <RecipeName>Category.TYPE
+);
+```
+
+4. `getRecipeTypes`
+
+```java
+recipeTypes.add(<RecipeName>Category.TYPE);
+```
+
+5. `getRecipes`
+
+Add a category UID branch that returns the machine's RecipeManager recipes.
+
+If recipes load and process but do not appear in JEI, check these five locations before changing
+the recipe JSON.
+
+
+PHASE 13: ALL PROJECT REGISTRATION POINTS
+==========================================
+
+BlockRegistry.java
+------------------
+
+- Controller block.
+- Part block, if used.
+
+ItemRegistry.java
+-----------------
+
+- Controller BlockItem.
+- No part item unless explicitly needed.
+
+BlockEntityRegistry.java
+------------------------
+
+- Controller block entity type.
+- Part block entity type, if used.
+- Item capability for controller.
+- Forwarded item capability for part, if used.
+
+CreativeTabRegistry.java
+------------------------
+
+- Add controller item exactly once.
+
+KineticMachineStress.java
+-------------------------
+
+- Register stress impact for the controller block.
+
+ClientSetup.java
+----------------
+
+- Register KineticStats tooltip for the item/block.
+- Register block entity renderer.
+
+CreateExpansionPartialModels.java
+---------------------------------
+
+- Register every animated partial.
+
+ModLanguageProvider.java
+------------------------
+
+- Call the registration class translation method.
+- Include the part block translation when present.
+
+RecipeRegistry.java
+-------------------
+
+- Serializer.
+- RecipeType.
+
+CERecipeProvider.java
+---------------------
+
+- Call the recipes data generator.
+
+CreateExpansionJeiPlugin.java
+-----------------------------
+
+- Category.
+- Recipes.
+- Catalyst.
+- Recipe type list.
+- Recipe manager lookup.
+
+
+PHASE 14: RESOURCE FILES
+========================
+
+Required resources:
+
+- Blockstate JSON.
+- Static block model JSON.
+- Item model JSON.
+- Moving partial model JSON files.
+- Referenced textures.
+- Item model parent JSON.
+- Controller loot table.
+- Generated language entry.
+- Generated test recipe.
+
+For a footprint part:
+
+- It still has a blockstate pointing to `minecraft:block/air` when RenderShape is INVISIBLE.
+- It normally has no custom block model.
+- It normally has no loot table and no item model.
+- It still needs a language entry if its name can appear in UI/debug integrations.
+
+
+PHASE 15: IMPLEMENTATION ORDER
+==============================
+
+Follow this order to minimize rework:
+
+1. Read docs and inspect all supplied models/textures.
+2. Write the machine contract.
+3. Create registration constants/helpers.
+4. Register controller block/item/block entity.
+5. Implement kinetic axis, shaft faces, and shapes.
+6. Implement footprint part blocks if needed.
+7. Add inventories and item capabilities.
+8. Add dedicated recipe input/class/type/builder/recipes classes.
+9. Register serializer/type and CERecipeProvider call.
+10. Add the mandatory test recipe.
+11. Connect block entity processing to the new RecipeType.
+12. Add blockstate, item model, loot table, and translations.
+13. Register partial models and implement world renderer.
+14. Register stress and KineticStats.
+15. Add JEI category and all five plugin registrations.
+16. Run compileJava.
+17. Run runData.
+18. Inspect generated recipe JSON.
+19. Start the client and test the complete workflow.
+20. Update To Do, Finished, and this programming-help guide with reusable discoveries.
+
+
+PHASE 16: VERIFICATION
+======================
+
+Static checks
+-------------
+
+- Search for every registry ID and confirm expected registrations.
+- Search for old/placeholder model names; there should be no stale references.
+- Confirm every PartialModel path resolves to an existing JSON.
+- Confirm every texture path resolves to an existing PNG.
+- Parse all new JSON files.
+- Confirm no obsolete generic recipe folder remains.
+
+Build checks
+------------
+
+```text
+.\gradlew.bat compileJava --no-daemon
+.\gradlew.bat runData --no-daemon
+```
+
+After runData:
+
+- Confirm the generated test recipe exists at the expected path.
+- Open it and compare every field name to the recipe codec.
+- Compile again if data generation changed Java-generated references.
+
+Log checks
+----------
+
+Search the latest game log for:
+
+- `Failed to parse recipe`
+- Unknown recipe serializer/type
+- Missing model
+- Missing texture
+- JEI category registration errors
+
+In-game block test
+------------------
+
+- Item exists in the creative tab.
+- Block places with the correct footprint.
+- Placement fails cleanly when a footprint position is blocked.
+- Hitboxes cover every occupied block exactly.
+- Breaking any part removes the complete machine once.
+- Loot drops one controller item.
+- Shaft connects on the intended axis and side.
+- Create stress tooltip shows the intended impact.
+- Shaft/rotors remain centered while rotating.
+- Paired rotor uses the opposite direction.
+- No animated part is duplicated by the static model.
+
+In-game recipe test
+-------------------
+
+- Test input can be inserted while stopped.
+- Invalid input is rejected.
+- Machine does not process below minimum RPM.
+- Machine processes at valid RPM.
+- Processing pauses/resets according to the intended rule when speed stops.
+- Input is consumed exactly once.
+- Correct output count appears.
+- Full/incompatible output prevents input consumption.
+- Automation inserts only into input and extracts only from output.
+
+JEI test
+--------
+
+- Searching the machine shows the recipe category.
+- The machine is a catalyst.
+- Test recipe input and output are visible.
+- RPM requirements are visible.
+- Static model is complete.
+- Every moving partial is visible.
+- JEI rotation axis and direction match the world.
+- Off-center parts spin in place without orbital or press-like movement.
+- Multi-block models are framed at a readable scale.
+
+
+COMMON FAILURES AND CAUSES
+==========================
+
+Block places but does not connect to Create
+-------------------------------------------
+
+- Wrong `getRotationAxis`.
+- `hasShaftTowards` does not match the axis.
+- Model hole and kinetic axis disagree.
+
+Shaft exists in code but is invisible
+--------------------------------------
+
+- Main model side faces cover the normal full shaft.
+- Shaft model is on the wrong axis.
+- Partial path is wrong.
+- Renderer was not registered.
+
+Shaft is too high or low
+------------------------
+
+- An unnecessary Y translation was added.
+- Reused shaft model has a different local center.
+- Start with Create's standard y=8 center and offset only from measured model geometry.
+
+Rotor moves in a circle or up/down
+----------------------------------
+
+- Off-center partial was rotated around block center.
+- Wrong pivot was used.
+- JEI used changing `atLocal(...)` instead of `withRotationOffset(...)`.
+- Camera angle was mixed into the kinetic rotation.
+- Degrees/radians were confused.
+
+Rotor 2 moves like a press
+--------------------------
+
+- Vertical offset was animated.
+- Rotor 2 should use the same fixed-axis rotation as rotor 1 with only the angle sign reversed.
+
+Recipe file exists but does not load
+------------------------------------
+
+- Serializer or RecipeType is not registered.
+- JSON `type` does not match IRecipeTypeInfo.NAME.
+- JSON fields do not match the codec.
+- Output item ID does not exist.
+- Generated resources are not included in the run configuration.
+
+Recipe processes but is absent from JEI
+---------------------------------------
+
+- Category not registered.
+- Recipes not registered.
+- Catalyst not registered.
+- Category missing from `getRecipeTypes`.
+- Category missing from `getRecipes` manager lookup.
+
+Valid input cannot be inserted while stopped
+---------------------------------------------
+
+- Input validation used full recipe matching at RPM 0.
+- Use ingredient-only matching for acceptance.
+
+Two-block model has only one hitbox
+-----------------------------------
+
+- Model geometry extends into another block without a real part block.
+- Add a footprint part block and explicit shape.
+
+Internal part name appears in-game
+----------------------------------
+
+- PART_ID has no language entry.
+- Translate controller and part to the same machine display name.
+
+Invisible part reports a missing blockstate/model
+--------------------------------------------------
+
+- `RenderShape.INVISIBLE` does not remove the registered block from model loading.
+- Add `blockstates/kinetic_<machine>_part.json` and point it to `minecraft:block/air`.
+
+
+FINAL DEFINITION-OF-DONE CHECKLIST
+===================================
+
+Identity and registration
+-------------------------
+
+- [ ] Registration class exists with ID, names, and stress impact.
+- [ ] Controller block registered.
+- [ ] Controller item registered.
+- [ ] Controller block entity registered.
+- [ ] Part block/entity registered when required.
+- [ ] Creative tab entry added once.
+- [ ] Controller and part translations added.
+
+Create integration
+------------------
+
+- [ ] Correct kinetic axis.
+- [ ] Correct shaft faces.
+- [ ] Stress impact registered.
+- [ ] KineticStats tooltip registered.
+- [ ] Renderer registered.
+- [ ] Shaft is visible and aligned.
+- [ ] Animated parts use correct pivots and directions.
+
+Inventory and processing
+------------------------
+
+- [ ] Input/output inventories persist.
+- [ ] Item capability registered.
+- [ ] Automation side/slot rules are correct.
+- [ ] Invalid inputs are rejected.
+- [ ] Output capacity is checked before consumption.
+- [ ] Timer and RPM behavior work.
+
+Recipes
+-------
+
+- [ ] Dedicated recipe input class.
+- [ ] Dedicated recipe class and serializer.
+- [ ] Dedicated IRecipeTypeInfo.
+- [ ] Dedicated builder.
+- [ ] Dedicated recipes/data-generation class.
+- [ ] RecipeRegistry serializer registered.
+- [ ] RecipeRegistry type registered.
+- [ ] CERecipeProvider build call added.
+- [ ] Test recipe generated.
+- [ ] Generated JSON matches codec.
+- [ ] Machine block entity queries the correct type.
+
+JEI
+---
+
+- [ ] Category class exists.
+- [ ] Category registered.
+- [ ] Recipes registered.
+- [ ] Machine catalyst registered.
+- [ ] Category added to `getRecipeTypes`.
+- [ ] Recipe manager lookup added to `getRecipes`.
+- [ ] Input/output/RPM display is correct.
+- [ ] Complete animated machine visual matches the world.
+
+Resources and footprint
+-----------------------
+
+- [ ] Supplied models/textures are used.
+- [ ] Blockstate path is exact.
+- [ ] Item model parent is exact.
+- [ ] Static model excludes world-rendered moving parts.
+- [ ] Every registered invisible part has an air blockstate.
+- [ ] Loot table drops one controller item.
+- [ ] Every occupied block has the correct hitbox.
+- [ ] Breaking controller or part cleans up the footprint.
+
+Verification and documentation
+------------------------------
+
+- [ ] compileJava succeeds.
+- [ ] runData succeeds.
+- [ ] No recipe/model/texture errors in log.
+- [ ] Full in-game processing test succeeds.
+- [ ] Full JEI test succeeds.
+- [ ] To Do updated.
+- [ ] Finished updated when genuinely complete.
+- [ ] New reusable findings added to programming help.
+
+
+CURRENT CANONICAL PROJECT REFERENCES
+====================================
+
+STEAM-DRIVEN PRESS VARIANT
+==========================
+
+Hydraulic Press is the canonical reference for a Create-style animated machine that does not
+join Create's kinetic network. Do not extend KineticBlock or register stress/RPM tooltips when
+steam is the only power source.
+
+Contract and timing
+-------------------
+
+- Keep tank capacity and per-cycle cost as separate constants. Current contract is 4000 mB
+  capacity and 2000 mB steam per blow.
+- A blow is 40 ticks down and 40 ticks up. Consume steam when starting the downstroke, apply the
+  blow exactly at tick 40, then always finish the upstroke before another cycle can start.
+- A recipe's positive `blows` field controls how many impacts are required. Preserve completed
+  blows while waiting at the top for steam. Consume the input and create the output only on the
+  final impact.
+- Persist cycle tick, completed blows, active recipe id, inventories, and tank. Synchronize these
+  to clients so the renderer cannot drift from server processing.
+- Validate output capacity before spending steam. Reset partial progress when the input or recipe
+  changes. Automation may insert only valid inputs, extract only output, and fill only steam.
+
+Models and rendering
+--------------------
+
+- Use the supplied static block model for the baked block and supplied press model as the only
+  moving PartialModel. Never recreate or replace supplied models or textures.
+- Read element coordinates and confirm the intended motion before choosing travel. Hydraulic Press
+  rests at the supplied moving model's exact JSON position, with no fixed renderer offset, and its
+  animated downstroke travels 16 pixels like Create's Mechanical Press.
+- World and JEI must use the same head-offset function: cubic interpolation during the 40-tick
+  downstroke and linear interpolation during the 40-tick upstroke.
+- Execute the recipe at the same bottom tick represented by the renderer, not at cycle start or
+  after the head has begun rising.
+
+Files for this variant
+----------------------
+
+- `machine/machines/kinetic/hydraulicpress/`: registration, block, block entity, renderer.
+- `recipe/recipetypes/HydraulicPressingRecipeType.java`.
+- `recipe/recipes/hydraulicpress/`: input, recipe, builder, generated test recipes.
+- `integration/jei/HydraulicPressingCategory.java` plus all five plugin hooks: category, recipes,
+  catalyst, recipe-type discovery, and recipe-manager lookup.
+- BlockRegistry, ItemRegistry, BlockEntityRegistry, CreativeTabRegistry, RecipeRegistry,
+  ClientSetup, ModLanguageProvider, CERecipeProvider, and CreateExpansionPartialModels.
+- Blockstate, item model, loot table, generated recipe JSON, and the supplied block model folder.
+
+JEI requirements
+----------------
+
+- Show input, output, a 2000 mB steam ingredient, blow count, and total steam cost.
+- Render the supplied static and moving models together. Use the exact 80-tick world animation;
+  JEI is a visualization of actual machine behavior, not a separate approximation.
+- Register the category everywhere in CreateExpansionJeiPlugin. Missing any one plugin hook can
+  make valid recipes invisible in JEI.
+- For depot presses, detect `DepotBlockEntity` at `pressPos.below(2)`. Keep the depot item unchanged
+  through intermediate blows and replace it only at the final impact. Do not route depot recipes
+  through the machine's internal item inventory.
+- GUI partial transforms do not necessarily use the same visible sign as world transforms. Create's
+  AnimatedPress applies a positive `atLocal` Y value for downward head travel after the preview
+  rotations; copy that convention and verify the head never rises above its JSON rest position.
+- Keep power requirements out of recipe JEI when the design calls for machine-level documentation.
+  Put fixed consumption in the block item tooltip and live tank amount/capacity in Create goggles.
+
+Use these files when implementing the next machine:
+
+World kinetic machines
+----------------------
+
+- machine/machines/kinetic/sifter/
+- machine/machines/kinetic/centrifuge/
+- machine/machines/kinetic/lathe/
+- machine/machines/kinetic/rollingmill/
+- machine/machines/kinetic/wiredrawer/
+
+Recipes
+-------
+
+- recipe/recipetypes/SiftingRecipeType.java
+- recipe/recipetypes/CentrifugingRecipeType.java
+- recipe/recipetypes/TurningRecipeType.java
+- recipe/recipetypes/RollingRecipeType.java
+- recipe/recipetypes/WireDrawingRecipeType.java
+- recipe/recipes/sifter/
+- recipe/recipes/centrifuge/
+- recipe/recipes/lathe/
+- recipe/recipes/rolling/
+- recipe/recipes/wiredrawer/
+
+JEI
+---
+
+- integration/jei/SiftingCategory.java
+- integration/jei/CentrifugingCategory.java
+- integration/jei/TurningCategory.java
+- integration/jei/RollingCategory.java
+- integration/jei/WireDrawingCategory.java
+- integration/jei/CreateExpansionJeiPlugin.java
+
+Central registration
+--------------------
+
+- registry/BlockRegistry.java
+- registry/ItemRegistry.java
+- registry/BlockEntityRegistry.java
+- registry/CreativeTabRegistry.java
+- registry/RecipeRegistry.java
+- machine/machines/kinetic/KineticMachineStress.java
+- client/ClientSetup.java
+- data/ModLanguageProvider.java
+- data/CERecipeProvider.java
+- CreateExpansionPartialModels.java
+
+End of guide.

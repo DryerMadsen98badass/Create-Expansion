@@ -1,19 +1,19 @@
 {
   "values": [
-    "create_expansion:copper_end_stone_ore",
-    "create_expansion:copper_tuff_ore",
-    "create_expansion:copper_blackstone_ore",
     {
       "id": "minecraft:deepslate_copper_ore",
       "required": false
     },
-    "create_expansion:copper_granite_ore",
-    "create_expansion:copper_diorite_ore",
+    "create_expansion:copper_andesite_ore",
+    "create_expansion:copper_netherrack_ore",
+    "create_expansion:copper_blackstone_ore",
+    "create_expansion:copper_end_stone_ore",
+    "create_expansion:copper_tuff_ore",
     {
       "id": "minecraft:copper_ore",
       "required": false
     },
-    "create_expansion:copper_andesite_ore",
-    "create_expansion:copper_netherrack_ore"
+    "create_expansion:copper_diorite_ore",
+    "create_expansion:copper_granite_ore"
   ]
 }

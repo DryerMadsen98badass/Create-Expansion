@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": {"model": "create_expansion:block/machines/without_energy/foundry/foundry_output_hatch"},
+    "facing=east": {"model": "create_expansion:block/machines/without_energy/foundry/foundry_output_hatch", "y": 90},
+    "facing=south": {"model": "create_expansion:block/machines/without_energy/foundry/foundry_output_hatch", "y": 180},
+    "facing=west": {"model": "create_expansion:block/machines/without_energy/foundry/foundry_output_hatch", "y": 270}
+  }
+}

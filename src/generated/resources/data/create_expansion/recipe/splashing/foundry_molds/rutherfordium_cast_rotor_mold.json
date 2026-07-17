@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:rutherfordium_hot_cast_rotor_mold"
+    }
+  ],
+  "processingTime": 800,
+  "results": [
+    {
+      "id": "create_expansion:rutherfordium_cast_rotor_mold"
+    }
+  ]
+}

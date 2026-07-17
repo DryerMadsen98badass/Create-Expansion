@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:pentlandite_deepslate_ore",
+    "create_expansion:pentlandite_andesite_ore",
+    "create_expansion:pentlandite_netherrack_ore",
+    "create_expansion:pentlandite_blackstone_ore",
     "create_expansion:pentlandite_end_stone_ore",
     "create_expansion:pentlandite_tuff_ore",
-    "create_expansion:pentlandite_blackstone_ore",
-    "create_expansion:pentlandite_deepslate_ore",
-    "create_expansion:pentlandite_granite_ore",
-    "create_expansion:pentlandite_diorite_ore",
     "create_expansion:pentlandite_ore",
-    "create_expansion:pentlandite_andesite_ore",
-    "create_expansion:pentlandite_netherrack_ore"
+    "create_expansion:pentlandite_diorite_ore",
+    "create_expansion:pentlandite_granite_ore"
   ]
 }

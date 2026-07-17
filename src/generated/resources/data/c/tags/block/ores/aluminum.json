@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:aluminum_deepslate_ore",
+    "create_expansion:aluminum_andesite_ore",
+    "create_expansion:aluminum_netherrack_ore",
+    "create_expansion:aluminum_blackstone_ore",
     "create_expansion:aluminum_end_stone_ore",
     "create_expansion:aluminum_tuff_ore",
-    "create_expansion:aluminum_blackstone_ore",
-    "create_expansion:aluminum_deepslate_ore",
-    "create_expansion:aluminum_granite_ore",
-    "create_expansion:aluminum_diorite_ore",
     "create_expansion:aluminum_ore",
-    "create_expansion:aluminum_andesite_ore",
-    "create_expansion:aluminum_netherrack_ore"
+    "create_expansion:aluminum_diorite_ore",
+    "create_expansion:aluminum_granite_ore"
   ]
 }

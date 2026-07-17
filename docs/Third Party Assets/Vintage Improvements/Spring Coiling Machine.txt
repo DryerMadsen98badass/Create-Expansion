@@ -1,0 +1,32 @@
+Spring Coiling Machine asset attribution
+========================================
+
+Source project: Create: Vintage Improvements
+Author/project owner: Negodya1 / Create: Vintage Improvements Team
+Source repository: https://github.com/Negodya1/Create-Vintage-Improvements
+Source branch: 1.20.1
+Retrieved: 2026-07-17
+
+Copied assets
+-------------
+
+- models/block/spring_coiling_machine/block.json
+- models/block/spring_coiling_machine/item.json
+- models/block/spring_coiling_machine/coiling_part_wheel.json
+- models/block/spring_coiling_machine/coiling_part_spring.json
+- textures/block/coiling_machine_parts.png
+- textures/block/filter_slot.png
+- textures/block/spring.png
+
+Local changes
+-------------
+
+Only Vintage Improvements texture namespaces were changed to local Create Expansion paths. Create
+texture references remain unchanged. The geometry and texture images are otherwise copied as-is.
+
+License note
+------------
+
+CurseForge and Modrinth identify the published mod as MIT licensed. The repository's LICENSE.txt
+contains LGPL 2.1 / Minecraft Forge license text; a verbatim local copy is stored beside this file
+to preserve the source repository's license notice.

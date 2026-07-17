@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:rubidium_deepslate_ore",
+    "create_expansion:rubidium_andesite_ore",
+    "create_expansion:rubidium_netherrack_ore",
+    "create_expansion:rubidium_blackstone_ore",
     "create_expansion:rubidium_end_stone_ore",
     "create_expansion:rubidium_tuff_ore",
-    "create_expansion:rubidium_blackstone_ore",
-    "create_expansion:rubidium_deepslate_ore",
-    "create_expansion:rubidium_granite_ore",
-    "create_expansion:rubidium_diorite_ore",
     "create_expansion:rubidium_ore",
-    "create_expansion:rubidium_andesite_ore",
-    "create_expansion:rubidium_netherrack_ore"
+    "create_expansion:rubidium_diorite_ore",
+    "create_expansion:rubidium_granite_ore"
   ]
 }

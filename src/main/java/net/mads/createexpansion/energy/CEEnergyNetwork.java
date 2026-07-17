@@ -20,6 +20,7 @@ import java.util.WeakHashMap;
 
 public final class CEEnergyNetwork {
     private static final Map<Level, LevelRouteCache> ROUTE_CACHES = new WeakHashMap<>();
+    private static final Map<Level, Map<BlockPos, FlowSample>> WIRE_FLOWS = new WeakHashMap<>();
 
     private CEEnergyNetwork() {
     }
@@ -45,7 +46,8 @@ public final class CEEnergyNetwork {
                 break;
             }
 
-            CEEnergyContainer destination = energyContainer(level.getBlockEntity(path.targetPos));
+            BlockEntity targetBlockEntity = level.getBlockEntity(path.targetPos);
+            CEEnergyContainer destination = energyContainer(targetBlockEntity);
             if (destination == null || !destination.inputsEnergy(path.targetSide) || destination.getEnergyCanBeInserted() <= 0) {
                 continue;
             }
@@ -56,7 +58,11 @@ public final class CEEnergyNetwork {
             }
 
             usedAmps += accepted;
+            if (targetBlockEntity instanceof MachinePortBlockEntity port) {
+                port.recordEnergyNetworkInput(accepted * voltage, voltage);
+            }
             for (BlockPos wirePos : path.wires) {
+                recordWireFlow(level, wirePos, accepted * voltage, voltage);
                 if (level.getBlockEntity(wirePos) instanceof EnergyWireBlockEntity wire) {
                     wire.incrementAmperage(accepted, voltage);
                 }
@@ -71,6 +77,85 @@ public final class CEEnergyNetwork {
             return outputToAdjacentWiresInner(level, sourcePos, source);
         } finally {
             CEPerformanceProfiler.record(CEPerformanceProfiler.Metric.WIRE_NETWORK, profileStart);
+        }
+    }
+
+    public static void recordPortLoad(Level level, BlockPos portPos, int cePerTick, int voltage) {
+        if (level == null || level.isClientSide() || cePerTick <= 0 || voltage <= 0) {
+            return;
+        }
+
+        Queue<BlockPos> queue = new ArrayDeque<>();
+        Set<BlockPos> seen = new HashSet<>();
+        for (Direction direction : Direction.values()) {
+            BlockPos wirePos = portPos.relative(direction);
+            BlockState wireState = level.getBlockState(wirePos);
+            if (wireState.getBlock() instanceof EnergyWireBlock && EnergyWireBlock.hasEnabledConnection(wireState, direction.getOpposite()) && seen.add(wirePos)) {
+                queue.add(wirePos);
+            }
+        }
+
+        while (!queue.isEmpty()) {
+            BlockPos wirePos = queue.remove();
+            BlockState state = level.getBlockState(wirePos);
+            if (!(state.getBlock() instanceof EnergyWireBlock)) {
+                continue;
+            }
+
+            if (level.getBlockEntity(wirePos) instanceof EnergyWireBlockEntity wire) {
+                wire.incrementLoad(cePerTick, voltage);
+            }
+            recordWireFlow(level, wirePos, cePerTick, voltage);
+
+            for (Direction direction : Direction.values()) {
+                if (!EnergyWireBlock.hasEnabledConnection(state, direction)) {
+                    continue;
+                }
+                BlockPos nextPos = wirePos.relative(direction);
+                BlockState nextState = level.getBlockState(nextPos);
+                if (nextState.getBlock() instanceof EnergyWireBlock && EnergyWireBlock.wiresConnect(state, direction, nextState) && seen.add(nextPos)) {
+                    queue.add(nextPos);
+                }
+            }
+        }
+    }
+
+    public static int currentWireCEt(Level level, BlockPos wirePos) {
+        FlowSample sample = currentWireFlow(level, wirePos);
+        return sample == null ? 0 : sample.cePerTick;
+    }
+
+    public static int currentWireVoltage(Level level, BlockPos wirePos) {
+        FlowSample sample = currentWireFlow(level, wirePos);
+        return sample == null ? 0 : sample.voltage;
+    }
+
+    private static FlowSample currentWireFlow(Level level, BlockPos wirePos) {
+        if (level == null || wirePos == null) {
+            return null;
+        }
+        Map<BlockPos, FlowSample> flows = WIRE_FLOWS.get(level);
+        if (flows == null) {
+            return null;
+        }
+        FlowSample sample = flows.get(wirePos);
+        if (sample == null || level.getGameTime() - sample.tick > 40) {
+            return null;
+        }
+        return sample;
+    }
+
+    private static void recordWireFlow(Level level, BlockPos wirePos, int cePerTick, int voltage) {
+        if (level == null || level.isClientSide() || wirePos == null || cePerTick <= 0 || voltage <= 0) {
+            return;
+        }
+        Map<BlockPos, FlowSample> flows = WIRE_FLOWS.computeIfAbsent(level, ignored -> new HashMap<>());
+        long tick = level.getGameTime();
+        FlowSample previous = flows.get(wirePos);
+        if (previous != null && previous.tick == tick) {
+            flows.put(wirePos, new FlowSample(previous.cePerTick + cePerTick, Math.max(previous.voltage, voltage), tick));
+        } else {
+            flows.put(wirePos, new FlowSample(cePerTick, voltage, tick));
         }
     }
 
@@ -188,6 +273,9 @@ public final class CEEnergyNetwork {
     }
 
     private record RouteKey(long startPos, Direction sourceSide) {
+    }
+
+    private record FlowSample(int cePerTick, int voltage, long tick) {
     }
 
     private static final class LevelRouteCache {

@@ -10,10 +10,11 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.mads.createexpansion.CreateExpansion;
-import net.mads.createexpansion.multiblock.MultiblockDefinitions;
-import net.mads.createexpansion.multiblock.MultiblockDefinition;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockDefinitions;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockDefinition;
 import net.mads.createexpansion.recipe.CERecipe;
 import net.mads.createexpansion.recipe.CERecipeTypes;
+import net.mads.createexpansion.recipe.recipes.foundry.FoundryMeltingRecipes;
 import net.mads.createexpansion.registry.ItemRegistry;
 import net.mads.createexpansion.registry.RecipeRegistry;
 import net.minecraft.client.Minecraft;
@@ -39,6 +40,15 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
         registration.addRecipeCategories(new MultiblockStructureCategory(registration.getJeiHelpers().getGuiHelper(), iconStack()));
+        registration.addRecipeCategories(new SiftingCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new CentrifugingCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new TurningCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new RollingCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new WireDrawingCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new HydraulicPressingCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new CoilingCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new FoundryMeltingCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new FoundryCastingCategory(registration.getJeiHelpers().getGuiHelper()));
 
         // Register categories for each CERecipeType
         for (var recipeType : CERecipeTypes.ALL) {
@@ -63,6 +73,17 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
         // Register CERecipes grouped by type
         if (Minecraft.getInstance().level != null) {
             var recipeManager = Minecraft.getInstance().level.getRecipeManager();
+            registration.addRecipes(SiftingCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.SIFTING_RECIPE_TYPE.get()));
+            registration.addRecipes(CentrifugingCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.CENTRIFUGING_RECIPE_TYPE.get()));
+            registration.addRecipes(TurningCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.TURNING_RECIPE_TYPE.get()));
+            registration.addRecipes(RollingCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.ROLLING_RECIPE_TYPE.get()));
+            registration.addRecipes(WireDrawingCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.WIRE_DRAWING_RECIPE_TYPE.get()));
+            registration.addRecipes(HydraulicPressingCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.HYDRAULIC_PRESSING_RECIPE_TYPE.get()));
+            registration.addRecipes(CoilingCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.COILING_RECIPE_TYPE.get()));
+            var foundryMeltingRecipes = recipeManager.getAllRecipesFor(RecipeRegistry.FOUNDRY_MELTING_RECIPE_TYPE.get());
+            registration.addRecipes(FoundryMeltingCategory.TYPE, foundryMeltingRecipes.isEmpty() ? FoundryMeltingRecipes.syntheticRecipes() : foundryMeltingRecipes);
+            registration.addRecipes(FoundryCastingCategory.TYPE, FoundryCastingJeiRecipe.all());
+
             for (var recipeType : CERecipeTypes.ALL) {
                 var recipes = recipeManager.getAllRecipesFor(RecipeRegistry.MACHINE_RECIPE_TYPE.get());
                 var filtered = recipes.stream()
@@ -77,6 +98,9 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
                     }
                 }
             }
+        } else {
+            registration.addRecipes(FoundryMeltingCategory.TYPE, FoundryMeltingRecipes.syntheticRecipes());
+            registration.addRecipes(FoundryCastingCategory.TYPE, FoundryCastingJeiRecipe.all());
         }
     }
 
@@ -84,10 +108,20 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         ItemRegistry.getAllMultiblockControllerItems().forEach(item ->
                 registration.addRecipeCatalyst(item.get(), MultiblockStructureCategory.TYPE));
+        registration.addRecipeCatalyst(ItemRegistry.KINETIC_SIFTER.get(), SiftingCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.KINETIC_CENTRIFUGE.get(), CentrifugingCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.KINETIC_LATHE.get(), TurningCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.KINETIC_ROLLING_MILL.get(), RollingCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.KINETIC_WIRE_DRAWER.get(), WireDrawingCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.HYDRAULIC_PRESS.get(), HydraulicPressingCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.SPRING_COILING_MACHINE.get(), CoilingCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_CONTROLLER.get(), FoundryMeltingCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_CONTROLLER.get(), FoundryCastingCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_DRAIN.get(), FoundryCastingCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_MOLD_CASTER.get(), FoundryCastingCategory.TYPE);
 
-        ItemStack commandBlock = new ItemStack(Items.COMMAND_BLOCK);
         for (var recipeType : RECIPE_TYPES.values()) {
-            registration.addRecipeCatalyst(commandBlock, recipeType);
+            registration.addRecipeCatalyst(getCategoryIcon(recipeType.getUid()), recipeType);
         }
 
         for (MultiblockDefinition definition : MultiblockDefinitions.ALL) {
@@ -108,7 +142,17 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
 
     @Override
     public <V> List<RecipeType<?>> getRecipeTypes(IFocus<V> focus) {
-        return new ArrayList<>(RECIPE_TYPES.values());
+        List<RecipeType<?>> recipeTypes = new ArrayList<>(RECIPE_TYPES.values());
+        recipeTypes.add(SiftingCategory.TYPE);
+        recipeTypes.add(CentrifugingCategory.TYPE);
+        recipeTypes.add(TurningCategory.TYPE);
+        recipeTypes.add(RollingCategory.TYPE);
+        recipeTypes.add(WireDrawingCategory.TYPE);
+        recipeTypes.add(HydraulicPressingCategory.TYPE);
+        recipeTypes.add(CoilingCategory.TYPE);
+        recipeTypes.add(FoundryMeltingCategory.TYPE);
+        recipeTypes.add(FoundryCastingCategory.TYPE);
+        return recipeTypes;
     }
 
     @Override
@@ -118,11 +162,64 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
 
     @Override
     public <T, V> List<T> getRecipes(IRecipeCategory<T> category, IFocus<V> focus) {
+        var recipeTypeUid = category.getRecipeType().getUid();
+        if (recipeTypeUid.equals(FoundryMeltingCategory.TYPE.getUid())) {
+            if (Minecraft.getInstance().level == null) {
+                return FoundryMeltingRecipes.syntheticRecipes().stream()
+                        .map(recipe -> (T) recipe)
+                        .toList();
+            }
+
+            var recipes = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(RecipeRegistry.FOUNDRY_MELTING_RECIPE_TYPE.get());
+            return (recipes.isEmpty() ? FoundryMeltingRecipes.syntheticRecipes() : recipes).stream()
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+        if (recipeTypeUid.equals(FoundryCastingCategory.TYPE.getUid())) {
+            return FoundryCastingJeiRecipe.all().stream()
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+
         if (Minecraft.getInstance().level == null) {
             return List.of();
         }
         var recipeManager = Minecraft.getInstance().level.getRecipeManager();
-        var recipeTypeUid = category.getRecipeType().getUid();
+        if (recipeTypeUid.equals(SiftingCategory.TYPE.getUid())) {
+            return recipeManager.getAllRecipesFor(RecipeRegistry.SIFTING_RECIPE_TYPE.get()).stream()
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+        if (recipeTypeUid.equals(CentrifugingCategory.TYPE.getUid())) {
+            return recipeManager.getAllRecipesFor(RecipeRegistry.CENTRIFUGING_RECIPE_TYPE.get()).stream()
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+        if (recipeTypeUid.equals(TurningCategory.TYPE.getUid())) {
+            return recipeManager.getAllRecipesFor(RecipeRegistry.TURNING_RECIPE_TYPE.get()).stream()
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+        if (recipeTypeUid.equals(RollingCategory.TYPE.getUid())) {
+            return recipeManager.getAllRecipesFor(RecipeRegistry.ROLLING_RECIPE_TYPE.get()).stream()
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+        if (recipeTypeUid.equals(WireDrawingCategory.TYPE.getUid())) {
+            return recipeManager.getAllRecipesFor(RecipeRegistry.WIRE_DRAWING_RECIPE_TYPE.get()).stream()
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+        if (recipeTypeUid.equals(HydraulicPressingCategory.TYPE.getUid())) {
+            return recipeManager.getAllRecipesFor(RecipeRegistry.HYDRAULIC_PRESSING_RECIPE_TYPE.get()).stream()
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+        if (recipeTypeUid.equals(CoilingCategory.TYPE.getUid())) {
+            return recipeManager.getAllRecipesFor(RecipeRegistry.COILING_RECIPE_TYPE.get()).stream()
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
         var recipes = recipeManager.getAllRecipesFor(RecipeRegistry.MACHINE_RECIPE_TYPE.get()).stream()
                 .map(r -> r.value())
                 .filter(r -> r.recipeType().equals(recipeTypeUid))

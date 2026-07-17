@@ -1,6 +1,7 @@
 package net.mads.createexpansion.registry;
 
 import net.mads.createexpansion.CreateExpansion;
+import net.mads.createexpansion.menu.FoundryControllerMenu;
 import net.mads.createexpansion.menu.MachinePortMenu;
 import net.mads.createexpansion.menu.MultiblockControllerMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -18,6 +19,9 @@ public class MenuRegistry {
 
     public static final DeferredHolder<MenuType<?>, MenuType<MultiblockControllerMenu>> MULTIBLOCK_CONTROLLER =
             MENUS.register("multiblock_controller", () -> IMenuTypeExtension.create(MultiblockControllerMenu::new));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FoundryControllerMenu>> FOUNDRY_CONTROLLER =
+            MENUS.register("foundry_controller", () -> IMenuTypeExtension.create(FoundryControllerMenu::new));
 
     public static void register(IEventBus modEventBus) {
         MENUS.register(modEventBus);

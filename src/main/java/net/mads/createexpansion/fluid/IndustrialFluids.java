@@ -7,9 +7,18 @@ public class IndustrialFluids {
             .viscosity(2000)
             .build();
 
+    public static final IndustrialFluid STEAM = gas("steam", "Steam", 0xE6E6E6)
+        .temperature(400)
+        .density(-200)
+        .viscosity(50)
+        .build();  
+
     public static final List<IndustrialFluid> ALL = List.of(
-            CRUDE_OIL
+            CRUDE_OIL,
+            STEAM
     );
+
+
 
     public static FluidBuilder fluid(String id, String displayName, int color) {
         return new FluidBuilder(id, displayName, color, IndustrialFluid.Kind.LIQUID)

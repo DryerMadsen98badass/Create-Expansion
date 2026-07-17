@@ -1,0 +1,87 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#base"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#base"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#base"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#base"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#base"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#base"
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#frame"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#frame"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#frame"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#frame"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#frame"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#frame"
+        }
+      },
+      "from": [
+        -0.01,
+        -0.01,
+        -0.01
+      ],
+      "to": [
+        16.01,
+        16.01,
+        16.01
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "base": "create_expansion:block/casings/coils/kanthal_coil_on",
+    "frame": "create_expansion:block/casings/coils/coil_frame",
+    "particle": "create_expansion:block/casings/coils/kanthal_coil_on"
+  }
+}

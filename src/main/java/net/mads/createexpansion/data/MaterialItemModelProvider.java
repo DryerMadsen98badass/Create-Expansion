@@ -5,6 +5,8 @@ import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialPart;
 import net.mads.createexpansion.material.MaterialTextures;
+import net.mads.createexpansion.item.SimpleItemDefinition;
+import net.mads.createexpansion.item.SimpleItems;
 import net.mads.createexpansion.registry.FluidRegistry;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -49,6 +51,14 @@ public class MaterialItemModelProvider extends ItemModelProvider {
                     .fluid(fluid.source().get())
                     .flipGas(fluid.definition().isGas())
                     .applyFluidLuminosity(fluid.definition().lightLevel() > 0);
+        }
+
+        for (SimpleItemDefinition definition : SimpleItems.ALL) {
+            singleTexture(definition.id(),
+                    ResourceLocation.withDefaultNamespace("item/generated"),
+                    "layer0",
+                    ResourceLocation.fromNamespaceAndPath(CreateExpansion.MOD_ID,
+                            "item/standalone/materials/" + definition.id()));
         }
     }
 }

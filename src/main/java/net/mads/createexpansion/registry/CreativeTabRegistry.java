@@ -19,11 +19,27 @@ public class CreativeTabRegistry {
             .icon(() -> new ItemStack(ItemRegistry.getMaterialItem(IndustrialMaterials.BRONZE, MaterialPart.INGOT).get()))
             .displayItems((parameters, output) -> {
                 ItemRegistry.getAllMultiblockControllerItems().forEach(item -> output.accept(item.get()));
+                ItemRegistry.getAllCoilItems().forEach(item -> output.accept(item.get()));
                 ItemRegistry.getAllMachineCasingItems().forEach(item -> output.accept(item.get()));
                 ItemRegistry.getAllEnergyWireItems().forEach(item -> output.accept(item.get()));
                 ItemRegistry.getAllInsulatedEnergyWireItems().forEach(item -> output.accept(item.get()));
                 output.accept(ItemRegistry.CREATIVE_ENERGY_PROVIDER.get());
                 output.accept(ItemRegistry.CREATIVE_ENERGY_CONSUMER.get());
+                output.accept(ItemRegistry.KINETIC_SIFTER.get());
+                output.accept(ItemRegistry.KINETIC_CENTRIFUGE.get());
+                output.accept(ItemRegistry.KINETIC_LATHE.get());
+                output.accept(ItemRegistry.KINETIC_ROLLING_MILL.get());
+                output.accept(ItemRegistry.KINETIC_WIRE_DRAWER.get());
+                output.accept(ItemRegistry.HYDRAULIC_PRESS.get());
+                output.accept(ItemRegistry.SPRING_COILING_MACHINE.get());
+                output.accept(ItemRegistry.FOUNDRY_CASING.get());
+                output.accept(ItemRegistry.FOUNDRY_CONTROLLER.get());
+                output.accept(ItemRegistry.CREATIVE_FOUNDRY_CONTROLLER.get());
+                output.accept(ItemRegistry.FOUNDRY_INPUT_HATCH.get());
+                output.accept(ItemRegistry.FOUNDRY_OUTPUT_HATCH.get());
+                output.accept(ItemRegistry.FOUNDRY_INPUT_BUS.get());
+                output.accept(ItemRegistry.FOUNDRY_DRAIN.get());
+                output.accept(ItemRegistry.FOUNDRY_MOLD_CASTER.get());
                 ItemRegistry.getAllMachinePortItems().forEach(item -> output.accept(item.get()));
                 ItemRegistry.getAllStaticMachinePortItems().forEach(item -> output.accept(item.get()));
             })
@@ -34,6 +50,7 @@ public class CreativeTabRegistry {
             .icon(() -> new ItemStack(ItemRegistry.getMaterialItem(IndustrialMaterials.HEMATITE, MaterialPart.CRUSHED_ORE).get()))
             .displayItems((parameters, output) -> {
                 ItemRegistry.getAllMaterialItems().forEach(item -> output.accept(item.get()));
+                ItemRegistry.getAllSimpleItems().forEach(item -> output.accept(item.get()));
                 FluidRegistry.getAllBucketItems().forEach(item -> output.accept(item.get()));
             })
             .build());

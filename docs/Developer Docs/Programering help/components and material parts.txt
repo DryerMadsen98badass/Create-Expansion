@@ -1,0 +1,94 @@
+Adding components and material parts
+====================================
+
+In this project, "component" can mean two related things:
+
+- A chemical/formula component in IndustrialMaterials, like Fe2 or CaCO3.
+- A material part/shape in MaterialPart, like plate, wire, dust, gear, molten fluid, or frame.
+
+
+Chemical/formula components
+===========================
+
+Main file:
+
+src/main/java/net/mads/createexpansion/material/IndustrialMaterials.java
+
+Use .contains(...) when the component is another IndustrialMaterial.
+
+Example:
+
+public static final IndustrialMaterial EXAMPLE_ALLOY = material("example_alloy", "Example Alloy", 0xBBAA88)
+        .contains(component(IRON, 2), component(COPPER, 1))
+        .allMaterials()
+        .build();
+
+Use .components(...) when you only need a displayed chemical formula and do not want to depend on
+existing IndustrialMaterial objects.
+
+Example:
+
+public static final IndustrialMaterial EXAMPLE_ORE = oreMineral("example_ore", "Example Ore", 0x8899AA)
+        .components(component("Fe", 1), component("S", 2))
+        .build();
+
+
+Material parts / component shapes
+=================================
+
+Main file:
+
+src/main/java/net/mads/createexpansion/material/MaterialPart.java
+
+A MaterialPart is a shape/state like ingot, plate, dust, wire, frame, molten fluid, cast mold, etc.
+
+To add a new part:
+
+1. Add an enum value to MaterialPart.
+
+Example:
+
+WAFER("wafer", "Wafer", Kind.ITEM)
+
+2. Decide if it is Kind.ITEM, Kind.BLOCK, or Kind.FLUID.
+
+3. Add it to the correct builder shortcut in IndustrialMaterials if many materials should have it.
+
+Examples:
+
+- allMaterials() for common crafted material components.
+- allMetals() for ore/raw/metal processing chain.
+- allGems() for gem materials.
+- allOreProcessing() for ore-only minerals.
+
+4. Add texture/model mapping in MaterialTextures.java.
+
+MaterialTextures decides which model parent and texture set each MaterialPart uses.
+If there is no mapping, datagen may skip the model even though the item exists.
+
+5. Add base model/texture assets for each material set you want to support.
+
+Item model folders:
+
+src/main/resources/assets/create_expansion/models/item/material_sets/<set>/
+src/main/resources/assets/create_expansion/textures/item/material_sets/<set>/
+
+Block model folders:
+
+src/main/resources/assets/create_expansion/models/block/material_sets/<set>/
+src/main/resources/assets/create_expansion/textures/block/material_sets/<set>/
+
+What gets created automatically
+-------------------------------
+- Every material that includes the part gets a generated item/block/fluid entry.
+- Names are generated from MaterialPart.readableName().
+- Models are generated if MaterialTextures knows how to map the part.
+
+Important files
+---------------
+- MaterialPart.java
+- MaterialTextures.java
+- IndustrialMaterials.java
+- MaterialItemModelProvider.java
+- MaterialBlockStateProvider.java
+- ModLanguageProvider.java

@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:fluorite_deepslate_ore",
+    "create_expansion:fluorite_andesite_ore",
+    "create_expansion:fluorite_netherrack_ore",
+    "create_expansion:fluorite_blackstone_ore",
     "create_expansion:fluorite_end_stone_ore",
     "create_expansion:fluorite_tuff_ore",
-    "create_expansion:fluorite_blackstone_ore",
-    "create_expansion:fluorite_deepslate_ore",
-    "create_expansion:fluorite_granite_ore",
-    "create_expansion:fluorite_diorite_ore",
     "create_expansion:fluorite_ore",
-    "create_expansion:fluorite_andesite_ore",
-    "create_expansion:fluorite_netherrack_ore"
+    "create_expansion:fluorite_diorite_ore",
+    "create_expansion:fluorite_granite_ore"
   ]
 }

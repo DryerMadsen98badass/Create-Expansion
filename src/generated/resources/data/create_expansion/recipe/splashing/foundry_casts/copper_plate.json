@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:copper_cast_plate"
+    }
+  ],
+  "processingTime": 200,
+  "results": [
+    {
+      "id": "create:copper_sheet"
+    }
+  ]
+}

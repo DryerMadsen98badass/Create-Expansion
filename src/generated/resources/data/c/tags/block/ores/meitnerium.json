@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:meitnerium_deepslate_ore",
+    "create_expansion:meitnerium_andesite_ore",
+    "create_expansion:meitnerium_netherrack_ore",
+    "create_expansion:meitnerium_blackstone_ore",
     "create_expansion:meitnerium_end_stone_ore",
     "create_expansion:meitnerium_tuff_ore",
-    "create_expansion:meitnerium_blackstone_ore",
-    "create_expansion:meitnerium_deepslate_ore",
-    "create_expansion:meitnerium_granite_ore",
-    "create_expansion:meitnerium_diorite_ore",
     "create_expansion:meitnerium_ore",
-    "create_expansion:meitnerium_andesite_ore",
-    "create_expansion:meitnerium_netherrack_ore"
+    "create_expansion:meitnerium_diorite_ore",
+    "create_expansion:meitnerium_granite_ore"
   ]
 }

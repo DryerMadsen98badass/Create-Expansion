@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:indium_hot_cast_bearing_mold"
+    }
+  ],
+  "processingTime": 400,
+  "results": [
+    {
+      "id": "create_expansion:indium_cast_bearing_mold"
+    }
+  ]
+}

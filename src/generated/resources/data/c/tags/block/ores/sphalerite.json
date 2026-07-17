@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:sphalerite_deepslate_ore",
+    "create_expansion:sphalerite_andesite_ore",
+    "create_expansion:sphalerite_netherrack_ore",
+    "create_expansion:sphalerite_blackstone_ore",
     "create_expansion:sphalerite_end_stone_ore",
     "create_expansion:sphalerite_tuff_ore",
-    "create_expansion:sphalerite_blackstone_ore",
-    "create_expansion:sphalerite_deepslate_ore",
-    "create_expansion:sphalerite_granite_ore",
-    "create_expansion:sphalerite_diorite_ore",
     "create_expansion:sphalerite_ore",
-    "create_expansion:sphalerite_andesite_ore",
-    "create_expansion:sphalerite_netherrack_ore"
+    "create_expansion:sphalerite_diorite_ore",
+    "create_expansion:sphalerite_granite_ore"
   ]
 }

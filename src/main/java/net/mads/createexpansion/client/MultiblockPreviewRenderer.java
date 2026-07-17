@@ -5,11 +5,11 @@ import com.simibubi.create.content.equipment.goggles.GogglesItem;
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.machine.MachineTier;
-import net.mads.createexpansion.multiblock.MultiblockControllerBlock;
-import net.mads.createexpansion.multiblock.MultiblockDefinition;
-import net.mads.createexpansion.multiblock.MultiblockPattern;
-import net.mads.createexpansion.multiblock.MultiblockRegistry;
-import net.mads.createexpansion.multiblock.PatternVariant;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockDefinition;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPattern;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockRegistry;
+import net.mads.createexpansion.machine.machines.electric.multiblock.PatternVariant;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -142,10 +142,11 @@ public final class MultiblockPreviewRenderer {
 
     private static BlockPos rotate(BlockPos controllerPos, Direction facing, int localX, int localY, int localZ) {
         Direction right = facing.getClockWise();
+        Direction forward = facing.getOpposite();
         return controllerPos
                 .relative(right, localX)
                 .above(localY)
-                .relative(facing, localZ);
+                .relative(forward, localZ);
     }
 
     private static BlockState renderState(MultiblockDefinition definition, char symbol, Direction facing) {

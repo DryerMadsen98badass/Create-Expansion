@@ -1,0 +1,183 @@
+Create Expansion energy system
+==============================
+
+Purpose and philosophy
+----------------------
+
+The mod uses its own CE energy model instead of copying NeoForge FE directly. CE is intentionally
+GregTech-like: tier decides voltage, amperage decides parallel throughput, and wires are physical
+transport paths with limits. This keeps progression readable:
+
+- A tier is the voltage class. ULV starts at 8 CE, then each tier is 4x higher.
+- Amps are how many packets can move per tick at that voltage.
+- CE/t moved by a route is `voltage * amps`.
+- Machines and ports decide whether they input or output energy.
+- Wires do not store energy. They only route packets and remember recent flow for display/safety.
+
+The important design rule is: do not treat "stored CE" and "wire flow" as the same thing. Storage
+is a buffer in a machine port or creative energy block. Wire flow is the amount accepted by a
+destination during the current transfer tick.
+
+Core files
+----------
+
+- `src/main/java/net/mads/createexpansion/machine/MachineTier.java`
+  Defines ordered tiers: ULV, LV, MV, HV, EV, IV.
+
+- `src/main/java/net/mads/createexpansion/machine/MachineTierStats.java`
+  Defines scaling. `ceTier(tier)` is voltage. `ceBaseAmps(tier)` is the base wire amp scaling.
+  `tierForVoltage(voltage)` converts a live packet voltage back to the display tier.
+
+- `src/main/java/net/mads/createexpansion/energy/CEEnergyContainer.java`
+  Shared interface for anything that can input/output CE through the wire network.
+
+- `src/main/java/net/mads/createexpansion/energy/CEEnergyStorage.java`
+  Normal bounded storage implementation used by machine ports.
+
+- `src/main/java/net/mads/createexpansion/energy/CEEnergyNetwork.java`
+  Server-side wire routing and transfer logic.
+
+- `src/main/java/net/mads/createexpansion/energy/EnergyWireBlock.java`
+  Wire block shape, connection state, wrench-disconnect behavior, tier, insulation, and max amps.
+
+- `src/main/java/net/mads/createexpansion/energy/EnergyWireBlockEntity.java`
+  Runtime wire state: current amperage, current voltage, recent-flow timer, and heat/melting.
+
+- `src/main/java/net/mads/createexpansion/integration/jade/CreateExpansionJadePlugin.java`
+  Jade display for machine energy storage and wire flow.
+
+Tier and amp rules
+------------------
+
+`MachineTierStats.ceTier` starts at 8 CE for ULV and multiplies by 4 per tier:
+
+- ULV: 8 CE
+- LV: 32 CE
+- MV: 128 CE
+- HV: 512 CE
+- EV: 2048 CE
+- IV: 8192 CE
+
+`MachineTierStats.ceBaseAmps` doubles by tier index. Wire max amps then multiply by thickness:
+
+`wire max amps = ceBaseAmps(wire tier) * thickness.baseAmps()`
+
+Insulated wires double that max amp value. Insulation does not change voltage tier.
+
+Wire thicknesses are in `WireThickness.java`:
+
+- 1x = 1 base amp
+- 2x = 2 base amps
+- 4x = 4 base amps
+- 8x = 8 base amps
+- 16x = 16 base amps
+
+Transfer flow
+-------------
+
+Energy output starts from a `CEEnergyContainer`, usually a machine port or creative energy block.
+The network looks at adjacent wires and calls `CEEnergyNetwork.acceptFromWire`.
+
+Routing uses breadth-first search through connected enabled wire sides. Routes are cached per level
+and invalidated when wires are placed, removed, changed, or wrenched.
+
+For each destination:
+
+1. The destination must be a `CEEnergyContainer`.
+2. The destination side must accept input.
+3. The destination must have insertable space.
+4. `acceptEnergyFromNetwork(side, voltage, remainingAmps)` decides how many amps it accepts.
+5. Every wire in the successful route calls `incrementAmperage(accepted, voltage)`.
+6. The source extracts `accepted * voltage` CE.
+
+This means wire flow display is based on actual accepted amps, not attempted output.
+
+Machine consumption rule
+------------------------
+
+When a multiblock consumes CE from an energy input hatch, the hatch limits sustained draw by its
+input voltage and input amperage:
+
+`max CE/t from one hatch = inputVoltage * inputAmps`
+
+If the hatch recently received lower-tier power from the wire network, use that live incoming
+voltage for the draw/display limit instead of the hatch's maximum voltage. Example: an MV input
+hatch supplied with 2A LV is treated as live LV flow for Jade and can display/draw up to
+`2 * 32 = 64 CE/t` from that live input. The hatch's tier is capacity; the live packet voltage is
+what decides flow tier.
+
+The machine may only extract up to that live limit from that hatch in one tick. If a recipe needs
+more CE/t than all available input hatches can provide, the recipe must not run from buffer alone.
+
+Jade flow display uses the same draw:
+
+`display amps = CE/t drawn from the hatch / live input voltage`
+
+Examples:
+
+- LV is 32 CE per amp. A machine drawing 50 CE/t from a 2A LV hatch displays 1.5625A, Tier LV.
+- An MV hatch supplied with 2A LV displays 2A, Tier LV when the live draw is 64 CE/t.
+- MV is 128 CE per amp. A machine needing 320 CE/t from one 2A MV hatch can only draw 256 CE/t,
+  so it does not have enough input to run.
+
+Wire live state and safety
+--------------------------
+
+`EnergyWireBlockEntity` tracks:
+
+- `currentAmperage`: sum of accepted amps through this wire during the current game tick.
+- `currentVoltage`: highest packet voltage seen during the current game tick.
+- `lastTransferTick`: used to keep flow visible for 40 ticks after the last transfer.
+- `heat`: overload/overvoltage damage.
+
+On a new transfer tick, the wire resets `currentAmperage` and `currentVoltage` before adding the
+new transfer. If voltage is above the wire's tier voltage, heat rises. If amps are above max amps,
+heat rises by the excess. At 1000 heat the wire becomes fire.
+
+Jade display contract
+---------------------
+
+Jade should show only live flow state:
+
+- `Flow`: live displayed amps through this wire.
+- `Tier`: the live flow tier, based on the actual CE/t load being carried. This is not the wire's
+  own material tier.
+- Do not show wire material/capacity tier in the Jade wire tooltip. The user only wants the tier of
+  the electricity currently moving through the wire.
+
+For display, fractional amps are allowed. Example: a machine using 12 CE/t from an LV input hatch
+displays as 0.375A and LV, because LV is 32 CE per amp.
+
+The provider should send live data from the block entity:
+
+- `Amps`
+- `Voltage`
+- `CEt`
+
+`CEt` should come from the CE/t drawn through the energy input hatch when a machine consumes power,
+with the display voltage set to the recent incoming network voltage for that hatch. If there is no
+recent network input, fall back to the hatch input voltage. This avoids buffer refill timing hiding
+real machine load from Jade while still showing LV when an MV hatch is actually being supplied by
+LV power. Only display `none` for flow tier when there is no recent flow/load.
+`CEEnergyNetwork` also keeps a short-lived server-side wire flow cache keyed by wire position, so
+Jade can read current wire flow even if block entity client sync is late or unavailable.
+
+Compatibility notes
+-------------------
+
+Jade server data providers should be registered against the block and block entity targets that can
+own wire data. Registering only the block entity can leave the client component active while server
+data is not requested for the wire target.
+
+- `MachinePortBlockEntity`
+- `CreativeEnergyBlockEntity`
+- `EnergyWireBlock`
+- `EnergyWireBlockEntity`
+
+The client tooltip should still tolerate missing server data, because Jade can render before fresh
+server data arrives. Live flow will naturally be 0 until server data arrives.
+
+Wire server data is written both into the `create_expansion:ce_wire` compound and into top-level
+fallback keys (`CEWireCEt`, `CEWireVoltage`). The top-level keys are defensive compatibility data:
+the compound remains the canonical shape, but the tooltip can still read live flow if nested data is
+not present in Jade's client accessor.

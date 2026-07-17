@@ -1,6 +1,6 @@
 package net.mads.createexpansion.machine;
 
-import net.mads.createexpansion.multiblock.MultiblockAbility;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility;
 
 import java.util.EnumSet;
 import java.util.List;

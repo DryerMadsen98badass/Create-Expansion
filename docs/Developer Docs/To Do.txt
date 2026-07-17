@@ -1,0 +1,543 @@
+Current verification
+====================
+
+- 2026-07-17: Copied the Spring Coiling Machine model asset group from the official
+  Negodya1/Create-Vintage-Improvements 1.20.1 source into
+  `models/block/machines/kinetic/spring_coiling_machine/`, with required local textures under the
+  matching texture folder. Only Vintage Improvements namespace references were changed. Source,
+  attribution, and the repository license text are preserved under `docs/Third Party Assets/`.
+
+- 2026-07-17: Implemented Spring Coiling Machine as a one-input/one-output kinetic machine using
+  the copied Vintage Improvements model group, without its filtering system. Added block, item,
+  block entity, creative tab entry, stress registration, kinetic renderer with animated wheel/spring
+  partials, `create_expansion:coiling` recipe type/serializer/builder, copper wire -> copper spring
+  test recipe, generated blockstate/item model, and JEI category/catalyst/recipe lookup. Compile
+  verification is still blocked by the local Gradle wrapper failing before project compilation with
+  `ClassNotFoundException: org.gradle.launcher.GradleMain`; run `runData` or fix the wrapper to
+  finish validation.
+
+- 2026-07-17: Added the SimpleItems definition system for ordinary items without custom behavior.
+  A definition line automatically registers the item, adds it to the Materials creative tab,
+  generates its English name, and generates a standard item model using
+  `textures/item/standalone/materials/<id>.png`. `spool` is the canonical working example.
+
+- 2026-07-15: Hydraulic Press implementation added. The machine uses the supplied
+  `hydraulic_press_static`, `hydraulic_press_press`, and `hydraulic_press_item` models only.
+  Steam buffer is 4000 mB; each blow consumes 2000 mB when the cycle starts. One cycle is
+  fixed at 40 ticks down plus 40 ticks up, with the blow and recipe progress applied at tick 40.
+  Recipes use the dedicated `create_expansion:hydraulic_pressing` type and a positive `blows`
+  field. Progress waits at the top if another 2000 mB is unavailable. Test recipe is gold ingot
+  to Create gold sheet with 3 blows. World rendering, capabilities, resources, datagen builder,
+  and JEI category are implemented. The first user-run runData reached compileJava and exposed an
+  ambiguous DeferredRegister constructor reference; this was corrected to an explicit no-argument
+  lambda. Run runData again to complete generated-data and runtime validation.
+
+- 2026-07-15: The second Hydraulic Press runData passed compileJava but rejected the test recipe
+  because `create:gold_sheet` does not exist in Create 6.0.10. The verified registry/model id is
+  `create:golden_sheet`; both the test recipe and the shared gold PLATE mapping now use that id.
+
+- 2026-07-17: Corrected Hydraulic Press movement after clarifying the model contract. The moving
+  model rests at its exact JSON/item-model position with no fixed offset, then travels 16 pixels
+  downward during the downstroke and returns to the same rest position. World and JEI use the same
+  motion. Recipe loading was confirmed in latest.log. The gold test recipe uses 2 blows so one full
+  4000 mB buffer can complete it; recipes may still request 3 or more blows and wait for more steam.
+
+- 2026-07-17: Hydraulic Press now processes a single item held by a Create Depot exactly two blocks
+  below the press, preserving it through intermediate blows and replacing it on the final impact.
+  JEI now shows only recipe input, output, and Blows; steam ingredient/cost were removed. JEI uses
+  Create AnimatedPress's positive local-Y convention so the head moves down rather than above the
+  static model. The block item tooltip states that steam is required and costs 2000 mB per blow,
+  while Create goggles display the live steam tank amount/capacity.
+
+- 2026-07-14: Rewrote the Create kinetic machine programming guide from scratch. It now covers
+  complete file placement, kinetic blocks, footprints, inventory/process logic, dedicated recipe
+  types and builders, mandatory test recipes/runData, world partial pivots, full JEI registration
+  and animation, resources, common failures, and end-to-end verification. The guide also records
+  that every invisible footprint part needs an air blockstate and that a renderer overriding
+  `renderSafe(...)` must call the base renderer when using `getRenderedBlockState(...)`.
+
+- `latest.log` currently reports missing blockstate definitions for `kinetic_centrifuge_part` and
+  `kinetic_wire_drawer_part`. Add air-backed part blockstates in a separate implementation pass.
+
+- Run `runClient` and verify Jade on a live energy wire. Expected wire tooltip is only `Flow: <amps>A` and `Tier: <flow tier>`.
+- If it still shows `Flow: 0A` and `Tier: none`, add a temporary Jade debug line showing whether data came from server cache, wire BE, or adjacent input hatch scan.
+
+Kinetic Single Block Machines
+=============================
+
+Already started / should be finished first
+------------------------------------------
+- Mechanical Lathe
+  - Registry item: kinetic_lathe
+  - Recipe type: create_expansion:turning
+  - Purpose: turns logs, rods, ingots, gems, and metal parts into round or precise components.
+  - Good outputs: rods, long rods, screws, bolts, shafts, rings, lenses, tool handles, turbine shafts.
+  - Visual check: shaft partial is now one normal 4x4 Create shaft stub, only 2 pixels long outside the block face; verify in-game that west is the intended visible side.
+
+- Mechanical Centrifuge
+  - Registry item: kinetic_centrifuge
+  - Recipe type: create_expansion:centrifuging
+  - Purpose: separates mixed materials by weight and can process fluid + item recipes.
+  - Good outputs: dust byproducts, washed ore fractions, sludge, rare earth traces, oil/water separation.
+
+- Mechanical Sifter
+  - Registry item: kinetic_sifter
+  - Recipe type: create_expansion:sifting
+  - Purpose: mesh-based filtering for gravel, sand, crushed ore, dust, and powders.
+  - Good outputs: ore nuggets, small dusts, gems, flint, mineral fragments, catalyst residue.
+
+High priority new kinetic machines
+----------------------------------
+- Mechanical Precision Cutter
+  - Suggested id: kinetic_precision_cutter
+  - Suggested recipe type: create_expansion:precision_cutting
+  - Purpose: precise cutting for plates, lenses, wafers, gems, circuit substrates, and machine parts.
+  - Create feel: saw blade or cutting head powered by rotational speed; higher stress for harder materials.
+
+- Mechanical Wire Drawer
+  - Suggested id: kinetic_wire_drawer
+  - Suggested recipe type: create_expansion:wire_drawing
+  - Purpose: turns ingots/rods into wires and fine wires for the energy system.
+  - Create feel: input rod is pulled through die plates; speed affects processing time.
+  - Notes: project already has wire textures and energy wire tiers, so this fits very well.
+  - 2026-07-14: Block shell added as kinetic_wire_drawer with block/item/block entity registration,
+    creative tab entry, stress tooltip, item capability, loot table, and the existing finished
+    two-block wire_drawer model. It places an invisible kinetic_wire_drawer_part block one block
+    south of the controller, gives both the controller and rear block full 16x16x16
+    selection/collision hitboxes, and
+    proxies clicks/item automation back to the controller. The renderer now supplies Create's
+    animated shaft through the model's front/back hole by reusing the existing
+    `lathe/lathe_side_shaft.json`. The renderer rotates that X-axis model -90 degrees onto the
+    opposite Z-side and keeps it at Create's standard centered shaft height, y=8. Both registered blocks use
+    the display name Mechanical Wire Drawer.
+    2026-07-14: Added `WireDrawingRecipeType`, `WireDrawingRecipeBuilder`, and
+    `WireDrawingRecipes`; registered `create_expansion:wire_drawing` and added the required test recipe
+    copper ingot -> copper wire. The shared simple kinetic processing logic now executes the recipe.
+    2026-07-14: Added Wire Drawing JEI category, recipe loading, catalyst, and manager lookup.
+    Next: add generated material recipes.
+
+- Mechanical Hammer / Forge Hammer
+  - Suggested id: kinetic_hammer
+  - Suggested recipe type: create_expansion:hammering
+  - Purpose: plates, double plates, crushed ore, dense plates, and early metal forming.
+  - Create feel: compact press-like block with a heavy animated hammer head.
+
+- Mechanical Extruder
+  - Suggested id: kinetic_extruder
+  - Suggested recipe type: create_expansion:extruding
+  - Purpose: turns softened metals, polymers, clay, or glass into rods, pipes, gears, and frames.
+  - Create feel: rotational screw pushes material through a shaped die.
+
+- Mechanical Mixer Barrel
+  - Suggested id: kinetic_mixer_barrel
+  - Suggested recipe type: create_expansion:barrel_mixing
+  - Purpose: dry and wet mixing before electric chemistry becomes available.
+  - Good outputs: alloys, concrete-like mixes, slurry, rubber mix, catalyst blends.
+
+- Mechanical Grinder / Pulverizer
+  - Suggested id: kinetic_grinder
+  - Suggested recipe type: create_expansion:grinding
+  - Purpose: turns ores, minerals, crystals, and blocks into dusts.
+  - Create feel: crushing wheels style, but as a single-block machine for compact automation.
+
+Medium priority kinetic machines
+--------------------------------
+- Mechanical Washer
+  - Suggested id: kinetic_washer
+  - Suggested recipe type: create_expansion:washing
+  - Purpose: cleans crushed ore, dirty dust, gravel, and scrap using water.
+  - Notes: can feed into centrifuge for byproduct separation.
+
+- Mechanical Dryer
+  - Suggested id: kinetic_dryer
+  - Suggested recipe type: create_expansion:drying
+  - Purpose: removes water from washed dust, clay, slurry, biomass, and chemical intermediates.
+  - Create feel: fan or heated rotating drum.
+
+- Mechanical Polisher
+  - Suggested id: kinetic_polisher
+  - Suggested recipe type: create_expansion:polishing
+  - Purpose: upgrades rough gems, lenses, plates, gears, and decorative machine parts.
+  - Good outputs: polished gems, optical lenses, smooth plates, precision components.
+
+- Mechanical Assembler
+  - Suggested id: kinetic_assembler
+  - Suggested recipe type: create_expansion:assembling
+  - Purpose: early automation for combining plates, rods, screws, gears, and casings.
+  - Create feel: deployer-inspired arms inside one block.
+
+- Mechanical Coil Winder
+  - Suggested id: kinetic_coil_winder
+  - Suggested recipe type: create_expansion:coil_winding
+  - Purpose: wires + rods into coils, motors, electromagnets, transformers, and generator parts.
+  - Notes: strongly supports the electric wire/tier side of the mod.
+
+- Mechanical Rolling Mill
+  - Suggested id: kinetic_rolling_mill
+  - Suggested recipe type: create_expansion:rolling
+  - Purpose: ingots into sheets, sheets into foil, rods into long rods, and billets into rails.
+  - Create feel: pair of rotating rollers with directional input/output.
+  - 2026-07-14: Block shell added as kinetic_rolling_mill with block/item/block entity registration,
+    creative tab entry, stress tooltip, item capability, loot table, and the existing static plus
+    two rotor models. The rotor partials use the exact rotor geometry and textures from the finished
+    item model. The renderer leaves both partials at their exact JSON coordinates and rotates each
+    around its own geometric center. Rotor 1 follows the Create kinetic angle and rotor 2 uses its negative angle.
+    2026-07-14: Added `RollingRecipeType`, `RollingRecipeBuilder`, and `RollingRecipes`;
+    registered `create_expansion:rolling` and added the required test recipe copper
+    ingot -> Create copper sheet. The shared simple kinetic processing logic now executes the recipe.
+    2026-07-14: Added Rolling JEI category, recipe loading, catalyst, and manager lookup.
+    The JEI machine preview renders the static model plus both rotor partials; rotor 2 spins
+    opposite rotor 1. Its camera transform follows Create's AnimatedPress pattern, while dynamic
+    Catnip `withRotationOffset(...)` uses the same fixed pivots as the world renderer, so both
+    rotors spin in place and rotor 2 never moves vertically like a press head.
+    Next: add generated material recipes.
+
+Optional / later-game kinetic machines
+--------------------------------------
+- Mechanical Separator
+  - Suggested id: kinetic_separator
+  - Suggested recipe type: create_expansion:separating
+  - Purpose: magnetic or density separation for ore chains before full electric processing.
+
+- Mechanical Compressor
+  - Suggested id: kinetic_compressor
+  - Suggested recipe type: create_expansion:compressing
+  - Purpose: dusts into storage blocks, powder compacts, carbon plates, and dense materials.
+
+- Mechanical Injector
+  - Suggested id: kinetic_injector
+  - Suggested recipe type: create_expansion:injecting
+  - Purpose: injects fluids into molds/items, useful for rubber, plastic, resin, coolant, and casts.
+
+- Mechanical Cutter Bench
+  - Suggested id: kinetic_cutter_bench
+  - Suggested recipe type: create_expansion:bench_cutting
+  - Purpose: cheaper early version of the precision cutter for wood, stone, soft metals, and basic plates.
+
+- Mechanical Spinner
+  - Suggested id: kinetic_spinner
+  - Suggested recipe type: create_expansion:spinning
+  - Purpose: fibers into thread, thread into cloth, fine wire into mesh, and wool/cotton processing.
+
+Dynamic Foundry Multiblock
+==========================
+
+Core idea
+---------
+- Working name: Foundry
+- Suggested controller id: foundry_controller.
+- Important: existing test_foundry_controller was only made to verify that the current multiblock system works. Do not upgrade it into the real Foundry; the Foundry has so many features that it needs a separate, larger multiblock system with more tools.
+- Suggested recipe types:
+  - create_expansion:foundry_melting
+  - create_expansion:foundry_alloying
+  - create_expansion:foundry_casting
+  - create_expansion:foundry_heat_treatment
+- Purpose: a dynamic Tinkers Construct-like multiblock for melting, alloying, holding, pouring, casting, cooling, and recovering metal.
+- Should feel like Create: kinetic pumps, shafts, belts, funnels, pipes, blaze burners, tanks, gauges, redstone control, and visible process state.
+
+Multiblock structure logic
+--------------------------
+- Controller scans a bounded rectangular foundry area when right-clicked, updated, or a block changes.
+- Valid sizes should be dynamic, not fixed:
+  - Small: 3x3x3 early foundry.
+  - Medium: 5x5x4 production foundry.
+  - Large: up to a config limit, for late-game alloy factories.
+- Required blocks:
+  - 1 controller.
+  - Heat-resistant casing or bricks for walls/floor.
+  - At least 1 heat source below or beside the vessel.
+  - At least 1 drain, faucet, casting port, or output hatch.
+- Optional blocks add capability:
+  - Extra tank blocks increase molten fluid capacity.
+  - Extra burners increase heat input.
+  - Chimney/vent blocks improve heat stability and reduce overpressure risk.
+  - Reinforced casing increases max safe temperature.
+  - Cooling blocks, water jackets, or fans improve controlled cooling.
+  - Kinetic mixer shaft enables alloy mixing.
+  - Kinetic agitator improves temperature equality and alloy quality.
+  - Redstone valve blocks allow automation.
+- Invalid structure states should be specific:
+  - Missing controller.
+  - Not sealed.
+  - No heat source.
+  - No output path.
+  - Too many tanks for casing tier.
+  - Heat rating too low for current molten metal.
+
+Heat and temperature logic
+--------------------------
+- Foundry has a current temperature, target temperature, heat loss, and heat capacity.
+- Each molten metal/fluid has:
+  - Melting point.
+  - Alloy melting point is at least the highest melting point of its component materials.
+  - Alloy tooltips should show this resolved melting point even when the alloy does not define its own explicit melting point.
+  - Pouring temperature.
+  - Boiling/instability temperature.
+  - Solidification temperature.
+  - Heat capacity.
+  - Safe mold temperature range.
+- Heat sources add heat per tick:
+  - Campfire/lava: weak early tier.
+  - Blaze burner: standard Create tier.
+  - Superheated blaze burner: high tier.
+  - Electric heater or induction coil later: precise late tier.
+- Bigger foundries heat slower but hold heat longer.
+- Bad insulation causes heat loss and wastes fuel.
+- Overheating should have real risk:
+  - Metal oxidizes or creates slag.
+  - Alloy ratio quality drops.
+  - Fluid starts boiling and vents.
+  - Pressure event can damage weak casing.
+
+Mold temperature and failure logic
+----------------------------------
+- Every mold has material, shape, temperature, durability, and max safe temperature.
+- Mold materials should matter:
+  - Clay mold: cheap, low max temp, often single-use.
+  - Sand mold: cheap, handles some heat, single-use.
+  - Stone mold: medium heat, slow cooling.
+  - Ceramic mold: higher heat, reusable but can crack from thermal shock.
+  - Cast iron mold: strong, but can contaminate some metals.
+  - Steel mold: high heat, reusable.
+  - Refractory mold: late-game, very high heat.
+  - Graphite mold: extreme heat, fast casting, expensive.
+- If molten metal temperature is above mold max safe temperature:
+  - Mold melts/breaks.
+  - Molten input is lost.
+  - Output is not created.
+  - Optional: creates slag, smoke, fire, or a hot waste item.
+- If molten metal is only slightly too hot:
+  - Mold takes heavy durability damage.
+  - Casting may succeed with low quality or warped output.
+- If mold is too cold:
+  - Metal may freeze before filling.
+  - Output becomes incomplete casting or metal scrap.
+- If mold is too hot:
+  - Cooling time becomes longer.
+  - Soft output cannot be extracted yet.
+- Thermal shock:
+  - Pouring very hot metal into a cold ceramic/stone mold can crack it.
+  - Quenching a hot mold too fast can crack it or damage the part.
+
+Casting and shape logic
+-----------------------
+- Shape comes from the mold, not from the recipe alone.
+- Existing mold item families should be reused:
+  - ingot, nugget, block, plate, rod, long rod, gear, small gear, ring, large ring, screw, bolt, rotor, bearing, bearing ball.
+- Casting recipe should validate:
+  - Fluid type.
+  - Fluid amount.
+  - Fluid temperature.
+  - Mold shape.
+  - Mold material temperature limit.
+  - Foundry/drained fluid temperature against mold melting point.
+  - Required cooling profile.
+- Outputs can have states:
+  - Hot casting.
+  - Cooling casting.
+  - Finished casting.
+  - Failed casting / scrap.
+- Hot casts should need cooling before normal use.
+- Current first-pass drain/caster rules:
+  - Seared Drain must be on the side of a Seared Output Hatch and pours into a Mold Caster directly below itself.
+  - Drain faces outward from the adjacent output hatch when placed.
+  - Drain and Mold Caster use smaller voxel collision/outline shapes matching their Blockbench models, not full block hitboxes.
+  - Right-click attempts one pour; constant redstone signal retries automatically.
+  - Caster has one mold slot and one output slot; automation extracts product first, then mold.
+  - Right-clicking a mold into the caster renders the mold item lying in the caster at 14x14 size, one pixel tall, 15 pixels above the bottom; finished product renders fullbright at the same spot at the same time until it or the mold is extracted.
+  - While casting, the Mold Caster should show the molten fluid texture first; after the mold amount duration finishes, the product appears with a short molten-to-solid visual transition, and the mold visually transitions into its HOT_CAST_*_MOLD version during that same solidifying phase when the poured fluid was hot enough.
+  - If drained fluid temperature is above mold melting point, the mold and poured fluid are lost.
+  - If drained fluid temperature is above half the mold melting point, the normal mold becomes its HOT_CAST_*_MOLD version.
+  - Successful casts output CAST_* material items and must be cooled by Create washing into the normal material part.
+  - HOT_CAST_*_MOLD items are also cooled back into normal molds by Create washing.
+  - Normal CAST_*_MOLD items should not show a Temperature tooltip line; only hot mold states and cast products should show temperature.
+- Optional quality system:
+  - Perfect, normal, warped, brittle, contaminated.
+  - Quality affects durability, processing yield, or whether precision machines accept it.
+
+Alloying logic
+--------------
+- Foundry can hold multiple molten fluids if a mixer/agitator is installed.
+- Alloy recipes check ratios and temperature windows.
+- Wrong ratio should produce:
+  - Mixed molten scrap.
+  - Low-grade alloy.
+  - Slag byproduct.
+- Mixing speed affects time and quality.
+- Large foundries should need kinetic mixing to keep temperature even.
+- Alloy examples:
+  - Copper + zinc = brass.
+  - Copper + tin = bronze.
+  - Iron + carbon = steel precursor.
+  - Nickel + chromium + iron = stainless-type late alloy.
+
+Fluid storage and pouring logic
+-------------------------------
+- Foundry internal tank stores molten fluid with temperature per fluid stack.
+- Fluids should not instantly normalize temperature unless mixed.
+- Pouring modes:
+  - Manual faucet into one mold.
+  - Drain into casting table.
+  - Basin pour for blocks and bulk casts.
+  - Pipe output for automation.
+  - Measured pour using redstone or valve.
+- If multiple metals are in the tank, output should require selecting a layer/fluid or using a mixer recipe.
+- Dense metals can settle below lighter metals if not mixed.
+- Slag should float and may block pouring until removed.
+
+Cooling logic
+-------------
+- Cooling depends on:
+  - Mold material.
+  - Part mass.
+  - Ambient biome temperature.
+  - Cooling blocks/fans/water jackets.
+  - Whether the cast is quenched.
+- Slow cooling improves quality for some metals.
+- Fast quenching improves hardness for some metals but risks cracking.
+- Very large casts should stay hot longer and may burn players/items.
+
+Safety and failure events
+-------------------------
+- Player touching hot foundry or hot molds takes damage unless protected.
+- Breaking an active foundry dumps or destroys molten contents.
+- If structure becomes invalid while hot:
+  - Foundry enters emergency cooldown.
+  - Output and pouring stop.
+  - Weak casing may crack.
+- Water entering a very hot foundry can cause steam burst.
+- Rain exposure reduces temperature unless covered.
+- Overpressure from blocked vents can damage casing or eject smoke/slag.
+- Optional late-game sensors:
+  - Thermometer.
+  - Pressure gauge.
+  - Fluid level gauge.
+  - Alloy ratio gauge.
+
+Automation and Create integration
+---------------------------------
+- Belts/funnels insert solid inputs into input hatches.
+- Pipes/pumps move molten fluids in and out.
+- Mechanical arms move molds between heating, casting, cooling, and output stations.
+- Kinetic mixer/agitator consumes stress while alloying.
+- Encased fan can cool molds or improve chimney draft depending on direction.
+- Redstone comparators output:
+  - Fill level.
+  - Temperature.
+  - Structure valid.
+  - Casting complete.
+  - Error state.
+- Display link or goggles should show:
+  - Current temperature.
+  - Target temperature.
+  - Stored fluids.
+  - Active recipe.
+  - Mold status.
+  - Failure reason.
+
+Progression tiers
+-----------------
+- Tier 1: Clay/sand molds, small foundry, lava/campfire heat, copper/lead/tin/zinc.
+- Tier 2: Ceramic molds, blaze burner heat, brass/bronze/iron casting.
+- Tier 3: Steel/refractory casing, superheated burners, steel and high-temp alloys.
+- Tier 4: Graphite/refractory molds, electric/induction heat, precision alloying and large casts.
+
+Implementation checklist for foundry
+------------------------------------
+- Keep test_foundry_controller as a prototype/test block only.
+- Build first Foundry structure test:
+  - Foundry Casing block, displayed as Seared Bricks.
+    - Foundry Controller block.
+    - Seared Input Hatch block.
+    - Seared Output Hatch block.
+    - Seared Input Bus block.
+  - Valid outer widths: 3x3, 5x5, 7x7, 9x9.
+  - Minimum height: 2.
+  - Bottom layer is a full casing plate.
+  - Controller sits in the middle of an outer wall on the first wall layer above the bottom plate.
+    - Layers above the bottom are hollow wall layers with an open top.
+    - Input hatches can replace wall casings above the bottom plate.
+    - Input buses can replace wall casings above the bottom plate.
+  - Max input hatches: 2 per outer height layer, but input hatches cannot be placed in the bottom plate. Example: height 3 allows 6 input hatches total.
+  - Output hatch can replace one casing in the bottom plate.
+    - Max output hatches: 1 total.
+    - Hatches do not store fluid themselves; they proxy input/output to the formed Foundry controller tank.
+    - Controller tank supports multiple fluid stacks sharing the same total multiblock capacity.
+    - Controller GUI uses an original vanilla-style gray heating layout: 176x220 panel, large fluid window on the left, bucket input/output placeholders, mode button placeholder, temperature column, and player inventory at y=136.
+    - Temperature is represented as a vertical gauge from 0 to 10000. For now it stays at 0 because no heat source exists yet.
+    - Controller GUI shows formed state, total fluid amount, and multiple fluids. It should not show structure size.
+- Controller uses foundry_off overlay below/equal 100 C and foundry_on overlay above 100 C.
+  - Blaze Burner heat source:
+    - Heat sources are checked below the inside footprint only, not below the outer casing frame.
+    - Every inside-footprint position below the Foundry must have an active Blaze Burner; 5x5 needs 3x3 burners, 7x7 needs 5x5 burners, 9x9 needs 7x7 burners.
+    - Heated Blaze Burner target: 750 C.
+    - Superheated Blaze Burner target: 2000 C.
+    - Mixed burner tiers use the weakest active burner as the target temperature.
+    - Foundry temperature moves gradually by 1 C per second toward the active heat target, including cooling down when heat is removed.
+    - Electric/coil heat source:
+      - Current Large Heater is only a dirt multiblock structure test.
+      - Heater variants are 1/2/3/4 for 1x1x2, 3x3x2, 5x5x2, and 7x7x2.
+      - Heater must be written explicitly block-for-block in Heater.java, not generated by a helper formula.
+      - Heater controller is placed directly in the pattern with `controller`, on the left side of the upper row in the middle X layer.
+      - Later: replace dirt with real coils/casings/ports after the shape is confirmed.
+  - No error text; controller only changes to formed when the structure is valid.
+  - Capacity formula: 144mb * 9 * inside_width * inside_length * inside_height.
+  - inside_width/inside_length = outer_width - 2.
+  - inside_height = outer_height - 1.
+  - Later: design a larger foundry-specific multiblock system with enough tools for heat zones, tanks, molds, ports, validation states, and automation modules.
+  - Later: connect Seared Input Bus to item inputs when melting/heat logic exists.
+- GregTech-style coil system:
+  - Coil definitions live in net.mads.createexpansion.machine.coil.CoilDefinitions.
+  - New coil types should only need name, id, heat, and matching textures:
+    - assets/create_expansion/textures/block/casings/coils/<id>_coil_off.png
+    - assets/create_expansion/textures/block/casings/coils/<id>_coil_on.png
+  - Shared frame overlay texture: assets/create_expansion/textures/block/casings/coils/coil_frame.png.
+  - Block id is <id>_coil; item id is <id>_heating_coil because material coil items already use ids like copper_coil.
+  - Coil blockstates/models/items/loot are generated by runData through CoilModelProvider and CoilLootProvider.
+  - Multiblock definitions can use .logic(CoilLogic.TEMP) plus MultiblockPredicates.coils() to require same-type coils and store the coil heat.
+  - Machine recipes can use .temp(requiredTemp), which serializes to top-level JSON field "temp" and rejects recipes when formed coil heat is too low.
+- Block + BlockEntity for controller.
+- Multiblock scanner and structure cache.
+- Formed/unformed blockstate and visual feedback.
+- Internal molten tank with temperature data.
+- Foundry melting inventory:
+  - Slot count = 1 slot per inside block/inner volume.
+  - Each melting slot holds max 1 item.
+  - GUI should show a visible slot window and use mouse-wheel scrolling to reach extra slots on larger Foundries.
+  - Slot-side heat/progress bar should visually move from cold color to hot color.
+  - When the Foundry temperature is at least the material melting point, the item melts into that material's molten fluid.
+- Foundry melting recipes:
+  - Generated from src/main/java/net/mads/createexpansion/material/IndustrialMaterials.java.
+  - Only generate melting recipes for materials that have MaterialPart.MOLTEN_FLUID.
+  - Use IndustrialMaterial.meltingPoint() as the required recipe temperature.
+  - Generate common forms when present:
+    - nugget -> 16mb molten fluid, base duration 1 second.
+    - ingot -> 144mb molten fluid, base duration 9 seconds.
+    - block -> 1296mb molten fluid, base duration 81 seconds.
+  - Duration is based on 1 second per nugget-equivalent.
+  - Effective speed scales with heat above melting point: current_temperature / melting_point.
+    - Example: melting point 1000 C and Foundry temperature 2000 C means 2x speed.
+    - Example: ingot at 2x speed takes 4.5 seconds total, or 0.5 seconds per nugget-equivalent.
+  - JEI recipe type: create_expansion:foundry_melting.
+  - JEI should show input item, molten fluid output + mb, and required temperature. Do not show duration even though duration exists in machine logic.
+  - Material tooltips should show melting point.
+- Mold item data: material, shape, temperature, durability, max safe temperature.
+- Recipe classes for melting, alloying, casting, and heat treatment.
+- Failure result handling: melted mold, lost fluid, slag/scrap, damage events.
+- JEI categories for each foundry recipe type.
+- Create goggles/display source integration.
+- Datagen examples for a small set of metals and molds.
+- Game tests or debug commands for valid/invalid structures and mold overheating.
+
+Implementation checklist per machine
+------------------------------------
+- Block + BlockEntity
+- Registration class in machine/machines/kinetic/<machine>
+- Item registration + creative tab entry
+- Recipe class, serializer, recipe type, and JEI category
+- Generated blockstate, block model, item model, loot table, and language entry
+- Stress/speed rules that feel Create-like
+- Inventory/fluid capability rules
+- Datagen examples in src/generated/resources/data/create_expansion/recipe
+- Basic textures or temporary textures
+- One simple test recipe

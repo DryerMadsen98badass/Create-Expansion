@@ -1,0 +1,98 @@
+2026-07-06
+==========
+
+- 2026-07-14: Added first-pass Mechanical Rolling Mill and Mechanical Wire Drawer kinetic blocks.
+  They now have block, item, block entity, creative tab, stress, client renderer, item capability,
+  item model, blockstate, and loot table registration. Rolling Mill uses the existing user-made
+  rolling mill static/item/rotor models and renders rotor 2 opposite rotor 1. Wire Drawer uses the
+  existing user-made two-block wire_drawer model and creates an invisible second block part.
+- Fixed kinetic lathe shaft partial so it only shows one 2 pixel west-side shaft stub.
+- Switched the lathe shaft partial from missing create:block/shaft texture to Create's real shaft textures: create:block/axis and create:block/axis_top.
+- Updated Create kinetic block developer docs with the one-sided shaft partial rule and correct Create shaft texture keys.
+- Added design plan for a dynamic Foundry multiblock with temperature-based molds, casting failures, alloying, cooling, safety logic, and Create automation hooks.
+- Clarified that test_foundry_controller only verifies that the current multiblock system works, while the real Foundry needs a larger system with more tools because it has far more features.
+- Started the real Foundry structure test with Foundry Casing, Foundry Controller, fixed 3/5/7/9 outer widths, open-top wall scanning, formed-only feedback, and capacity storage.
+- Fixed Foundry Controller registration compile error by replacing the ambiguous constructor reference with an explicit supplier.
+- Added Seared Bricks naming, Foundry controller GUI fluid display, Seared Input Hatch, Seared Output Hatch, hatch structure limits, and hatch fluid proxying to the controller tank.
+- Added Seared Input Bus block and changed Foundry controller storage/GUI to support multiple fluid stacks sharing the same total capacity.
+- Added Coil block using the block/casings/coils/coil texture, with item model, blockstate, loot table, language entry, and creative tab entry.
+- Made Coil redstone-testable: unpowered uses coil_off texture, powered uses coil_on texture and emits light level 12 for a stronger glowing look.
+- Moved Foundry GUI player inventory one pixel down and one pixel right.
+- Moved Foundry GUI player inventory one pixel up and one pixel right from the previous position.
+- Added Copper Coil block as a redstone-powered on/off coil variant with generated copper-colored textures.
+- Renamed the manual Copper Coil registry id to foundry_copper_coil to avoid colliding with generated material item id copper_coil.
+- Removed temporary Coil and Copper Coil blocks from the game while keeping their texture files in place for later use.
+- Updated Foundry controller GUI to a Tinkers-style heating structure layout with a large stacked fluid window, bucket placeholders, fuel placeholder, and lower player inventory.
+- Reworked Foundry controller GUI colors to vanilla-style gray and added a 0-10000 temperature gauge with hover tooltip.
+- Fixed Foundry controller GUI inventory placement and tightened the right-side controls so the 176x220 layout fits cleanly.
+- Aligned Foundry GUI drawn slot frames around the actual 16x16 slot hover/hitbox positions.
+- Added first Foundry melting implementation: generated foundry_melting recipes from IndustrialMaterials, registered recipe type/serializer, JEI category, internal 1-item melting slots, temperature-scaled processing, molten fluid output insertion, and mouse-wheel scrolling over visible melting slots.
+- Added a temporary Creative Foundry Controller block for testing, sharing the normal Foundry multiblock logic but allowing GUI-set temperature from 0 to 10000.
+- Moved Foundry melting slots to the left side of the GUI and added runtime material-based melting recipe fallback so slots and JEI work even before foundry_melting JSON recipes are generated.
+- Fixed Foundry melting slot activation to sync slot count through menu data, made item insertion use direct MaterialLookup-based melting checks, fixed JEI recipe manager fallback for Foundry Melting, and changed the tank display to a taller panel parallel with the melting slot window.
+- Fixed Foundry melting recipe generation for all molten metals by resolving material fluids through IndustrialFluid.definition().id() instead of looking up MATERIAL_FLUIDS by material id; molten fluids are keyed as molten_<material>.
+- Made input buses expose an item capability into all Foundry melting slots, made fluid/item hatches recover their controller cache if needed, and changed shift-click insertion to fill the full internal melting inventory instead of only visible GUI slots.
+- Removed the temporary Seared Filter Output Hatch again; Foundry output filtering should be handled externally with Create smart pipes.
+- Changed Foundry melting inventory from 9 slots per inside floor block to 1 slot per inside block/inner volume, so taller Foundries gain more melting slots.
+- Added a cached alloy-family input gate for Foundry item/fluid input so unrelated metals like iron + gold are rejected, while valid material families from IndustrialMaterials components remain allowed.
+- Added event-driven Foundry alloy resolving: when molten fluid enters the tank, valid multi-component molten alloys from IndustrialMaterials are resolved automatically using component ratios, with a hard pass limit to avoid freezes.
+- Fixed Foundry shift-click freeze by returning no-move when the internal melting inventory has no free slots and by limiting bulk insertion to actual empty melting slots.
+- Added Blaze Burner heat support for Foundry: heated burners below the inner footprint target 1000 C, superheated burners target 1500 C, and temperature rises by 1 C per second. Also tightened manual slot insertion to use the same alloy gate as shift-click/input bus.
+- Changed Foundry Blaze Burner heat to require full inner-footprint coverage, use the weakest active burner tier as the target, and cool by 1 C per second when heat is removed or incomplete.
+- Added a separate active blockstate to the Foundry Controller so the foundry_on overlay appears when the formed controller is above 100 C, without using formed state as the visual heat state.
+- Moved Foundry block model JSON files from the root block model folder into models/block/machines/without_energy/foundry and updated blockstate/item model references.
+- Enforced alloy melting points to be at least the highest melting point of their component materials.
+- Added first-pass Seared Drain and Mold Caster blocks/entities: drains pull from an adjacent Seared Output Hatch, pour into a caster below on right-click or redstone, consume dynamic molten material recipes from IndustrialMaterials, respect mold heat failure/hot mold conversion, and show a simple pouring model state.
+- Added dynamic Create splashing datagen for Foundry cooling: CAST_* material outputs wash into their normal material parts, and HOT_CAST_*_MOLD items wash back into normal CAST_*_MOLD items.
+- Fixed Seared Drain placement logic to use an adjacent Seared Output Hatch instead of a hatch above it, made Mold Caster automation prioritize product extraction over mold extraction, and added a Mold Caster renderer for the inserted mold item.
+- Updated Mold Caster rendering so the mold and finished product can both be visible in the caster at the same time until either is extracted.
+- Added smaller voxel shapes for Seared Drain and Mold Caster, made Seared Drain face outward from the adjacent output hatch on placement, and rendered caster mold/product items fullbright.
+- Fixed material tooltips so alloys show their resolved component-based melting point, while normal CAST_*_MOLD items no longer show a Temperature line.
+- Rotated the Seared Drain voxel shape 180 degrees to match the already-rotated visual blockstate.
+- Updated Mold Caster visuals so active casting shows the molten fluid texture first, the product appears only after casting time completes, the product render is rotated 180 degrees to match the mold, and hot molds apply during the solidifying transition.
+- Added a safe fallback around Mold Caster molten-fluid rendering so a missing or not-ready fluid atlas texture cannot crash the client.
+- Fixed Mold Caster molten-fluid quad rendering by writing the required overlay UV data for the translucent vertex format.
+- Enlarged the Mold Caster molten fill visual by 1 pixel on each side and made the pouring stream 1 pixel thick, positioned from the drain direction above the caster.
+- Changed the Mold Caster pouring stream from a box into an open L-shaped molten ribbon: one short horizontal face from the drain and one vertical face down into the caster.
+- Switched the Mold Caster pouring stream geometry to match the user-authored fluid.json Blockbench shape while still applying molten fluid texture and tint dynamically in the renderer.
+- Updated the Mold Caster pouring stream renderer to use the per-face UV coordinates from fluid.json instead of stretching the full molten texture over every face.
+- Moved only the Mold Caster pouring stream geometry up one block so it renders in the drain block space, while the molten fill surface remains in the caster.
+- Changed Foundry Blaze Burner heat targets to 750 C for heated and 2000 C for superheated.
+- Added a GregTech-style CoilDefinition system with Copper Coil at 1000 heat and Kanthal Coil at 1500 heat, deriving display name, block id, item id, off/on textures, and shared coil_frame overlay from the definition.
+- Added generated coil blockstates, block models, item models, and loot tables through CoilModelProvider and CoilLootProvider; coil texture PNGs remain hand-authored in assets/create_expansion/textures/block/casings/coils.
+- Added goggles-only coil tooltip showing heat value.
+- Added CoilLogic.TEMP / create_expansion:coil_temp, a multiblock coils() predicate, same-type coil validation during multiblock formation, stored formed coil heat on the controller, and active on/off coil state with light while the multiblock processes.
+- Added recipe builder .temp(requiredTemp) support, serialized as top-level "temp", and recipe matching now rejects recipes when the formed coil heat is too low.
+- Added docs/Developer Docs/Multiblock Guide.txt with the full current workflow for creating multiblocks, including controller definitions, pattern layers, predicates, abilities, recipe types, coil temperature logic, datagen, registration, and testing.
+- Reworked Large Heater back to a simple explicit dirt multiblock test: variants 1/2/3/4 are now 1x1x2, 3x3x2, 5x5x2, and 7x7x2, with every layer written block-for-block in Heater.java and no helper-generated shape.
+- Updated multiblock docs to state that fixed multiblocks should be written explicitly block-for-block unless dynamic generation is specifically requested.
+- Fixed JEI multiblock variant cycling so it displays variants in ascending order 1/2/3/4, while the core multiblock matcher can still keep its descending largest-first order internally.
+- Added `.tooltip(...)` support to MultiblockDefinition so controller item tooltips can be written directly beside each multiblock definition, and documented the Large Heater energy formula in its tooltip.
+- Fixed the in-world multiblock preview renderer being 180 degrees wrong by making its local Z rotation use the same `facing.getOpposite()` forward direction as the real multiblock matcher.
+- Added a Foundry Controller item tooltip describing valid outer sizes, minimum height, inside height, and 1296 mB capacity per inside block.
+- Added `.externalHeatSource()` to MultiblockDefinition and marked Large Heater with it, so heater multiblocks can turn on from Foundry heat requests without needing a recipe.
+- Fixed Foundry electric-heater discovery to scan both the heat layer under the Foundry and the controller layer one block below it, matching the two-layer Large Heater layout.
+- Made machine port assembled ability overlays render fullbright on the client so they stay visible in darkness without making the block emit light.
+- Removed the temporary active-state light level from multiblock controllers and Foundry controllers; controller blocks remain normal light level 0 blocks.
+- Added a 20 tick pseudo-operation duration for recipe-less external heat multiblocks and preserved active coil states across normal multiblock revalidation.
+- Changed recipe-less external heat multiblocks to draw energy per tick while active instead of requiring the whole heat interval worth of CE upfront.
+- Saved formed coil count and external CE/t on multiblock controllers so external heat state survives normal sync/load paths.
+- Made Foundry electric heating require matching Large Heater variant level: heater variant 1 heats 3x3 Foundry, 2 heats 5x5, 3 heats 7x7, and 4 heats 9x9.
+- Added input-only multiblock GUI metadata to MultiblockDefinition with duration, CE/t, item inputs, and fluid inputs, and made Large Heater use the input-only GUI with dynamic CE/t.
+- Updated Large Heater input-only GUI to show energy input only, and made Foundry wait until the heater has been active for at least 20 ticks before increasing temperature from electric heat.
+- Changed Large Heater CE/t formula to use Foundry inside block count/volume: `ceil(coilHeat * coilCount * foundryInsideBlocks / 500)`.
+- Simplified input-only multiblock GUI so dynamic CE/t machines like Large Heater only show CE/t and do not list unused item/fluid inputs or duration text.
+- Moved the multiblock programming help into docs/Developer Docs/Programering help/multiblock and added a dedicated How to make coils guide.
+- Restored Foundry heating/cooling to 1 C every 20 ticks and moved the 4x slowdown to Foundry melting durations instead.
+- Fixed Large Heater external heat ticking so input-only heaters keep a looping 20 tick progress display, update CE/t from the current Foundry inside volume, and only heat the Foundry after the first full warmup cycle.
+- Documented the CE energy system philosophy, tier/amp math, wire routing, live wire state, safety behavior, and Jade display contract in `docs/Developer Docs/Programering help/energy system.txt`.
+- Fixed Jade wire compatibility so energy wires expose live flow/voltage data and the tooltip no longer falls back to `Tier: none` while real energy is moving.
+- Changed multiblock energy consumption so each input hatch limits draw by `inputVoltage * inputAmps` per tick, preventing machines from running sustained CE/t above their hatch amperage.
+- Corrected Jade wire tooltip behavior after checking GTCEu cable flow and clarifying the CE model: wire Jade now shows only live carried decimal amps and live flow tier, never the wire material tier.
+- Added a short-lived server-side wire flow cache in `CEEnergyNetwork` and made Jade read it before falling back to block entity sync, so wire tooltips can show live flow even when BE sync/serverdata timing is unreliable.
+- Hardened Jade wire server data registration by binding the provider to `EnergyWireBlock` as well as `EnergyWireBlockEntity`, and added top-level CE/t and voltage fallback keys for the wire tooltip.
+- Changed energy input load telemetry to use the hatch's recent incoming network voltage, so an MV input hatch fed by LV power displays LV flow and LV amps in Jade.
+- Added dynamic Foundry Casting JEI recipes showing molten material fluid plus any valid mold for a cast shape into the matching CAST_* item, using Foundry controller, drain, and mold caster as catalysts.
+- Changed the Foundry controller fluid tank GUI to render each stored fluid with its real still fluid texture and tint instead of generated hash colors.
+- Added a paged Foundry Controller item tooltip: hold Shift to show the guide and use Left/Right Arrow to switch pages for structure, heat, input/output, and casting behavior.
+- Adjusted Mold Caster rendering so screw molds rotate 180 degrees and rotor molds rotate 90 degrees only while displayed in the caster.

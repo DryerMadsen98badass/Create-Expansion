@@ -2,21 +2,28 @@ package net.mads.createexpansion.integration.jade;
 
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.energy.CEEnergyContainer;
+import net.mads.createexpansion.energy.CEEnergyNetwork;
 import net.mads.createexpansion.energy.CreativeEnergyBlock;
 import net.mads.createexpansion.energy.CreativeEnergyBlockEntity;
 import net.mads.createexpansion.energy.EnergyWireBlock;
 import net.mads.createexpansion.energy.EnergyWireBlockEntity;
 import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
-import net.mads.createexpansion.multiblock.MultiblockControllerBlock;
-import net.mads.createexpansion.multiblock.MultiblockControllerBlockEntity;
+import net.mads.createexpansion.machine.MachineTierStats;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlockEntity;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -28,12 +35,19 @@ import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.WailaPlugin;
 import snownee.jade.api.config.IPluginConfig;
 
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Queue;
+import java.util.Set;
+
 @WailaPlugin(CreateExpansion.MOD_ID)
 public class CreateExpansionJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
-        registration.registerBlockDataProvider(EnergyStorageProvider.INSTANCE, BlockEntity.class);
-        registration.registerBlockDataProvider(WireProvider.INSTANCE, BlockEntity.class);
+        registration.registerBlockDataProvider(EnergyStorageProvider.INSTANCE, MachinePortBlockEntity.class);
+        registration.registerBlockDataProvider(EnergyStorageProvider.INSTANCE, CreativeEnergyBlockEntity.class);
+        registration.registerBlockDataProvider(WireProvider.INSTANCE, EnergyWireBlock.class);
+        registration.registerBlockDataProvider(WireProvider.INSTANCE, EnergyWireBlockEntity.class);
     }
 
     @Override
@@ -128,8 +142,22 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
             }
 
             CompoundTag data = accessor.getServerData().getCompound(UID.toString());
-            tooltip.add(Component.literal("Flow: " + data.getInt("Amps") + "A").withStyle(ChatFormatting.AQUA));
-            tooltip.add(Component.literal("Tier: " + (data.contains("Tier") ? data.getString("Tier") : "none")).withStyle(ChatFormatting.GRAY));
+            int cePerTick = readWireCEt(accessor.getServerData(), data);
+            int voltage = readWireVoltage(accessor.getServerData(), data);
+            if ((cePerTick <= 0 || voltage <= 0) && accessor.getBlockEntity() instanceof EnergyWireBlockEntity wire) {
+                cePerTick = wire.currentCEt();
+                voltage = wire.displayVoltage();
+            }
+            if (cePerTick <= 0 || voltage <= 0) {
+                int[] networkLoad = networkInputLoad(accessor);
+                cePerTick = networkLoad[0];
+                voltage = networkLoad[1];
+            }
+            String amps = cePerTick > 0 && voltage > 0 ? formatAmps(cePerTick, voltage) : "0";
+            String tier = voltage > 0 ? MachineTierStats.tierForVoltage(voltage).displayName() : "none";
+
+            tooltip.add(Component.literal("Flow: " + amps + "A").withStyle(ChatFormatting.AQUA));
+            tooltip.add(Component.literal("Tier: " + tier).withStyle(ChatFormatting.GRAY));
         }
 
         @Override
@@ -138,17 +166,123 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
                 return;
             }
             CompoundTag data = root.getCompound(UID.toString());
+            int cachedCEt = CEEnergyNetwork.currentWireCEt(accessor.getLevel(), accessor.getPosition());
+            int cachedVoltage = CEEnergyNetwork.currentWireVoltage(accessor.getLevel(), accessor.getPosition());
+            if (cachedCEt > 0 && cachedVoltage > 0) {
+                writeWireData(root, data, cachedCEt, cachedVoltage);
+            }
             if (accessor.getBlockEntity() instanceof EnergyWireBlockEntity wire) {
                 data.putInt("Amps", wire.currentAmperage());
-                data.putInt("Voltage", wire.currentVoltage());
-                data.putString("Tier", wire.currentVoltage() <= 0 ? "none" : net.mads.createexpansion.machine.MachineTierStats.tierForVoltage(wire.currentVoltage()).displayName());
-                root.put(UID.toString(), data);
+                if (data.getInt("Voltage") <= 0) {
+                    writeWireVoltage(root, data, wire.displayVoltage());
+                }
+                if (data.getInt("CEt") <= 0) {
+                    writeWireCEt(root, data, wire.currentCEt());
+                }
             }
+            if (data.getInt("CEt") <= 0 || data.getInt("Voltage") <= 0) {
+                int[] networkLoad = networkInputLoad(accessor);
+                writeWireData(root, data, networkLoad[0], networkLoad[1]);
+            }
+            root.put(UID.toString(), data);
         }
 
         @Override
         public ResourceLocation getUid() {
             return UID;
+        }
+
+        private static String formatAmps(int cePerTick, int voltage) {
+            if (voltage <= 0) {
+                return "0";
+            }
+            if (cePerTick % voltage == 0) {
+                return Integer.toString(cePerTick / voltage);
+            }
+            return java.math.BigDecimal.valueOf(cePerTick)
+                    .divide(java.math.BigDecimal.valueOf(voltage), 4, java.math.RoundingMode.HALF_UP)
+                    .stripTrailingZeros()
+                    .toPlainString();
+        }
+
+        private static int readWireCEt(CompoundTag root, CompoundTag data) {
+            int cePerTick = data.getInt("CEt");
+            return cePerTick > 0 ? cePerTick : root.getInt("CEWireCEt");
+        }
+
+        private static int readWireVoltage(CompoundTag root, CompoundTag data) {
+            int voltage = data.getInt("Voltage");
+            return voltage > 0 ? voltage : root.getInt("CEWireVoltage");
+        }
+
+        private static void writeWireData(CompoundTag root, CompoundTag data, int cePerTick, int voltage) {
+            writeWireCEt(root, data, cePerTick);
+            writeWireVoltage(root, data, voltage);
+        }
+
+        private static void writeWireCEt(CompoundTag root, CompoundTag data, int cePerTick) {
+            if (cePerTick <= 0) {
+                return;
+            }
+            data.putInt("CEt", cePerTick);
+            root.putInt("CEWireCEt", cePerTick);
+        }
+
+        private static void writeWireVoltage(CompoundTag root, CompoundTag data, int voltage) {
+            if (voltage <= 0) {
+                return;
+            }
+            data.putInt("Voltage", voltage);
+            root.putInt("CEWireVoltage", voltage);
+        }
+
+        private static int[] networkInputLoad(BlockAccessor accessor) {
+            Level level = accessor.getLevel();
+            if (level == null || !(accessor.getBlock() instanceof EnergyWireBlock)) {
+                return new int[]{0, 0};
+            }
+
+            int cePerTick = 0;
+            int voltage = 0;
+            Queue<BlockPos> queue = new ArrayDeque<>();
+            Set<BlockPos> seenWires = new HashSet<>();
+            Set<BlockPos> seenPorts = new HashSet<>();
+            BlockPos start = accessor.getPosition();
+            queue.add(start);
+            seenWires.add(start);
+
+            while (!queue.isEmpty()) {
+                BlockPos wirePos = queue.remove();
+                BlockState wireState = level.getBlockState(wirePos);
+                if (!(wireState.getBlock() instanceof EnergyWireBlock)) {
+                    continue;
+                }
+
+                for (Direction direction : Direction.values()) {
+                    if (!EnergyWireBlock.hasEnabledConnection(wireState, direction)) {
+                        continue;
+                    }
+
+                    BlockPos nextPos = wirePos.relative(direction);
+                    BlockState nextState = level.getBlockState(nextPos);
+                    if (nextState.getBlock() instanceof EnergyWireBlock && EnergyWireBlock.wiresConnect(wireState, direction, nextState)) {
+                        if (seenWires.add(nextPos)) {
+                            queue.add(nextPos);
+                        }
+                        continue;
+                    }
+
+                    if (seenPorts.add(nextPos)
+                            && level.getBlockEntity(nextPos) instanceof MachinePortBlockEntity port
+                            && port.abilities().contains(MultiblockAbility.ENERGY_INPUT)
+                            && port.lastInputCEt() > 0
+                            && port.lastInputVoltage() > 0) {
+                        cePerTick += port.lastInputCEt();
+                        voltage = Math.max(voltage, port.lastInputVoltage());
+                    }
+                }
+            }
+            return new int[]{cePerTick, voltage};
         }
     }
 

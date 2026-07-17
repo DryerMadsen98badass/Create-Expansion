@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:promethium_cast_nugget"
+    }
+  ],
+  "processingTime": 22,
+  "results": [
+    {
+      "id": "create_expansion:promethium_nugget"
+    }
+  ]
+}

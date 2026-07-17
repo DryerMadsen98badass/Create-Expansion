@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:native_gold_deepslate_ore",
+    "create_expansion:native_gold_andesite_ore",
+    "create_expansion:native_gold_netherrack_ore",
+    "create_expansion:native_gold_blackstone_ore",
     "create_expansion:native_gold_end_stone_ore",
     "create_expansion:native_gold_tuff_ore",
-    "create_expansion:native_gold_blackstone_ore",
-    "create_expansion:native_gold_deepslate_ore",
-    "create_expansion:native_gold_granite_ore",
-    "create_expansion:native_gold_diorite_ore",
     "create_expansion:native_gold_ore",
-    "create_expansion:native_gold_andesite_ore",
-    "create_expansion:native_gold_netherrack_ore"
+    "create_expansion:native_gold_diorite_ore",
+    "create_expansion:native_gold_granite_ore"
   ]
 }

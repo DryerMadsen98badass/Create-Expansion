@@ -1,15 +1,20 @@
 package net.mads.createexpansion.client.screen;
 
 import net.mads.createexpansion.menu.MultiblockControllerMenu;
-import net.mads.createexpansion.multiblock.MultiblockControllerBlockEntity;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlockEntity;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockDefinition;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
@@ -96,6 +101,12 @@ public class MultiblockControllerScreen extends AbstractContainerScreen<Multiblo
 
     private void drawRecipePreview(GuiGraphics graphics, int x, int y) {
         MultiblockControllerBlockEntity controller = menu.blockEntity();
+        MultiblockDefinition definition = definition(controller);
+        if (definition != null && definition.inputOnlyDisplay() != null) {
+            drawInputOnlyPreview(graphics, x, y, controller, definition.inputOnlyDisplay());
+            return;
+        }
+
         List<ItemStack> itemInputs = controller == null ? List.of() : controller.activeItemInputs();
         List<FluidStack> fluidInputs = controller == null ? List.of() : controller.activeFluidInputs();
         List<ItemStack> itemOutputs = controller == null ? List.of() : controller.activeItemOutputs();
@@ -118,6 +129,39 @@ public class MultiblockControllerScreen extends AbstractContainerScreen<Multiblo
                 graphics.drawString(font, recipe, x + imageWidth / 2 - font.width(recipe) / 2, y + 94, MUTED, false);
             }
         }
+    }
+
+    private void drawInputOnlyPreview(GuiGraphics graphics, int x, int y, MultiblockControllerBlockEntity controller, MultiblockDefinition.InputOnlyDisplay display) {
+        graphics.drawString(font, Component.literal("Inputs").withStyle(ChatFormatting.GRAY), x + 18, y + 50, MUTED, false);
+
+        int cePerTick = display.dynamicCePerTick() && controller != null ? controller.activeCEt() : display.cePerTick();
+        String ceText = cePerTick < 0 ? "CE/t: -" : "CE/t: " + cePerTick;
+        graphics.drawString(font, ceText, x + 18, y + 62, TEXT, false);
+
+        int slotY = y + 78;
+        if (!display.dynamicCePerTick()) {
+            graphics.drawString(font, "Duration: " + display.durationTicks() + " ticks", x + 18, y + 74, MUTED, false);
+            slotY = y + 88;
+        }
+
+        List<ItemStack> itemInputs = display.itemInputs().stream()
+                .map(input -> new ItemStack(BuiltInRegistries.ITEM.get(input.itemId()), input.amount()))
+                .filter(stack -> !stack.isEmpty() && stack.getItem() != Items.AIR)
+                .toList();
+        drawStacks(graphics, itemInputs, x + 18, slotY, false);
+
+        List<FluidStack> fluidInputs = display.fluidInputs().stream()
+                .map(input -> new FluidStack(BuiltInRegistries.FLUID.get(input.fluidId()), input.amount()))
+                .filter(stack -> !stack.isEmpty())
+                .toList();
+        drawFluids(graphics, fluidInputs, x + 92, slotY);
+    }
+
+    private static MultiblockDefinition definition(MultiblockControllerBlockEntity controller) {
+        if (controller == null || !(controller.getBlockState().getBlock() instanceof MultiblockControllerBlock block)) {
+            return null;
+        }
+        return MultiblockRegistry.byController(block.controllerId()).orElse(null);
     }
 
     private void drawStacks(GuiGraphics graphics, List<ItemStack> stacks, int x, int y, boolean dark) {

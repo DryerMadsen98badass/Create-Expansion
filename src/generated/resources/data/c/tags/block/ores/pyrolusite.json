@@ -1,13 +1,13 @@
 {
   "values": [
+    "create_expansion:pyrolusite_deepslate_ore",
+    "create_expansion:pyrolusite_andesite_ore",
+    "create_expansion:pyrolusite_netherrack_ore",
+    "create_expansion:pyrolusite_blackstone_ore",
     "create_expansion:pyrolusite_end_stone_ore",
     "create_expansion:pyrolusite_tuff_ore",
-    "create_expansion:pyrolusite_blackstone_ore",
-    "create_expansion:pyrolusite_deepslate_ore",
-    "create_expansion:pyrolusite_granite_ore",
-    "create_expansion:pyrolusite_diorite_ore",
     "create_expansion:pyrolusite_ore",
-    "create_expansion:pyrolusite_andesite_ore",
-    "create_expansion:pyrolusite_netherrack_ore"
+    "create_expansion:pyrolusite_diorite_ore",
+    "create_expansion:pyrolusite_granite_ore"
   ]
 }

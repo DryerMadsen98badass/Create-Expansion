@@ -1,0 +1,29 @@
+Recipes and recipe logic
+========================
+
+Recipe guides are split by recipe type because each type has a different builder and json shape.
+
+See:
+
+- recipes\sifting recipes.txt
+- recipes\centrifuging recipes.txt
+- recipes\turning recipes.txt
+- recipes\machine recipes.txt
+- recipes\adding recipe types.txt
+
+Datagen entry point:
+
+src/main/java/net/mads/createexpansion/data/CERecipeProvider.java
+
+When you add recipes in code, make sure the recipe class is called from buildRecipes.
+
+Current calls:
+
+- TestFoundryRecipes.build(output, holderLookup)
+- SifterRecipes.build(output, holderLookup)
+- CentrifugeRecipes.build(output, holderLookup)
+- KineticLatheRecipes.build(output, holderLookup)
+
+Generated recipe json goes to:
+
+src/generated/resources/data/create_expansion/recipe/

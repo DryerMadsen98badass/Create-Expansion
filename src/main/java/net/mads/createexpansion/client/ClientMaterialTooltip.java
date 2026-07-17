@@ -1,14 +1,19 @@
 package net.mads.createexpansion.client;
 
 import com.simibubi.create.content.equipment.goggles.GogglesItem;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.energy.EnergyWireBlock;
 import net.mads.createexpansion.machine.MachineTierStats;
+import net.mads.createexpansion.machine.coil.CoilBlock;
 import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.MaterialComponent;
 import net.mads.createexpansion.material.MaterialLookup;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.registry.ItemRegistry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
@@ -18,16 +23,61 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
 @EventBusSubscriber(modid = CreateExpansion.MOD_ID, value = Dist.CLIENT)
 public final class ClientMaterialTooltip {
+    private static int foundryTooltipPage;
+    private static boolean wasFoundryTooltipLeftDown;
+    private static boolean wasFoundryTooltipRightDown;
+    private static final List<List<String>> FOUNDRY_TOOLTIP_PAGES = List.of(
+            List.of(
+                    "Structure:",
+                    "Outer sizes: 3x3, 5x5, 7x7, or 9x9.",
+                    "Minimum height is 2 blocks.",
+                    "The bottom layer is the floor plate.",
+                    "Inside height is total height - 1.",
+                    "Capacity is 1296 mB per inside block."
+            ),
+            List.of(
+                    "Heat and melting:",
+                    "Heat comes from Blaze Burners or Large Heater below the inside footprint.",
+                    "Temperature moves gradually by 1 C per second.",
+                    "Items melt when Foundry temperature reaches their melting point.",
+                    "Melting produces molten material fluid.",
+                    "Valid alloys are resolved automatically from IndustrialMaterials."
+            ),
+            List.of(
+                    "Input and output:",
+                    "Input Bus inserts valid meltable items into all internal melting slots.",
+                    "Input Hatch inserts molten fluids into the Foundry tank.",
+                    "Output Hatch exposes the Foundry tank for draining.",
+                    "Unrelated materials are rejected unless they fit the current alloy family.",
+                    "Taller Foundries have more capacity and more melting slots."
+            ),
+            List.of(
+                    "Casting:",
+                    "A Drain pulls fluid from an Output Hatch into a Mold Caster below it.",
+                    "The Mold Caster needs a mold item inserted first.",
+                    "Molten fluid plus a mold creates the matching CAST_* item.",
+                    "If poured fluid is hotter than the mold melting point, the mold and fluid are lost.",
+                    "If poured fluid is above half the mold melting point, the mold becomes hot."
+            )
+    );
+
     private ClientMaterialTooltip() {
     }
 
     @SubscribeEvent
     public static void addMaterialTooltip(ItemTooltipEvent event) {
+        if (event.getItemStack().getItem() == ItemRegistry.FOUNDRY_CONTROLLER.get()
+                || event.getItemStack().getItem() == ItemRegistry.CREATIVE_FOUNDRY_CONTROLLER.get()) {
+            addFoundryTooltipLines(event.getToolTip());
+            return;
+        }
+
         Player player = event.getEntity();
         if (player == null || !GogglesItem.isWearingGoggles(player)) {
             return;
@@ -41,6 +91,46 @@ public final class ClientMaterialTooltip {
         if (event.getItemStack().getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof EnergyWireBlock wire) {
             addWireTooltipLines(event.getToolTip(), wire);
         }
+
+        if (event.getItemStack().getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof CoilBlock coil) {
+            addCoilTooltipLines(event.getToolTip(), coil);
+        }
+    }
+
+    private static void addFoundryTooltipLines(List<Component> tooltip) {
+        tooltip.add(Component.literal("Dynamic melting, alloying, and casting multiblock").withStyle(ChatFormatting.GRAY));
+        if (!Screen.hasShiftDown()) {
+            tooltip.add(Component.literal("Hold Shift for Foundry guide").withStyle(ChatFormatting.DARK_GRAY));
+            return;
+        }
+
+        updateFoundryTooltipPage();
+        List<String> page = FOUNDRY_TOOLTIP_PAGES.get(foundryTooltipPage);
+        tooltip.add(Component.literal("Foundry Guide " + (foundryTooltipPage + 1) + "/" + FOUNDRY_TOOLTIP_PAGES.size()).withStyle(ChatFormatting.GOLD));
+        tooltip.add(Component.literal("Use Left/Right Arrow to change page").withStyle(ChatFormatting.DARK_GRAY));
+        for (int i = 0; i < page.size(); i++) {
+            ChatFormatting style = i == 0 ? ChatFormatting.YELLOW : ChatFormatting.GRAY;
+            tooltip.add(Component.literal(page.get(i)).withStyle(style));
+        }
+    }
+
+    private static void updateFoundryTooltipPage() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft == null || minecraft.getWindow() == null) {
+            return;
+        }
+
+        long window = minecraft.getWindow().getWindow();
+        boolean leftDown = InputConstants.isKeyDown(window, GLFW.GLFW_KEY_LEFT);
+        boolean rightDown = InputConstants.isKeyDown(window, GLFW.GLFW_KEY_RIGHT);
+        if (leftDown && !wasFoundryTooltipLeftDown) {
+            foundryTooltipPage = Math.floorMod(foundryTooltipPage - 1, FOUNDRY_TOOLTIP_PAGES.size());
+        }
+        if (rightDown && !wasFoundryTooltipRightDown) {
+            foundryTooltipPage = Math.floorMod(foundryTooltipPage + 1, FOUNDRY_TOOLTIP_PAGES.size());
+        }
+        wasFoundryTooltipLeftDown = leftDown;
+        wasFoundryTooltipRightDown = rightDown;
     }
 
     private static void addWireTooltipLines(List<Component> tooltip, EnergyWireBlock wire) {
@@ -55,6 +145,13 @@ public final class ClientMaterialTooltip {
         if (wire.insulated()) {
             tooltip.add(colored("Insulated", 0xB0B0B0));
         }
+    }
+
+    private static void addCoilTooltipLines(List<Component> tooltip, CoilBlock coil) {
+        tooltip.add(
+                colored("Heat: ", 0xFFD800)
+                        .append(colored(coil.definition().heat() + " C", 0xFF5533))
+        );
     }
 
     public static void addMaterialTooltipLines(List<Component> tooltip, MaterialLookup.MaterialTarget target) {
@@ -75,7 +172,7 @@ public final class ClientMaterialTooltip {
             );
         }
 
-        if (material.hasExplicitMeltingPoint()) {
+        if (showsMeltingPoint(material)) {
             tooltip.add(
                     colored("Melting Point: ", 0xFFD800)
                             .append(colored(material.meltingPoint() + " C", 0xFF3333))
@@ -174,8 +271,12 @@ public final class ClientMaterialTooltip {
 
     private static boolean showsTemperature(MaterialPart part) {
         return part == MaterialPart.MOLTEN_FLUID
-                || part.name().startsWith("CAST_")
+                || (part.name().startsWith("CAST_") && !part.name().endsWith("_MOLD"))
                 || part.name().startsWith("HOT_CAST_");
+    }
+
+    private static boolean showsMeltingPoint(IndustrialMaterial material) {
+        return material.hasExplicitMeltingPoint() || !material.components().isEmpty();
     }
 
     private static MutableComponent colored(String text, int color) {
