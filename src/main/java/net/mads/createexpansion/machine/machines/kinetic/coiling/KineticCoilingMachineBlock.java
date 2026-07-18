@@ -36,8 +36,11 @@ public class KineticCoilingMachineBlock extends HorizontalKineticBlock implement
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction preferred = getPreferredHorizontalFacing(context);
-        return defaultBlockState().setValue(HORIZONTAL_FACING,
-                preferred == null ? context.getHorizontalDirection().getOpposite() : preferred.getOpposite());
+        Direction facing = preferred == null ? context.getHorizontalDirection().getOpposite() : preferred.getOpposite();
+        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
+            facing = facing.getOpposite();
+        }
+        return defaultBlockState().setValue(HORIZONTAL_FACING, facing);
     }
 
     @Override public Direction.Axis getRotationAxis(BlockState state) { return state.getValue(HORIZONTAL_FACING).getAxis(); }

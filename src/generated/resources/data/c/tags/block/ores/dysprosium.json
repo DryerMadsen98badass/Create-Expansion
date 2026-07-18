@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:dysprosium_deepslate_ore",
     "create_expansion:dysprosium_andesite_ore",
-    "create_expansion:dysprosium_netherrack_ore",
-    "create_expansion:dysprosium_blackstone_ore",
-    "create_expansion:dysprosium_end_stone_ore",
-    "create_expansion:dysprosium_tuff_ore",
-    "create_expansion:dysprosium_ore",
     "create_expansion:dysprosium_diorite_ore",
-    "create_expansion:dysprosium_granite_ore"
+    "create_expansion:dysprosium_ore",
+    "create_expansion:dysprosium_end_stone_ore",
+    "create_expansion:dysprosium_blackstone_ore",
+    "create_expansion:dysprosium_deepslate_ore",
+    "create_expansion:dysprosium_granite_ore",
+    "create_expansion:dysprosium_netherrack_ore",
+    "create_expansion:dysprosium_tuff_ore"
   ]
 }

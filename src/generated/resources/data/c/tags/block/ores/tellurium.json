@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:tellurium_deepslate_ore",
     "create_expansion:tellurium_andesite_ore",
-    "create_expansion:tellurium_netherrack_ore",
-    "create_expansion:tellurium_blackstone_ore",
-    "create_expansion:tellurium_end_stone_ore",
-    "create_expansion:tellurium_tuff_ore",
-    "create_expansion:tellurium_ore",
     "create_expansion:tellurium_diorite_ore",
-    "create_expansion:tellurium_granite_ore"
+    "create_expansion:tellurium_ore",
+    "create_expansion:tellurium_end_stone_ore",
+    "create_expansion:tellurium_blackstone_ore",
+    "create_expansion:tellurium_deepslate_ore",
+    "create_expansion:tellurium_granite_ore",
+    "create_expansion:tellurium_netherrack_ore",
+    "create_expansion:tellurium_tuff_ore"
   ]
 }

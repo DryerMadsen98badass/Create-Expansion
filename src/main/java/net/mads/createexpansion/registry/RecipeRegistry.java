@@ -3,6 +3,7 @@ package net.mads.createexpansion.registry;
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.recipe.CERecipe;
 import net.mads.createexpansion.recipe.CERecipeSerializer;
+import net.mads.createexpansion.recipe.recipes.foundry.CasterTransformationRecipe;
 import net.mads.createexpansion.recipe.recipes.foundry.FoundryMeltingRecipe;
 import net.mads.createexpansion.recipe.recipes.centrifuge.CentrifugingRecipe;
 import net.mads.createexpansion.recipe.recipes.lathe.TurningRecipe;
@@ -11,6 +12,7 @@ import net.mads.createexpansion.recipe.recipes.rolling.RollingRecipe;
 import net.mads.createexpansion.recipe.recipes.wiredrawer.WireDrawingRecipe;
 import net.mads.createexpansion.recipe.recipes.hydraulicpress.HydraulicPressingRecipe;
 import net.mads.createexpansion.recipe.recipes.coiling.CoilingRecipe;
+import net.mads.createexpansion.recipe.recipetypes.CasterTransformationRecipeType;
 import net.mads.createexpansion.recipe.recipetypes.CentrifugingRecipeType;
 import net.mads.createexpansion.recipe.recipetypes.FoundryMeltingRecipeType;
 import net.mads.createexpansion.recipe.recipetypes.SiftingRecipeType;
@@ -106,6 +108,17 @@ public class RecipeRegistry {
                 @Override
                 public String toString() {
                     return FoundryMeltingRecipeType.ID.toString();
+                }
+            });
+
+    public static final DeferredHolder<RecipeSerializer<?>, CasterTransformationRecipe.Serializer> CASTER_TRANSFORMATION_RECIPE_SERIALIZER =
+            RECIPE_SERIALIZERS.register(CasterTransformationRecipeType.NAME, CasterTransformationRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<CasterTransformationRecipe>> CASTER_TRANSFORMATION_RECIPE_TYPE =
+            RECIPE_TYPES.register(CasterTransformationRecipeType.NAME, () -> new RecipeType<>() {
+                @Override
+                public String toString() {
+                    return CasterTransformationRecipeType.ID.toString();
                 }
             });
 

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:carnotite_deepslate_ore",
     "create_expansion:carnotite_andesite_ore",
-    "create_expansion:carnotite_netherrack_ore",
-    "create_expansion:carnotite_blackstone_ore",
-    "create_expansion:carnotite_end_stone_ore",
-    "create_expansion:carnotite_tuff_ore",
-    "create_expansion:carnotite_ore",
     "create_expansion:carnotite_diorite_ore",
-    "create_expansion:carnotite_granite_ore"
+    "create_expansion:carnotite_ore",
+    "create_expansion:carnotite_end_stone_ore",
+    "create_expansion:carnotite_blackstone_ore",
+    "create_expansion:carnotite_deepslate_ore",
+    "create_expansion:carnotite_granite_ore",
+    "create_expansion:carnotite_netherrack_ore",
+    "create_expansion:carnotite_tuff_ore"
   ]
 }

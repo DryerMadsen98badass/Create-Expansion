@@ -16,7 +16,7 @@ public final class HydraulicPressingRecipeBuilder {
     private ItemStack result = ItemStack.EMPTY;
     private int blows = 1;
 
-    HydraulicPressingRecipeBuilder(String id) { this.id = id; }
+    public HydraulicPressingRecipeBuilder(String id) { this.id = id; }
 
     public HydraulicPressingRecipeBuilder inputItem(String itemId) {
         ingredient = Ingredient.of(BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId)));

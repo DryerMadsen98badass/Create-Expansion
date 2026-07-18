@@ -2,6 +2,7 @@ package net.mads.createexpansion.recipe.recipes.foundry;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.mads.createexpansion.material.MaterialPart;
 import net.mads.createexpansion.registry.BlockRegistry;
 import net.mads.createexpansion.registry.RecipeRegistry;
 import net.minecraft.core.HolderLookup;
@@ -18,8 +19,14 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 public class FoundryMeltingRecipe implements Recipe<FoundryMeltingRecipeInput> {
     public static final int TICKS_PER_NUGGET = 80;
+    public static final int MB_PER_NUGGET = 16;
+    public static final int MOLD_NUGGETS = 36;
+    private static final Map<MaterialPart, Integer> MELTING_AMOUNTS = buildMeltingAmounts();
 
     public static final MapCodec<FoundryMeltingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(FoundryMeltingRecipe::ingredient),
@@ -73,7 +80,45 @@ public class FoundryMeltingRecipe implements Recipe<FoundryMeltingRecipeInput> {
     }
 
     public int baseDuration() {
-        return nuggets * TICKS_PER_NUGGET;
+        return Math.max(1, Math.round(result.getAmount() * (TICKS_PER_NUGGET / (float) MB_PER_NUGGET)));
+    }
+
+    public static Map<MaterialPart, Integer> meltingAmounts() {
+        return MELTING_AMOUNTS;
+    }
+
+    private static Map<MaterialPart, Integer> buildMeltingAmounts() {
+        EnumMap<MaterialPart, Integer> amounts = new EnumMap<>(MaterialPart.class);
+        amount(amounts, 16, MaterialPart.NUGGET, MaterialPart.TINY_DUST, MaterialPart.CAST_NUGGET);
+        amount(amounts, 36, MaterialPart.SMALL_DUST, MaterialPart.BOLT, MaterialPart.SCREW,
+                MaterialPart.SMALL_RING, MaterialPart.BEARING_BALL, MaterialPart.CAST_BOLT,
+                MaterialPart.CAST_SCREW, MaterialPart.CAST_SMALL_RING, MaterialPart.CAST_BEARING_BALL);
+        amount(amounts, 72, MaterialPart.ROD, MaterialPart.RING, MaterialPart.CAST_ROD, MaterialPart.CAST_RING);
+        amount(amounts, 144, MaterialPart.INGOT, MaterialPart.DUST, MaterialPart.PLATE, MaterialPart.FOIL,
+                MaterialPart.LONG_ROD, MaterialPart.WIRE, MaterialPart.FINE_WIRE, MaterialPart.LARGE_RING,
+                MaterialPart.SMALL_GEAR, MaterialPart.SPRING, MaterialPart.CAST_INGOT,
+                MaterialPart.CAST_PLATE, MaterialPart.CAST_LONG_ROD, MaterialPart.CAST_LARGE_RING,
+                MaterialPart.CAST_SMALL_GEAR, MaterialPart.HEAT_EXCHANGER_PLATE);
+        amount(amounts, 288, MaterialPart.DOUBLE_PLATE, MaterialPart.REINFORCED_PLATE,
+                MaterialPart.BEARING, MaterialPart.CAST_BEARING);
+        amount(amounts, 576, MaterialPart.GEAR, MaterialPart.ROTOR, MaterialPart.COIL,
+                MaterialPart.TOOL_HEAD_BUZZ_SAW, MaterialPart.CAST_GEAR, MaterialPart.CAST_ROTOR);
+        amount(amounts, 864, MaterialPart.FRAME);
+        amount(amounts, 1152, MaterialPart.LARGE_GEAR, MaterialPart.CASING, MaterialPart.MACHINE_HULL);
+        amount(amounts, 1296, MaterialPart.BLOCK, MaterialPart.CAST_BLOCK, MaterialPart.DENSE_PLATE);
+
+        for (MaterialPart part : MaterialPart.values()) {
+            if (part.name().endsWith("_MOLD")) {
+                amounts.put(part, MOLD_NUGGETS * MB_PER_NUGGET);
+            }
+        }
+        return Map.copyOf(amounts);
+    }
+
+    private static void amount(Map<MaterialPart, Integer> amounts, int amountMb, MaterialPart... parts) {
+        for (MaterialPart part : parts) {
+            amounts.put(part, amountMb);
+        }
     }
 
     @Override

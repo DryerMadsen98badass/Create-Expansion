@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:rhodochrosite_deepslate_ore",
     "create_expansion:rhodochrosite_andesite_ore",
-    "create_expansion:rhodochrosite_netherrack_ore",
-    "create_expansion:rhodochrosite_blackstone_ore",
-    "create_expansion:rhodochrosite_end_stone_ore",
-    "create_expansion:rhodochrosite_tuff_ore",
-    "create_expansion:rhodochrosite_ore",
     "create_expansion:rhodochrosite_diorite_ore",
-    "create_expansion:rhodochrosite_granite_ore"
+    "create_expansion:rhodochrosite_ore",
+    "create_expansion:rhodochrosite_end_stone_ore",
+    "create_expansion:rhodochrosite_blackstone_ore",
+    "create_expansion:rhodochrosite_deepslate_ore",
+    "create_expansion:rhodochrosite_granite_ore",
+    "create_expansion:rhodochrosite_netherrack_ore",
+    "create_expansion:rhodochrosite_tuff_ore"
   ]
 }

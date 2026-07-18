@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:gypsum_deepslate_ore",
     "create_expansion:gypsum_andesite_ore",
-    "create_expansion:gypsum_netherrack_ore",
-    "create_expansion:gypsum_blackstone_ore",
-    "create_expansion:gypsum_end_stone_ore",
-    "create_expansion:gypsum_tuff_ore",
-    "create_expansion:gypsum_ore",
     "create_expansion:gypsum_diorite_ore",
-    "create_expansion:gypsum_granite_ore"
+    "create_expansion:gypsum_ore",
+    "create_expansion:gypsum_end_stone_ore",
+    "create_expansion:gypsum_blackstone_ore",
+    "create_expansion:gypsum_deepslate_ore",
+    "create_expansion:gypsum_granite_ore",
+    "create_expansion:gypsum_netherrack_ore",
+    "create_expansion:gypsum_tuff_ore"
   ]
 }

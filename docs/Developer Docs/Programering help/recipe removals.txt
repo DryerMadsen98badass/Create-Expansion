@@ -1,0 +1,22 @@
+Recipe removals
+===============
+
+Use this when Create or another dependency adds a recipe that Create Expansion should disable.
+Do not edit the dependency mod. Add the recipe id to:
+
+src/main/java/net/mads/createexpansion/recipe/remove/RemovedCreateRecipes.java
+
+Example:
+
+```java
+public static final List<ResourceLocation> ALL = List.of(
+        ResourceLocation.fromNamespaceAndPath("create", "crafting/materials/andesite_alloy")
+);
+```
+
+Run `runData` after editing the list. `RecipeRemovalProvider` writes a generated recipe override
+with the same namespace/path as the dependency recipe and an always-false NeoForge condition. Because
+the generated file has the same recipe id, it hides the dependency recipe without changing that mod's
+files.
+
+To find the id, look in the dependency recipe folder or use JEI's recipe id tooltip if enabled.

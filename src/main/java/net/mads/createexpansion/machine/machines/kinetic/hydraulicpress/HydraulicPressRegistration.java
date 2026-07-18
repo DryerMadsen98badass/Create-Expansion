@@ -24,7 +24,7 @@ public final class HydraulicPressRegistration {
     }
 
     public static DeferredHolder<Item, BlockItem> registerItem(DeferredRegister<Item> items, Supplier<HydraulicPressBlock> block) {
-        return items.register(ID, () -> new BlockItem(block.get(), new Item.Properties()));
+        return items.register(ID, () -> new HydraulicPressItem(block.get(), new Item.Properties()));
     }
 
     public static DeferredHolder<BlockEntityType<?>, BlockEntityType<HydraulicPressBlockEntity>> registerBlockEntity(

@@ -128,6 +128,10 @@ public class MultiblockControllerScreen extends AbstractContainerScreen<Multiblo
                 String recipe = recipeId.getPath();
                 graphics.drawString(font, recipe, x + imageWidth / 2 - font.width(recipe) / 2, y + 94, MUTED, false);
             }
+            if (menu.parallel() > 1) {
+                String parallel = "Parallel: x" + menu.parallel();
+                graphics.drawString(font, parallel, x + imageWidth / 2 - font.width(parallel) / 2, y + 105, BLUE, false);
+            }
         }
     }
 

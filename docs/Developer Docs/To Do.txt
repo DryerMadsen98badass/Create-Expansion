@@ -16,6 +16,17 @@ Current verification
   `ClassNotFoundException: org.gradle.launcher.GradleMain`; run `runData` or fix the wrapper to
   finish validation.
 
+- 2026-07-17: Updated generated material recipe speed rules for the single-block kinetic machines.
+  Lathe recipes require min 64 RPM and have no max; generated duration is 80 ticks so 64 RPM takes
+  1 second. Rolling Mill recipes have no min, max 32 RPM, and duration 80 ticks so 32 RPM takes
+  2 seconds. Wire Drawer recipes have no min, max 128 RPM, and duration 1280 ticks so 128 RPM takes
+  8 seconds. Spring Coiling recipes have no min, max 64 RPM, and duration 320 ticks so 64 RPM takes
+  4 seconds.
+
+- 2026-07-18: Added `RemovedCreateRecipes` and `RecipeRemovalProvider`. To disable a Create recipe,
+  add its full recipe id to `src/main/java/net/mads/createexpansion/recipe/remove/RemovedCreateRecipes.java`
+  and run `runData`. See `docs/Developer Docs/Programering help/recipe removals.txt`.
+
 - 2026-07-17: Added the SimpleItems definition system for ordinary items without custom behavior.
   A definition line automatically registers the item, adds it to the Materials creative tab,
   generates its English name, and generates a standard item model using
@@ -510,17 +521,25 @@ Implementation checklist for foundry
   - Generated from src/main/java/net/mads/createexpansion/material/IndustrialMaterials.java.
   - Only generate melting recipes for materials that have MaterialPart.MOLTEN_FLUID.
   - Use IndustrialMaterial.meltingPoint() as the required recipe temperature.
-  - Generate common forms when present:
-    - nugget -> 16mb molten fluid, base duration 1 second.
-    - ingot -> 144mb molten fluid, base duration 9 seconds.
-    - block -> 1296mb molten fluid, base duration 81 seconds.
-  - Duration is based on 1 second per nugget-equivalent.
+  - Generate every supported metal form when that MaterialPart is present, including normal parts, CAST_* parts, molds, and HOT_CAST_* molds.
+  - Duration and output are based on exact mB: 16mb (one nugget-equivalent) takes 80 ticks.
+    - nugget -> 16mb and 80 ticks.
+    - ingot/long rod -> 144mb and 720 ticks.
+    - block -> 1296mb and 6480 ticks.
+    - every normal or hot mold -> 576mb (36 nuggets) and 2880 ticks.
   - Effective speed scales with heat above melting point: current_temperature / melting_point.
     - Example: melting point 1000 C and Foundry temperature 2000 C means 2x speed.
     - Example: ingot at 2x speed takes 4.5 seconds total, or 0.5 seconds per nugget-equivalent.
   - JEI recipe type: create_expansion:foundry_melting.
   - JEI should show input item, molten fluid output + mb, and required temperature. Do not show duration even though duration exists in machine logic.
   - Material tooltips should show melting point.
+  - TPS rules:
+    - A formed Foundry does not periodically rescan its whole structure.
+    - Known structure positions and the next possible wall layer mark the controller dirty through block events.
+    - Unformed controllers retain a slow retry so build order cannot permanently prevent forming.
+    - Melting only ticks occupied slots; total empty capacity must not affect processing cost.
+    - Cache item recipes, contained material sets, material/fluid lookup, and total fluid amount.
+    - Progress block-entity synchronization is throttled to once per 5 ticks; completion/content changes still sync immediately.
 - Mold item data: material, shape, temperature, durability, max safe temperature.
 - Recipe classes for melting, alloying, casting, and heat treatment.
 - Failure result handling: melted mold, lost fluid, slag/scrap, damage events.
@@ -541,3 +560,9 @@ Implementation checklist per machine
 - Datagen examples in src/generated/resources/data/create_expansion/recipe
 - Basic textures or temporary textures
 - One simple test recipe
+
+Recent small fixes
+------------------
+- 2026-07-18: Mechanical Centrifuge item tooltip says "Right click with four basins".
+- 2026-07-18: Moved IndustrialMaterials-driven recipe providers/lists/helpers to material/recipes.
+- 2026-07-18: Made material recipe builder constructors public so material/recipes can instantiate them.

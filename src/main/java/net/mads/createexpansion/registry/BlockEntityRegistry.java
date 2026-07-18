@@ -107,11 +107,12 @@ public class BlockEntityRegistry {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, KINETIC_WIRE_DRAWER.get(), (wireDrawer, side) -> wireDrawer.itemCapability());
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, KINETIC_WIRE_DRAWER_PART.get(), (part, side) -> part.itemCapability());
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, HYDRAULIC_PRESS.get(), (press, side) -> press.itemCapability());
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, HYDRAULIC_PRESS.get(), (press, side) -> press.fluidCapability());
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, HYDRAULIC_PRESS.get(), (press, side) -> press.fluidCapability(side));
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, SPRING_COILING_MACHINE.get(), (machine, side) -> machine.itemCapability());
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, FOUNDRY_HATCH.get(), (hatch, side) -> hatch.fluidCapability());
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, FOUNDRY_HATCH.get(), (hatch, side) -> hatch.itemCapability());
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, FOUNDRY_MOLD_CASTER.get(), (caster, side) -> caster.itemCapability());
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, FOUNDRY_MOLD_CASTER.get(), (caster, side) -> caster.fluidCapability());
     }
 
     private static Block[] allMachinePortBlocks() {

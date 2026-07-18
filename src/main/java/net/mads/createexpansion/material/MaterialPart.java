@@ -48,6 +48,7 @@ public enum MaterialPart {
     SPRING("spring", "Spring", Kind.ITEM),
     COIL("coil", "Coil", Kind.ITEM),
     ROTOR("rotor", "Rotor", Kind.ITEM),
+    TOOL_HEAD_BUZZ_SAW("tool_head_buzz_saw", "Buzz Saw Tool Head", Kind.ITEM),
     FRAME("frame", "Frame", Kind.BLOCK),
     CASING("casing", "Casing", Kind.BLOCK),
     MACHINE_HULL("machine_hull", "Machine Hull", Kind.BLOCK),

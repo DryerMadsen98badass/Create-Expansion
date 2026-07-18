@@ -10,6 +10,7 @@ import net.mads.createexpansion.recipe.recipes.hydraulicpress.HydraulicPressingR
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.mads.createexpansion.registry.FluidRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -75,8 +76,8 @@ public class HydraulicPressBlockEntity extends BlockEntity implements Clearable,
         return itemCapability;
     }
 
-    public IFluidHandler fluidCapability() {
-        return fluidCapability;
+    public IFluidHandler fluidCapability(Direction side) {
+        return side == getBlockState().getValue(HydraulicPressBlock.FACING) ? fluidCapability : null;
     }
 
     public int steamAmount() {
@@ -109,11 +110,12 @@ public class HydraulicPressBlockEntity extends BlockEntity implements Clearable,
         return (1.0F - progress) * HEAD_TRAVEL;
     }
 
-    public boolean handleHeldItem(Player player, InteractionHand hand, ItemStack held) {
+    public boolean handleHeldItem(Player player, InteractionHand hand, ItemStack held, Direction clickedSide) {
         if (held.isEmpty()) {
             return false;
         }
         if (FluidUtil.getFluidHandler(held.copyWithCount(1)).isPresent()
+                && clickedSide == getBlockState().getValue(HydraulicPressBlock.FACING)
                 && FluidUtil.interactWithFluidHandler(player, hand, fluidCapability)) {
             sync();
             return true;

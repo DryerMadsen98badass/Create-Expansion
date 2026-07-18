@@ -78,6 +78,22 @@ public class FoundryHatchBlock extends HorizontalDirectionalBlock implements Ent
     }
 
     @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide()) {
+            FoundryStructureTracker.blockChanged(level, pos);
+        }
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!level.isClientSide() && state.getBlock() != newState.getBlock()) {
+            FoundryStructureTracker.blockChanged(level, pos);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
     public InteractionResult onSneakWrenched(BlockState state, UseOnContext context) {
         return WrenchPickupHelper.pickup(this, state, context);
     }

@@ -86,7 +86,7 @@ public class FoundryDrainBlockEntity extends BlockEntity {
             FluidStack request = available.copyWithAmount(amount);
             FluidStack drained = fluidHandler.drain(request, FluidAction.EXECUTE);
             if (!drained.isEmpty()) {
-                pouringTicks = 10;
+                pouringTicks = FoundryMoldCasterBlockEntity.fillDurationTicks(amount);
                 updatePouringState();
                 setChanged();
             }

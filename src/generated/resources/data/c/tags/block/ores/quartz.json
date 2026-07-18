@@ -1,16 +1,16 @@
 {
   "values": [
-    "create_expansion:quartz_deepslate_ore",
     "create_expansion:quartz_andesite_ore",
-    "create_expansion:quartz_netherrack_ore",
-    "create_expansion:quartz_blackstone_ore",
-    "create_expansion:quartz_end_stone_ore",
-    "create_expansion:quartz_tuff_ore",
+    "create_expansion:quartz_diorite_ore",
     {
       "id": "minecraft:nether_quartz_ore",
       "required": false
     },
-    "create_expansion:quartz_diorite_ore",
-    "create_expansion:quartz_granite_ore"
+    "create_expansion:quartz_end_stone_ore",
+    "create_expansion:quartz_blackstone_ore",
+    "create_expansion:quartz_deepslate_ore",
+    "create_expansion:quartz_granite_ore",
+    "create_expansion:quartz_netherrack_ore",
+    "create_expansion:quartz_tuff_ore"
   ]
 }

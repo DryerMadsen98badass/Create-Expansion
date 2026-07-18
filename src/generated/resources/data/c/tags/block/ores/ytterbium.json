@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:ytterbium_deepslate_ore",
     "create_expansion:ytterbium_andesite_ore",
-    "create_expansion:ytterbium_netherrack_ore",
-    "create_expansion:ytterbium_blackstone_ore",
-    "create_expansion:ytterbium_end_stone_ore",
-    "create_expansion:ytterbium_tuff_ore",
-    "create_expansion:ytterbium_ore",
     "create_expansion:ytterbium_diorite_ore",
-    "create_expansion:ytterbium_granite_ore"
+    "create_expansion:ytterbium_ore",
+    "create_expansion:ytterbium_end_stone_ore",
+    "create_expansion:ytterbium_blackstone_ore",
+    "create_expansion:ytterbium_deepslate_ore",
+    "create_expansion:ytterbium_granite_ore",
+    "create_expansion:ytterbium_netherrack_ore",
+    "create_expansion:ytterbium_tuff_ore"
   ]
 }

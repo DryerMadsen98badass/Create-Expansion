@@ -17,7 +17,6 @@ import net.mads.createexpansion.recipe.recipes.wiredrawer.WireDrawingRecipe;
 import net.mads.createexpansion.recipe.recipetypes.WireDrawingRecipeType;
 import net.mads.createexpansion.registry.BlockRegistry;
 import net.mads.createexpansion.registry.ItemRegistry;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -48,6 +47,11 @@ public class WireDrawingCategory implements IRecipeCategory<RecipeHolder<WireDra
         builder.addSlot(RecipeIngredientRole.INPUT, 15, 9)
                 .setBackground(CreateRecipeCategory.getRenderedSlot(), -1, -1)
                 .addIngredients(recipe.ingredients().getFirst());
+        if (recipe.ingredients().size() > 1) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 15, 31)
+                    .setBackground(CreateRecipeCategory.getRenderedSlot(), -1, -1)
+                    .addIngredients(recipe.ingredients().get(1));
+        }
         builder.addSlot(RecipeIngredientRole.OUTPUT, 139, 27)
                 .setBackground(CreateRecipeCategory.getRenderedSlot(recipe.results().getFirst()), -1, -1)
                 .addItemStack(recipe.result());
@@ -58,7 +62,7 @@ public class WireDrawingCategory implements IRecipeCategory<RecipeHolder<WireDra
         AllGuiTextures.JEI_ARROW.render(graphics, 85, 32);
         AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 43, 4);
         preview.draw(graphics, 48, 27);
-        graphics.drawString(Minecraft.getInstance().font, "Min RPM: " + holder.value().minRpm(), 8, 72, 0xFF404040, false);
+        RpmJeiHelper.draw(graphics, 8, 72, holder.value().minRpm(), holder.value().maxRpm());
     }
 
     private static class MachinePreview extends AnimatedKinetics {

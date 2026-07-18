@@ -174,3 +174,26 @@ Notes
 
 Use CERecipeBuilder for electric/multiblock-style machine recipes. The same base json type can
 support many machines because recipe_type tells the machine which recipe family it belongs to.
+Dynamic material processing recipes
+===================================
+
+- `src/main/java/net/mads/createexpansion/recipe/MaterialRecipeHelper.java` resolves a material part to the correct item id.
+  - If the material defines `.existing(part, "namespace:item")`, recipes use that existing item.
+  - Otherwise recipes use `create_expansion:<material>_<part>`.
+- `CERecipeProvider` generates the mod's own machine recipes:
+  - Hydraulic Press: `INGOT -> PLATE`, 3 blows.
+  - Rolling Mill: `PLATE -> FOIL`.
+  - Wire Drawer: `PLATE -> WIRE`.
+  - Wire Drawer: `WIRE + create_expansion:spool -> FINE_WIRE`.
+  - Spring Coiling Machine: `WIRE -> SPRING`.
+  - Lathe/Turning: `ROD -> 2x BOLT`.
+- `CreateMaterialRecipeProvider` generates Create machine recipes:
+  - Mechanical Saw / `create:cutting`: `PLATE -> 2x LONG_ROD`.
+  - Mechanical Saw / `create:cutting`: `LONG_ROD -> 2x ROD`.
+  - Mechanical Press / `create:pressing`: `BOLT -> SCREW`.
+  - Sequenced Assembly: `PLATE -> deploy PLATE -> press -> DOUBLE_PLATE`.
+  - Sequenced Assembly: `LARGE_RING -> deploy BEARING_BALL`, loops 8, result `BEARING`.
+  - Sequenced Assembly: `ROD -> deploy ROD`, loops 11, result `FRAME`.
+- These recipes are generated for every `IndustrialMaterials.ALL` material that has all required input/output `MaterialPart`s.
+- Do not add one-off material recipes for these chains unless a material needs an intentional special case.
+- Wire Drawer supports a second input slot only when the recipe has a second ingredient. The current second-input recipe is fine wire, where slot 1 consumes `create_expansion:spool`.

@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=south": {
       "model": "create_expansion:block/machines/kinetic/wire_drawer/wire_drawer"
+    },
+    "facing=west": {
+      "model": "create_expansion:block/machines/kinetic/wire_drawer/wire_drawer",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "create_expansion:block/machines/kinetic/wire_drawer/wire_drawer",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "create_expansion:block/machines/kinetic/wire_drawer/wire_drawer",
+      "y": 270
     }
   }
 }

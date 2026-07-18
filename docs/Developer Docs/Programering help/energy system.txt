@@ -120,6 +120,59 @@ Examples:
 - MV is 128 CE per amp. A machine needing 320 CE/t from one 2A MV hatch can only draw 256 CE/t,
   so it does not have enough input to run.
 
+Multiblock input overclock
+--------------------------
+
+Energy input hatches give two separate values to a multiblock:
+
+- recipe access tier
+- runtime overclock tier
+
+Recipe access is based only on the highest energy input hatch tier:
+
+`max recipe tier = highest energy input hatch tier + 1`
+
+This means many cheap hatches do not unlock high-tier recipes. Example: even with enough LV amps
+to equal EV throughput, LV input hatches can only unlock recipes up to MV.
+
+Runtime overclock is based on total input throughput. Convert the total input CE/t to equivalent
+amps at the highest input hatch tier, then every full 4 amps raises effective runtime tier by one.
+Extra amps below the next full 4x step only add capacity, not speed.
+
+Examples with LV input hatches:
+
+- 1 LV hatch = 2 LV amps = LV runtime.
+- 2 LV hatches = 4 LV amps = MV runtime.
+- 4 LV hatches = 8 LV amps = still MV runtime.
+- 6 LV hatches = 12 LV amps = still MV runtime.
+- 8 LV hatches = 16 LV amps = HV runtime.
+
+The existing `CERecipe` overclock math is reused:
+
+- +1 runtime tier halves duration and multiplies CE/t by 4.
+- +2 runtime tiers quarters duration and multiplies CE/t by 16.
+- The overclock base is the highest of the recipe's explicit tier, energy CE/t tier, and kinetic
+  tier. Duration and CE/t both scale from that same base. A low-CE/t MV recipe therefore
+  overclocks from MV, not from the lower CE/t tier.
+
+Generator parallel
+------------------
+
+Energy-generating multiblock recipes do not overclock their duration from output hatches. They run
+parallel based on total energy output hatch capacity:
+
+`parallel = floor(total output CE/t capacity / base generated CE/t)`
+
+The duration stays the same, while consumable inputs, outputs, and generated CE/t are multiplied by
+the parallel value. Parallel is only shown in the multiblock GUI when it is above x1.
+
+Example:
+
+- Recipe: 1 mB diesel, 5 seconds, 40 CE/t output.
+- 2 LV output hatches = 128 CE/t capacity.
+- Parallel = floor(128 / 40) = x3.
+- Runtime: 3 mB diesel, 5 seconds, 120 CE/t output.
+
 Wire live state and safety
 --------------------------
 

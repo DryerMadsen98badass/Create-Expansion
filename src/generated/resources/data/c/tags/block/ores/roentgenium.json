@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:roentgenium_deepslate_ore",
     "create_expansion:roentgenium_andesite_ore",
-    "create_expansion:roentgenium_netherrack_ore",
-    "create_expansion:roentgenium_blackstone_ore",
-    "create_expansion:roentgenium_end_stone_ore",
-    "create_expansion:roentgenium_tuff_ore",
-    "create_expansion:roentgenium_ore",
     "create_expansion:roentgenium_diorite_ore",
-    "create_expansion:roentgenium_granite_ore"
+    "create_expansion:roentgenium_ore",
+    "create_expansion:roentgenium_end_stone_ore",
+    "create_expansion:roentgenium_blackstone_ore",
+    "create_expansion:roentgenium_deepslate_ore",
+    "create_expansion:roentgenium_granite_ore",
+    "create_expansion:roentgenium_netherrack_ore",
+    "create_expansion:roentgenium_tuff_ore"
   ]
 }

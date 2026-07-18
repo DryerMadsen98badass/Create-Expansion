@@ -105,9 +105,7 @@ public class TurningCategory implements IRecipeCategory<RecipeHolder<TurningReci
         AllGuiTextures.JEI_SHADOW.render(graphics, 36, 57);
         lathe.draw(graphics, 52, 39);
 
-        graphics.drawString(MinecraftFontHelper.font(), "Min RPM: " + recipe.minRpm(), 8, 78, 0xFF404040, false);
-        String maxRpm = recipe.maxRpm().map(String::valueOf).orElse("Any");
-        graphics.drawString(MinecraftFontHelper.font(), "Max RPM: " + maxRpm, 91, 78, 0xFF404040, false);
+        RpmJeiHelper.draw(graphics, 8, 78, recipe.minRpm(), recipe.maxRpm());
     }
 
     private static class StaticLathe extends AnimatedKinetics {
@@ -132,12 +130,4 @@ public class TurningCategory implements IRecipeCategory<RecipeHolder<TurningReci
         }
     }
 
-    private static final class MinecraftFontHelper {
-        private MinecraftFontHelper() {
-        }
-
-        private static net.minecraft.client.gui.Font font() {
-            return net.minecraft.client.Minecraft.getInstance().font;
-        }
-    }
 }

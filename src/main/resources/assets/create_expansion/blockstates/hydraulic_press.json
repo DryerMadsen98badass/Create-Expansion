@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=west": {
       "model": "create_expansion:block/machines/kinetic/hydraulic_press/hydraulic_press_static"
+    },
+    "facing=north": {
+      "model": "create_expansion:block/machines/kinetic/hydraulic_press/hydraulic_press_static",
+      "y": 90
+    },
+    "facing=east": {
+      "model": "create_expansion:block/machines/kinetic/hydraulic_press/hydraulic_press_static",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "create_expansion:block/machines/kinetic/hydraulic_press/hydraulic_press_static",
+      "y": 270
     }
   }
 }

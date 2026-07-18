@@ -70,6 +70,7 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
     private int recipeProgress;
     private int recipeDuration;
     private int activeCEt;
+    private int activeParallel = 1;
     private int activeSyncCooldown;
     private ResourceLocation activeRecipeId;
     private ResourceLocation preferredRecipeId;
@@ -317,7 +318,7 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         List<MachinePortBlockEntity> inputPorts = itemPorts(MultiblockAbility.ITEM_INPUT);
         List<MachinePortBlockEntity> fluidInputPorts = fluidPorts(MultiblockAbility.FLUID_INPUT);
         Optional<MachineTier> kineticTier = highestPortTier(MultiblockAbility.KINETIC_INPUT);
-        Optional<MachineTier> energyTier = highestPortTier(MultiblockAbility.ENERGY_INPUT);
+        EnergyRuntime energyRuntime = energyRuntime();
         int rpm = maxKineticRpm();
 
         for (InputRoute route : inputRoutes(inputPorts, fluidInputPorts)) {
@@ -326,9 +327,9 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
                     fluidStacks(route.fluidPorts()),
                     route.circuit(),
                     Set.copyOf(definition.logicIds()),
-                    Optional.ofNullable(formedTier),
+                    energyRuntime.recipeAccessTier().or(() -> Optional.ofNullable(formedTier)),
                     kineticTier,
-                    energyTier,
+                    energyRuntime.recipeAccessTier(),
                     rpm,
                     formedCoilHeat
             );
@@ -341,27 +342,28 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
             CERecipe recipe = match.get().value();
             List<MachinePortBlockEntity> outputPorts = outputPorts(MultiblockAbility.ITEM_OUTPUT, route);
             List<MachinePortBlockEntity> fluidOutputPorts = outputPorts(MultiblockAbility.FLUID_OUTPUT, route);
-            List<ItemStack> plannedItemOutputs = guaranteedItemOutputs(recipe);
-            List<FluidStack> plannedFluidOutputs = fluidOutputs(recipe);
+            MachineTier runtimeTier = runtimeTier(recipe, input, energyRuntime);
+            int parallel = recipe.generatesEnergy() ? outputParallel(recipe, runtimeTier) : 1;
+            List<ItemStack> plannedItemOutputs = multiplyItems(guaranteedItemOutputs(recipe), parallel);
+            List<FluidStack> plannedFluidOutputs = multiplyFluids(fluidOutputs(recipe), parallel);
             if (!canFitItemOutputs(outputPorts, plannedItemOutputs) || !canFitFluidOutputs(fluidOutputPorts, plannedFluidOutputs)) {
                 continue;
             }
 
-            MachineTier runtimeTier = runtimeTier(recipe, input);
-            int signedCEt = signedRuntimeCEt(recipe, runtimeTier);
+            int signedCEt = signedRuntimeCEt(recipe, runtimeTier, parallel);
             if (!canProcessEnergy(signedCEt)) {
                 continue;
             }
 
-            if (!canConsumeInputs(route.itemPorts(), recipe) || !canConsumeFluidInputs(route.fluidPorts(), recipe)) {
+            if (!canConsumeInputs(route.itemPorts(), recipe, parallel) || !canConsumeFluidInputs(route.fluidPorts(), recipe, parallel)) {
                 continue;
             }
 
-            if (!consumeInputs(route.itemPorts(), recipe) || !consumeFluidInputs(route.fluidPorts(), recipe)) {
+            if (!consumeInputs(route.itemPorts(), recipe, parallel) || !consumeFluidInputs(route.fluidPorts(), recipe, parallel)) {
                 continue;
             }
 
-            startRecipe(match.get().id(), recipe, plannedItemOutputs, plannedFluidOutputs, route, recipe.runtimeDuration(runtimeTier, rpm), signedCEt);
+            startRecipe(match.get().id(), recipe, plannedItemOutputs, plannedFluidOutputs, route, recipe.runtimeDuration(runtimeTier, rpm), signedCEt, parallel);
             return true;
         }
 
@@ -480,17 +482,18 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         }
     }
 
-    private void startRecipe(ResourceLocation recipeId, CERecipe recipe, List<ItemStack> itemOutputs, List<FluidStack> fluidOutputs, InputRoute route, int duration, int signedCEt) {
+    private void startRecipe(ResourceLocation recipeId, CERecipe recipe, List<ItemStack> itemOutputs, List<FluidStack> fluidOutputs, InputRoute route, int duration, int signedCEt, int parallel) {
         activeRecipeId = recipeId;
         preferredRecipeId = recipeId;
         recipeProgress = 0;
         recipeDuration = Math.max(1, duration);
         activeCEt = signedCEt;
+        activeParallel = Math.max(1, parallel);
         activeSyncCooldown = 0;
         activeUsesIoColor = route.usesColor();
         activeIoColor = route.color();
-        activeItemInputs = displayItemInputs(recipe);
-        activeFluidInputs = displayFluidInputs(recipe);
+        activeItemInputs = multiplyItems(displayItemInputs(recipe), activeParallel);
+        activeFluidInputs = multiplyFluids(displayFluidInputs(recipe), activeParallel);
         activeItemOutputs = copyItems(itemOutputs);
         activeFluidOutputs = copyFluids(fluidOutputs);
         setActive(true);
@@ -559,6 +562,65 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         return Optional.ofNullable(best);
     }
 
+    private EnergyRuntime energyRuntime() {
+        Optional<MachineTier> highest = highestPortTier(MultiblockAbility.ENERGY_INPUT);
+        if (highest.isEmpty()) {
+            return new EnergyRuntime(Optional.empty(), Optional.empty());
+        }
+
+        MachineTier baseTier = highest.get();
+        int baseVoltage = Math.max(1, MachineTierStats.ceTier(baseTier));
+        int equivalentBaseAmps = energyCapacity(MultiblockAbility.ENERGY_INPUT) / baseVoltage;
+        int overclockSteps = 0;
+        while (equivalentBaseAmps >= 4 && overclockSteps < MachineTier.ALL.size()) {
+            equivalentBaseAmps /= 4;
+            overclockSteps++;
+        }
+
+        return new EnergyRuntime(
+                Optional.of(MachineTierStats.next(baseTier)),
+                Optional.of(MachineTierStats.offset(baseTier, overclockSteps))
+        );
+    }
+
+    private int outputParallel(CERecipe recipe, MachineTier runtimeTier) {
+        int baseCEt = recipe.runtimeCEt(runtimeTier);
+        if (baseCEt <= 0) {
+            return 1;
+        }
+        int capacity = energyCapacity(MultiblockAbility.ENERGY_OUTPUT);
+        return Math.max(1, capacity / baseCEt);
+    }
+
+    private int energyCapacity(MultiblockAbility ability) {
+        if (level == null) {
+            return 0;
+        }
+
+        long capacity = 0;
+        Set<BlockPos> seen = new HashSet<>();
+        for (BlockPos pos : sortedPositions(abilityPositions(ability))) {
+            if (!seen.add(pos) || !(level.getBlockEntity(pos) instanceof MachinePortBlockEntity port)) {
+                continue;
+            }
+
+            CEEnergyContainer container = port.ceContainer();
+            if (container == null) {
+                continue;
+            }
+
+            if (ability == MultiblockAbility.ENERGY_INPUT) {
+                capacity += (long) port.displayInputVoltage() * container.getInputAmperage();
+            } else if (ability == MultiblockAbility.ENERGY_OUTPUT) {
+                capacity += (long) container.getOutputVoltage() * container.getOutputAmperage();
+            }
+            if (capacity >= Integer.MAX_VALUE) {
+                return Integer.MAX_VALUE;
+            }
+        }
+        return (int) capacity;
+    }
+
     private int maxKineticRpm() {
         if (level == null) {
             return 0;
@@ -577,7 +639,10 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         return rpm;
     }
 
-    private static MachineTier runtimeTier(CERecipe recipe, CERecipeInput input) {
+    private static MachineTier runtimeTier(CERecipe recipe, CERecipeInput input, EnergyRuntime energyRuntime) {
+        if (!recipe.generatesEnergy() && recipe.requiredEnergyTier().isPresent()) {
+            return energyRuntime.overclockTier().orElse(input.energyTier().orElse(recipe.requiredEnergyTier().get()));
+        }
         if (recipe.requiredKineticTier().isPresent()) {
             return input.kineticTier().orElse(recipe.requiredKineticTier().get());
         }
@@ -596,8 +661,9 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         return input.energyTier().orElse(MachineTier.ULV);
     }
 
-    private static int signedRuntimeCEt(CERecipe recipe, MachineTier runtimeTier) {
+    private static int signedRuntimeCEt(CERecipe recipe, MachineTier runtimeTier, int parallel) {
         int runtimeCEt = recipe.runtimeCEt(runtimeTier);
+        runtimeCEt = multiplyClamped(runtimeCEt, parallel);
         return recipe.generatesEnergy() ? -runtimeCEt : runtimeCEt;
     }
 
@@ -777,17 +843,17 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         return stacks;
     }
 
-    private static boolean consumeInputs(List<MachinePortBlockEntity> ports, CERecipe recipe) {
-        return consumeInputs(ports, recipe, false);
+    private static boolean consumeInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, int multiplier) {
+        return consumeInputs(ports, recipe, multiplier, false);
     }
 
-    private static boolean canConsumeInputs(List<MachinePortBlockEntity> ports, CERecipe recipe) {
-        return consumeInputs(ports, recipe, true);
+    private static boolean canConsumeInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, int multiplier) {
+        return consumeInputs(ports, recipe, multiplier, true);
     }
 
-    private static boolean consumeInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, boolean simulate) {
+    private static boolean consumeInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, int multiplier, boolean simulate) {
         for (SizedIngredient input : recipe.itemInputs()) {
-            int remaining = input.count();
+            int remaining = multiplyClamped(input.count(), multiplier);
             for (MachinePortBlockEntity port : ports) {
                 ItemStackHandler handler = port.items();
                 for (int slot = 0; slot < handler.getSlots(); slot++) {
@@ -818,17 +884,17 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         return true;
     }
 
-    private static boolean consumeFluidInputs(List<MachinePortBlockEntity> ports, CERecipe recipe) {
-        return consumeFluidInputs(ports, recipe, FluidAction.EXECUTE);
+    private static boolean consumeFluidInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, int multiplier) {
+        return consumeFluidInputs(ports, recipe, multiplier, FluidAction.EXECUTE);
     }
 
-    private static boolean canConsumeFluidInputs(List<MachinePortBlockEntity> ports, CERecipe recipe) {
-        return consumeFluidInputs(ports, recipe, FluidAction.SIMULATE);
+    private static boolean canConsumeFluidInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, int multiplier) {
+        return consumeFluidInputs(ports, recipe, multiplier, FluidAction.SIMULATE);
     }
 
-    private static boolean consumeFluidInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, FluidAction action) {
+    private static boolean consumeFluidInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, int multiplier, FluidAction action) {
         for (SizedFluidIngredient input : recipe.fluidInputs()) {
-            int remaining = input.amount();
+            int remaining = multiplyClamped(input.amount(), multiplier);
             for (MachinePortBlockEntity port : ports) {
                 for (FluidTank tank : port.fluidTanks()) {
                     FluidStack stack = tank.getFluid();
@@ -986,10 +1052,36 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
                 .toList();
     }
 
+    private static List<ItemStack> multiplyItems(List<ItemStack> stacks, int multiplier) {
+        int safeMultiplier = Math.max(1, multiplier);
+        return stacks.stream()
+                .filter(stack -> !stack.isEmpty())
+                .map(stack -> {
+                    ItemStack copy = stack.copy();
+                    copy.setCount(multiplyClamped(copy.getCount(), safeMultiplier));
+                    return copy;
+                })
+                .toList();
+    }
+
+    private static List<FluidStack> multiplyFluids(List<FluidStack> stacks, int multiplier) {
+        int safeMultiplier = Math.max(1, multiplier);
+        return stacks.stream()
+                .filter(stack -> !stack.isEmpty())
+                .map(stack -> stack.copyWithAmount(multiplyClamped(stack.getAmount(), safeMultiplier)))
+                .toList();
+    }
+
+    private static int multiplyClamped(int value, int multiplier) {
+        long result = (long) Math.max(0, value) * Math.max(1, multiplier);
+        return (int) Math.min(Integer.MAX_VALUE, result);
+    }
+
     private void clearActiveRecipe() {
         recipeProgress = 0;
         recipeDuration = 0;
         activeCEt = 0;
+        activeParallel = 1;
         activeSyncCooldown = 0;
         activeRecipeId = null;
         activeUsesIoColor = false;
@@ -1033,6 +1125,7 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         tag.putInt("RecipeProgress", recipeProgress);
         tag.putInt("RecipeDuration", recipeDuration);
         tag.putInt("ActiveCEt", activeCEt);
+        tag.putInt("ActiveParallel", activeParallel);
         tag.putInt("ExternalCEt", externalCEt);
         if (activeRecipeId != null) {
             tag.putString("ActiveRecipe", activeRecipeId.toString());
@@ -1069,6 +1162,7 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         recipeProgress = tag.getInt("RecipeProgress");
         recipeDuration = tag.getInt("RecipeDuration");
         activeCEt = tag.getInt("ActiveCEt");
+        activeParallel = Math.max(1, tag.getInt("ActiveParallel"));
         externalCEt = tag.getInt("ExternalCEt");
         activeRecipeId = tag.contains("ActiveRecipe") ? ResourceLocation.parse(tag.getString("ActiveRecipe")) : null;
         preferredRecipeId = tag.contains("PreferredRecipe") ? ResourceLocation.parse(tag.getString("PreferredRecipe")) : null;
@@ -1235,6 +1329,10 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         return activeCEt;
     }
 
+    public int activeParallel() {
+        return activeParallel;
+    }
+
     @Nullable
     public ResourceLocation activeRecipeId() {
         return activeRecipeId;
@@ -1311,5 +1409,8 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         private static InputRoute outputOnly(DyeColor color) {
             return new InputRoute(Optional.empty(), color, true, List.of(), List.of());
         }
+    }
+
+    private record EnergyRuntime(Optional<MachineTier> recipeAccessTier, Optional<MachineTier> overclockTier) {
     }
 }

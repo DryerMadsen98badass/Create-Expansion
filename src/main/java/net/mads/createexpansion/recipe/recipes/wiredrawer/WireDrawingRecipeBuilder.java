@@ -14,16 +14,23 @@ import java.util.Optional;
 public final class WireDrawingRecipeBuilder {
     private final String id;
     private Ingredient ingredient;
+    private Ingredient extraIngredient;
     private ItemStack result = ItemStack.EMPTY;
     private int duration = 100;
     private int minRpm = 0;
+    private Optional<Integer> maxRpm = Optional.empty();
 
-    WireDrawingRecipeBuilder(String id) {
+    public WireDrawingRecipeBuilder(String id) {
         this.id = id;
     }
 
     public WireDrawingRecipeBuilder inputItem(String itemId) {
         ingredient = Ingredient.of(BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId)));
+        return this;
+    }
+
+    public WireDrawingRecipeBuilder extraInputItem(String itemId) {
+        extraIngredient = Ingredient.of(BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId)));
         return this;
     }
 
@@ -42,12 +49,19 @@ public final class WireDrawingRecipeBuilder {
         return this;
     }
 
+    public WireDrawingRecipeBuilder maxRpm(int maxRpm) {
+        this.maxRpm = Optional.of(maxRpm);
+        return this;
+    }
+
     public void save(RecipeOutput output) {
-        if (id.isBlank() || ingredient == null || result.isEmpty() || duration <= 0 || minRpm < 0) {
+        if (id.isBlank() || ingredient == null || result.isEmpty() || duration <= 0 || minRpm < 0
+                || maxRpm.isPresent() && maxRpm.get() < minRpm) {
             throw new IllegalStateException("Invalid wire drawing recipe: " + id);
         }
+        List<Ingredient> ingredients = extraIngredient == null ? List.of(ingredient) : List.of(ingredient, extraIngredient);
         output.accept(ResourceLocation.fromNamespaceAndPath(CreateExpansion.MOD_ID, "wire_drawing/" + id),
-                new WireDrawingRecipe(List.of(ingredient), List.of(new ProcessingOutput(result, 1.0F)),
-                        duration, minRpm, Optional.empty()), null);
+                new WireDrawingRecipe(ingredients, List.of(new ProcessingOutput(result, 1.0F)),
+                        duration, minRpm, maxRpm), null);
     }
 }

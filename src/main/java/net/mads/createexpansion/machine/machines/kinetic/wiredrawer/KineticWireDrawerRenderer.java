@@ -9,6 +9,7 @@ import net.mads.createexpansion.CreateExpansionPartialModels;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -21,15 +22,25 @@ public class KineticWireDrawerRenderer extends KineticBlockEntityRenderer<Kineti
     protected void renderSafe(KineticWireDrawerBlockEntity wireDrawer, float partialTicks, PoseStack poseStack,
                               MultiBufferSource buffer, int light, int overlay) {
         BlockState state = wireDrawer.getBlockState();
+        Direction facing = state.getValue(KineticWireDrawerBlock.FACING);
         VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.cutoutMipped());
         SuperByteBuffer shaft = CachedBuffers.partial(CreateExpansionPartialModels.WIRE_DRAWER_SHAFT, state);
-        float angle = getAngleForBe(wireDrawer, wireDrawer.getBlockPos(), Axis.Z);
+        float angle = getAngleForBe(wireDrawer, wireDrawer.getBlockPos(), facing.getAxis());
         poseStack.pushPose();
         poseStack.translate(0.5F, 0.5F, 0.5F);
-        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-90));
+        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(shaftModelYRotation(facing)));
         poseStack.translate(-0.5F, -0.5F, -0.5F);
         kineticRotationTransform(shaft, wireDrawer, Axis.X, angle, light)
                 .renderInto(poseStack, vertexConsumer);
         poseStack.popPose();
+    }
+
+    private static float shaftModelYRotation(Direction facing) {
+        return switch (facing) {
+            case SOUTH -> -90;
+            case NORTH -> 90;
+            case WEST -> 180;
+            default -> 0;
+        };
     }
 }

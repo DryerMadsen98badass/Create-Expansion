@@ -48,6 +48,8 @@ public class WireDrawingRecipe implements Recipe<WireDrawingRecipeInput>, Single
 
     @Override public boolean matches(WireDrawingRecipeInput input, Level level) { return matchesItem(input.item()) && canProcessAtRpm(input.rpm()); }
     @Override public boolean matchesItem(ItemStack stack) { return !stack.isEmpty() && !ingredients.isEmpty() && ingredients.getFirst().test(stack); }
+    public boolean hasExtraInput() { return ingredients.size() > 1; }
+    public boolean matchesExtraInput(ItemStack stack) { return !hasExtraInput() || ingredients.get(1).test(stack); }
     @Override public boolean canProcessAtRpm(float rpm) { float speed = Math.abs(rpm); return speed >= minRpm && maxRpm.map(max -> speed <= max).orElse(true); }
     @Override public ItemStack result() { return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().getStack().copy(); }
     @Override public int processingDuration() { return processingDuration; }

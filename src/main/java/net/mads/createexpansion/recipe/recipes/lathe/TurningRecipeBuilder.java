@@ -24,7 +24,7 @@ public class TurningRecipeBuilder {
     private int minRpm = TurningRecipe.DEFAULT_MIN_RPM;
     private Optional<Integer> maxRpm = Optional.empty();
 
-    TurningRecipeBuilder(String id) {
+    public TurningRecipeBuilder(String id) {
         this.id = id;
     }
 

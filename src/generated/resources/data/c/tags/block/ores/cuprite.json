@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:cuprite_deepslate_ore",
     "create_expansion:cuprite_andesite_ore",
-    "create_expansion:cuprite_netherrack_ore",
-    "create_expansion:cuprite_blackstone_ore",
-    "create_expansion:cuprite_end_stone_ore",
-    "create_expansion:cuprite_tuff_ore",
-    "create_expansion:cuprite_ore",
     "create_expansion:cuprite_diorite_ore",
-    "create_expansion:cuprite_granite_ore"
+    "create_expansion:cuprite_ore",
+    "create_expansion:cuprite_end_stone_ore",
+    "create_expansion:cuprite_blackstone_ore",
+    "create_expansion:cuprite_deepslate_ore",
+    "create_expansion:cuprite_granite_ore",
+    "create_expansion:cuprite_netherrack_ore",
+    "create_expansion:cuprite_tuff_ore"
   ]
 }

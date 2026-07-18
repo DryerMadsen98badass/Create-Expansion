@@ -18,7 +18,7 @@ import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 import java.util.Optional;
 
 public abstract class AbstractSimpleKineticMachineBlockEntity extends KineticBlockEntity implements Clearable {
-    private final ItemStackHandler inputInv;
+    protected final ItemStackHandler inputInv;
     private final ItemStackHandler outputInv;
     private final IItemHandler itemCapability;
     private int timer;
@@ -27,7 +27,7 @@ public abstract class AbstractSimpleKineticMachineBlockEntity extends KineticBlo
 
     protected AbstractSimpleKineticMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        this.inputInv = createInventory();
+        this.inputInv = createInputInventory();
         this.outputInv = createInventory();
         this.itemCapability = new MachineInventoryHandler();
     }
@@ -51,16 +51,16 @@ public abstract class AbstractSimpleKineticMachineBlockEntity extends KineticBlo
     }
 
     public boolean insertHeldItem(Player player, ItemStack held) {
-        if (held.isEmpty() || isSpinning() || !canAcceptItem(held)) {
+        if (held.isEmpty() || isSpinning()) {
             return false;
         }
 
         if (player.getAbilities().instabuild) {
             ItemStack single = held.copyWithCount(1);
-            return inputInv.insertItem(0, single, false).isEmpty();
+            return insertIntoInputSlots(single).isEmpty();
         }
 
-        ItemStack remainder = inputInv.insertItem(0, held.copy(), false);
+        ItemStack remainder = insertIntoInputSlots(held.copy());
         if (remainder.getCount() == held.getCount()) {
             return false;
         }
@@ -98,7 +98,7 @@ public abstract class AbstractSimpleKineticMachineBlockEntity extends KineticBlo
             lastRecipe = found.get();
         }
 
-        if (!canFit(lastRecipe.result())) {
+        if (!canStartRecipe(lastRecipe) || !canFit(lastRecipe.result())) {
             return;
         }
         if (timer <= 0) {
@@ -110,7 +110,7 @@ public abstract class AbstractSimpleKineticMachineBlockEntity extends KineticBlo
 
         timer -= Math.max(1, (int) Math.abs(getSpeed() / 16F));
         if (timer <= 0) {
-            inputInv.extractItem(0, 1, false);
+            consumeRecipeInputs(lastRecipe);
             outputInv.insertItem(0, lastRecipe.result().copy(), false);
             timer = 0;
             contentChanged();
@@ -121,7 +121,15 @@ public abstract class AbstractSimpleKineticMachineBlockEntity extends KineticBlo
         if (isSpinning()) {
             return false;
         }
-        return extractSlotToPlayer(outputInv, 0, player) || extractSlotToPlayer(inputInv, 0, player);
+        if (extractSlotToPlayer(outputInv, 0, player)) {
+            return true;
+        }
+        for (int slot = 0; slot < inputInv.getSlots(); slot++) {
+            if (extractSlotToPlayer(inputInv, slot, player)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -161,8 +169,46 @@ public abstract class AbstractSimpleKineticMachineBlockEntity extends KineticBlo
 
     @Override
     public void clearContent() {
-        inputInv.setStackInSlot(0, ItemStack.EMPTY);
+        for (int slot = 0; slot < inputInv.getSlots(); slot++) {
+            inputInv.setStackInSlot(slot, ItemStack.EMPTY);
+        }
         outputInv.setStackInSlot(0, ItemStack.EMPTY);
+    }
+
+    private ItemStack insertIntoInputSlots(ItemStack stack) {
+        ItemStack remainder = stack;
+        for (int slot = 0; slot < inputInv.getSlots(); slot++) {
+            if (!canAcceptItemInSlot(slot, remainder)) {
+                continue;
+            }
+            remainder = inputInv.insertItem(slot, remainder, false);
+            if (remainder.isEmpty()) {
+                break;
+            }
+        }
+        return remainder;
+    }
+
+    private ItemStackHandler createInputInventory() {
+        return new ItemStackHandler(inputSlotCount()) {
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                return canAcceptItemInSlot(slot, stack);
+            }
+
+            @Override
+            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+                if (!isItemValid(slot, stack)) {
+                    return stack;
+                }
+                return super.insertItem(slot, stack, simulate);
+            }
+
+            @Override
+            protected void onContentsChanged(int slot) {
+                contentChanged();
+            }
+        };
     }
 
     private ItemStackHandler createInventory() {
@@ -187,11 +233,26 @@ public abstract class AbstractSimpleKineticMachineBlockEntity extends KineticBlo
 
     protected abstract boolean hasRecipeFor(ItemStack stack);
 
-    private boolean canAcceptItem(ItemStack stack) {
+    protected int inputSlotCount() {
+        return 1;
+    }
+
+    protected boolean canAcceptItemInSlot(int slot, ItemStack stack) {
+        if (slot != 0) {
+            return false;
+        }
         if (level == null || stack.isEmpty()) {
             return false;
         }
         return hasRecipeFor(stack);
+    }
+
+    protected boolean canStartRecipe(SingleItemKineticRecipe recipe) {
+        return true;
+    }
+
+    protected void consumeRecipeInputs(SingleItemKineticRecipe recipe) {
+        inputInv.extractItem(0, 1, false);
     }
 
     private boolean canFit(ItemStack result) {
@@ -222,7 +283,8 @@ public abstract class AbstractSimpleKineticMachineBlockEntity extends KineticBlo
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             return inputInv == getHandlerFromIndex(getIndexForSlot(slot))
-                    && canAcceptItem(stack)
+                    && slot < inputInv.getSlots()
+                    && canAcceptItemInSlot(slot, stack)
                     && super.isItemValid(slot, stack);
         }
 

@@ -10,7 +10,7 @@ import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialLookup;
 import net.mads.createexpansion.recipe.recipes.foundry.FoundryMeltingRecipe;
-import net.mads.createexpansion.recipe.recipes.foundry.FoundryMeltingRecipes;
+import net.mads.createexpansion.material.recipes.FoundryMeltingRecipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -28,6 +28,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -39,8 +40,11 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class FoundryControllerBlockEntity extends BlockEntity implements MenuProvider {
@@ -60,11 +64,20 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
     private int outerHeight;
     private int capacityMb;
     private int validationCooldown;
+    private boolean structureDirty = true;
     private int heatCooldown;
     private int temperature;
     private final List<FluidStack> fluids = new ArrayList<>();
     private final NonNullList<ItemStack> meltingItems = NonNullList.withSize(MAX_MELTING_SLOTS, ItemStack.EMPTY);
     private final int[] meltingProgress = new int[MAX_MELTING_SLOTS];
+    private final BitSet occupiedMeltingSlots = new BitSet(MAX_MELTING_SLOTS);
+    private final Map<Item, FoundryMeltingRecipe> meltingRecipeCache = new IdentityHashMap<>();
+    private final Set<Item> missingMeltingRecipes = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
+    private Set<IndustrialMaterial> cachedContainedMaterials = Set.of();
+    private boolean containedMaterialsDirty = true;
+    private int cachedFluidAmount;
+    private boolean batchingContentChanges;
+    private boolean batchedContentChanged;
     private final Container meltingContainer = new FoundryMeltingContainer();
     private BlockPos bottomMin;
     private BlockPos bottomMax;
@@ -78,9 +91,12 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
         if (level.isClientSide()) {
             return;
         }
-        if (foundry.validationCooldown > 0) {
+        if (foundry.structureDirty) {
+            foundry.structureDirty = false;
+            foundry.tryUpdateStructure();
+        } else if (!foundry.formed && foundry.validationCooldown > 0) {
             foundry.validationCooldown--;
-        } else {
+        } else if (!foundry.formed) {
             foundry.validationCooldown = VALIDATION_INTERVAL;
             foundry.tryUpdateStructure();
         }
@@ -90,6 +106,14 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
 
     public boolean isFormed() {
         return formed;
+    }
+
+    public boolean hasAttachedHatch(BlockPos pos) {
+        return pos != null && attachedHatches.contains(pos);
+    }
+
+    public void markStructureDirty() {
+        structureDirty = true;
     }
 
     public int outerWidth() {
@@ -148,32 +172,19 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
 
         ItemStack remaining = stack.copy();
         int slots = meltingSlotCount();
-        int emptySlots = 0;
-        for (int slot = 0; slot < slots; slot++) {
-            if (meltingItems.get(slot).isEmpty()) {
-                emptySlots++;
-            }
-        }
-        if (emptySlots <= 0) {
+        int firstEmptySlot = occupiedMeltingSlots.nextClearBit(0);
+        if (firstEmptySlot >= slots) {
             return remaining;
         }
 
-        int accepted = Math.min(remaining.getCount(), emptySlots);
-        int inserted = 0;
-        for (int slot = 0; slot < slots && !remaining.isEmpty(); slot++) {
-            if (!meltingItems.get(slot).isEmpty()) {
-                continue;
-            }
-
+        for (int slot = firstEmptySlot; slot < slots && !remaining.isEmpty(); slot = occupiedMeltingSlots.nextClearBit(slot + 1)) {
             if (!simulate) {
                 meltingItems.set(slot, remaining.copyWithCount(1));
                 meltingProgress[slot] = 0;
+                occupiedMeltingSlots.set(slot);
+                containedMaterialsDirty = true;
             }
             remaining.shrink(1);
-            inserted++;
-            if (inserted >= accepted) {
-                break;
-            }
         }
 
         if (!simulate && remaining.getCount() != stack.getCount()) {
@@ -334,7 +345,7 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
     }
 
     public int fluidAmount() {
-        return fluids.stream().mapToInt(FluidStack::getAmount).sum();
+        return cachedFluidAmount;
     }
 
     public int fill(FluidStack resource, FluidAction action) {
@@ -359,6 +370,8 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
             } else {
                 existing.grow(filled);
             }
+            cachedFluidAmount += filled;
+            containedMaterialsDirty = true;
             resolveAlloys();
             contentChanged();
         }
@@ -476,6 +489,10 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
     }
 
     private Set<IndustrialMaterial> containedMaterials() {
+        if (!containedMaterialsDirty) {
+            return new HashSet<>(cachedContainedMaterials);
+        }
+
         Set<IndustrialMaterial> materials = new HashSet<>();
         for (FluidStack stack : fluids) {
             MaterialLookup.MaterialTarget target = MaterialLookup.find(stack);
@@ -484,13 +501,15 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
             }
         }
 
-        for (int slot = 0; slot < meltingSlotCount(); slot++) {
+        for (int slot = occupiedMeltingSlots.nextSetBit(0); slot >= 0 && slot < meltingSlotCount(); slot = occupiedMeltingSlots.nextSetBit(slot + 1)) {
             MaterialLookup.MaterialTarget target = MaterialLookup.find(meltingItems.get(slot));
             if (target != null) {
                 materials.add(target.material());
             }
         }
-        return materials;
+        cachedContainedMaterials = Set.copyOf(materials);
+        containedMaterialsDirty = false;
+        return new HashSet<>(cachedContainedMaterials);
     }
 
     private static boolean isValidMaterialSet(Set<IndustrialMaterial> materials) {
@@ -539,6 +558,8 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
         FluidStack result = existing.copyWithAmount(drained);
         if (action.execute()) {
             existing.shrink(drained);
+            cachedFluidAmount -= drained;
+            containedMaterialsDirty = true;
             cleanupFluids();
             contentChanged();
         }
@@ -555,6 +576,8 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
         FluidStack result = existing.copyWithAmount(drained);
         if (action.execute()) {
             existing.shrink(drained);
+            cachedFluidAmount -= drained;
+            containedMaterialsDirty = true;
             cleanupFluids();
             contentChanged();
         }
@@ -583,11 +606,15 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
             return;
         }
 
-        boolean changed = false;
-        for (int slot = 0; slot < meltingSlotCount(); slot++) {
+        boolean progressed = false;
+        boolean completed = false;
+        int slotCount = meltingSlotCount();
+        batchingContentChanges = true;
+        for (int slot = occupiedMeltingSlots.nextSetBit(0); slot >= 0 && slot < slotCount; slot = occupiedMeltingSlots.nextSetBit(slot + 1)) {
             ItemStack stack = meltingItems.get(slot);
             if (stack.isEmpty()) {
                 meltingProgress[slot] = 0;
+                occupiedMeltingSlots.clear(slot);
                 continue;
             }
 
@@ -607,15 +634,22 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
                 stack.shrink(1);
                 if (stack.isEmpty()) {
                     meltingItems.set(slot, ItemStack.EMPTY);
+                    occupiedMeltingSlots.clear(slot);
                 }
+                containedMaterialsDirty = true;
                 fill(result, FluidAction.EXECUTE);
                 meltingProgress[slot] = 0;
+                completed = true;
             }
-            changed = true;
+            progressed = true;
         }
+        batchingContentChanges = false;
 
-        if (changed) {
-            contentChanged();
+        if (batchedContentChanged) {
+            batchedContentChanged = false;
+            syncToClient();
+        } else if (progressed && !completed) {
+            progressChanged();
         }
     }
 
@@ -625,14 +659,31 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
             return null;
         }
 
-        FoundryMeltingRecipe recipe = level.getRecipeManager()
-                .getAllRecipesFor(net.mads.createexpansion.registry.RecipeRegistry.FOUNDRY_MELTING_RECIPE_TYPE.get())
-                .stream()
-                .map(RecipeHolder::value)
-                .filter(candidate -> candidate.matchesItem(stack))
-                .findFirst()
-                .orElse(null);
-        return recipe != null ? recipe : FoundryMeltingRecipes.syntheticRecipeFor(stack);
+        Item item = stack.getItem();
+        FoundryMeltingRecipe cached = meltingRecipeCache.get(item);
+        if (cached != null) {
+            return cached;
+        }
+        if (missingMeltingRecipes.contains(item)) {
+            return null;
+        }
+
+        FoundryMeltingRecipe recipe = FoundryMeltingRecipes.syntheticRecipeFor(stack);
+        if (recipe == null) {
+            recipe = level.getRecipeManager()
+                    .getAllRecipesFor(net.mads.createexpansion.registry.RecipeRegistry.FOUNDRY_MELTING_RECIPE_TYPE.get())
+                    .stream()
+                    .map(RecipeHolder::value)
+                    .filter(candidate -> candidate.matchesItem(stack))
+                    .findFirst()
+                    .orElse(null);
+        }
+        if (recipe == null) {
+            missingMeltingRecipes.add(item);
+        } else {
+            meltingRecipeCache.put(item, recipe);
+        }
+        return recipe;
     }
 
     private FoundryMatch findMatch() {
@@ -682,7 +733,7 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
 
         FoundryLayerScan scan = scanLayers(min.getX(), max.getX(), min.getY(), max.getY(), min.getZ(), max.getZ(), wallLayers);
         int outerHeight = wallLayers + 1;
-        if (scan == null || scan.inputHatches() > outerHeight * 2 || scan.outputHatches() > 1) {
+        if (scan == null || scan.inputHatches() > outerHeight * 2 || scan.outputHatches() > 8) {
             return null;
         }
 
@@ -790,6 +841,10 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
                 || !java.util.Objects.equals(this.bottomMin, bottomMin)
                 || !java.util.Objects.equals(this.bottomMax, bottomMax);
         if (!changed) {
+            if (formed && this.bottomMin != null && this.bottomMax != null) {
+                BlockPos structureMax = this.bottomMax.atY(this.bottomMin.getY() + outerHeight - 1);
+                FoundryStructureTracker.watch(this, this.bottomMin, structureMax);
+            }
             return;
         }
 
@@ -804,6 +859,8 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
         trimFluidsToCapacity();
         if (formed) {
             attachHatches();
+            BlockPos structureMax = this.bottomMax.atY(this.bottomMin.getY() + outerHeight - 1);
+            FoundryStructureTracker.watch(this, this.bottomMin, structureMax);
         }
         updateBlockFormedState(formed);
         updateBlockActiveState();
@@ -917,6 +974,8 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
         }
         trimFluidsToCapacity();
         trimMeltingSlots();
+        rebuildOccupiedSlots();
+        containedMaterialsDirty = true;
     }
 
     @Override
@@ -950,7 +1009,24 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
 
     private void contentChanged() {
         setChanged();
+        if (batchingContentChanges) {
+            batchedContentChanged = true;
+            return;
+        }
         syncToClient();
+    }
+
+    @Override
+    public void setRemoved() {
+        FoundryStructureTracker.remove(this);
+        super.setRemoved();
+    }
+
+    private void progressChanged() {
+        setChanged();
+        if (level != null && level.getGameTime() % 5L == 0L) {
+            syncToClient();
+        }
     }
 
     @Nullable
@@ -969,12 +1045,15 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
 
     private void trimFluidsToCapacity() {
         int remaining = Math.max(0, capacityMb);
+        cachedFluidAmount = 0;
         for (FluidStack stack : fluids) {
             int kept = Math.min(stack.getAmount(), remaining);
             stack.setAmount(kept);
+            cachedFluidAmount += kept;
             remaining -= kept;
         }
         cleanupFluids();
+        containedMaterialsDirty = true;
     }
 
     private void trimMeltingSlots() {
@@ -982,6 +1061,17 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
         for (int slot = slots; slot < meltingItems.size(); slot++) {
             meltingItems.set(slot, ItemStack.EMPTY);
             meltingProgress[slot] = 0;
+            occupiedMeltingSlots.clear(slot);
+        }
+        containedMaterialsDirty = true;
+    }
+
+    private void rebuildOccupiedSlots() {
+        occupiedMeltingSlots.clear();
+        for (int slot = 0; slot < meltingSlotCount(); slot++) {
+            if (!meltingItems.get(slot).isEmpty()) {
+                occupiedMeltingSlots.set(slot);
+            }
         }
     }
 
@@ -1011,6 +1101,10 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
             ItemStack stack = ContainerHelper.removeItem(meltingItems, slot, amount);
             if (!stack.isEmpty()) {
                 meltingProgress[slot] = 0;
+                if (meltingItems.get(slot).isEmpty()) {
+                    occupiedMeltingSlots.clear(slot);
+                }
+                containedMaterialsDirty = true;
                 contentChanged();
             }
             return stack;
@@ -1024,6 +1118,8 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
             ItemStack stack = meltingItems.get(slot);
             meltingItems.set(slot, ItemStack.EMPTY);
             meltingProgress[slot] = 0;
+            occupiedMeltingSlots.clear(slot);
+            containedMaterialsDirty = true;
             return stack;
         }
 
@@ -1034,6 +1130,8 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
             }
             meltingItems.set(slot, stack.copyWithCount(Math.min(1, stack.getCount())));
             meltingProgress[slot] = 0;
+            occupiedMeltingSlots.set(slot, !stack.isEmpty());
+            containedMaterialsDirty = true;
             contentChanged();
         }
 
@@ -1063,6 +1161,8 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
                 meltingItems.set(slot, ItemStack.EMPTY);
                 meltingProgress[slot] = 0;
             }
+            occupiedMeltingSlots.clear();
+            containedMaterialsDirty = true;
             contentChanged();
         }
     }

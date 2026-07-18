@@ -91,7 +91,7 @@ public class FoundryControllerBlock extends HorizontalDirectionalBlock implement
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
         super.neighborChanged(state, level, pos, block, fromPos, isMoving);
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof FoundryControllerBlockEntity foundry) {
-            foundry.tryUpdateStructure();
+            foundry.markStructureDirty();
         }
     }
 
@@ -106,7 +106,9 @@ public class FoundryControllerBlock extends HorizontalDirectionalBlock implement
             return InteractionResult.PASS;
         }
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof FoundryControllerBlockEntity foundry) {
-            foundry.tryUpdateStructure();
+            if (!foundry.isFormed()) {
+                foundry.markStructureDirty();
+            }
             ((IPlayerExtension) player).openMenu(foundry, pos);
         }
         return InteractionResult.SUCCESS;

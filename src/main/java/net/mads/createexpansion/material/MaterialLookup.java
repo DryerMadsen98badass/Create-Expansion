@@ -8,7 +8,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.Collections;
+
 public final class MaterialLookup {
+    private static final Map<Item, MaterialTarget> EXISTING_ITEM_CACHE = Collections.synchronizedMap(new IdentityHashMap<>());
+    private static final Map<net.minecraft.world.level.material.Fluid, MaterialTarget> FLUID_CACHE = Collections.synchronizedMap(new IdentityHashMap<>());
     private MaterialLookup() {
     }
 
@@ -36,6 +42,11 @@ public final class MaterialLookup {
             return null;
         }
 
+        MaterialTarget cached = FLUID_CACHE.get(stack.getFluid());
+        if (cached != null) {
+            return cached;
+        }
+
         for (FluidRegistry.RegisteredFluid fluid : FluidRegistry.MATERIAL_FLUIDS.values()) {
             if (!stack.is(fluid.source().get()) && !stack.is(fluid.flowing().get())) {
                 continue;
@@ -43,7 +54,10 @@ public final class MaterialLookup {
 
             for (IndustrialMaterial material : IndustrialMaterials.ALL) {
                 if (material.id().equals(fluid.definition().id())) {
-                    return new MaterialTarget(material, MaterialPart.MOLTEN_FLUID);
+                    MaterialTarget target = new MaterialTarget(material, MaterialPart.MOLTEN_FLUID);
+                    FLUID_CACHE.put(fluid.source().get(), target);
+                    FLUID_CACHE.put(fluid.flowing().get(), target);
+                    return target;
                 }
             }
         }
@@ -52,11 +66,17 @@ public final class MaterialLookup {
     }
 
     private static MaterialTarget findExistingMaterialPart(Item item) {
+        MaterialTarget cached = EXISTING_ITEM_CACHE.get(item);
+        if (cached != null) {
+            return cached;
+        }
         ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
         for (IndustrialMaterial material : IndustrialMaterials.ALL) {
             for (MaterialPart part : material.parts()) {
                 if (itemId.equals(material.existingParts().get(part))) {
-                    return new MaterialTarget(material, part);
+                    MaterialTarget target = new MaterialTarget(material, part);
+                    EXISTING_ITEM_CACHE.put(item, target);
+                    return target;
                 }
             }
         }

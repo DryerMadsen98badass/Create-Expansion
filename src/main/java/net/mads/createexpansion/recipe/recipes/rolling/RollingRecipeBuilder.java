@@ -17,8 +17,9 @@ public final class RollingRecipeBuilder {
     private ItemStack result = ItemStack.EMPTY;
     private int duration = 100;
     private int minRpm = 0;
+    private Optional<Integer> maxRpm = Optional.empty();
 
-    RollingRecipeBuilder(String id) {
+    public RollingRecipeBuilder(String id) {
         this.id = id;
     }
 
@@ -42,12 +43,18 @@ public final class RollingRecipeBuilder {
         return this;
     }
 
+    public RollingRecipeBuilder maxRpm(int maxRpm) {
+        this.maxRpm = Optional.of(maxRpm);
+        return this;
+    }
+
     public void save(RecipeOutput output) {
-        if (id.isBlank() || ingredient == null || result.isEmpty() || duration <= 0 || minRpm < 0) {
+        if (id.isBlank() || ingredient == null || result.isEmpty() || duration <= 0 || minRpm < 0
+                || maxRpm.isPresent() && maxRpm.get() < minRpm) {
             throw new IllegalStateException("Invalid rolling recipe: " + id);
         }
         output.accept(ResourceLocation.fromNamespaceAndPath(CreateExpansion.MOD_ID, "rolling/" + id),
                 new RollingRecipe(List.of(ingredient), List.of(new ProcessingOutput(result, 1.0F)),
-                        duration, minRpm, Optional.empty()), null);
+                        duration, minRpm, maxRpm), null);
     }
 }

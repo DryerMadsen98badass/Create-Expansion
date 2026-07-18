@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:calcium_deepslate_ore",
     "create_expansion:calcium_andesite_ore",
-    "create_expansion:calcium_netherrack_ore",
-    "create_expansion:calcium_blackstone_ore",
-    "create_expansion:calcium_end_stone_ore",
-    "create_expansion:calcium_tuff_ore",
-    "create_expansion:calcium_ore",
     "create_expansion:calcium_diorite_ore",
-    "create_expansion:calcium_granite_ore"
+    "create_expansion:calcium_ore",
+    "create_expansion:calcium_end_stone_ore",
+    "create_expansion:calcium_blackstone_ore",
+    "create_expansion:calcium_deepslate_ore",
+    "create_expansion:calcium_granite_ore",
+    "create_expansion:calcium_netherrack_ore",
+    "create_expansion:calcium_tuff_ore"
   ]
 }

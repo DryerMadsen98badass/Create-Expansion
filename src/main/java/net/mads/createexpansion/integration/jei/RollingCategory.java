@@ -19,7 +19,6 @@ import net.mads.createexpansion.recipe.recipes.rolling.RollingRecipe;
 import net.mads.createexpansion.recipe.recipetypes.RollingRecipeType;
 import net.mads.createexpansion.registry.BlockRegistry;
 import net.mads.createexpansion.registry.ItemRegistry;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -61,7 +60,7 @@ public class RollingCategory implements IRecipeCategory<RecipeHolder<RollingReci
         AllGuiTextures.JEI_ARROW.render(graphics, 85, 32);
         AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 43, 4);
         preview.draw(graphics, 48, 27);
-        graphics.drawString(Minecraft.getInstance().font, "Min RPM: " + holder.value().minRpm(), 8, 72, 0xFF404040, false);
+        RpmJeiHelper.draw(graphics, 8, 72, holder.value().minRpm(), holder.value().maxRpm());
     }
 
     private static class MachinePreview extends AnimatedKinetics {

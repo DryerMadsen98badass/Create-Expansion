@@ -29,7 +29,7 @@ public class FoundryMoldCasterRenderer implements BlockEntityRenderer<FoundryMol
     public void render(FoundryMoldCasterBlockEntity caster, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
         ItemStack mold = caster.moldForRender();
         renderStack(mold, caster, poseStack, buffer, packedOverlay, 15.01 / 16.0, moldYRotation(mold));
-        renderCastingFluid(caster.castingFluidForRender(), caster.hasCastingVisual(), caster, poseStack, buffer);
+        renderCastingFluid(caster.castingFluidForRender(), caster.hasCastingVisual(), caster.castingFillForRender(partialTick), caster, poseStack, buffer);
         renderStack(caster.outputForRender(), caster, poseStack, buffer, packedOverlay, 15.06 / 16.0, 180);
     }
 
@@ -67,8 +67,8 @@ public class FoundryMoldCasterRenderer implements BlockEntityRenderer<FoundryMol
         poseStack.popPose();
     }
 
-    private void renderCastingFluid(FluidStack fluid, boolean active, FoundryMoldCasterBlockEntity caster, PoseStack poseStack, MultiBufferSource buffer) {
-        if (!active || fluid.isEmpty()) {
+    private void renderCastingFluid(FluidStack fluid, boolean active, float fillProgress, FoundryMoldCasterBlockEntity caster, PoseStack poseStack, MultiBufferSource buffer) {
+        if (!active || fluid.isEmpty() || fillProgress <= 0) {
             return;
         }
 
@@ -87,13 +87,16 @@ public class FoundryMoldCasterRenderer implements BlockEntityRenderer<FoundryMol
             poseStack.pushPose();
             pushed = true;
             Matrix4f matrix = poseStack.last().pose();
-            float min = 2.0F / 16.0F;
-            float max = 14.0F / 16.0F;
+            float halfSize = (12.0F / 16.0F) * Math.min(1.0F, fillProgress) * 0.5F;
+            float min = 0.5F - halfSize;
+            float max = 0.5F + halfSize;
             float y = 15.04F / 16.0F;
             quad(consumer, matrix, min, y, min, max, y, max, sprite, red, green, blue);
-            poseStack.translate(0, 1, 0);
-            matrix = poseStack.last().pose();
-            stream(consumer, matrix, sprite, red, green, blue, streamDirection(caster));
+            if (hasPouringDrainAbove(caster)) {
+                poseStack.translate(0, 1, 0);
+                matrix = poseStack.last().pose();
+                stream(consumer, matrix, sprite, red, green, blue, streamDirection(caster));
+            }
             poseStack.popPose();
             pushed = false;
         } catch (RuntimeException ignored) {
@@ -101,6 +104,17 @@ public class FoundryMoldCasterRenderer implements BlockEntityRenderer<FoundryMol
                 poseStack.popPose();
             }
         }
+    }
+
+    private static boolean hasPouringDrainAbove(FoundryMoldCasterBlockEntity caster) {
+        if (caster.getLevel() == null) {
+            return false;
+        }
+
+        BlockState stateAbove = caster.getLevel().getBlockState(caster.getBlockPos().above());
+        return stateAbove.getBlock() instanceof FoundryDrainBlock
+                && stateAbove.hasProperty(FoundryDrainBlock.POURING)
+                && stateAbove.getValue(FoundryDrainBlock.POURING);
     }
 
     private static Direction streamDirection(FoundryMoldCasterBlockEntity caster) {

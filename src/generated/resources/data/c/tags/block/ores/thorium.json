@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:thorium_deepslate_ore",
     "create_expansion:thorium_andesite_ore",
-    "create_expansion:thorium_netherrack_ore",
-    "create_expansion:thorium_blackstone_ore",
-    "create_expansion:thorium_end_stone_ore",
-    "create_expansion:thorium_tuff_ore",
-    "create_expansion:thorium_ore",
     "create_expansion:thorium_diorite_ore",
-    "create_expansion:thorium_granite_ore"
+    "create_expansion:thorium_ore",
+    "create_expansion:thorium_end_stone_ore",
+    "create_expansion:thorium_blackstone_ore",
+    "create_expansion:thorium_deepslate_ore",
+    "create_expansion:thorium_granite_ore",
+    "create_expansion:thorium_netherrack_ore",
+    "create_expansion:thorium_tuff_ore"
   ]
 }

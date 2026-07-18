@@ -169,7 +169,7 @@ public record CERecipe(
         if (cet == 0) {
             return 0;
         }
-        Optional<MachineTier> required = requiredEnergyTier();
+        Optional<MachineTier> required = overclockRequirement();
         if (required.isEmpty() || !MachineTierStats.isAtLeast(runtimeTier, required.get())) {
             return absoluteCEt();
         }
@@ -194,12 +194,8 @@ public record CERecipe(
 
     private Optional<MachineTier> overclockRequirement() {
         Optional<MachineTier> result = requiredKineticTier();
-        if (result.isEmpty()) {
-            result = requiredEnergyTier();
-        }
-        if (result.isEmpty()) {
-            result = requiredTier();
-        }
+        result = maxOptionalTier(result, requiredEnergyTier());
+        result = maxOptionalTier(result, requiredTier());
         return result;
     }
 

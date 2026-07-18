@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
       "model": "create_expansion:block/machines/kinetic/lathe/lathe_static"
+    },
+    "facing=south": {
+      "model": "create_expansion:block/machines/kinetic/lathe/lathe_static",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "create_expansion:block/machines/kinetic/lathe/lathe_static",
+      "y": 180
+    },
+    "facing=north": {
+      "model": "create_expansion:block/machines/kinetic/lathe/lathe_static",
+      "y": 270
     }
   }
 }

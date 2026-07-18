@@ -526,7 +526,7 @@ public class IndustrialMaterials {
             .existing(BLOCK, "create:andesite_alloy_block")
             .build();
 
-    public static final IndustrialMaterial WROUGHT_IRON = material("wrought_iron", "WroughT Iron", 0x878787)
+    public static final IndustrialMaterial WROUGHT_IRON = material("wrought_iron", "Wrought Iron", 0x878787)
             .contains(component(IRON, 1))
             .strength(7)
             .meltingPoint(1538)
@@ -911,6 +911,7 @@ public class IndustrialMaterials {
                     SPRING,
                     COIL,
                     ROTOR,
+                    TOOL_HEAD_BUZZ_SAW,
                     FRAME,
                     MOLTEN_FLUID,
                     CAST_INGOT,

@@ -14,11 +14,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class MultiblockControllerMenu extends AbstractContainerMenu {
-    private static final int DATA_COUNT = 4;
+    private static final int DATA_COUNT = 5;
     private static final int DATA_FORMED = 0;
     private static final int DATA_PROCESSING = 1;
     private static final int DATA_PROGRESS = 2;
     private static final int DATA_DURATION = 3;
+    private static final int DATA_PARALLEL = 4;
 
     private final MultiblockControllerBlockEntity blockEntity;
     private final ContainerData data;
@@ -60,6 +61,7 @@ public class MultiblockControllerMenu extends AbstractContainerMenu {
                     case DATA_PROCESSING -> controller.isProcessing() ? 1 : 0;
                     case DATA_PROGRESS -> controller.recipeProgress();
                     case DATA_DURATION -> controller.recipeDuration();
+                    case DATA_PARALLEL -> controller.activeParallel();
                     default -> 0;
                 };
             }
@@ -140,5 +142,9 @@ public class MultiblockControllerMenu extends AbstractContainerMenu {
 
     public int duration() {
         return data.get(DATA_DURATION);
+    }
+
+    public int parallel() {
+        return Math.max(1, data.get(DATA_PARALLEL));
     }
 }

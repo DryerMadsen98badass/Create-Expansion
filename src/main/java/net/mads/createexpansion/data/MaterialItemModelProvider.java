@@ -54,11 +54,14 @@ public class MaterialItemModelProvider extends ItemModelProvider {
         }
 
         for (SimpleItemDefinition definition : SimpleItems.ALL) {
+            String texturePath = definition.id().startsWith("terracotta_")
+                    ? "item/material_sets/mold/" + definition.id()
+                    : "item/standalone/materials/" + definition.id();
             singleTexture(definition.id(),
                     ResourceLocation.withDefaultNamespace("item/generated"),
                     "layer0",
                     ResourceLocation.fromNamespaceAndPath(CreateExpansion.MOD_ID,
-                            "item/standalone/materials/" + definition.id()));
+                            texturePath));
         }
     }
 }

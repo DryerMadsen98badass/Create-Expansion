@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:garnierite_deepslate_ore",
     "create_expansion:garnierite_andesite_ore",
-    "create_expansion:garnierite_netherrack_ore",
-    "create_expansion:garnierite_blackstone_ore",
-    "create_expansion:garnierite_end_stone_ore",
-    "create_expansion:garnierite_tuff_ore",
-    "create_expansion:garnierite_ore",
     "create_expansion:garnierite_diorite_ore",
-    "create_expansion:garnierite_granite_ore"
+    "create_expansion:garnierite_ore",
+    "create_expansion:garnierite_end_stone_ore",
+    "create_expansion:garnierite_blackstone_ore",
+    "create_expansion:garnierite_deepslate_ore",
+    "create_expansion:garnierite_granite_ore",
+    "create_expansion:garnierite_netherrack_ore",
+    "create_expansion:garnierite_tuff_ore"
   ]
 }

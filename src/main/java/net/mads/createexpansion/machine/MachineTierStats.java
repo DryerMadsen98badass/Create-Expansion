@@ -22,6 +22,15 @@ public final class MachineTierStats {
         return tierIndex(first) >= tierIndex(second) ? first : second;
     }
 
+    public static MachineTier offset(MachineTier tier, int offset) {
+        int index = Math.max(0, Math.min(ALL_SIZE - 1, tierIndex(tier) + offset));
+        return MachineTier.ALL.get(index);
+    }
+
+    public static MachineTier next(MachineTier tier) {
+        return offset(tier, 1);
+    }
+
     public static int itemBusSlots(MachineTier tier) {
         int index = Math.min(tierIndex(tier), ITEM_SLOTS.length - 1);
         return ITEM_SLOTS[index];
@@ -103,6 +112,8 @@ public final class MachineTierStats {
         }
         return multiplier;
     }
+
+    private static final int ALL_SIZE = MachineTier.ALL.size();
 
     public static float kineticStressPerRpm(MachineTier tier) {
         float stress = 16.0F;

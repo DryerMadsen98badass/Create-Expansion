@@ -154,6 +154,33 @@ Tier rule
 When a multiblock uses tiered blocks or tiered ports, the formed machine tier becomes the lowest
 tier found in the structure. For example, mostly HV parts with one LV port forms as LV.
 
+Energy hatch overclock rule
+===========================
+
+Energy input hatches control recipe access and runtime speed separately.
+
+- Max recipe tier comes from the highest energy input hatch tier + 1.
+- Runtime overclock tier comes from total input throughput.
+- Every full 4 amps at the highest input hatch tier raises runtime tier by one.
+- Extra amps below the next full 4x step add capacity but do not make the recipe faster.
+
+Examples with LV input hatches:
+
+- 1 LV input hatch = 2 LV amps = LV runtime.
+- 2 LV input hatches = 4 LV amps = MV runtime.
+- 4 or 6 LV input hatches = still MV runtime.
+- 8 LV input hatches = 16 LV amps = HV runtime.
+
+Even if many LV hatches provide EV-like throughput, they only unlock recipes up to MV because
+recipe access is capped at highest input hatch tier + 1.
+
+Energy output hatches do not halve generator recipe duration. Generator recipes parallelize instead:
+
+`parallel = floor(total output hatch CE/t capacity / base generated CE/t)`
+
+The timer stays the same, while inputs, outputs, and generated CE/t are multiplied. The controller
+GUI only shows `Parallel: xN` when N is above 1.
+
 
 Controller textures
 ===================
@@ -210,6 +237,9 @@ Important behavior:
 - `isProcessing()` returns true for active recipe processing or active external heat output.
 - External heat sources without recipes use a 20 tick pseudo-operation duration for GUI progress.
 - External heat sources draw their requested CE/t every tick while active, not the whole interval upfront.
+- External heat sources do not use recipe overclock or generator parallel because they have no recipe.
+  Large Heater can still draw from multiple input hatches if the requested CE/t is higher than one
+  hatch can provide.
 - Normal recipe machines should not use `.externalHeatSource()`.
 
 Input-only GUI metadata

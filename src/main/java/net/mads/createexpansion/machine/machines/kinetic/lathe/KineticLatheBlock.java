@@ -13,13 +13,17 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -27,6 +31,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class KineticLatheBlock extends KineticBlock implements IBE<KineticLatheBlockEntity>, ICogWheel {
     public static final String ID = KineticLatheRegistration.ID;
     public static final MapCodec<KineticLatheBlock> CODEC = simpleCodec(KineticLatheBlock::new);
+    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
     private static final VoxelShape SHAPE = box(0, 0, 3, 16, 11, 13);
 
@@ -38,6 +43,7 @@ public class KineticLatheBlock extends KineticBlock implements IBE<KineticLatheB
 
     public KineticLatheBlock(BlockBehaviour.Properties properties) {
         super(properties);
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.EAST));
     }
 
     @Override
@@ -52,7 +58,16 @@ public class KineticLatheBlock extends KineticBlock implements IBE<KineticLatheB
 
     @Override
     public Axis getRotationAxis(BlockState state) {
-        return Axis.X;
+        return state.getValue(FACING).getAxis();
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Direction direction = context.getHorizontalDirection();
+        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
+            direction = direction.getOpposite();
+        }
+        return defaultBlockState().setValue(FACING, direction);
     }
 
     @Override
@@ -92,5 +107,11 @@ public class KineticLatheBlock extends KineticBlock implements IBE<KineticLatheB
     @Override
     public BlockEntityType<? extends KineticLatheBlockEntity> getBlockEntityType() {
         return BlockEntityRegistry.KINETIC_LATHE.get();
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(FACING);
     }
 }

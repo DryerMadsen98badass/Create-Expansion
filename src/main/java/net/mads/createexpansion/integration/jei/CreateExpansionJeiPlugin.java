@@ -14,13 +14,15 @@ import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockD
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockDefinition;
 import net.mads.createexpansion.recipe.CERecipe;
 import net.mads.createexpansion.recipe.CERecipeTypes;
-import net.mads.createexpansion.recipe.recipes.foundry.FoundryMeltingRecipes;
+import net.mads.createexpansion.material.recipes.CasterTransformationRecipes;
+import net.mads.createexpansion.material.recipes.FoundryMeltingRecipes;
 import net.mads.createexpansion.registry.ItemRegistry;
 import net.mads.createexpansion.registry.RecipeRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
         registration.addRecipeCategories(new CoilingCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new FoundryMeltingCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new FoundryCastingCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new CasterTransformationCategory(registration.getJeiHelpers().getGuiHelper()));
 
         // Register categories for each CERecipeType
         for (var recipeType : CERecipeTypes.ALL) {
@@ -83,6 +86,10 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
             var foundryMeltingRecipes = recipeManager.getAllRecipesFor(RecipeRegistry.FOUNDRY_MELTING_RECIPE_TYPE.get());
             registration.addRecipes(FoundryMeltingCategory.TYPE, foundryMeltingRecipes.isEmpty() ? FoundryMeltingRecipes.syntheticRecipes() : foundryMeltingRecipes);
             registration.addRecipes(FoundryCastingCategory.TYPE, FoundryCastingJeiRecipe.all());
+            var casterTransformationRecipes = recipeManager.getAllRecipesFor(RecipeRegistry.CASTER_TRANSFORMATION_RECIPE_TYPE.get());
+            registration.addRecipes(CasterTransformationCategory.TYPE, casterTransformationRecipes.isEmpty()
+                    ? CasterTransformationRecipes.syntheticRecipes().stream().map(RecipeHolder::value).toList()
+                    : casterTransformationRecipes.stream().map(RecipeHolder::value).toList());
 
             for (var recipeType : CERecipeTypes.ALL) {
                 var recipes = recipeManager.getAllRecipesFor(RecipeRegistry.MACHINE_RECIPE_TYPE.get());
@@ -101,6 +108,9 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
         } else {
             registration.addRecipes(FoundryMeltingCategory.TYPE, FoundryMeltingRecipes.syntheticRecipes());
             registration.addRecipes(FoundryCastingCategory.TYPE, FoundryCastingJeiRecipe.all());
+            registration.addRecipes(CasterTransformationCategory.TYPE, CasterTransformationRecipes.syntheticRecipes().stream()
+                    .map(RecipeHolder::value)
+                    .toList());
         }
     }
 
@@ -119,6 +129,8 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
         registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_CONTROLLER.get(), FoundryCastingCategory.TYPE);
         registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_DRAIN.get(), FoundryCastingCategory.TYPE);
         registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_MOLD_CASTER.get(), FoundryCastingCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_DRAIN.get(), CasterTransformationCategory.TYPE);
+        registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_MOLD_CASTER.get(), CasterTransformationCategory.TYPE);
 
         for (var recipeType : RECIPE_TYPES.values()) {
             registration.addRecipeCatalyst(getCategoryIcon(recipeType.getUid()), recipeType);
@@ -152,6 +164,7 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
         recipeTypes.add(CoilingCategory.TYPE);
         recipeTypes.add(FoundryMeltingCategory.TYPE);
         recipeTypes.add(FoundryCastingCategory.TYPE);
+        recipeTypes.add(CasterTransformationCategory.TYPE);
         return recipeTypes;
     }
 
@@ -177,6 +190,20 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
         }
         if (recipeTypeUid.equals(FoundryCastingCategory.TYPE.getUid())) {
             return FoundryCastingJeiRecipe.all().stream()
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+        if (recipeTypeUid.equals(CasterTransformationCategory.TYPE.getUid())) {
+            if (Minecraft.getInstance().level == null) {
+                return CasterTransformationRecipes.syntheticRecipes().stream()
+                        .map(RecipeHolder::value)
+                        .map(recipe -> (T) recipe)
+                        .toList();
+            }
+
+            var recipes = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(RecipeRegistry.CASTER_TRANSFORMATION_RECIPE_TYPE.get());
+            return (recipes.isEmpty() ? CasterTransformationRecipes.syntheticRecipes() : recipes).stream()
+                    .map(RecipeHolder::value)
                     .map(recipe -> (T) recipe)
                     .toList();
         }

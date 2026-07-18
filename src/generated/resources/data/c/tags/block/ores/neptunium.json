@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:neptunium_deepslate_ore",
     "create_expansion:neptunium_andesite_ore",
-    "create_expansion:neptunium_netherrack_ore",
-    "create_expansion:neptunium_blackstone_ore",
-    "create_expansion:neptunium_end_stone_ore",
-    "create_expansion:neptunium_tuff_ore",
-    "create_expansion:neptunium_ore",
     "create_expansion:neptunium_diorite_ore",
-    "create_expansion:neptunium_granite_ore"
+    "create_expansion:neptunium_ore",
+    "create_expansion:neptunium_end_stone_ore",
+    "create_expansion:neptunium_blackstone_ore",
+    "create_expansion:neptunium_deepslate_ore",
+    "create_expansion:neptunium_granite_ore",
+    "create_expansion:neptunium_netherrack_ore",
+    "create_expansion:neptunium_tuff_ore"
   ]
 }

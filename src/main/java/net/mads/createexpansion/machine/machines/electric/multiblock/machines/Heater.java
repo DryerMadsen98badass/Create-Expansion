@@ -65,8 +65,8 @@ public final class Heater {
                     .layer(row(controller, d, d), row(a, c, a))
                     .layer(row(d, d, d),          row(a, a, a))
             )
-            .where(a, block("minecraft:dirt"))
-            .where(d, block("minecraft:dirt").or(ability(MultiblockAbility.ENERGY_INPUT).max(1)).overlay("minecraft:block/dirt"))
+            .where(a, block("create_expansion:ulv_machine_casing"))
+            .where(d, block("create_expansion:ulv_machine_casing").or(ability(MultiblockAbility.ENERGY_INPUT).max(8)).overlay("create_expansion:block/lv_machine_casing"))
             .where(c, coils())
             .build();
 

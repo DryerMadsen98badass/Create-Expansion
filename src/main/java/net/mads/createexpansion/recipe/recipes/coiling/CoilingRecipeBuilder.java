@@ -17,8 +17,9 @@ public final class CoilingRecipeBuilder {
     private ItemStack result = ItemStack.EMPTY;
     private int duration = 100;
     private int minRpm = 0;
+    private Optional<Integer> maxRpm = Optional.empty();
 
-    CoilingRecipeBuilder(String id) {
+    public CoilingRecipeBuilder(String id) {
         this.id = id;
     }
 
@@ -42,12 +43,18 @@ public final class CoilingRecipeBuilder {
         return this;
     }
 
+    public CoilingRecipeBuilder maxRpm(int maxRpm) {
+        this.maxRpm = Optional.of(maxRpm);
+        return this;
+    }
+
     public void save(RecipeOutput output) {
-        if (id.isBlank() || ingredient == null || result.isEmpty() || duration <= 0 || minRpm < 0) {
+        if (id.isBlank() || ingredient == null || result.isEmpty() || duration <= 0 || minRpm < 0
+                || maxRpm.isPresent() && maxRpm.get() < minRpm) {
             throw new IllegalStateException("Invalid coiling recipe: " + id);
         }
         output.accept(ResourceLocation.fromNamespaceAndPath(CreateExpansion.MOD_ID, "coiling/" + id),
                 new CoilingRecipe(List.of(ingredient), List.of(new ProcessingOutput(result, 1.0F)),
-                        duration, minRpm, Optional.empty()), null);
+                        duration, minRpm, maxRpm), null);
     }
 }

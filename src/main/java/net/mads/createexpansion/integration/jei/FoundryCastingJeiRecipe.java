@@ -1,6 +1,6 @@
 package net.mads.createexpansion.integration.jei;
 
-import net.mads.createexpansion.machine.machines.foundry.FoundryCastingRecipes;
+import net.mads.createexpansion.material.recipes.FoundryCastingRecipes;
 import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.registry.FluidRegistry;

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:skutterudite_deepslate_ore",
     "create_expansion:skutterudite_andesite_ore",
-    "create_expansion:skutterudite_netherrack_ore",
-    "create_expansion:skutterudite_blackstone_ore",
-    "create_expansion:skutterudite_end_stone_ore",
-    "create_expansion:skutterudite_tuff_ore",
-    "create_expansion:skutterudite_ore",
     "create_expansion:skutterudite_diorite_ore",
-    "create_expansion:skutterudite_granite_ore"
+    "create_expansion:skutterudite_ore",
+    "create_expansion:skutterudite_end_stone_ore",
+    "create_expansion:skutterudite_blackstone_ore",
+    "create_expansion:skutterudite_deepslate_ore",
+    "create_expansion:skutterudite_granite_ore",
+    "create_expansion:skutterudite_netherrack_ore",
+    "create_expansion:skutterudite_tuff_ore"
   ]
 }

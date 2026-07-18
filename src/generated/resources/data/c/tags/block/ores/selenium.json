@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:selenium_deepslate_ore",
     "create_expansion:selenium_andesite_ore",
-    "create_expansion:selenium_netherrack_ore",
-    "create_expansion:selenium_blackstone_ore",
-    "create_expansion:selenium_end_stone_ore",
-    "create_expansion:selenium_tuff_ore",
-    "create_expansion:selenium_ore",
     "create_expansion:selenium_diorite_ore",
-    "create_expansion:selenium_granite_ore"
+    "create_expansion:selenium_ore",
+    "create_expansion:selenium_end_stone_ore",
+    "create_expansion:selenium_blackstone_ore",
+    "create_expansion:selenium_deepslate_ore",
+    "create_expansion:selenium_granite_ore",
+    "create_expansion:selenium_netherrack_ore",
+    "create_expansion:selenium_tuff_ore"
   ]
 }

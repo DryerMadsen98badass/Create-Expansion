@@ -76,7 +76,9 @@ public class FoundryMeltingCategory implements IRecipeCategory<RecipeHolder<Foun
         FluidStack result = recipe.result();
         builder.addSlot(RecipeIngredientRole.OUTPUT, 112, 22)
                 .setBackground(CreateRecipeCategory.getRenderedSlot(), -1, -1)
-                .addFluidStack(result.getFluid(), result.getAmount(), result.getComponentsPatch());
+                .addFluidStack(result.getFluid(), result.getAmount(), result.getComponentsPatch())
+                .addTooltipCallback((slotView, tooltip) ->
+                        tooltip.add(Component.literal("Amount: " + result.getAmount() + " mB")));
     }
 
     @Override

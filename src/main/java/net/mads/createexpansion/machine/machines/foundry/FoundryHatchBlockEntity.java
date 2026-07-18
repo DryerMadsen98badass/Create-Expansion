@@ -61,9 +61,10 @@ public class FoundryHatchBlockEntity extends BlockEntity {
         }
 
         BlockEntity blockEntity = level.getBlockEntity(cachedController);
-        if (blockEntity instanceof FoundryControllerBlockEntity controller && controller.isFormed()) {
+        if (blockEntity instanceof FoundryControllerBlockEntity controller && controller.isFormed() && controller.hasAttachedHatch(worldPosition)) {
             return controller;
         }
+        cachedController = null;
         return null;
     }
 
@@ -82,7 +83,7 @@ public class FoundryHatchBlockEntity extends BlockEntity {
                         continue;
                     }
                     BlockEntity blockEntity = level.getBlockEntity(cursor);
-                    if (blockEntity instanceof FoundryControllerBlockEntity controller && controller.isFormed()) {
+                    if (blockEntity instanceof FoundryControllerBlockEntity controller && controller.isFormed() && controller.hasAttachedHatch(worldPosition)) {
                         cachedController = cursor.immutable();
                         return;
                     }

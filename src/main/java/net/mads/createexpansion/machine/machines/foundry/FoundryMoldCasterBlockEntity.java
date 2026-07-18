@@ -1,5 +1,8 @@
 package net.mads.createexpansion.machine.machines.foundry;
 
+import net.mads.createexpansion.material.recipes.FoundryCastingRecipes;
+import net.mads.createexpansion.material.recipes.CasterTransformationRecipes;
+import net.mads.createexpansion.recipe.recipes.foundry.CasterTransformationRecipe;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -15,19 +18,26 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 
 public class FoundryMoldCasterBlockEntity extends BlockEntity {
     private static final int SOLIDIFYING_VISUAL_TICKS = 20;
+    private static final int MB_PER_FILL_SECOND = 144;
     private final IItemHandler itemHandler = new CasterItemHandler();
+    private final IFluidHandler fluidHandler = new CasterFluidHandler();
     private ItemStack mold = ItemStack.EMPTY;
     private ItemStack output = ItemStack.EMPTY;
     private ItemStack pendingOutput = ItemStack.EMPTY;
     private ItemStack pendingMold = ItemStack.EMPTY;
     private FluidStack castingFluid = FluidStack.EMPTY;
+    private int fillingTicks;
+    private int fillingDuration;
+    private int pendingFluidTemperature;
     private int progress;
     private int duration;
     private int solidifyingTicks;
+    private boolean consumeMoldAfterCast;
 
     public FoundryMoldCasterBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityRegistry.FOUNDRY_MOLD_CASTER.get(), pos, state);
@@ -35,6 +45,18 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
 
     public static void tick(Level level, BlockPos pos, BlockState state, FoundryMoldCasterBlockEntity caster) {
         if (level.isClientSide()) {
+            caster.tickClientAnimation();
+            return;
+        }
+
+        if (caster.fillingTicks > 0) {
+            caster.fillingTicks--;
+            if (caster.fillingTicks == 0) {
+                caster.startCastingAfterFill();
+                caster.contentChanged();
+            } else {
+                caster.progressChanged();
+            }
             return;
         }
 
@@ -42,20 +64,25 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
             if (caster.solidifyingTicks > 0) {
                 caster.solidifyingTicks--;
                 if (caster.solidifyingTicks == 0) {
-                    if (!caster.pendingMold.isEmpty()) {
+                    if (caster.consumeMoldAfterCast) {
+                        caster.mold = ItemStack.EMPTY;
+                        caster.consumeMoldAfterCast = false;
+                    } else if (!caster.pendingMold.isEmpty()) {
                         caster.mold = caster.pendingMold.copy();
                         caster.pendingMold = ItemStack.EMPTY;
                     }
                     caster.castingFluid = FluidStack.EMPTY;
+                    caster.contentChanged();
+                } else {
+                    caster.progressChanged();
                 }
-                caster.contentChanged();
             }
             return;
         }
 
         caster.progress--;
         if (caster.progress > 0) {
-            caster.contentChanged();
+            caster.progressChanged();
             return;
         }
 
@@ -70,8 +97,22 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
         caster.contentChanged();
     }
 
+    private void tickClientAnimation() {
+        if (fillingTicks > 0) {
+            fillingTicks--;
+        } else if (progress > 0) {
+            progress--;
+        } else if (solidifyingTicks > 0) {
+            solidifyingTicks--;
+        }
+    }
+
     public IItemHandler itemCapability() {
         return itemHandler;
+    }
+
+    public IFluidHandler fluidCapability() {
+        return fluidHandler;
     }
 
     public ItemStack moldForRender() {
@@ -90,11 +131,32 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
     }
 
     public boolean hasCastingVisual() {
-        return (progress > 0 || solidifyingTicks > 0) && !castingFluid.isEmpty();
+        return (fillingTicks > 0 || hasStoredFluid() || progress > 0 || solidifyingTicks > 0) && !castingFluid.isEmpty();
+    }
+
+    public float castingFillForRender(float partialTick) {
+        if (castingFluid.isEmpty()) {
+            return 0;
+        }
+
+        if (fillingDuration > 0 && fillingTicks > 0) {
+            return 1.0F - Math.max(0, fillingTicks - partialTick) / (float) fillingDuration;
+        }
+
+        if (hasStoredFluid()) {
+            int capacity = currentMoldCapacity();
+            return capacity <= 0 ? 0 : Math.min(1.0F, castingFluid.getAmount() / (float) capacity);
+        }
+
+        return 1.0F;
     }
 
     public boolean busy() {
-        return progress > 0 || solidifyingTicks > 0 || !pendingOutput.isEmpty();
+        return fillingTicks > 0 || progress > 0 || solidifyingTicks > 0 || !pendingOutput.isEmpty();
+    }
+
+    private boolean hasStoredFluid() {
+        return !castingFluid.isEmpty() && progress <= 0 && solidifyingTicks <= 0;
     }
 
     public int tryStartCasting(FluidStack availableFluid, int fluidTemperature) {
@@ -103,7 +165,11 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
         }
 
         FoundryCastingRecipes.CastRecipe recipe = FoundryCastingRecipes.recipe(mold, availableFluid);
-        if (recipe == null || !outputCanAccept(recipe.output())) {
+        if (recipe == null) {
+            return tryStartTransformation(availableFluid);
+        }
+
+        if (!outputCanAccept(recipe.output())) {
             return 0;
         }
 
@@ -112,11 +178,15 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
             mold = ItemStack.EMPTY;
             pendingMold = ItemStack.EMPTY;
             castingFluid = FluidStack.EMPTY;
+            fillingTicks = 0;
+            fillingDuration = 0;
+            pendingFluidTemperature = 0;
             solidifyingTicks = 0;
             contentChanged();
             return recipe.shape().amountMb();
         }
 
+        pendingFluidTemperature = fluidTemperature;
         if (fluidTemperature > recipe.moldMaterial().castTemperature()) {
             ItemStack hotMold = FoundryCastingRecipes.hotMoldFor(recipe.moldMaterial(), recipe.shape());
             pendingMold = hotMold.isEmpty() ? ItemStack.EMPTY : hotMold.copyWithCount(1);
@@ -127,10 +197,56 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
         pendingOutput = recipe.output().copyWithCount(1);
         castingFluid = availableFluid.copyWithAmount(recipe.shape().amountMb());
         solidifyingTicks = 0;
+        consumeMoldAfterCast = false;
         duration = recipe.shape().durationTicks();
-        progress = duration;
+        progress = 0;
+        fillingDuration = fillDurationTicks(recipe.shape().amountMb());
+        fillingTicks = fillingDuration;
         contentChanged();
         return recipe.shape().amountMb();
+    }
+
+    private int tryStartTransformation(FluidStack availableFluid) {
+        CasterTransformationRecipe recipe = CasterTransformationRecipes.recipe(level, mold, availableFluid);
+        if (recipe == null || !outputCanAccept(recipe.result())) {
+            return 0;
+        }
+
+        int amountMb = recipe.fluid().getAmount();
+        pendingOutput = recipe.result().copyWithCount(1);
+        pendingMold = ItemStack.EMPTY;
+        castingFluid = availableFluid.copyWithAmount(amountMb);
+        pendingFluidTemperature = 0;
+        solidifyingTicks = 0;
+        consumeMoldAfterCast = true;
+        duration = FoundryCastingRecipes.durationTicks(amountMb);
+        progress = 0;
+        fillingDuration = fillDurationTicks(amountMb);
+        fillingTicks = fillingDuration;
+        contentChanged();
+        return amountMb;
+    }
+
+    private void startCastingAfterFill() {
+        fillingDuration = 0;
+        progress = duration;
+        pendingFluidTemperature = 0;
+    }
+
+    private int currentMoldCapacity() {
+        if (mold.isEmpty()) {
+            return 0;
+        }
+
+        FoundryCastingRecipes.CastShape shape = FoundryCastingRecipes.shapeForMold(mold);
+        if (shape != null) {
+            return shape.amountMb();
+        }
+        return CasterTransformationRecipes.isTemplate(mold) ? CasterTransformationRecipes.MOLD_AMOUNT_MB : 0;
+    }
+
+    public static int fillDurationTicks(int amountMb) {
+        return Math.max(1, Math.round(amountMb * (20.0F / MB_PER_FILL_SECOND)));
     }
 
     public InteractionResult useHeldItem(Player player, InteractionHand hand) {
@@ -140,7 +256,7 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
             return InteractionResult.SUCCESS;
         }
 
-        if (!mold.isEmpty() || !FoundryCastingRecipes.isNormalMold(held)) {
+        if (!mold.isEmpty() || hasStoredFluid() || !isAcceptedMoldItem(held)) {
             return InteractionResult.PASS;
         }
 
@@ -159,7 +275,7 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
             return;
         }
 
-        if (!busy() && !mold.isEmpty() && player.addItem(mold.copy())) {
+        if (!busy() && !hasStoredFluid() && !mold.isEmpty() && player.addItem(mold.copy())) {
             mold = ItemStack.EMPTY;
             contentChanged();
         }
@@ -172,6 +288,14 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
     private void contentChanged() {
         setChanged();
         if (level != null && !level.isClientSide()) {
+            BlockState state = getBlockState();
+            level.sendBlockUpdated(worldPosition, state, state, 3);
+        }
+    }
+
+    private void progressChanged() {
+        setChanged();
+        if (level != null && !level.isClientSide() && level.getGameTime() % 5L == 0L) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, 3);
         }
@@ -195,9 +319,13 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
         if (!castingFluid.isEmpty()) {
             tag.put("CastingFluid", castingFluid.saveOptional(registries));
         }
+        tag.putInt("FillingTicks", fillingTicks);
+        tag.putInt("FillingDuration", fillingDuration);
+        tag.putInt("PendingFluidTemperature", pendingFluidTemperature);
         tag.putInt("Progress", progress);
         tag.putInt("Duration", duration);
         tag.putInt("SolidifyingTicks", solidifyingTicks);
+        tag.putBoolean("ConsumeMoldAfterCast", consumeMoldAfterCast);
     }
 
     @Override
@@ -208,9 +336,13 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
         pendingOutput = tag.contains("PendingOutput") ? ItemStack.parseOptional(registries, tag.getCompound("PendingOutput")) : ItemStack.EMPTY;
         pendingMold = tag.contains("PendingMold") ? ItemStack.parseOptional(registries, tag.getCompound("PendingMold")) : ItemStack.EMPTY;
         castingFluid = tag.contains("CastingFluid") ? FluidStack.parseOptional(registries, tag.getCompound("CastingFluid")) : FluidStack.EMPTY;
+        fillingTicks = tag.getInt("FillingTicks");
+        fillingDuration = tag.getInt("FillingDuration");
+        pendingFluidTemperature = tag.getInt("PendingFluidTemperature");
         progress = tag.getInt("Progress");
         duration = tag.getInt("Duration");
         solidifyingTicks = tag.getInt("SolidifyingTicks");
+        consumeMoldAfterCast = tag.getBoolean("ConsumeMoldAfterCast");
     }
 
     @Override
@@ -238,7 +370,7 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (slot != 1 || stack.isEmpty() || !mold.isEmpty() || !FoundryCastingRecipes.isNormalMold(stack)) {
+            if (slot != 1 || stack.isEmpty() || !mold.isEmpty() || !isAcceptedMoldItem(stack)) {
                 return stack;
             }
 
@@ -272,7 +404,7 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
                 }
                 return extracted;
             }
-            if (slot != 1 || busy() || !output.isEmpty() || mold.isEmpty()) {
+            if (slot != 1 || busy() || hasStoredFluid() || !output.isEmpty() || mold.isEmpty()) {
                 return ItemStack.EMPTY;
             }
 
@@ -291,7 +423,110 @@ public class FoundryMoldCasterBlockEntity extends BlockEntity {
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return slot == 1 && FoundryCastingRecipes.isNormalMold(stack);
+            return slot == 1 && isAcceptedMoldItem(stack);
         }
+    }
+
+    private final class CasterFluidHandler implements IFluidHandler {
+        @Override
+        public int getTanks() {
+            return 1;
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            return tank == 0 ? castingFluid.copy() : FluidStack.EMPTY;
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            if (tank != 0 || mold.isEmpty() || busy()) {
+                return 0;
+            }
+
+            FoundryCastingRecipes.CastShape shape = FoundryCastingRecipes.shapeForMold(mold);
+            return shape == null ? 0 : shape.amountMb();
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return tank == 0 && canAcceptFluid(stack);
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            if (!canAcceptFluid(resource)) {
+                return 0;
+            }
+
+            int capacity = getTankCapacity(0);
+            if (capacity <= 0) {
+                return 0;
+            }
+
+            int stored = castingFluid.isEmpty() ? 0 : castingFluid.getAmount();
+            int fillAmount = Math.min(resource.getAmount(), capacity - stored);
+            if (fillAmount <= 0) {
+                return 0;
+            }
+
+            if (action.execute()) {
+                if (castingFluid.isEmpty()) {
+                    castingFluid = resource.copyWithAmount(fillAmount);
+                } else {
+                    castingFluid.grow(fillAmount);
+                }
+
+                if (castingFluid.getAmount() >= capacity) {
+                    int fluidTemperature = castingFluidMaterialTemperature();
+                    tryStartCasting(castingFluid.copy(), fluidTemperature);
+                } else {
+                    contentChanged();
+                }
+            }
+
+            return fillAmount;
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            return FluidStack.EMPTY;
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            return FluidStack.EMPTY;
+        }
+
+        private boolean canAcceptFluid(FluidStack stack) {
+            if (stack.isEmpty() || mold.isEmpty() || busy()) {
+                return false;
+            }
+            if (!castingFluid.isEmpty() && !FluidStack.isSameFluidSameComponents(castingFluid, stack)) {
+                return false;
+            }
+
+            int capacity = getTankCapacity(0);
+            if (capacity <= 0 || castingFluid.getAmount() >= capacity) {
+                return false;
+            }
+
+            FluidStack recipeStack = stack.copyWithAmount(capacity);
+            FoundryCastingRecipes.CastRecipe recipe = FoundryCastingRecipes.recipe(mold, recipeStack);
+            if (recipe != null) {
+                return outputCanAccept(recipe.output());
+            }
+            CasterTransformationRecipe transformation = CasterTransformationRecipes.recipe(level, mold, recipeStack);
+            return transformation != null && outputCanAccept(transformation.result());
+        }
+
+        private int castingFluidMaterialTemperature() {
+            var target = net.mads.createexpansion.material.MaterialLookup.find(castingFluid);
+            return target == null ? 0 : target.material().meltingPoint();
+        }
+    }
+
+    private static boolean isAcceptedMoldItem(ItemStack stack) {
+        return FoundryCastingRecipes.isNormalMold(stack) || CasterTransformationRecipes.isTemplate(stack);
     }
 }

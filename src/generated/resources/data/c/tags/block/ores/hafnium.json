@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:hafnium_deepslate_ore",
     "create_expansion:hafnium_andesite_ore",
-    "create_expansion:hafnium_netherrack_ore",
-    "create_expansion:hafnium_blackstone_ore",
-    "create_expansion:hafnium_end_stone_ore",
-    "create_expansion:hafnium_tuff_ore",
-    "create_expansion:hafnium_ore",
     "create_expansion:hafnium_diorite_ore",
-    "create_expansion:hafnium_granite_ore"
+    "create_expansion:hafnium_ore",
+    "create_expansion:hafnium_end_stone_ore",
+    "create_expansion:hafnium_blackstone_ore",
+    "create_expansion:hafnium_deepslate_ore",
+    "create_expansion:hafnium_granite_ore",
+    "create_expansion:hafnium_netherrack_ore",
+    "create_expansion:hafnium_tuff_ore"
   ]
 }

@@ -166,8 +166,19 @@ src/main/java/net/mads/createexpansion/recipe/recipes/<machine>/
 - <RecipeName>Recipe.java
 - <RecipeName>RecipeInput.java
 - <RecipeName>RecipeBuilder.java
-- <RecipeName>Recipes.java
+- <RecipeName>Recipes.java, only when the recipe list is not generated from IndustrialMaterials
 - <RecipeName>RecipeParams.java, when using Create ProcessingRecipeParams
+
+src/main/java/net/mads/createexpansion/material/recipes/
+
+- <RecipeName>Recipes.java, when the recipe list is generated from IndustrialMaterials or MaterialPart
+- Material recipe providers/helpers, for example CreateMaterialRecipeProvider, FoundryMeltingRecipes,
+  FoundryCastingRecipes, FoundryWashingRecipeProvider, and MaterialRecipeHelper
+
+Keep the generic recipe data class, input, serializer/type, and builder under recipe/.
+Keep material-dynamic recipe lists/providers/helpers under material/recipes/.
+When a material/recipes list uses `new <RecipeName>RecipeBuilder(...)`, the builder constructor
+must be public because the list and builder are in different Java packages.
 
 JEI Java file
 --------------

@@ -140,6 +140,7 @@ public class MaterialTextures {
             case SPRING -> "spring";
             case COIL -> "coil";
             case ROTOR -> "rotor";
+            case TOOL_HEAD_BUZZ_SAW -> "tool_head_buzz_saw";
             case REINFORCED_PLATE -> "plate_reinforced";
             case HEAT_EXCHANGER_PLATE -> "plate_heat_exchanger";
             case CAST_INGOT -> "ingot_hot";

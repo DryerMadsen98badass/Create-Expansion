@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:orthoclase_deepslate_ore",
     "create_expansion:orthoclase_andesite_ore",
-    "create_expansion:orthoclase_netherrack_ore",
-    "create_expansion:orthoclase_blackstone_ore",
-    "create_expansion:orthoclase_end_stone_ore",
-    "create_expansion:orthoclase_tuff_ore",
-    "create_expansion:orthoclase_ore",
     "create_expansion:orthoclase_diorite_ore",
-    "create_expansion:orthoclase_granite_ore"
+    "create_expansion:orthoclase_ore",
+    "create_expansion:orthoclase_end_stone_ore",
+    "create_expansion:orthoclase_blackstone_ore",
+    "create_expansion:orthoclase_deepslate_ore",
+    "create_expansion:orthoclase_granite_ore",
+    "create_expansion:orthoclase_netherrack_ore",
+    "create_expansion:orthoclase_tuff_ore"
   ]
 }
