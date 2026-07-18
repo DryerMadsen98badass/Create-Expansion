@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:beryllium_bearing"
+  },
+  "nuggets": 18,
+  "result": {
+    "amount": 288,
+    "id": "create_expansion:molten_beryllium"
+  },
+  "temperature": 1287
+}

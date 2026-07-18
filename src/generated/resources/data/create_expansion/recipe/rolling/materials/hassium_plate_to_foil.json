@@ -1,0 +1,15 @@
+{
+  "type": "create_expansion:rolling",
+  "ingredients": [
+    {
+      "item": "create_expansion:hassium_plate"
+    }
+  ],
+  "max_rpm": 32,
+  "processing_time": 80,
+  "results": [
+    {
+      "id": "create_expansion:hassium_foil"
+    }
+  ]
+}

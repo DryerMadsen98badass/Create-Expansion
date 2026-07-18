@@ -1,0 +1,14 @@
+{
+  "type": "create:cutting",
+  "ingredients": [
+    {
+      "item": "create_expansion:fermium_gear"
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "id": "create_expansion:fermium_tool_head_buzz_saw"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "type": "create:cutting",
+  "ingredients": [
+    {
+      "item": "create_expansion:molybdenum_plate"
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "id": "create_expansion:molybdenum_long_rod"
+    }
+  ]
+}

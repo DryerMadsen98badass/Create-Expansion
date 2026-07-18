@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:hydraulic_pressing",
+  "blows": 3,
+  "ingredients": [
+    {
+      "item": "create_expansion:rubidium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:rubidium_plate"
+    }
+  ]
+}

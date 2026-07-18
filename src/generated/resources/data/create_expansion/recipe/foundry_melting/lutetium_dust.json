@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:lutetium_dust"
+  },
+  "nuggets": 9,
+  "result": {
+    "amount": 144,
+    "id": "create_expansion:molten_lutetium"
+  },
+  "temperature": 1663
+}

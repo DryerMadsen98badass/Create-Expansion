@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:calcium_large_ring"
+  },
+  "loops": 8,
+  "results": [
+    {
+      "id": "create_expansion:calcium_bearing"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:calcium_bearing"
+        },
+        {
+          "item": "create_expansion:calcium_bearing_ball"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:calcium_bearing"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:calcium_bearing"
+  }
+}

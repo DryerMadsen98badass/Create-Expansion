@@ -1,0 +1,14 @@
+{
+  "type": "create:cutting",
+  "ingredients": [
+    {
+      "item": "create_expansion:praseodymium_plate"
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "id": "create_expansion:praseodymium_long_rod"
+    }
+  ]
+}

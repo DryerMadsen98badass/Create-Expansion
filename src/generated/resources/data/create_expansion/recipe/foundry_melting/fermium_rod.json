@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:fermium_rod"
+  },
+  "nuggets": 5,
+  "result": {
+    "amount": 72,
+    "id": "create_expansion:molten_fermium"
+  },
+  "temperature": 1527
+}

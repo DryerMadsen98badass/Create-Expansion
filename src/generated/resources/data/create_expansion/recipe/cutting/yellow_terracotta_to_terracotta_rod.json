@@ -1,0 +1,15 @@
+{
+  "type": "create:cutting",
+  "ingredients": [
+    {
+      "item": "minecraft:yellow_terracotta"
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "chance": 0.05,
+      "id": "create_expansion:terracotta_rod"
+    }
+  ]
+}

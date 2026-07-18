@@ -35,11 +35,9 @@ bin/
 ### Minecraft Modding ###
 run/
 !**/src/**/run/
+**/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
-
-### Generated mod data (NeoForge datagen) ###
-/src/generated/
 
 ### Local workspace artifacts ###
 /.tmp/

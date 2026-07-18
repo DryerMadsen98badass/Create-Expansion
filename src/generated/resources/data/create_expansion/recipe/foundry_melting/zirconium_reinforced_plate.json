@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:zirconium_reinforced_plate"
+  },
+  "nuggets": 18,
+  "result": {
+    "amount": 288,
+    "id": "create_expansion:molten_zirconium"
+  },
+  "temperature": 1855
+}

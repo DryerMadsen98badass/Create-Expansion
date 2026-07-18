@@ -1,0 +1,15 @@
+{
+  "type": "create_expansion:coiling",
+  "ingredients": [
+    {
+      "item": "create_expansion:aluminum_wire"
+    }
+  ],
+  "max_rpm": 64,
+  "processing_time": 320,
+  "results": [
+    {
+      "id": "create_expansion:aluminum_spring"
+    }
+  ]
+}

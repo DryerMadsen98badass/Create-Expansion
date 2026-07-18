@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:cesium_cast_ring"
+  },
+  "nuggets": 5,
+  "result": {
+    "amount": 72,
+    "id": "create_expansion:molten_cesium"
+  },
+  "temperature": 28
+}

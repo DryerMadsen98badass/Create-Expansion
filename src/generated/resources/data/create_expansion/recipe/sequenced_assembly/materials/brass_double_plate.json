@@ -1,0 +1,46 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create:brass_sheet"
+  },
+  "loops": 1,
+  "results": [
+    {
+      "id": "create_expansion:brass_double_plate"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:brass_double_plate"
+        },
+        {
+          "item": "create:brass_sheet"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:brass_double_plate"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "create_expansion:brass_double_plate"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:brass_double_plate"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:brass_double_plate"
+  }
+}

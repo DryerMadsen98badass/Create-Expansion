@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:vanadium_bolt"
+  },
+  "nuggets": 2,
+  "result": {
+    "amount": 36,
+    "id": "create_expansion:molten_vanadium"
+  },
+  "temperature": 1910
+}

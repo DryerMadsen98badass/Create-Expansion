@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:lanthanum_ring"
+  },
+  "nuggets": 5,
+  "result": {
+    "amount": 72,
+    "id": "create_expansion:molten_lanthanum"
+  },
+  "temperature": 920
+}

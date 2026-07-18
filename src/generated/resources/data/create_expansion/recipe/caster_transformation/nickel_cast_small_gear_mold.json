@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:caster_transformation",
+  "fluid": {
+    "amount": 576,
+    "id": "create_expansion:molten_nickel"
+  },
+  "result": {
+    "count": 1,
+    "id": "create_expansion:nickel_cast_small_gear_mold"
+  },
+  "template": {
+    "item": "create_expansion:terracotta_small_gear"
+  }
+}

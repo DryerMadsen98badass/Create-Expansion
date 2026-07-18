@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:roentgenium_large_ring"
+  },
+  "loops": 8,
+  "results": [
+    {
+      "id": "create_expansion:roentgenium_bearing"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:roentgenium_bearing"
+        },
+        {
+          "item": "create_expansion:roentgenium_bearing_ball"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:roentgenium_bearing"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:roentgenium_bearing"
+  }
+}

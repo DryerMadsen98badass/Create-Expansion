@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:nihonium_frame"
+  },
+  "nuggets": 54,
+  "result": {
+    "amount": 864,
+    "id": "create_expansion:nihonium"
+  },
+  "temperature": 1
+}

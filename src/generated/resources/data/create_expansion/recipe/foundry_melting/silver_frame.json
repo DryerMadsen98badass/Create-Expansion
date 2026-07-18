@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:silver_frame"
+  },
+  "nuggets": 54,
+  "result": {
+    "amount": 864,
+    "id": "create_expansion:molten_silver"
+  },
+  "temperature": 962
+}

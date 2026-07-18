@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:seaborgium_small_ring"
+  },
+  "nuggets": 2,
+  "result": {
+    "amount": 36,
+    "id": "create_expansion:seaborgium"
+  },
+  "temperature": 1
+}

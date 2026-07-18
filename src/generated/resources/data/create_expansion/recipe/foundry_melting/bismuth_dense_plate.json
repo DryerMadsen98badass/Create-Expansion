@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:bismuth_dense_plate"
+  },
+  "nuggets": 81,
+  "result": {
+    "amount": 1296,
+    "id": "create_expansion:molten_bismuth"
+  },
+  "temperature": 271
+}

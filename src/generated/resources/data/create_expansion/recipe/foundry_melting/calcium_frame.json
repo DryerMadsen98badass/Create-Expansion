@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:calcium_frame"
+  },
+  "nuggets": 54,
+  "result": {
+    "amount": 864,
+    "id": "create_expansion:molten_calcium"
+  },
+  "temperature": 842
+}

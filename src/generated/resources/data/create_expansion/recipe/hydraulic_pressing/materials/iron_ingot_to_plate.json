@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:hydraulic_pressing",
+  "blows": 3,
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create:iron_sheet"
+    }
+  ]
+}

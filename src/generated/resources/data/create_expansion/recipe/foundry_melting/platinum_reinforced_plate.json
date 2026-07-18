@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:platinum_reinforced_plate"
+  },
+  "nuggets": 18,
+  "result": {
+    "amount": 288,
+    "id": "create_expansion:molten_platinum"
+  },
+  "temperature": 1768
+}

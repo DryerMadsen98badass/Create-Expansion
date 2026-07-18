@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:tungsten_rod"
+  },
+  "loops": 11,
+  "results": [
+    {
+      "id": "create_expansion:tungsten_frame"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:tungsten_frame"
+        },
+        {
+          "item": "create_expansion:tungsten_rod"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:tungsten_frame"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:tungsten_frame"
+  }
+}

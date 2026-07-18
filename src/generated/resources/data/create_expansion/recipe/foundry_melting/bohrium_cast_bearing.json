@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:bohrium_cast_bearing"
+  },
+  "nuggets": 18,
+  "result": {
+    "amount": 288,
+    "id": "create_expansion:bohrium"
+  },
+  "temperature": 1
+}

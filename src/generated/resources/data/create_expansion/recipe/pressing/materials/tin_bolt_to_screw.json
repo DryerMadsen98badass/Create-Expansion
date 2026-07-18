@@ -1,0 +1,13 @@
+{
+  "type": "create:pressing",
+  "ingredients": [
+    {
+      "item": "create_expansion:tin_bolt"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:tin_screw"
+    }
+  ]
+}

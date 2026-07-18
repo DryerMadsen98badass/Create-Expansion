@@ -1,0 +1,19 @@
+{
+  "values": [
+    "create_expansion:ruthenium_cast_nugget_mold",
+    "create_expansion:ruthenium_cast_bearing_ball_mold",
+    "create_expansion:ruthenium_cast_rotor_mold",
+    "create_expansion:ruthenium_cast_ingot_mold",
+    "create_expansion:ruthenium_cast_plate_mold",
+    "create_expansion:ruthenium_cast_rod_mold",
+    "create_expansion:ruthenium_cast_long_rod_mold",
+    "create_expansion:ruthenium_cast_bolt_mold",
+    "create_expansion:ruthenium_cast_ring_mold",
+    "create_expansion:ruthenium_cast_small_ring_mold",
+    "create_expansion:ruthenium_cast_large_ring_mold",
+    "create_expansion:ruthenium_cast_gear_mold",
+    "create_expansion:ruthenium_cast_small_gear_mold",
+    "create_expansion:ruthenium_cast_bearing_mold",
+    "create_expansion:ruthenium_cast_screw_mold"
+  ]
+}

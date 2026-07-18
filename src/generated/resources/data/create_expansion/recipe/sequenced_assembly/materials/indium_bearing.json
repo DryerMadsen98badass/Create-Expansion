@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:indium_large_ring"
+  },
+  "loops": 8,
+  "results": [
+    {
+      "id": "create_expansion:indium_bearing"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:indium_bearing"
+        },
+        {
+          "item": "create_expansion:indium_bearing_ball"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:indium_bearing"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:indium_bearing"
+  }
+}

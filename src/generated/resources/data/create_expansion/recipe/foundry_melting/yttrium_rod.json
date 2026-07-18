@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:yttrium_rod"
+  },
+  "nuggets": 5,
+  "result": {
+    "amount": 72,
+    "id": "create_expansion:molten_yttrium"
+  },
+  "temperature": 1526
+}

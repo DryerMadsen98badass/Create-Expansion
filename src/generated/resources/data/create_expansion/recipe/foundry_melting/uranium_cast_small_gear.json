@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:uranium_cast_small_gear"
+  },
+  "nuggets": 9,
+  "result": {
+    "amount": 144,
+    "id": "create_expansion:molten_uranium"
+  },
+  "temperature": 1132
+}

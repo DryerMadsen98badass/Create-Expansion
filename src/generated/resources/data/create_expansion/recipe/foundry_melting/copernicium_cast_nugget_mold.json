@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:copernicium_cast_nugget_mold"
+  },
+  "nuggets": 36,
+  "result": {
+    "amount": 576,
+    "id": "create_expansion:copernicium"
+  },
+  "temperature": 1
+}

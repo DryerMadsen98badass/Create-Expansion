@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:beryllium_hot_cast_gear_mold"
+  },
+  "nuggets": 36,
+  "result": {
+    "amount": 576,
+    "id": "create_expansion:molten_beryllium"
+  },
+  "temperature": 1287
+}

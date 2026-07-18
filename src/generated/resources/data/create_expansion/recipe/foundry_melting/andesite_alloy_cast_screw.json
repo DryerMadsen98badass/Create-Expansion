@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:andesite_alloy_cast_screw"
+  },
+  "nuggets": 2,
+  "result": {
+    "amount": 36,
+    "id": "create_expansion:molten_andesite_alloy"
+  },
+  "temperature": 1538
+}

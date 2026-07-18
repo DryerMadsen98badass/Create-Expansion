@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:hydraulic_pressing",
+  "blows": 3,
+  "ingredients": [
+    {
+      "item": "create:andesite_alloy"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:andesite_alloy_plate"
+    }
+  ]
+}

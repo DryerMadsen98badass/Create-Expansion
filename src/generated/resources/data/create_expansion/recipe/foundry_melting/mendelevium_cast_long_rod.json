@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:mendelevium_cast_long_rod"
+  },
+  "nuggets": 9,
+  "result": {
+    "amount": 144,
+    "id": "create_expansion:molten_mendelevium"
+  },
+  "temperature": 827
+}

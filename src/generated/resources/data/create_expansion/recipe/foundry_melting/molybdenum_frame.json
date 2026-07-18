@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:molybdenum_frame"
+  },
+  "nuggets": 54,
+  "result": {
+    "amount": 864,
+    "id": "create_expansion:molten_molybdenum"
+  },
+  "temperature": 2623
+}

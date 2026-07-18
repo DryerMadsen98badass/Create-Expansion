@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:hydraulic_pressing",
+  "blows": 3,
+  "ingredients": [
+    {
+      "item": "minecraft:gold_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create:golden_sheet"
+    }
+  ]
+}

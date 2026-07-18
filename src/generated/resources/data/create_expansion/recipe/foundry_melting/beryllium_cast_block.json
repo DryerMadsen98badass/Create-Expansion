@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:beryllium_cast_block"
+  },
+  "nuggets": 81,
+  "result": {
+    "amount": 1296,
+    "id": "create_expansion:molten_beryllium"
+  },
+  "temperature": 1287
+}

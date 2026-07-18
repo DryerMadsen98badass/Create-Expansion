@@ -1,0 +1,13 @@
+{
+  "type": "create:pressing",
+  "ingredients": [
+    {
+      "item": "create_expansion:nickel_bolt"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:nickel_screw"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:meitnerium_screw"
+  },
+  "nuggets": 2,
+  "result": {
+    "amount": 36,
+    "id": "create_expansion:meitnerium"
+  },
+  "temperature": 1
+}

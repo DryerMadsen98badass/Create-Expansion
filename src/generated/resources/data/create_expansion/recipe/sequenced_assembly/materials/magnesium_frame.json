@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:magnesium_rod"
+  },
+  "loops": 11,
+  "results": [
+    {
+      "id": "create_expansion:magnesium_frame"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:magnesium_frame"
+        },
+        {
+          "item": "create_expansion:magnesium_rod"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:magnesium_frame"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:magnesium_frame"
+  }
+}

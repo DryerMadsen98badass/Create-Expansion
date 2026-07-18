@@ -1,0 +1,46 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create:golden_sheet"
+  },
+  "loops": 1,
+  "results": [
+    {
+      "id": "create_expansion:gold_double_plate"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:gold_double_plate"
+        },
+        {
+          "item": "create:golden_sheet"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:gold_double_plate"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "create_expansion:gold_double_plate"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:gold_double_plate"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:gold_double_plate"
+  }
+}

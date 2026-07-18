@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:lanthanum_large_gear"
+  },
+  "nuggets": 72,
+  "result": {
+    "amount": 1152,
+    "id": "create_expansion:molten_lanthanum"
+  },
+  "temperature": 920
+}

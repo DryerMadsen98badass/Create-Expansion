@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:cesium_rod"
+  },
+  "loops": 11,
+  "results": [
+    {
+      "id": "create_expansion:cesium_frame"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:cesium_frame"
+        },
+        {
+          "item": "create_expansion:cesium_rod"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:cesium_frame"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:cesium_frame"
+  }
+}

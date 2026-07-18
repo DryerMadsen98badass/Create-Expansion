@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:hydraulic_pressing",
+  "blows": 3,
+  "ingredients": [
+    {
+      "item": "create_expansion:mendelevium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:mendelevium_plate"
+    }
+  ]
+}

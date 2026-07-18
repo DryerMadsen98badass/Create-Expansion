@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:zirconium_tiny_dust"
+  },
+  "nuggets": 1,
+  "result": {
+    "amount": 16,
+    "id": "create_expansion:molten_zirconium"
+  },
+  "temperature": 1855
+}

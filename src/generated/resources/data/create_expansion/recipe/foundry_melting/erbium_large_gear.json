@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:erbium_large_gear"
+  },
+  "nuggets": 72,
+  "result": {
+    "amount": 1152,
+    "id": "create_expansion:molten_erbium"
+  },
+  "temperature": 1529
+}

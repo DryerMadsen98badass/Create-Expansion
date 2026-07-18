@@ -1,0 +1,15 @@
+{
+  "type": "create:cutting",
+  "ingredients": [
+    {
+      "item": "create_expansion:beryllium_long_rod"
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "count": 2,
+      "id": "create_expansion:beryllium_rod"
+    }
+  ]
+}

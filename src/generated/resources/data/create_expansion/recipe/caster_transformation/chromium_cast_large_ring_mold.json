@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:caster_transformation",
+  "fluid": {
+    "amount": 576,
+    "id": "create_expansion:molten_chromium"
+  },
+  "result": {
+    "count": 1,
+    "id": "create_expansion:chromium_cast_large_ring_mold"
+  },
+  "template": {
+    "item": "create_expansion:terracotta_large_ring"
+  }
+}

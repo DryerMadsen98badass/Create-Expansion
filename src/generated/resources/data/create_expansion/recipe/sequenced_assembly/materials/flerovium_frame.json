@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:flerovium_rod"
+  },
+  "loops": 11,
+  "results": [
+    {
+      "id": "create_expansion:flerovium_frame"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:flerovium_frame"
+        },
+        {
+          "item": "create_expansion:flerovium_rod"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:flerovium_frame"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:flerovium_frame"
+  }
+}

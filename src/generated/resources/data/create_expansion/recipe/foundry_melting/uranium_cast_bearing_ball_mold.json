@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:uranium_cast_bearing_ball_mold"
+  },
+  "nuggets": 36,
+  "result": {
+    "amount": 576,
+    "id": "create_expansion:molten_uranium"
+  },
+  "temperature": 1132
+}

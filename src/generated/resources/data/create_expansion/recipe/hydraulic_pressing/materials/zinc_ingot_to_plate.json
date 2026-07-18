@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:hydraulic_pressing",
+  "blows": 3,
+  "ingredients": [
+    {
+      "item": "create:zinc_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:zinc_plate"
+    }
+  ]
+}

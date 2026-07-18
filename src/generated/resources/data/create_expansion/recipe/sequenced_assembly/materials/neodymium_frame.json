@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:neodymium_rod"
+  },
+  "loops": 11,
+  "results": [
+    {
+      "id": "create_expansion:neodymium_frame"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:neodymium_frame"
+        },
+        {
+          "item": "create_expansion:neodymium_rod"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:neodymium_frame"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:neodymium_frame"
+  }
+}

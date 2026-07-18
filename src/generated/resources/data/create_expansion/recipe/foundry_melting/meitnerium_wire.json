@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:meitnerium_wire"
+  },
+  "nuggets": 9,
+  "result": {
+    "amount": 144,
+    "id": "create_expansion:meitnerium"
+  },
+  "temperature": 1
+}

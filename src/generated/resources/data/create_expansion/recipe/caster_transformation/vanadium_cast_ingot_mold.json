@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:caster_transformation",
+  "fluid": {
+    "amount": 576,
+    "id": "create_expansion:molten_vanadium"
+  },
+  "result": {
+    "count": 1,
+    "id": "create_expansion:vanadium_cast_ingot_mold"
+  },
+  "template": {
+    "item": "create_expansion:terracotta_ingot"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:praseodymium_large_ring"
+  },
+  "loops": 8,
+  "results": [
+    {
+      "id": "create_expansion:praseodymium_bearing"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:praseodymium_bearing"
+        },
+        {
+          "item": "create_expansion:praseodymium_bearing_ball"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:praseodymium_bearing"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:praseodymium_bearing"
+  }
+}

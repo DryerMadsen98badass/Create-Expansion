@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:darmstadtium_hot_cast_small_gear_mold"
+  },
+  "nuggets": 36,
+  "result": {
+    "amount": 576,
+    "id": "create_expansion:darmstadtium"
+  },
+  "temperature": 1
+}

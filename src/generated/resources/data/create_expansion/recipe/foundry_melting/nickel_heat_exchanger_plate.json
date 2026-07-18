@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:nickel_heat_exchanger_plate"
+  },
+  "nuggets": 9,
+  "result": {
+    "amount": 144,
+    "id": "create_expansion:molten_nickel"
+  },
+  "temperature": 1455
+}

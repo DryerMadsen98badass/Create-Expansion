@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:foundry_melting",
+  "ingredient": {
+    "item": "create_expansion:praseodymium_cast_block"
+  },
+  "nuggets": 81,
+  "result": {
+    "amount": 1296,
+    "id": "create_expansion:molten_praseodymium"
+  },
+  "temperature": 931
+}

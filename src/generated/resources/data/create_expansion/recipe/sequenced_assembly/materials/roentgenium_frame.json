@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:roentgenium_rod"
+  },
+  "loops": 11,
+  "results": [
+    {
+      "id": "create_expansion:roentgenium_frame"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:roentgenium_frame"
+        },
+        {
+          "item": "create_expansion:roentgenium_rod"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:roentgenium_frame"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:roentgenium_frame"
+  }
+}

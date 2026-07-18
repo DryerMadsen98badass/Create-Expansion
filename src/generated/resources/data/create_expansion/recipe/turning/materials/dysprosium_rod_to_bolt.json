@@ -1,0 +1,16 @@
+{
+  "type": "create_expansion:turning",
+  "ingredients": [
+    {
+      "item": "create_expansion:dysprosium_rod"
+    }
+  ],
+  "min_rpm": 64,
+  "processing_time": 80,
+  "results": [
+    {
+      "count": 2,
+      "id": "create_expansion:dysprosium_bolt"
+    }
+  ]
+}

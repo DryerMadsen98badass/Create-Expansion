@@ -1,0 +1,15 @@
+{
+  "type": "create:cutting",
+  "ingredients": [
+    {
+      "item": "minecraft:light_gray_terracotta"
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "chance": 0.05,
+      "id": "create_expansion:terracotta_large_ring"
+    }
+  ]
+}

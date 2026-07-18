@@ -1,0 +1,46 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:fermium_plate"
+  },
+  "loops": 1,
+  "results": [
+    {
+      "id": "create_expansion:fermium_double_plate"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:fermium_double_plate"
+        },
+        {
+          "item": "create_expansion:fermium_plate"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:fermium_double_plate"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "create_expansion:fermium_double_plate"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:fermium_double_plate"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:fermium_double_plate"
+  }
+}

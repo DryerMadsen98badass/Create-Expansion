@@ -1,0 +1,18 @@
+{
+  "type": "create_expansion:wire_drawing",
+  "ingredients": [
+    {
+      "item": "create_expansion:bismuth_wire"
+    },
+    {
+      "item": "create_expansion:spool"
+    }
+  ],
+  "max_rpm": 128,
+  "processing_time": 1280,
+  "results": [
+    {
+      "id": "create_expansion:bismuth_fine_wire"
+    }
+  ]
+}

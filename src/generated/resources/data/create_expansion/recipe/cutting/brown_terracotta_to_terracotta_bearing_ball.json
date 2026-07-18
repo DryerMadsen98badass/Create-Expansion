@@ -1,0 +1,15 @@
+{
+  "type": "create:cutting",
+  "ingredients": [
+    {
+      "item": "minecraft:brown_terracotta"
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "chance": 0.05,
+      "id": "create_expansion:terracotta_bearing_ball"
+    }
+  ]
+}

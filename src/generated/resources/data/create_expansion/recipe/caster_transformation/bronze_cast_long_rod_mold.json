@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:caster_transformation",
+  "fluid": {
+    "amount": 576,
+    "id": "create_expansion:molten_bronze"
+  },
+  "result": {
+    "count": 1,
+    "id": "create_expansion:bronze_cast_long_rod_mold"
+  },
+  "template": {
+    "item": "create_expansion:terracotta_long_rod"
+  }
+}

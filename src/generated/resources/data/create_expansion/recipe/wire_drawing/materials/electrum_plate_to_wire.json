@@ -1,0 +1,15 @@
+{
+  "type": "create_expansion:wire_drawing",
+  "ingredients": [
+    {
+      "item": "create_expansion:electrum_plate"
+    }
+  ],
+  "max_rpm": 128,
+  "processing_time": 1280,
+  "results": [
+    {
+      "id": "create_expansion:electrum_wire"
+    }
+  ]
+}
