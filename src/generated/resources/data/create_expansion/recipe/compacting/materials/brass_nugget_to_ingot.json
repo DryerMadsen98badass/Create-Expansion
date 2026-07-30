@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create:brass_nugget"
+    },
+    {
+      "item": "create:brass_nugget"
+    },
+    {
+      "item": "create:brass_nugget"
+    },
+    {
+      "item": "create:brass_nugget"
+    },
+    {
+      "item": "create:brass_nugget"
+    },
+    {
+      "item": "create:brass_nugget"
+    },
+    {
+      "item": "create:brass_nugget"
+    },
+    {
+      "item": "create:brass_nugget"
+    },
+    {
+      "item": "create:brass_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create:brass_ingot"
+    }
+  ]
+}

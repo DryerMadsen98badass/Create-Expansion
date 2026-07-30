@@ -1,0 +1,68 @@
+Machine GUI fluid slots
+=======================
+
+Scope
+-----
+
+Singleblock machine GUIs and machine port GUIs can render fluid tanks as clickable GUI slots.
+These are not vanilla `Slot` instances. They are visual fluid slots that send a menu button id to
+the server when the player right-clicks them.
+
+Files
+-----
+
+- Client rendering and clicking:
+  - `src/main/java/net/mads/createexpansion/client/screen/SingleBlockMachineScreen.java`
+  - `src/main/java/net/mads/createexpansion/client/screen/MachinePortScreen.java`
+- Server-side menu handling:
+  - `src/main/java/net/mads/createexpansion/menu/SingleBlockMachineMenu.java`
+  - `src/main/java/net/mads/createexpansion/menu/MachinePortMenu.java`
+- Shared cursor-container logic:
+  - `src/main/java/net/mads/createexpansion/menu/FluidSlotClickHandler.java`
+
+Behavior
+--------
+
+- Hovering a fluid slot draws a light highlight over the slot and shows the fluid tooltip.
+- Right-clicking a fluid slot with a filled fluid container tries to put that fluid into the tank.
+- Right-clicking a fluid slot with an empty fluid container tries to take fluid from the tank.
+- Only one container from the cursor stack is processed per click.
+- If the cursor stack has more than one container, the returned filled/empty container is inserted
+  into the player inventory, or dropped if the inventory is full.
+
+Singleblock rules
+-----------------
+
+- Input fluid slots can be filled and drained from the GUI.
+- Output fluid slots can only be drained from the GUI.
+- The actual tank contents are still stored on `SingleBlockMachineBlockEntity`, and the tank
+  `onContentsChanged()` callback syncs the block entity to the client.
+
+Machine port rules
+------------------
+
+- Input hatches can be filled from the GUI.
+- Output hatches can be drained from the GUI.
+- I/O interfaces can both fill and drain.
+- These rules are exposed by `MachinePortBlockEntity.allowsGuiFluidFill()` and
+  `MachinePortBlockEntity.allowsGuiFluidDrain()` and intentionally match the port capability rules.
+
+Implementation pattern
+----------------------
+
+Use `minecraft.gameMode.handleInventoryButtonClick(menu.containerId, buttonId)` from the screen.
+Handle that id in `AbstractContainerMenu.clickMenuButton(...)` on the server.
+
+Do not create a custom packet for simple GUI slot clicks unless the slot needs more data than a
+small integer id. Menu buttons already synchronize the click to the server and have the cursor
+stack available through `menu.getCarried()`.
+
+Verification
+------------
+
+- Open a singleblock machine with input fluid slots.
+- Pick up a water bucket on the cursor and right-click the input fluid slot.
+- The bucket should become empty and the tank should show 1000 mB water.
+- Right-click the same slot again with another water bucket; the tank should increase by 1000 mB.
+- Right-click with an empty bucket; the bucket should fill and the tank should lose 1000 mB.
+- Repeat the same style test with an input hatch, output hatch, and I/O interface.

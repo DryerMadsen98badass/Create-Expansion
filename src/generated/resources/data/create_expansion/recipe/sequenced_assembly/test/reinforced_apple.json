@@ -1,0 +1,46 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "minecraft:apple"
+  },
+  "loops": 1,
+  "results": [
+    {
+      "id": "minecraft:golden_apple"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "minecraft:apple"
+        },
+        {
+          "item": "minecraft:gold_ingot"
+        }
+      ],
+      "results": [
+        {
+          "id": "minecraft:apple"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "minecraft:apple"
+        }
+      ],
+      "results": [
+        {
+          "id": "minecraft:apple"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "minecraft:apple"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:darmstadtium_nugget"
+    },
+    {
+      "item": "create_expansion:darmstadtium_nugget"
+    },
+    {
+      "item": "create_expansion:darmstadtium_nugget"
+    },
+    {
+      "item": "create_expansion:darmstadtium_nugget"
+    },
+    {
+      "item": "create_expansion:darmstadtium_nugget"
+    },
+    {
+      "item": "create_expansion:darmstadtium_nugget"
+    },
+    {
+      "item": "create_expansion:darmstadtium_nugget"
+    },
+    {
+      "item": "create_expansion:darmstadtium_nugget"
+    },
+    {
+      "item": "create_expansion:darmstadtium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:darmstadtium_ingot"
+    }
+  ]
+}

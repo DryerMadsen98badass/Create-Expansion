@@ -1,0 +1,13 @@
+{
+  "type": "create:sandpaper_polishing",
+  "ingredients": [
+    {
+      "item": "create_expansion:andesite_alloy_gear"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:andesite_alloy_tool_head_buzz_saw"
+    }
+  ]
+}

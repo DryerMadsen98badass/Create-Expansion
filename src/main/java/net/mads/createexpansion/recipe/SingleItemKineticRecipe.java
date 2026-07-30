@@ -10,4 +10,8 @@ public interface SingleItemKineticRecipe {
     ItemStack result();
 
     int processingDuration();
+
+    default int inputCount() {
+        return 1;
+    }
 }

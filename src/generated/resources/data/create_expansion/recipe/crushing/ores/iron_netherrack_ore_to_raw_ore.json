@@ -1,0 +1,22 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "create_expansion:iron_netherrack_ore"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "count": 2,
+      "id": "minecraft:raw_iron"
+    },
+    {
+      "count": 2,
+      "id": "create:experience_nugget"
+    },
+    {
+      "id": "minecraft:netherrack"
+    }
+  ]
+}

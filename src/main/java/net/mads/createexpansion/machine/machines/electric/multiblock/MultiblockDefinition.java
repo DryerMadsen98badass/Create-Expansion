@@ -1,11 +1,15 @@
 package net.mads.createexpansion.machine.machines.electric.multiblock;
 
+import net.mads.createexpansion.gui.ProgressBar;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.coil.CoilBlock;
 import net.mads.createexpansion.machine.coil.CoilLogic;
+import net.mads.createexpansion.machine.interaction.BlockInteraction;
+import net.mads.createexpansion.machine.interaction.MachineCondition;
+import net.mads.createexpansion.machine.interaction.MachineModifier;
 import net.mads.createexpansion.recipe.CERecipeLogicDefinition;
-import net.mads.createexpansion.recipe.CERecipeTypeDefinition;
 import net.mads.createexpansion.recipe.CERecipeTypes;
+import net.mads.createexpansion.recipe.RecipeTypeDefinition;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +23,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -37,6 +42,11 @@ public final class MultiblockDefinition {
     private final InputOnlyDisplay inputOnlyDisplay;
     private final char controllerSymbol;
     private final MultiblockVisualization visualization;
+    private final List<WorldInteraction> worldInteractions;
+    private final List<BlockInteraction> blockInteractions;
+    private final List<MachineCondition> conditions;
+    private final List<MachineModifier> modifiers;
+    private final ProgressBar progressBar;
 
     private MultiblockDefinition(Builder builder) {
         this.id = builder.id;
@@ -52,22 +62,23 @@ public final class MultiblockDefinition {
         this.inputOnlyDisplay = builder.inputOnlyDisplay;
         this.controllerSymbol = builder.controllerSymbol;
         this.visualization = builder.visualization;
+        this.worldInteractions = List.copyOf(builder.worldInteractions);
+        this.blockInteractions = List.copyOf(builder.blockInteractions);
+        this.conditions = List.copyOf(builder.conditions);
+        this.modifiers = List.copyOf(builder.modifiers);
+        this.progressBar = builder.progressBar != null
+                ? builder.progressBar
+                : builder.recipeTypeDefinitions.stream()
+                .map(RecipeTypeDefinition::progressBar)
+                .findFirst()
+                .orElse(ProgressBar.ARROW);
         this.variants = builder.variants.stream()
                 .sorted(Comparator.comparingInt(PatternVariant::variantLevel).reversed())
                 .toList();
     }
 
-    public static Builder builder(String id) {
-        return new Builder(id);
-    }
-
-    public static Builder controller(String controllerId) {
-        ResourceLocation id = MultiblockRegistry.id(controllerId);
-        return new Builder(id.getPath()).controller(controllerId);
-    }
-
-    public static Builder controller(MultiblockControllerDefinition controller) {
-        return new Builder(controller.registryName()).controller(controller);
+    public static Builder machine() {
+        return new Builder();
     }
 
     public String id() {
@@ -102,6 +113,39 @@ public final class MultiblockDefinition {
         return visualization;
     }
 
+    public List<WorldInteraction> worldInteractions() {
+        return worldInteractions;
+    }
+
+    public List<BlockInteraction> blockInteractions() {
+        return blockInteractions;
+    }
+
+    public List<MachineCondition> conditions() {
+        return conditions;
+    }
+
+    public List<MachineModifier> modifiers() {
+        return modifiers;
+    }
+
+    public List<BlockPos> worldInteractionPositions(
+            BlockPos controllerPos,
+            Direction facing,
+            WorldInteractionType type
+    ) {
+        return worldInteractions.stream()
+                .filter(interaction -> interaction.type() == type)
+                .map(interaction -> rotate(
+                        controllerPos,
+                        facing,
+                        interaction.x(),
+                        interaction.y(),
+                        interaction.z()
+                ))
+                .toList();
+    }
+
     public List<MultiblockPredicate.CountRequirement> countRequirements(char symbol) {
         MultiblockPredicate predicate = predicates.get(symbol);
         return predicate == null ? List.of() : predicate.countRequirements();
@@ -121,6 +165,10 @@ public final class MultiblockDefinition {
 
     public InputOnlyDisplay inputOnlyDisplay() {
         return inputOnlyDisplay;
+    }
+
+    public ProgressBar progressBar() {
+        return progressBar;
     }
 
     public MultiblockMatchResult tryMatch(Level level, BlockPos controllerPos, Direction facing) {
@@ -291,6 +339,33 @@ public final class MultiblockDefinition {
     private record LocalPos(int x, int y, int z) {
     }
 
+    public enum WorldInteractionType {
+        INPUT,
+        OUTPUT;
+
+        public static WorldInteractionType fromName(String name) {
+            if (name == null) {
+                throw new IllegalArgumentException("World interaction type cannot be null");
+            }
+
+            return switch (name.trim().toLowerCase()) {
+                case "input" -> INPUT;
+                case "output" -> OUTPUT;
+                default -> throw new IllegalArgumentException(
+                        "Unknown world interaction type: " + name + ". Expected input or output."
+                );
+            };
+        }
+    }
+
+    public record WorldInteraction(
+            WorldInteractionType type,
+            int x,
+            int y,
+            int z
+    ) {
+    }
+
     public record InputOnlyDisplay(int durationTicks, int cePerTick, List<ItemInput> itemInputs, List<FluidInput> fluidInputs) {
         public InputOnlyDisplay {
             durationTicks = Math.max(1, durationTicks);
@@ -309,13 +384,170 @@ public final class MultiblockDefinition {
     public record FluidInput(ResourceLocation fluidId, int amount) {
     }
 
+    /**
+     * Options shown by autocomplete inside {@code .machineDefinition(Option...)} for multiblocks.
+     */
+    @FunctionalInterface
+    public interface Option {
+        void apply(Builder builder);
+
+        /** Defines the multiblock registry path. */
+        static Option id(String id) {
+            return builder -> builder.id(id);
+        }
+
+        /** Defines the user-facing controller and structure name. */
+        static Option displayName(String displayName) {
+            return builder -> builder.displayName(displayName);
+        }
+
+        /** Adds one or more tooltip lines to the controller item. */
+        static Option tooltip(String... lines) {
+            return builder -> builder.tooltip(lines);
+        }
+
+        /** Selects an already registered controller definition. */
+        static Option controller(MultiblockControllerDefinition controller) {
+            return builder -> builder.controller(controller);
+        }
+
+        /** Selects a controller by registry id. */
+        static Option controller(String controllerId) {
+            return builder -> builder.controller(controllerId);
+        }
+
+        /** Overrides the character used for the controller in every pattern variant. */
+        static Option controllerSymbol(char controllerSymbol) {
+            return builder -> builder.controllerSymbol(controllerSymbol);
+        }
+
+        /** Adds a CE recipe type processed by this multiblock. */
+        static Option recipeType(RecipeTypeDefinition recipeType) {
+            return builder -> builder.recipeType(recipeType);
+        }
+
+        /** Adds multiple CE recipe types processed by this multiblock. */
+        static Option recipeTypes(RecipeTypeDefinition... recipeTypes) {
+            return builder -> builder.recipeTypes(recipeTypes);
+        }
+
+        /** Adds a supported custom recipe-logic capability. */
+        static Option logic(CERecipeLogicDefinition logic) {
+            return builder -> builder.logic(logic);
+        }
+
+        /**
+         * Marks the multiblock as an external heat provider. It uses the special request-driven
+         * heat lifecycle instead of searching for a CE recipe by itself.
+         */
+        static Option externalHeatSource() {
+            return Builder::externalHeatSource;
+        }
+
+        /** Defines a display-only operation for a multiblock without CE recipe outputs. */
+        static Option inputOnly(int durationTicks) {
+            return builder -> builder.inputOnly(durationTicks);
+        }
+
+        /** Defines a display-only operation with an explicit CE/t value. */
+        static Option inputOnly(int durationTicks, int cePerTick) {
+            return builder -> builder.inputOnly(durationTicks, cePerTick);
+        }
+
+        /** Adds an item displayed as an input for an input-only operation. */
+        static Option inputItem(String itemId, int amount) {
+            return builder -> builder.inputItem(itemId, amount);
+        }
+
+        /** Adds a fluid displayed as an input for an input-only operation. */
+        static Option inputFluid(String fluidId, int amount) {
+            return builder -> builder.inputFluid(fluidId, amount);
+        }
+
+        /**
+         * Adds a controller-relative world IO position. Coordinates rotate with the controller;
+         * {@code 0, 0, 0} is the controller itself.
+         */
+        static Option worldInteraction(WorldInteractionType type, int x, int y, int z) {
+            return builder -> builder.worldInteraction(type, x, y, z);
+        }
+
+        /** Adds a world block/fluid interaction that applies to every recipe this multiblock runs. */
+        static Option blockInteraction(BlockInteraction interaction) {
+            return builder -> builder.blockInteractions.add(Objects.requireNonNull(interaction));
+        }
+
+        /** Adds a world block/fluid interaction that applies to every recipe this multiblock runs. */
+        static Option blockInteraction(BlockInteraction.Builder interaction) {
+            return blockInteraction(Objects.requireNonNull(interaction).build());
+        }
+
+        /** Adds a world condition that applies to every recipe this multiblock runs. */
+        static Option condition(MachineCondition condition) {
+            return builder -> builder.conditions.add(Objects.requireNonNull(condition));
+        }
+
+        /** Adds an ordered modifier that applies to recipes this multiblock runs. */
+        static Option modifier(MachineModifier modifier) {
+            return builder -> builder.modifiers.add(Objects.requireNonNull(modifier));
+        }
+
+        /** Adds an ordered modifier that applies to recipes this multiblock runs. */
+        static Option modifier(MachineModifier.Builder modifier) {
+            return modifier(Objects.requireNonNull(modifier).build());
+        }
+
+        /**
+         * Adds one complete pattern variant. Layers and rows retain the existing layout syntax,
+         * and the variant id controls variant ordering.
+         */
+        static Option variant(String id, Consumer<MultiblockPattern.VariantBuilder> pattern) {
+            return builder -> builder.variant(id, pattern);
+        }
+
+        /** Adds generated structure-visualization metadata. */
+        static Option visualization(Consumer<MultiblockVisualization.Builder> visualization) {
+            return builder -> builder.visualization(visualization);
+        }
+
+        /**
+         * Maps a pattern symbol to its block, ability, coil, or composite predicate.
+         * Predicate count limits are validated while the structure forms.
+         */
+        static Option where(char symbol, MultiblockPredicate predicate) {
+            return builder -> builder.where(symbol, predicate);
+        }
+
+        /** Maps a pattern symbol directly to a block id. */
+        static Option where(char symbol, String blockId) {
+            return builder -> builder.where(symbol, blockId);
+        }
+
+        /** Maps a pattern symbol to one required multiblock ability. */
+        static Option where(char symbol, MultiblockAbility ability) {
+            return builder -> builder.where(symbol, ability);
+        }
+
+        /** Maps a pattern symbol to any one of the supplied multiblock abilities. */
+        static Option where(char symbol, MultiblockAbility first, MultiblockAbility... extra) {
+            return builder -> builder.where(symbol, first, extra);
+        }
+
+        /**
+         * Overrides the recipe type's default progress bar in this controller GUI.
+         */
+        static Option progressBar(ProgressBar progressBar) {
+            return builder -> builder.progressBar = Objects.requireNonNull(progressBar);
+        }
+    }
+
     public static final class Builder {
-        private final String id;
+        private String id;
         private String displayName;
         private MultiblockControllerDefinition controllerDefinition;
         private ResourceLocation controllerId;
         private final List<ResourceLocation> recipeTypes = new ArrayList<>();
-        private final List<CERecipeTypeDefinition> recipeTypeDefinitions = new ArrayList<>();
+        private final List<RecipeTypeDefinition> recipeTypeDefinitions = new ArrayList<>();
         private final List<ResourceLocation> logicIds = new ArrayList<>();
         private final List<PatternVariant> variants = new ArrayList<>();
         private final Map<Character, MultiblockPredicate> rawPredicates = new HashMap<>();
@@ -326,37 +558,53 @@ public final class MultiblockDefinition {
         private InputOnlyDisplay inputOnlyDisplay;
         private char controllerSymbol = MultiblockPattern.controller;
         private MultiblockVisualization visualization = MultiblockVisualization.empty();
+        private final List<WorldInteraction> worldInteractions = new ArrayList<>();
+        private final List<BlockInteraction> blockInteractions = new ArrayList<>();
+        private final List<MachineCondition> conditions = new ArrayList<>();
+        private final List<MachineModifier> modifiers = new ArrayList<>();
+        private ProgressBar progressBar;
 
-        private Builder(String id) {
-            this.id = id;
-            this.displayName = id;
+        private Builder() {
         }
 
-        public Builder displayName(String displayName) {
+        public Builder machineDefinition(Option option) {
+            Objects.requireNonNull(option, "Multiblock machine option").apply(this);
+            return this;
+        }
+
+        private Builder id(String id) {
+            this.id = id;
+            if (displayName == null) {
+                displayName = id;
+            }
+            return this;
+        }
+
+        private Builder displayName(String displayName) {
             this.displayName = displayName;
             return this;
         }
 
-        public Builder tooltip(String... lines) {
+        private Builder tooltip(String... lines) {
             this.tooltip.addAll(List.of(lines));
             return this;
         }
 
-        public Builder externalHeatSource() {
+        private Builder externalHeatSource() {
             this.externalHeatSource = true;
             return this;
         }
 
-        public Builder inputOnly(int durationTicks) {
+        private Builder inputOnly(int durationTicks) {
             return inputOnly(durationTicks, -1);
         }
 
-        public Builder inputOnly(int durationTicks, int cePerTick) {
+        private Builder inputOnly(int durationTicks, int cePerTick) {
             this.inputOnlyDisplay = new InputOnlyDisplay(durationTicks, cePerTick, List.of(), List.of());
             return this;
         }
 
-        public Builder inputItem(String itemId, int amount) {
+        private Builder inputItem(String itemId, int amount) {
             InputOnlyDisplay display = inputOnlyDisplayOrDefault();
             List<ItemInput> items = new ArrayList<>(display.itemInputs());
             items.add(new ItemInput(MultiblockRegistry.id(itemId), Math.max(1, amount)));
@@ -364,7 +612,7 @@ public final class MultiblockDefinition {
             return this;
         }
 
-        public Builder inputFluid(String fluidId, int amount) {
+        private Builder inputFluid(String fluidId, int amount) {
             InputOnlyDisplay display = inputOnlyDisplayOrDefault();
             List<FluidInput> fluids = new ArrayList<>(display.fluidInputs());
             fluids.add(new FluidInput(MultiblockRegistry.id(fluidId), Math.max(1, amount)));
@@ -372,7 +620,7 @@ public final class MultiblockDefinition {
             return this;
         }
 
-        public Builder controller(String controllerId) {
+        private Builder controller(String controllerId) {
             ResourceLocation id = MultiblockRegistry.id(controllerId);
             this.controllerId = id;
             this.controllerDefinition = MultiblockControllerDefinition.of(
@@ -385,27 +633,27 @@ public final class MultiblockDefinition {
             return this;
         }
 
-        public Builder controller(MultiblockControllerDefinition controller) {
+        private Builder controller(MultiblockControllerDefinition controller) {
             this.controllerDefinition = controller;
             this.controllerId = controller.id();
             return this;
         }
 
-        public Builder controllerSymbol(char controllerSymbol) {
+        private Builder controllerSymbol(char controllerSymbol) {
             this.controllerSymbol = controllerSymbol;
             return this;
         }
 
-        public Builder recipeType(ResourceLocation recipeType) {
+        private Builder recipeType(ResourceLocation recipeType) {
             this.recipeTypes.add(recipeType);
-            CERecipeTypeDefinition knownType = CERecipeTypes.byId(recipeType);
+            RecipeTypeDefinition knownType = CERecipeTypes.byId(recipeType);
             if (knownType != null && !this.recipeTypeDefinitions.contains(knownType)) {
                 this.recipeTypeDefinitions.add(knownType);
             }
             return this;
         }
 
-        public Builder recipeType(CERecipeTypeDefinition recipeType) {
+        private Builder recipeType(RecipeTypeDefinition recipeType) {
             this.recipeTypes.add(recipeType.id());
             if (!this.recipeTypeDefinitions.contains(recipeType)) {
                 this.recipeTypeDefinitions.add(recipeType);
@@ -413,56 +661,68 @@ public final class MultiblockDefinition {
             return this;
         }
 
-        public Builder recipeType(String recipeType) {
+        private Builder recipeType(String recipeType) {
             return recipeType(MultiblockRegistry.id(recipeType));
         }
 
-        public Builder recipeTypes(ResourceLocation... recipeTypes) {
+        private Builder recipeTypes(ResourceLocation... recipeTypes) {
             for (ResourceLocation recipeType : recipeTypes) {
                 recipeType(recipeType);
             }
             return this;
         }
 
-        public Builder recipeTypes(CERecipeTypeDefinition... recipeTypes) {
-            for (CERecipeTypeDefinition recipeType : recipeTypes) {
+        private Builder recipeTypes(RecipeTypeDefinition... recipeTypes) {
+            for (RecipeTypeDefinition recipeType : recipeTypes) {
                 recipeType(recipeType);
             }
             return this;
         }
 
-        public Builder recipeTypes(String... recipeTypes) {
+        private Builder recipeTypes(String... recipeTypes) {
             for (String recipeType : recipeTypes) {
                 recipeType(recipeType);
             }
             return this;
         }
 
-        public Builder logic(CERecipeLogicDefinition logic) {
+        private Builder worldInteraction(String type, int x, int y, int z) {
+            return worldInteraction(WorldInteractionType.fromName(type), x, y, z);
+        }
+
+        private Builder worldInteraction(WorldInteractionType type, int x, int y, int z) {
+            if (type == null) {
+                throw new IllegalArgumentException("World interaction type cannot be null");
+            }
+            this.worldInteractions.add(new WorldInteraction(type, x, y, z));
+            return this;
+        }
+
+        private Builder logic(CERecipeLogicDefinition logic) {
             this.logicIds.add(logic.id());
             return this;
         }
 
-        public Builder logic(String logicId) {
+        private Builder logic(String logicId) {
             this.logicIds.add(ResourceLocation.parse(logicId.contains(":") ? logicId : "create_expansion:" + logicId));
             return this;
         }
 
-        public Builder variant(String id, Consumer<MultiblockPattern.VariantBuilder> builderConsumer) {
+        private Builder variant(String id, Consumer<MultiblockPattern.VariantBuilder> builderConsumer) {
             MultiblockPattern.VariantBuilder patternBuilder = new MultiblockPattern.VariantBuilder();
             builderConsumer.accept(patternBuilder);
             this.variants.add(patternBuilder.build(id));
             return this;
         }
 
-        public Builder visualization(Consumer<MultiblockVisualization.Builder> builderConsumer) {
+        private Builder visualization(Consumer<MultiblockVisualization.Builder> builderConsumer) {
             MultiblockVisualization.Builder builder = MultiblockVisualization.builder();
             builderConsumer.accept(builder);
             this.visualization = this.visualization.merge(builder.build());
             return this;
         }
 
-        public Builder where(char symbol, MultiblockPredicate predicate) {
+        private Builder where(char symbol, MultiblockPredicate predicate) {
             this.rawPredicates.put(symbol, predicate);
             MultiblockVisualization.SymbolInfo info = predicate.visualizationInfo();
             if (info != null) {
@@ -471,15 +731,15 @@ public final class MultiblockDefinition {
             return this;
         }
 
-        public Builder where(char symbol, String blockId) {
+        private Builder where(char symbol, String blockId) {
             return where(symbol, MultiblockPredicates.block(blockId));
         }
 
-        public Builder where(char symbol, MultiblockAbility ability) {
+        private Builder where(char symbol, MultiblockAbility ability) {
             return where(symbol, MultiblockPredicates.ability(ability));
         }
 
-        public Builder where(char symbol, MultiblockAbility firstAbility, MultiblockAbility... extraAbilities) {
+        private Builder where(char symbol, MultiblockAbility firstAbility, MultiblockAbility... extraAbilities) {
             MultiblockAbility[] abilities = new MultiblockAbility[extraAbilities.length + 1];
             abilities[0] = firstAbility;
             System.arraycopy(extraAbilities, 0, abilities, 1, extraAbilities.length);
@@ -487,6 +747,9 @@ public final class MultiblockDefinition {
         }
 
         public MultiblockDefinition build() {
+            if (id == null || id.isBlank() || !ResourceLocation.isValidPath(id)) {
+                throw new IllegalStateException("Multiblock is missing a valid Option.id(...): " + id);
+            }
             if (controllerId == null) {
                 throw new IllegalStateException("Multiblock " + id + " is missing a controller");
             }
@@ -528,7 +791,7 @@ public final class MultiblockDefinition {
 
         private Set<MultiblockAbility> neededRecipeAbilities() {
             EnumSet<MultiblockAbility> abilities = EnumSet.noneOf(MultiblockAbility.class);
-            for (CERecipeTypeDefinition recipeType : recipeTypeDefinitions) {
+            for (RecipeTypeDefinition recipeType : recipeTypeDefinitions) {
                 if (recipeType.maxItemInputs() > 0) {
                     abilities.add(MultiblockAbility.ITEM_INPUT);
                 }

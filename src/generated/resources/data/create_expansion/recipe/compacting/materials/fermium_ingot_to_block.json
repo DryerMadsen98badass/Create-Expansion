@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:fermium_ingot"
+    },
+    {
+      "item": "create_expansion:fermium_ingot"
+    },
+    {
+      "item": "create_expansion:fermium_ingot"
+    },
+    {
+      "item": "create_expansion:fermium_ingot"
+    },
+    {
+      "item": "create_expansion:fermium_ingot"
+    },
+    {
+      "item": "create_expansion:fermium_ingot"
+    },
+    {
+      "item": "create_expansion:fermium_ingot"
+    },
+    {
+      "item": "create_expansion:fermium_ingot"
+    },
+    {
+      "item": "create_expansion:fermium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:fermium_block"
+    }
+  ]
+}

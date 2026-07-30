@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "create_expansion:block/casings/active/firebrick_firebox_off"
+    },
+    "active=true": {
+      "model": "create_expansion:block/casings/active/firebrick_firebox_on"
+    }
+  }
+}

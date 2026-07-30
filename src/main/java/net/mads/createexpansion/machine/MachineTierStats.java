@@ -53,20 +53,16 @@ public final class MachineTierStats {
         return 4;
     }
 
-    public static int ceCapacity(MachineTier tier) {
-        long capacity = (long) ceTier(tier) * 32L;
-        return (int) Math.min(capacity, Integer.MAX_VALUE);
+    public static long ceCapacity(MachineTier tier) {
+        return saturatedMultiply(ceTier(tier), 64L);
     }
 
-    public static int ceTier(MachineTier tier) {
+    public static long ceTier(MachineTier tier) {
         long ce = 8L;
         for (int i = 0; i < tierIndex(tier); i++) {
-            ce *= 4L;
-            if (ce > Integer.MAX_VALUE) {
-                return Integer.MAX_VALUE;
-            }
+            ce = saturatedMultiply(ce, 4L);
         }
-        return (int) ce;
+        return ce;
     }
 
     public static int ceBaseAmps(MachineTier tier) {
@@ -74,8 +70,8 @@ public final class MachineTierStats {
         return 1 << index;
     }
 
-    public static MachineTier tierForCEt(int cet) {
-        int required = Math.abs(cet);
+    public static MachineTier tierForCEt(long cet) {
+        long required = cet == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(cet);
         for (MachineTier tier : MachineTier.ALL) {
             if (ceTier(tier) >= required) {
                 return tier;
@@ -84,8 +80,8 @@ public final class MachineTierStats {
         return MachineTier.ALL.get(MachineTier.ALL.size() - 1);
     }
 
-    public static MachineTier tierForVoltage(int voltage) {
-        int required = Math.abs(voltage);
+    public static MachineTier tierForVoltage(long voltage) {
+        long required = voltage == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(voltage);
         MachineTier result = MachineTier.ULV;
         for (MachineTier tier : MachineTier.ALL) {
             result = tier;
@@ -114,6 +110,13 @@ public final class MachineTierStats {
     }
 
     private static final int ALL_SIZE = MachineTier.ALL.size();
+
+    private static long saturatedMultiply(long value, long multiplier) {
+        if (value > Long.MAX_VALUE / multiplier) {
+            return Long.MAX_VALUE;
+        }
+        return value * multiplier;
+    }
 
     public static float kineticStressPerRpm(MachineTier tier) {
         float stress = 16.0F;

@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:tin_ingot"
+    },
+    {
+      "item": "create_expansion:tin_ingot"
+    },
+    {
+      "item": "create_expansion:tin_ingot"
+    },
+    {
+      "item": "create_expansion:tin_ingot"
+    },
+    {
+      "item": "create_expansion:tin_ingot"
+    },
+    {
+      "item": "create_expansion:tin_ingot"
+    },
+    {
+      "item": "create_expansion:tin_ingot"
+    },
+    {
+      "item": "create_expansion:tin_ingot"
+    },
+    {
+      "item": "create_expansion:tin_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:tin_block"
+    }
+  ]
+}

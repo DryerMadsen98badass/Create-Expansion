@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:blasting",
+  "cookingtime": 100,
+  "experience": 0.7,
+  "ingredient": {
+    "item": "create_expansion:sperrylite_impure_dust"
+  },
+  "result": {
+    "id": "create_expansion:platinum_nugget"
+  }
+}

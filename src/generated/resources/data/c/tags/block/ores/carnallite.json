@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:carnallite_andesite_ore",
-    "create_expansion:carnallite_diorite_ore",
-    "create_expansion:carnallite_ore",
-    "create_expansion:carnallite_end_stone_ore",
-    "create_expansion:carnallite_blackstone_ore",
-    "create_expansion:carnallite_deepslate_ore",
-    "create_expansion:carnallite_granite_ore",
     "create_expansion:carnallite_netherrack_ore",
-    "create_expansion:carnallite_tuff_ore"
+    "create_expansion:carnallite_deepslate_ore",
+    "create_expansion:carnallite_andesite_ore",
+    "create_expansion:carnallite_end_stone_ore",
+    "create_expansion:carnallite_diorite_ore",
+    "create_expansion:carnallite_tuff_ore",
+    "create_expansion:carnallite_blackstone_ore",
+    "create_expansion:carnallite_ore",
+    "create_expansion:carnallite_granite_ore"
   ]
 }

@@ -1,0 +1,16 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:protactinium_crushed_ore"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:protactinium_washed_crushed_ore"
+    },
+    {
+      "id": "create_expansion:stone_dust"
+    }
+  ]
+}

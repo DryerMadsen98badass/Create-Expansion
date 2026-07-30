@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:lawrencium_andesite_ore",
-    "create_expansion:lawrencium_diorite_ore",
-    "create_expansion:lawrencium_ore",
-    "create_expansion:lawrencium_end_stone_ore",
-    "create_expansion:lawrencium_blackstone_ore",
-    "create_expansion:lawrencium_deepslate_ore",
-    "create_expansion:lawrencium_granite_ore",
     "create_expansion:lawrencium_netherrack_ore",
-    "create_expansion:lawrencium_tuff_ore"
+    "create_expansion:lawrencium_deepslate_ore",
+    "create_expansion:lawrencium_andesite_ore",
+    "create_expansion:lawrencium_end_stone_ore",
+    "create_expansion:lawrencium_diorite_ore",
+    "create_expansion:lawrencium_tuff_ore",
+    "create_expansion:lawrencium_blackstone_ore",
+    "create_expansion:lawrencium_ore",
+    "create_expansion:lawrencium_granite_ore"
   ]
 }

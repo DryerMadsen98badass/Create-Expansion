@@ -1,19 +1,19 @@
 {
   "values": [
-    "create_expansion:diamond_andesite_ore",
-    "create_expansion:diamond_diorite_ore",
-    {
-      "id": "minecraft:diamond_ore",
-      "required": false
-    },
-    "create_expansion:diamond_end_stone_ore",
-    "create_expansion:diamond_blackstone_ore",
+    "create_expansion:diamond_netherrack_ore",
     {
       "id": "minecraft:deepslate_diamond_ore",
       "required": false
     },
-    "create_expansion:diamond_granite_ore",
-    "create_expansion:diamond_netherrack_ore",
-    "create_expansion:diamond_tuff_ore"
+    "create_expansion:diamond_andesite_ore",
+    "create_expansion:diamond_end_stone_ore",
+    "create_expansion:diamond_diorite_ore",
+    "create_expansion:diamond_tuff_ore",
+    "create_expansion:diamond_blackstone_ore",
+    {
+      "id": "minecraft:diamond_ore",
+      "required": false
+    },
+    "create_expansion:diamond_granite_ore"
   ]
 }

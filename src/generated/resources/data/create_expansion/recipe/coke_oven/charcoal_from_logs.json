@@ -1,0 +1,26 @@
+{
+  "type": "create_expansion:machine",
+  "cet": 0,
+  "duration": 1200,
+  "fluid_outputs": [
+    {
+      "amount": 50,
+      "id": "create_expansion:creosote_oil"
+    }
+  ],
+  "item_inputs": [
+    {
+      "count": 1,
+      "tag": "minecraft:logs"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "minecraft:charcoal"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:coke_oven"
+}

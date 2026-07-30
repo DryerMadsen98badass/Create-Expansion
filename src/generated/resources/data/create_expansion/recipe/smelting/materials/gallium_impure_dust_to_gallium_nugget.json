@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 200,
+  "experience": 0.7,
+  "ingredient": {
+    "item": "create_expansion:gallium_impure_dust"
+  },
+  "result": {
+    "id": "create_expansion:gallium_nugget"
+  }
+}

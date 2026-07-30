@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:praseodymium_ingot"
+    },
+    {
+      "item": "create_expansion:praseodymium_ingot"
+    },
+    {
+      "item": "create_expansion:praseodymium_ingot"
+    },
+    {
+      "item": "create_expansion:praseodymium_ingot"
+    },
+    {
+      "item": "create_expansion:praseodymium_ingot"
+    },
+    {
+      "item": "create_expansion:praseodymium_ingot"
+    },
+    {
+      "item": "create_expansion:praseodymium_ingot"
+    },
+    {
+      "item": "create_expansion:praseodymium_ingot"
+    },
+    {
+      "item": "create_expansion:praseodymium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:praseodymium_block"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:bismuth_nugget"
+    },
+    {
+      "item": "create_expansion:bismuth_nugget"
+    },
+    {
+      "item": "create_expansion:bismuth_nugget"
+    },
+    {
+      "item": "create_expansion:bismuth_nugget"
+    },
+    {
+      "item": "create_expansion:bismuth_nugget"
+    },
+    {
+      "item": "create_expansion:bismuth_nugget"
+    },
+    {
+      "item": "create_expansion:bismuth_nugget"
+    },
+    {
+      "item": "create_expansion:bismuth_nugget"
+    },
+    {
+      "item": "create_expansion:bismuth_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:bismuth_ingot"
+    }
+  ]
+}

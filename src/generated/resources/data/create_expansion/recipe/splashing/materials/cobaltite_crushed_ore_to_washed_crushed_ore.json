@@ -1,0 +1,16 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:cobaltite_crushed_ore"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:cobaltite_washed_crushed_ore"
+    },
+    {
+      "id": "create_expansion:stone_dust"
+    }
+  ]
+}

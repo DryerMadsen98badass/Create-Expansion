@@ -1,0 +1,19 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create:shaft"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create_expansion:wood_small_gear"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    }
+  ],
+  "result": {
+    "id": "create:cogwheel"
+  }
+}

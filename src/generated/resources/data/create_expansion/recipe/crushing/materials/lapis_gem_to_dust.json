@@ -1,0 +1,14 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "minecraft:lapis_lazuli"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "id": "create_expansion:lapis_dust"
+    }
+  ]
+}

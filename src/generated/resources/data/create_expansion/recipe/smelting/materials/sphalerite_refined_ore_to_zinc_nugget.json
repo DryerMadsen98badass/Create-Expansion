@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 200,
+  "experience": 0.7,
+  "ingredient": {
+    "item": "create_expansion:sphalerite_refined_ore"
+  },
+  "result": {
+    "id": "create:zinc_nugget"
+  }
+}

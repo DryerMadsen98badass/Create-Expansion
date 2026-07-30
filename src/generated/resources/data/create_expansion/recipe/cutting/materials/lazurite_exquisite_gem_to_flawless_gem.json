@@ -1,0 +1,16 @@
+{
+  "type": "create:cutting",
+  "ingredients": [
+    {
+      "item": "create_expansion:lazurite_exquisite_gem"
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "chance": 0.5,
+      "count": 2,
+      "id": "create_expansion:lazurite_flawless_gem"
+    }
+  ]
+}

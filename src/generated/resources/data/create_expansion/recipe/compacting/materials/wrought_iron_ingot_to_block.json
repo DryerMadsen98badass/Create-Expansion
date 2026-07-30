@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:wrought_iron_ingot"
+    },
+    {
+      "item": "create_expansion:wrought_iron_ingot"
+    },
+    {
+      "item": "create_expansion:wrought_iron_ingot"
+    },
+    {
+      "item": "create_expansion:wrought_iron_ingot"
+    },
+    {
+      "item": "create_expansion:wrought_iron_ingot"
+    },
+    {
+      "item": "create_expansion:wrought_iron_ingot"
+    },
+    {
+      "item": "create_expansion:wrought_iron_ingot"
+    },
+    {
+      "item": "create_expansion:wrought_iron_ingot"
+    },
+    {
+      "item": "create_expansion:wrought_iron_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:wrought_iron_block"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "always_unlocked": {
+      "trigger": "minecraft:tick"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "create_expansion:shapeless/treated_wood_from_spruce"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "always_unlocked"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "create_expansion:shapeless/treated_wood_from_spruce"
+    ]
+  }
+}

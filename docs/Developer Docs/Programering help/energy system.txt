@@ -1,55 +1,26 @@
 Create Expansion energy system
 ==============================
 
-Purpose and philosophy
-----------------------
+Model
+-----
 
-The mod uses its own CE energy model instead of copying NeoForge FE directly. CE is intentionally
-GregTech-like: tier decides voltage, amperage decides parallel throughput, and wires are physical
-transport paths with limits. This keeps progression readable:
+CE uses GTCEu-style packet transfer:
 
-- A tier is the voltage class. ULV starts at 8 CE, then each tier is 4x higher.
-- Amps are how many packets can move per tick at that voltage.
-- CE/t moved by a route is `voltage * amps`.
-- Machines and ports decide whether they input or output energy.
-- Wires do not store energy. They only route packets and remember recent flow for display/safety.
+`transferred CE = voltage * accepted amperage`
 
-The important design rule is: do not treat "stored CE" and "wire flow" as the same thing. Storage
-is a buffer in a machine port or creative energy block. Wire flow is the amount accepted by a
-destination during the current transfer tick.
+Voltage is the size of one packet. Amperage is the number of whole packets transferred during one
+game tick. Cables never store CE; machines, hatches, and generators own bounded energy containers.
+Recipes consume or produce CE/t from those buffers independently of network packet transfer.
 
-Core files
-----------
+The CE variation is deliberate: every cable is lossless. Packet voltage is unchanged across any
+valid route. There is no `lossPerBlock` and Jade does not show loss.
 
-- `src/main/java/net/mads/createexpansion/machine/MachineTier.java`
-  Defines ordered tiers: ULV, LV, MV, HV, EV, IV.
+Values use `long` throughout the transfer and storage APIs so later voltage tiers do not overflow.
 
-- `src/main/java/net/mads/createexpansion/machine/MachineTierStats.java`
-  Defines scaling. `ceTier(tier)` is voltage. `ceBaseAmps(tier)` is the base wire amp scaling.
-  `tierForVoltage(voltage)` converts a live packet voltage back to the display tier.
+Voltage and buffers
+-------------------
 
-- `src/main/java/net/mads/createexpansion/energy/CEEnergyContainer.java`
-  Shared interface for anything that can input/output CE through the wire network.
-
-- `src/main/java/net/mads/createexpansion/energy/CEEnergyStorage.java`
-  Normal bounded storage implementation used by machine ports.
-
-- `src/main/java/net/mads/createexpansion/energy/CEEnergyNetwork.java`
-  Server-side wire routing and transfer logic.
-
-- `src/main/java/net/mads/createexpansion/energy/EnergyWireBlock.java`
-  Wire block shape, connection state, wrench-disconnect behavior, tier, insulation, and max amps.
-
-- `src/main/java/net/mads/createexpansion/energy/EnergyWireBlockEntity.java`
-  Runtime wire state: current amperage, current voltage, recent-flow timer, and heat/melting.
-
-- `src/main/java/net/mads/createexpansion/integration/jade/CreateExpansionJadePlugin.java`
-  Jade display for machine energy storage and wire flow.
-
-Tier and amp rules
-------------------
-
-`MachineTierStats.ceTier` starts at 8 CE for ULV and multiplies by 4 per tier:
+`MachineTierStats.ceTier` starts at 8 CE for ULV and multiplies by four per tier:
 
 - ULV: 8 CE
 - LV: 32 CE
@@ -58,179 +29,149 @@ Tier and amp rules
 - EV: 2048 CE
 - IV: 8192 CE
 
-`MachineTierStats.ceBaseAmps` doubles by tier index. Wire max amps then multiply by thickness:
+Standard machine and hatch buffers hold 64 packets at their tier voltage:
 
-`wire max amps = ceBaseAmps(wire tier) * thickness.baseAmps()`
+`capacity = voltage * 64`
 
-Insulated wires double that max amp value. Insulation does not change voltage tier.
+Standard CE storage accepts or emits 1 A. Specialized sources, consumers, and creative blocks can
+declare higher amperage.
 
-Wire thicknesses are in `WireThickness.java`:
+Container input
+---------------
 
-- 1x = 1 base amp
-- 2x = 2 base amps
-- 4x = 4 base amps
-- 8x = 8 base amps
-- 16x = 16 base amps
+`CEEnergyContainer.acceptEnergyFromNetwork(side, voltage, amperage)` returns the whole number of
+amps accepted. `CEEnergyStorage` tracks all accepted amps for the current game tick, so multiple
+sources cannot independently exceed the same input amp limit.
 
-Transfer flow
+Accepted amps are:
+
+`min(offered amps, remaining input amps this tick, free buffer / packet voltage)`
+
+If packet voltage exceeds the consumer input voltage, the consumer's overvoltage action runs and
+the offending amps are treated as used without being stored.
+
+Source output
 -------------
 
-Energy output starts from a `CEEnergyContainer`, usually a machine port or creative energy block.
-The network looks at adjacent wires and calls `CEEnergyNetwork.acceptFromWire`.
+A source can offer:
 
-Routing uses breadth-first search through connected enabled wire sides. Routes are cached per level
-and invalidated when wires are placed, removed, changed, or wrenched.
+`min(stored CE / output voltage, output amperage)`
 
-For each destination:
+It checks output sides and deducts `accepted amps * output voltage` only after a destination reports
+successful acceptance. Directly adjacent containers and cable networks use the same packet API.
 
-1. The destination must be a `CEEnergyContainer`.
-2. The destination side must accept input.
-3. The destination must have insertable space.
-4. `acceptEnergyFromNetwork(side, voltage, remainingAmps)` decides how many amps it accepts.
-5. Every wire in the successful route calls `incrementAmperage(accepted, voltage)`.
-6. The source extracts `accepted * voltage` CE.
+Cable capacity
+--------------
 
-This means wire flow display is based on actual accepted amps, not attempted output.
+Existing CE cable amperage rules are intentionally retained:
 
-Machine consumption rule
-------------------------
+`max amps = ceBaseAmps(cable tier) * thickness.baseAmps()`
 
-When a multiblock consumes CE from an energy input hatch, the hatch limits sustained draw by its
-input voltage and input amperage:
+Existing insulated cables also retain their current doubled amp capacity. This differs from GTCEu
+but is part of CE's established cable progression.
 
-`max CE/t from one hatch = inputVoltage * inputAmps`
+Thickness base values are 1 A, 2 A, 4 A, 8 A, and 16 A.
 
-If the hatch recently received lower-tier power from the wire network, use that live incoming
-voltage for the draw/display limit instead of the hatch's maximum voltage. Example: an MV input
-hatch supplied with 2A LV is treated as live LV flow for Jade and can display/draw up to
-`2 * 32 = 64 CE/t` from that live input. The hatch's tier is capacity; the live packet voltage is
-what decides flow tier.
+Routing
+-------
 
-The machine may only extract up to that live limit from that hatch in one tick. If a recipe needs
-more CE/t than all available input hatches can provide, the recipe must not run from buffer alone.
+`CEEnergyNetwork` caches routes from a source cable to reachable input containers and invalidates
+the cache when cable topology changes. Routes are sorted by cable count.
 
-Jade flow display uses the same draw:
+Only a successful transfer is recorded. Every cable in the selected route receives the exact
+accepted amp count and source packet voltage. Machine recipe demand is never broadcast across the
+whole network and cannot create fake Jade flow.
 
-`display amps = CE/t drawn from the hatch / live input voltage`
+There is no voltage loss. If an over-tier packet enters a cable, the cable heats and the packet
+delivered beyond that unsafe cable is capped to the cable voltage. This keeps GTCEu-style fuse
+behavior without distance loss.
 
-Examples:
+Cable safety
+------------
 
-- LV is 32 CE per amp. A machine drawing 50 CE/t from a 2A LV hatch displays 1.5625A, Tier LV.
-- An MV hatch supplied with 2A LV displays 2A, Tier LV when the live draw is 64 CE/t.
-- MV is 128 CE per amp. A machine needing 320 CE/t from one 2A MV hatch can only draw 256 CE/t,
-  so it does not have enough input to run.
+`EnergyWireBlockEntity` records the total real amperage for each tick.
 
-Multiblock input overclock
---------------------------
+- Overamp heat: `(current tick amps - max amps) * 40`.
+- Overvoltage adds heat based on voltage tier difference.
+- Ambient temperature: 293.
+- Insulation can burn away at or above 1500.
+- Cable melts into fire at 3000.
+- Hot cables cool gradually when no new heat is queued.
 
-Energy input hatches give two separate values to a multiblock:
+When insulation burns away, the block changes to the matching existing uninsulated cable while
+preserving tier, thickness, connections, disabled sides, and temperature.
 
-- recipe access tier
-- runtime overclock tier
+Jade
+----
 
-Recipe access is based only on the highest energy input hatch tier:
+Cable Jade matches GTCEu's information shape:
 
-`max recipe tier = highest energy input hatch tier + 1`
+Active cable:
 
-This means many cheap hatches do not unlock high-tier recipes. Example: even with enough LV amps
-to equal EV throughput, LV input hatches can only unlock recipes up to MV.
+`Voltage: LV / LV`
+`Amperage: 1.5A / 4.0A`
 
-Runtime overclock is based on total input throughput. Convert the total input CE/t to equivalent
-amps at the highest input hatch tier, then every full 4 amps raises effective runtime tier by one.
-Extra amps below the next full 4x step only add capacity, not speed.
+Inactive cable:
 
-Examples with LV input hatches:
+`Voltage: LV`
+`Amperage: 4.0A`
 
-- 1 LV hatch = 2 LV amps = LV runtime.
-- 2 LV hatches = 4 LV amps = MV runtime.
-- 4 LV hatches = 8 LV amps = still MV runtime.
-- 6 LV hatches = 12 LV amps = still MV runtime.
-- 8 LV hatches = 16 LV amps = HV runtime.
+Hot cable:
 
-The existing `CERecipe` overclock math is reused:
+`Cable overloaded: 37%`
 
-- +1 runtime tier halves duration and multiplies CE/t by 4.
-- +2 runtime tiers quarters duration and multiplies CE/t by 16.
-- The overclock base is the highest of the recipe's explicit tier, energy CE/t tier, and kinetic
-  tier. Duration and CE/t both scale from that same base. A low-CE/t MV recipe therefore
-  overclocks from MV, not from the lower CE/t tier.
+Current voltage is the highest actual packet voltage recorded for the current tick. Current
+amperage is the average of real transferred amps over the last 20 ticks. Maximum voltage and
+amperage come from the cable itself. Amperage is never derived from recipe CE/t or scanned machine
+demand.
 
-Generator parallel
-------------------
+Machine and hatch Jade uses a yellow progress element:
 
-Energy-generating multiblock recipes do not overclock their duration from output hatches. They run
-parallel based on total energy output hatch capacity:
+`Energy: stored / capacity CE`
 
-`parallel = floor(total output CE/t capacity / base generated CE/t)`
+Recipe progress remains a separate Jade element owned by the shared CE recipe runtime.
 
-The duration stays the same, while consumable inputs, outputs, and generated CE/t are multiplied by
-the parallel value. Parallel is only shown in the multiblock GUI when it is above x1.
+Core files
+----------
 
-Example:
+- `energy/CEEnergyContainer.java`: long packet and storage contract.
+- `energy/CEEnergyStorage.java`: bounded storage and per-tick input amp accounting.
+- `energy/CEEnergyNetwork.java`: route cache and actual packet transfer.
+- `energy/EnergyWireBlock.java`: cable properties, capacity, and connections.
+- `energy/EnergyWireBlockEntity.java`: flow averaging and cable temperature.
+- `integration/jade/CreateExpansionJadePlugin.java`: machine and cable server-authoritative display.
+Jade cable flow data
+--------------------
+- Cable flow is read from the server-side EnergyWireBlockEntity, not inferred from stored energy.
+- Like GTCEu, the server provider is registered for the BlockEntity base class, the client component is registered for the cable block, and values are sent in a cableData compound under the provider UID.
+- The tooltip always shows the cable limits from the block definition if server flow data is temporarily unavailable. Missing cableData must never hide the tooltip.
+- currentAmperage is the cable's measured 20-tick average from successful energy packets routed through that cable.
+- currentVoltage is the voltage recorded on the cable during the current server tick.
+- Cable flow is also synchronized on the block entity update tag as a client fallback if Jade's server payload is unavailable.
+- Jade shows only the voltage currently flowing, or None with no flow. Amperage is always formatted as current / maximum.
+- Cable temperature remains part of cable behavior but is not displayed in Jade.
+- Electric singleblock machines use the CEEnergyStorage over-voltage callback. An incoming packet above the machine input tier causes a block-damaging explosion.
+- Energy input and output hatches accept or emit up to 2A. Electric singleblock machines are limited to 1A.
+- Both hatches and electric singleblock machines use a tier voltage x 64 CE buffer.
+- Over-voltage explosions use TNT explosion interaction so they destroy the machine or hatch and nearby blocks.
+- Cable block entity flow updates continue during the 20-tick averaging decay, then stop syncing once the displayed flow reaches zero.
+- Machine Jade shows readable active item/fluid inputs and outputs instead of a recipe ID, plus recipe progress and the energy buffer.
+- Machine Jade's server provider is registered once for BlockEntity.class and stores its payload under the provider UID, matching GTCEu's registration/data pattern.
+- Electric recipe Jade shows actual runtime consumption or production as amperage at the machine voltage plus total CE/t. For example, an 8 CE/t ULV recipe overclocked in LV displays 1.0A at LV (32 CE/t).
+- Cable Jade retains the most recent transferred voltage while its 20-tick amperage window is non-zero, preventing tick-order gaps from displaying Voltage: None during active flow.
+- CERecipeLogic processes a newly found recipe in the same server tick. There is no empty power-consumption tick between consecutive recipes, so continuous 1A machines produce continuous 1A cable load.
+- Singleblock Jade can rebuild its provider data directly from the synchronized client block entity. It does not depend on Jade server payload delivery for recipe or buffer information.
+- Singleblock energy uses the exact same Jade progress element renderer as energy hatches.
+- Singleblock block entity update packets explicitly include EnergyStored and the complete CERecipeLogic execution so client-side Jade fallback has current buffer, inputs, outputs, duration, progress, and runtime CE/t.
+- Singleblock Jade renders Input in aqua, Output in gold, consumed CE/t in red, and produced CE/t in green.
+- Recipe duration uses a red progress bar with white overlaid text. Machine energy uses the hatch-style yellow progress bar with white overlaid text.
 
-- Recipe: 1 mB diesel, 5 seconds, 40 CE/t output.
-- 2 LV output hatches = 128 CE/t capacity.
-- Parallel = floor(128 / 40) = x3.
-- Runtime: 3 mB diesel, 5 seconds, 120 CE/t output.
-
-Wire live state and safety
---------------------------
-
-`EnergyWireBlockEntity` tracks:
-
-- `currentAmperage`: sum of accepted amps through this wire during the current game tick.
-- `currentVoltage`: highest packet voltage seen during the current game tick.
-- `lastTransferTick`: used to keep flow visible for 40 ticks after the last transfer.
-- `heat`: overload/overvoltage damage.
-
-On a new transfer tick, the wire resets `currentAmperage` and `currentVoltage` before adding the
-new transfer. If voltage is above the wire's tier voltage, heat rises. If amps are above max amps,
-heat rises by the excess. At 1000 heat the wire becomes fire.
-
-Jade display contract
----------------------
-
-Jade should show only live flow state:
-
-- `Flow`: live displayed amps through this wire.
-- `Tier`: the live flow tier, based on the actual CE/t load being carried. This is not the wire's
-  own material tier.
-- Do not show wire material/capacity tier in the Jade wire tooltip. The user only wants the tier of
-  the electricity currently moving through the wire.
-
-For display, fractional amps are allowed. Example: a machine using 12 CE/t from an LV input hatch
-displays as 0.375A and LV, because LV is 32 CE per amp.
-
-The provider should send live data from the block entity:
-
-- `Amps`
-- `Voltage`
-- `CEt`
-
-`CEt` should come from the CE/t drawn through the energy input hatch when a machine consumes power,
-with the display voltage set to the recent incoming network voltage for that hatch. If there is no
-recent network input, fall back to the hatch input voltage. This avoids buffer refill timing hiding
-real machine load from Jade while still showing LV when an MV hatch is actually being supplied by
-LV power. Only display `none` for flow tier when there is no recent flow/load.
-`CEEnergyNetwork` also keeps a short-lived server-side wire flow cache keyed by wire position, so
-Jade can read current wire flow even if block entity client sync is late or unavailable.
-
-Compatibility notes
--------------------
-
-Jade server data providers should be registered against the block and block entity targets that can
-own wire data. Registering only the block entity can leave the client component active while server
-data is not requested for the wire target.
-
-- `MachinePortBlockEntity`
-- `CreativeEnergyBlockEntity`
-- `EnergyWireBlock`
-- `EnergyWireBlockEntity`
-
-The client tooltip should still tolerate missing server data, because Jade can render before fresh
-server data arrives. Live flow will naturally be 0 until server data arrives.
-
-Wire server data is written both into the `create_expansion:ce_wire` compound and into top-level
-fallback keys (`CEWireCEt`, `CEWireVoltage`). The top-level keys are defensive compatibility data:
-the compound remains the canonical shape, but the tooltip can still read live flow if nested data is
-not present in Jade's client accessor.
+Shared automatic machine UI
+---------------------------
+- MachineGuiLayout is the single source of truth for CE singleblock machine screens and CERecipeCategory in JEI.
+- The automatic layout follows GTCEu's recipe capability arrangement: item/fluid inputs on the left, the selected recipe progress bar in the center, and item/fluid outputs on the right.
+- Capability grids use up to three columns and expand vertically. GUI width and player inventory position are derived from the same layout.
+- Machine GUI and JEI use the same 18x18 item/fluid slot textures, input/output overlays, progress texture, and coordinates.
+- Input capability rows are mirrored toward the center progress widget: visually 3, 2, 1 on the first row and 6, 5, 4 on the second. Output rows remain 1, 2, 3 then 4, 5, 6.
+- Fluid input and output grids use the same directional ordering as item grids.
+- Create-native kinetic recipe categories and machines remain independent and are not converted to the CE automatic GUI.

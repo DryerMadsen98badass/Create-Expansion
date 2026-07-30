@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:zincite_andesite_ore",
-    "create_expansion:zincite_diorite_ore",
-    "create_expansion:zincite_ore",
-    "create_expansion:zincite_end_stone_ore",
-    "create_expansion:zincite_blackstone_ore",
-    "create_expansion:zincite_deepslate_ore",
-    "create_expansion:zincite_granite_ore",
     "create_expansion:zincite_netherrack_ore",
-    "create_expansion:zincite_tuff_ore"
+    "create_expansion:zincite_deepslate_ore",
+    "create_expansion:zincite_andesite_ore",
+    "create_expansion:zincite_end_stone_ore",
+    "create_expansion:zincite_diorite_ore",
+    "create_expansion:zincite_tuff_ore",
+    "create_expansion:zincite_blackstone_ore",
+    "create_expansion:zincite_ore",
+    "create_expansion:zincite_granite_ore"
   ]
 }

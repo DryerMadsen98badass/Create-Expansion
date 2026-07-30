@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "create_expansion:tuff_dust"
+    },
+    {
+      "item": "create_expansion:nether_brick_dust"
+    },
+    {
+      "item": "create_expansion:clay_dust"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_expansion:seared_dust"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:tungsten_crushed_ore"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:tungsten_washed_crushed_ore"
+    },
+    {
+      "id": "create_expansion:stone_dust"
+    }
+  ]
+}

@@ -1,0 +1,304 @@
+{
+  "variants": {
+    "facing=east,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 90
+    },
+    "facing=east,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 90
+    },
+    "facing=east,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 90
+    },
+    "facing=east,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 90
+    },
+    "facing=east,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 90
+    },
+    "facing=east,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 90
+    },
+    "facing=east,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 90
+    },
+    "facing=east,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 90
+    },
+    "facing=east,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 90
+    },
+    "facing=east,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 90
+    },
+    "facing=east,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active",
+      "y": 90
+    },
+    "facing=east,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_1",
+      "y": 90
+    },
+    "facing=east,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_2",
+      "y": 90
+    },
+    "facing=east,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_3",
+      "y": 90
+    },
+    "facing=east,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_4",
+      "y": 90
+    },
+    "facing=east,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_5",
+      "y": 90
+    },
+    "facing=east,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_6",
+      "y": 90
+    },
+    "facing=east,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_7",
+      "y": 90
+    },
+    "facing=east,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_8",
+      "y": 90
+    },
+    "facing=east,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_9",
+      "y": 90
+    },
+    "facing=north,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/steam_copper_steam_distillery"
+    },
+    "facing=north,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/steam_copper_steam_distillery"
+    },
+    "facing=north,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/steam_copper_steam_distillery"
+    },
+    "facing=north,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/steam_copper_steam_distillery"
+    },
+    "facing=north,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/steam_copper_steam_distillery"
+    },
+    "facing=north,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/steam_copper_steam_distillery"
+    },
+    "facing=north,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/steam_copper_steam_distillery"
+    },
+    "facing=north,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/steam_copper_steam_distillery"
+    },
+    "facing=north,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/steam_copper_steam_distillery"
+    },
+    "facing=north,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/steam_copper_steam_distillery"
+    },
+    "facing=north,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active"
+    },
+    "facing=north,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_1"
+    },
+    "facing=north,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_2"
+    },
+    "facing=north,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_3"
+    },
+    "facing=north,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_4"
+    },
+    "facing=north,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_5"
+    },
+    "facing=north,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_6"
+    },
+    "facing=north,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_7"
+    },
+    "facing=north,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_8"
+    },
+    "facing=north,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_9"
+    },
+    "facing=south,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 180
+    },
+    "facing=south,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 180
+    },
+    "facing=south,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 180
+    },
+    "facing=south,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 180
+    },
+    "facing=south,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 180
+    },
+    "facing=south,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 180
+    },
+    "facing=south,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 180
+    },
+    "facing=south,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 180
+    },
+    "facing=south,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 180
+    },
+    "facing=south,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 180
+    },
+    "facing=south,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active",
+      "y": 180
+    },
+    "facing=south,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_1",
+      "y": 180
+    },
+    "facing=south,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_2",
+      "y": 180
+    },
+    "facing=south,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_3",
+      "y": 180
+    },
+    "facing=south,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_4",
+      "y": 180
+    },
+    "facing=south,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_5",
+      "y": 180
+    },
+    "facing=south,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_6",
+      "y": 180
+    },
+    "facing=south,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_7",
+      "y": 180
+    },
+    "facing=south,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_8",
+      "y": 180
+    },
+    "facing=south,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_9",
+      "y": 180
+    },
+    "facing=west,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 270
+    },
+    "facing=west,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 270
+    },
+    "facing=west,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 270
+    },
+    "facing=west,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 270
+    },
+    "facing=west,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 270
+    },
+    "facing=west,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 270
+    },
+    "facing=west,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 270
+    },
+    "facing=west,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 270
+    },
+    "facing=west,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 270
+    },
+    "facing=west,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/steam_copper_steam_distillery",
+      "y": 270
+    },
+    "facing=west,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active",
+      "y": 270
+    },
+    "facing=west,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_1",
+      "y": 270
+    },
+    "facing=west,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_2",
+      "y": 270
+    },
+    "facing=west,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_3",
+      "y": 270
+    },
+    "facing=west,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_4",
+      "y": 270
+    },
+    "facing=west,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_5",
+      "y": 270
+    },
+    "facing=west,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_6",
+      "y": 270
+    },
+    "facing=west,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_7",
+      "y": 270
+    },
+    "facing=west,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_8",
+      "y": 270
+    },
+    "facing=west,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/steam_copper_steam_distillery_active_9",
+      "y": 270
+    }
+  }
+}

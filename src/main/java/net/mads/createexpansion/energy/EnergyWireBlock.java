@@ -5,6 +5,8 @@ import net.mads.createexpansion.machine.WrenchPickupHelper;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.MachineTierStats;
 import net.mads.createexpansion.machine.MachinePortBlock;
+import net.mads.createexpansion.machine.SingleBlockMachineBlock;
+import net.mads.createexpansion.machine.SingleBlockMachinePower;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
@@ -122,6 +124,16 @@ public class EnergyWireBlock extends Block implements EntityBlock, IWrenchable {
                 && hasEnabledConnection(neighborState, direction.getOpposite());
     }
 
+    public static BlockState copyConnections(BlockState source, EnergyWireBlock replacement) {
+        BlockState result = replacement.defaultBlockState();
+        for (Direction direction : Direction.values()) {
+            result = result
+                    .setValue(PROPERTY_BY_DIRECTION.get(direction), source.getValue(PROPERTY_BY_DIRECTION.get(direction)))
+                    .setValue(DISABLED_PROPERTY_BY_DIRECTION.get(direction), source.getValue(DISABLED_PROPERTY_BY_DIRECTION.get(direction)));
+        }
+        return result;
+    }
+
     public String registryName() {
         return registryName(tier, thickness, insulated);
     }
@@ -222,6 +234,10 @@ public class EnergyWireBlock extends Block implements EntityBlock, IWrenchable {
     private static boolean connectsTo(BlockState state) {
         if (state.getBlock() instanceof EnergyWireBlock || state.getBlock() instanceof CreativeEnergyBlock) {
             return true;
+        }
+        if (state.getBlock() instanceof SingleBlockMachineBlock machine) {
+            return machine.instance() != null
+                    && machine.instance().definition().power() == SingleBlockMachinePower.ELECTRIC;
         }
         return state.getBlock() instanceof MachinePortBlock port
                 && (port.abilities().contains(MultiblockAbility.ENERGY_INPUT)

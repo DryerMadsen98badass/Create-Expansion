@@ -11,6 +11,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 public class MyCommand {
@@ -44,6 +45,8 @@ public class MyCommand {
                                         ctx.getSource(),
                                         StringArgumentType.getString(ctx, "target")
                                 ))))
+                .then(Commands.literal("ore_veins")
+                        .executes(ctx -> listNearbyOreVeins(ctx.getSource())))
                 .then(Commands.literal("profile")
                         .executes(ctx -> showProfileStats(ctx.getSource()))
                         .then(Commands.literal("on")
@@ -89,10 +92,21 @@ public class MyCommand {
                 () -> Component.literal(
                         "Nearest " + vein.depositId() + " vein: "
                                 + center.getX() + " " + center.getY() + " " + center.getZ()
+                                + " in " + vein.dimension()
                                 + " (" + vein.distanceBlocks() + " blocks away)"
                 ),
                 false
         );
+        if (vein.surfaceIndicator() != null) {
+            BlockPos indicator = vein.surfaceIndicator();
+            source.sendSuccess(
+                    () -> Component.literal(
+                            "Surface indicator: "
+                                    + indicator.getX() + " " + indicator.getY() + " " + indicator.getZ()
+                    ),
+                    false
+            );
+        }
         source.sendSuccess(
                 () -> Component.literal("Layers: " + String.join(", ", vein.layers())),
                 false
@@ -101,6 +115,43 @@ public class MyCommand {
                 () -> Component.literal("Surface indicators: " + String.join(", ", vein.surfaceIndicators())),
                 false
         );
+
+        return 1;
+    }
+
+    private static int listNearbyOreVeins(CommandSourceStack source) {
+        BlockPos origin = BlockPos.containing(source.getPosition());
+        List<OreVeinLocator.Result> veins = OreVeinLocator.listNearby(source.getLevel(), origin, 10000);
+        if (veins.isEmpty()) {
+            source.sendFailure(Component.literal("No generated ore veins found within 10000 blocks."));
+            return 0;
+        }
+
+        source.sendSuccess(
+                () -> Component.literal("Generated ore veins within 10000 blocks: " + veins.size()),
+                false
+        );
+
+        int shown = Math.min(veins.size(), 20);
+        for (int i = 0; i < shown; i++) {
+            OreVeinLocator.Result vein = veins.get(i);
+            BlockPos center = vein.center();
+            source.sendSuccess(
+                    () -> Component.literal(
+                            vein.depositId() + ": "
+                                    + center.getX() + " " + center.getY() + " " + center.getZ()
+                                    + " (" + vein.distanceBlocks() + " blocks)"
+                    ),
+                    false
+            );
+        }
+
+        if (veins.size() > shown) {
+            source.sendSuccess(
+                    () -> Component.literal("Showing nearest " + shown + " of " + veins.size() + "."),
+                    false
+            );
+        }
 
         return 1;
     }

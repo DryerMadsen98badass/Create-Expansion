@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:potassium_nugget"
+    },
+    {
+      "item": "create_expansion:potassium_nugget"
+    },
+    {
+      "item": "create_expansion:potassium_nugget"
+    },
+    {
+      "item": "create_expansion:potassium_nugget"
+    },
+    {
+      "item": "create_expansion:potassium_nugget"
+    },
+    {
+      "item": "create_expansion:potassium_nugget"
+    },
+    {
+      "item": "create_expansion:potassium_nugget"
+    },
+    {
+      "item": "create_expansion:potassium_nugget"
+    },
+    {
+      "item": "create_expansion:potassium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:potassium_ingot"
+    }
+  ]
+}

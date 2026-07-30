@@ -1,12 +1,12 @@
 {
   "type": "create_expansion:foundry_melting",
   "ingredient": {
-    "item": "create_expansion:iron_rotor"
+    "item": "create:propeller"
   },
   "nuggets": 36,
   "result": {
     "amount": 576,
     "id": "create_expansion:molten_iron"
   },
-  "temperature": 1538
+  "temperature": 700
 }

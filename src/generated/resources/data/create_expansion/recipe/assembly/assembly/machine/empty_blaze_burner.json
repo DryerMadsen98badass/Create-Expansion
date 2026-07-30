@@ -1,0 +1,19 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "minecraft:netherrack"
+  },
+  "inputs": [
+    {
+      "count": 4,
+      "item": "minecraft:iron_bars"
+    },
+    {
+      "count": 16,
+      "item": "create_expansion:wood_screw"
+    }
+  ],
+  "result": {
+    "id": "create:empty_blaze_burner"
+  }
+}

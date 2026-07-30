@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:thallium_ingot"
+    },
+    {
+      "item": "create_expansion:thallium_ingot"
+    },
+    {
+      "item": "create_expansion:thallium_ingot"
+    },
+    {
+      "item": "create_expansion:thallium_ingot"
+    },
+    {
+      "item": "create_expansion:thallium_ingot"
+    },
+    {
+      "item": "create_expansion:thallium_ingot"
+    },
+    {
+      "item": "create_expansion:thallium_ingot"
+    },
+    {
+      "item": "create_expansion:thallium_ingot"
+    },
+    {
+      "item": "create_expansion:thallium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:thallium_block"
+    }
+  ]
+}

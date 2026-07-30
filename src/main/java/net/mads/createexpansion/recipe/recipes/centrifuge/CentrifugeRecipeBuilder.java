@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
@@ -21,7 +22,7 @@ import java.util.Optional;
 
 public class CentrifugeRecipeBuilder {
     private final String id;
-    private final List<Ingredient> itemIngredients = new ArrayList<>();
+    private final List<SizedIngredient> itemIngredients = new ArrayList<>();
     private final List<SizedFluidIngredient> fluidIngredients = new ArrayList<>();
     private final List<ProcessingOutput> itemResults = new ArrayList<>();
     private final List<FluidStack> fluidResults = new ArrayList<>();
@@ -34,17 +35,29 @@ public class CentrifugeRecipeBuilder {
     }
 
     public CentrifugeRecipeBuilder inputItem(String itemId) {
-        itemIngredients.add(Ingredient.of(item(itemId)));
+        return inputItem(itemId, 1);
+    }
+
+    public CentrifugeRecipeBuilder inputItem(String itemId, int count) {
+        itemIngredients.add(SizedIngredient.of(item(itemId), count));
         return this;
     }
 
     public CentrifugeRecipeBuilder inputItem(ItemLike item) {
-        itemIngredients.add(Ingredient.of(item));
+        return inputItem(item, 1);
+    }
+
+    public CentrifugeRecipeBuilder inputItem(ItemLike item, int count) {
+        itemIngredients.add(SizedIngredient.of(item, count));
         return this;
     }
 
     public CentrifugeRecipeBuilder inputTag(String tagId) {
-        itemIngredients.add(Ingredient.of(itemTag(tagId)));
+        return inputTag(tagId, 1);
+    }
+
+    public CentrifugeRecipeBuilder inputTag(String tagId, int count) {
+        itemIngredients.add(SizedIngredient.of(itemTag(tagId), count));
         return this;
     }
 

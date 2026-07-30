@@ -25,6 +25,7 @@ public class MachinePortMenu extends AbstractContainerMenu {
     public static final int BUTTON_AUTO_TOGGLE = 6;
     public static final int BUTTON_AUTO_RESET = 7;
     public static final int BUTTON_SYNC = 8;
+    public static final int BUTTON_FLUID_SLOT = 1000;
     private static final int SLOT_SIZE = 18;
     private static final int CONTROL_COLUMN_WIDTH = 66;
     private static final int CONTENT_PADDING = 10;
@@ -171,6 +172,21 @@ public class MachinePortMenu extends AbstractContainerMenu {
     public boolean clickMenuButton(Player player, int id) {
         if (blockEntity == null) {
             return false;
+        }
+
+        if (id >= BUTTON_FLUID_SLOT && id < BUTTON_FLUID_SLOT + fluidSlotCount) {
+            int slot = id - BUTTON_FLUID_SLOT;
+            List<FluidTank> tanks = blockEntity.fluidTanks();
+            if (slot < 0 || slot >= tanks.size()) {
+                return false;
+            }
+            return FluidSlotClickHandler.interact(
+                    this,
+                    player,
+                    tanks.get(slot),
+                    blockEntity.allowsGuiFluidFill(),
+                    blockEntity.allowsGuiFluidDrain()
+            );
         }
 
         switch (id) {

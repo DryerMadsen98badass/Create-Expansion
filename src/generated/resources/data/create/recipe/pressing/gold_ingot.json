@@ -3,15 +3,5 @@
     {
       "type": "neoforge:false"
     }
-  ],
-  "type": "minecraft:crafting_shapeless",
-  "category": "misc",
-  "ingredients": [
-    {
-      "item": "minecraft:barrier"
-    }
-  ],
-  "result": {
-    "id": "minecraft:barrier"
-  }
+  ]
 }

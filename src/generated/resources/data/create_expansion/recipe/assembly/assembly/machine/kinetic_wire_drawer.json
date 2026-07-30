@@ -1,0 +1,47 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create:andesite_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:shaft"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:wrought_iron_plate"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wrought_iron_screw"
+    },
+    {
+      "count": 12,
+      "item": "create_expansion:wrought_iron_rod"
+    },
+    {
+      "count": 24,
+      "item": "create_expansion:wrought_iron_screw"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:wrought_iron_plate"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wrought_iron_screw"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:wrought_iron_ring"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wrought_iron_screw"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:kinetic_wire_drawer"
+  }
+}

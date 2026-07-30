@@ -6,55 +6,55 @@ import net.minecraft.core.Direction;
 public interface CEEnergyContainer {
     MachineTier tier();
 
-    int acceptEnergyFromNetwork(Direction side, int voltage, int amperage);
+    long acceptEnergyFromNetwork(Direction side, long voltage, long amperage);
 
     boolean inputsEnergy(Direction side);
 
     boolean outputsEnergy(Direction side);
 
-    int changeEnergy(int differenceAmount);
+    long changeEnergy(long differenceAmount);
 
-    int getEnergyStored();
+    long getEnergyStored();
 
-    int getEnergyCapacity();
+    long getEnergyCapacity();
 
-    int getInputAmperage();
+    long getInputAmperage();
 
-    int getInputVoltage();
+    long getInputVoltage();
 
-    int getOutputAmperage();
+    long getOutputAmperage();
 
-    int getOutputVoltage();
+    long getOutputVoltage();
 
-    default int getEnergyCanBeInserted() {
+    default long getEnergyCanBeInserted() {
         return getEnergyCapacity() - getEnergyStored();
     }
 
-    default int addEnergy(int energyToAdd) {
+    default long addEnergy(long energyToAdd) {
         return changeEnergy(energyToAdd);
     }
 
-    default int removeEnergy(int energyToRemove) {
+    default long removeEnergy(long energyToRemove) {
         return -changeEnergy(-energyToRemove);
     }
 
-    default int voltage() {
+    default long voltage() {
         return getInputVoltage();
     }
 
-    default int stored() {
+    default long stored() {
         return getEnergyStored();
     }
 
-    default int capacity() {
+    default long capacity() {
         return getEnergyCapacity();
     }
 
-    default int maxInputAmps() {
+    default long maxInputAmps() {
         return getInputAmperage();
     }
 
-    default int maxOutputAmps() {
+    default long maxOutputAmps() {
         return getOutputAmperage();
     }
 
@@ -66,16 +66,16 @@ public interface CEEnergyContainer {
         return outputsEnergy(side);
     }
 
-    default int insert(int amount, boolean simulate) {
-        int inserted = Math.max(0, Math.min(amount, getEnergyCanBeInserted()));
+    default long insert(long amount, boolean simulate) {
+        long inserted = Math.max(0L, Math.min(amount, getEnergyCanBeInserted()));
         if (!simulate && inserted > 0) {
             changeEnergy(inserted);
         }
         return inserted;
     }
 
-    default int extract(int amount, boolean simulate) {
-        int extracted = Math.max(0, Math.min(amount, getEnergyStored()));
+    default long extract(long amount, boolean simulate) {
+        long extracted = Math.max(0L, Math.min(amount, getEnergyStored()));
         if (!simulate && extracted > 0) {
             changeEnergy(-extracted);
         }

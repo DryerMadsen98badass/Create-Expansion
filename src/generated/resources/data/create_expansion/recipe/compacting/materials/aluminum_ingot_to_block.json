@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:aluminum_ingot"
+    },
+    {
+      "item": "create_expansion:aluminum_ingot"
+    },
+    {
+      "item": "create_expansion:aluminum_ingot"
+    },
+    {
+      "item": "create_expansion:aluminum_ingot"
+    },
+    {
+      "item": "create_expansion:aluminum_ingot"
+    },
+    {
+      "item": "create_expansion:aluminum_ingot"
+    },
+    {
+      "item": "create_expansion:aluminum_ingot"
+    },
+    {
+      "item": "create_expansion:aluminum_ingot"
+    },
+    {
+      "item": "create_expansion:aluminum_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:aluminum_block"
+    }
+  ]
+}

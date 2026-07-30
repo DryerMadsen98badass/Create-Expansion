@@ -3,7 +3,7 @@ package net.mads.createexpansion.machine.machines.foundry;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlockEntity;
-import net.mads.createexpansion.machine.machines.electric.multiblock.machines.Heater;
+import net.mads.createexpansion.machine.machines.electric.multiblock.machines.heater;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.mads.createexpansion.registry.BlockRegistry;
 import net.mads.createexpansion.material.IndustrialMaterial;
@@ -264,7 +264,7 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
     }
 
     private int electricHeaterTargetTemperature(ElectricHeaterSource source) {
-        int energyPerTick = Heater.energyPerTick(source.controller().formedCoilHeat(), source.controller().formedCoilCount(), insideVolume());
+        int energyPerTick = heater.energyPerTick(source.controller().formedCoilHeat(), source.controller().formedCoilCount(), insideVolume());
         if (!source.controller().consumeExternalHeatEnergy(energyPerTick, HEAT_INTERVAL)) {
             return 0;
         }
@@ -330,7 +330,7 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
     private static boolean isLargeHeater(MultiblockControllerBlockEntity controller) {
         return controller.isFormed()
                 && controller.getBlockState().getBlock() instanceof MultiblockControllerBlock controllerBlock
-                && controllerBlock.controllerId().equals(Heater.CONTROLLER.id());
+                && controllerBlock.controllerId().equals(heater.CONTROLLER.id());
     }
 
     public FluidStack fluidInTank() {
@@ -397,7 +397,9 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
                 for (var component : alloy.components()) {
                     int consumed = component.amount() * batches;
                     outputAmount += consumed;
-                    consumeMaterialFluid(component.material(), consumed);
+                    if (component.substance() instanceof IndustrialMaterial componentMaterial) {
+                        consumeMaterialFluid(componentMaterial, consumed);
+                    }
                 }
 
                 addResolvedFluid(alloy, outputAmount);
@@ -414,7 +416,11 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
         }
 
         for (var component : alloy.components()) {
-            if (component.material() == alloy || FoundryMeltingRecipes.materialFluid(component.material()) == null) {
+            if (!(component.substance() instanceof IndustrialMaterial componentMaterial)) {
+                return false;
+            }
+
+            if (componentMaterial == alloy || FoundryMeltingRecipes.materialFluid(componentMaterial) == null) {
                 return false;
             }
         }
@@ -424,7 +430,11 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
     private int alloyBatchCount(IndustrialMaterial alloy) {
         int batches = Integer.MAX_VALUE;
         for (var component : alloy.components()) {
-            int amount = materialFluidAmount(component.material());
+            if (!(component.substance() instanceof IndustrialMaterial componentMaterial)) {
+                return 0;
+            }
+
+            int amount = materialFluidAmount(componentMaterial);
             batches = Math.min(batches, amount / component.amount());
         }
         return batches == Integer.MAX_VALUE ? 0 : batches;
@@ -540,7 +550,11 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
             return seen;
         }
 
-        material.components().forEach(component -> alloyFamily(component.material(), seen));
+        material.components().forEach(component -> {
+            if (component.substance() instanceof IndustrialMaterial componentMaterial) {
+                alloyFamily(componentMaterial, seen);
+            }
+        });
         return seen;
     }
 

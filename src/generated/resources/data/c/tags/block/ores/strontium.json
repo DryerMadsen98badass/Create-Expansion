@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:strontium_andesite_ore",
-    "create_expansion:strontium_diorite_ore",
-    "create_expansion:strontium_ore",
-    "create_expansion:strontium_end_stone_ore",
-    "create_expansion:strontium_blackstone_ore",
-    "create_expansion:strontium_deepslate_ore",
-    "create_expansion:strontium_granite_ore",
     "create_expansion:strontium_netherrack_ore",
-    "create_expansion:strontium_tuff_ore"
+    "create_expansion:strontium_deepslate_ore",
+    "create_expansion:strontium_andesite_ore",
+    "create_expansion:strontium_end_stone_ore",
+    "create_expansion:strontium_diorite_ore",
+    "create_expansion:strontium_tuff_ore",
+    "create_expansion:strontium_blackstone_ore",
+    "create_expansion:strontium_ore",
+    "create_expansion:strontium_granite_ore"
   ]
 }

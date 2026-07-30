@@ -5,6 +5,7 @@ import net.mads.createexpansion.fluid.IndustrialFluid;
 import net.mads.createexpansion.fluid.IndustrialFluids;
 import net.mads.createexpansion.fluid.MaterialFluidType;
 import net.mads.createexpansion.fluid.NonPlaceableBucketItem;
+import net.mads.createexpansion.item.FiredBucketItem;
 import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialPart;
@@ -12,6 +13,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -26,28 +28,62 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
-public class FluidRegistry {
-    public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(NeoForgeRegistries.FLUID_TYPES, CreateExpansion.MOD_ID);
-    public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(BuiltInRegistries.FLUID, CreateExpansion.MOD_ID);
-    public static final DeferredRegister<Item> BUCKET_ITEMS = DeferredRegister.create(BuiltInRegistries.ITEM, CreateExpansion.MOD_ID);
+public final class FluidRegistry {
+    public static final DeferredRegister<FluidType> FLUID_TYPES =
+            DeferredRegister.create(NeoForgeRegistries.FLUID_TYPES, CreateExpansion.MOD_ID);
+
+    public static final DeferredRegister<Fluid> FLUIDS =
+            DeferredRegister.create(BuiltInRegistries.FLUID, CreateExpansion.MOD_ID);
+
+    public static final DeferredRegister<Item> BUCKET_ITEMS =
+            DeferredRegister.create(BuiltInRegistries.ITEM, CreateExpansion.MOD_ID);
 
     public static final Map<String, RegisteredFluid> MATERIAL_FLUIDS = new LinkedHashMap<>();
     public static final Map<String, RegisteredFluid> CHEMICAL_FLUIDS = new LinkedHashMap<>();
 
+    public static final Map<Item, Item> FIRED_BUCKET_BY_NORMAL_BUCKET = new LinkedHashMap<>();
+    public static final Map<Item, Item> NORMAL_BUCKET_BY_FIRED_BUCKET = new LinkedHashMap<>();
+
+    public static final DeferredHolder<Item, FiredBucketItem> FIRED_WATER_BUCKET =
+            BUCKET_ITEMS.register(
+                    "fired_water_bucket",
+                    () -> new FiredBucketItem(
+                            Fluids.WATER,
+                            new Item.Properties().stacksTo(1)
+                    )
+            );
+
+    public static final DeferredHolder<Item, FiredBucketItem> FIRED_LAVA_BUCKET =
+            BUCKET_ITEMS.register(
+                    "fired_lava_bucket",
+                    () -> new FiredBucketItem(
+                            Fluids.LAVA,
+                            new Item.Properties().stacksTo(1)
+                    )
+            );
+
     static {
         for (IndustrialMaterial material : IndustrialMaterials.ALL) {
-            if (material.has(MaterialPart.MOLTEN_FLUID) && !material.hasExistingPart(MaterialPart.MOLTEN_FLUID)) {
+            if (material.has(MaterialPart.MOLTEN_FLUID)
+                    && !material.hasExistingPart(MaterialPart.MOLTEN_FLUID)) {
                 IndustrialFluid fluid = materialFluid(material);
-                MATERIAL_FLUIDS.put(fluid.registryName(), register(fluid));
+                MATERIAL_FLUIDS.put(fluid.registryName(), registerFluid(fluid));
             }
         }
 
         for (IndustrialFluid fluid : IndustrialFluids.ALL) {
-            CHEMICAL_FLUIDS.put(fluid.registryName(), register(fluid));
+            if (isVanillaFluid(fluid)) {
+                continue;
+            }
+
+            CHEMICAL_FLUIDS.put(fluid.registryName(), registerFluid(fluid));
         }
+    }
+
+    private FluidRegistry() {
     }
 
     public static void register(IEventBus modEventBus) {
@@ -57,61 +93,163 @@ public class FluidRegistry {
     }
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerItem(
+                Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new FluidBucketWrapper(stack),
+                ItemRegistry.FIRED_BUCKET.get()
+        );
+
+        event.registerItem(
+                Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new FluidBucketWrapper(stack),
+                FIRED_WATER_BUCKET.get()
+        );
+
+        event.registerItem(
+                Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new FluidBucketWrapper(stack),
+                FIRED_LAVA_BUCKET.get()
+        );
+
         for (RegisteredFluid fluid : allFluids()) {
             event.registerItem(
                     Capabilities.FluidHandler.ITEM,
                     (stack, context) -> new FluidBucketWrapper(stack),
                     fluid.bucket().get()
             );
+
+            event.registerItem(
+                    Capabilities.FluidHandler.ITEM,
+                    (stack, context) -> new FluidBucketWrapper(stack),
+                    fluid.firedBucket().get()
+            );
         }
     }
 
     public static Collection<RegisteredFluid> allFluids() {
-        return java.util.stream.Stream.concat(MATERIAL_FLUIDS.values().stream(), CHEMICAL_FLUIDS.values().stream()).toList();
+        return java.util.stream.Stream.concat(
+                MATERIAL_FLUIDS.values().stream(),
+                CHEMICAL_FLUIDS.values().stream()
+        ).toList();
     }
 
     public static Collection<DeferredHolder<Item, ? extends Item>> getAllBucketItems() {
         Collection<DeferredHolder<Item, ? extends Item>> buckets = new ArrayList<>();
+
+        buckets.add(FIRED_WATER_BUCKET);
+        buckets.add(FIRED_LAVA_BUCKET);
+
         for (RegisteredFluid fluid : allFluids()) {
             buckets.add(fluid.bucket());
+            buckets.add(fluid.firedBucket());
         }
 
         return buckets;
     }
 
-    private static RegisteredFluid register(IndustrialFluid fluid) {
-        DeferredHolder<FluidType, MaterialFluidType> type = FLUID_TYPES.register(fluid.registryName(), () -> new MaterialFluidType(fluid));
-        AtomicReference<DeferredHolder<Fluid, BaseFlowingFluid.Source>> source = new AtomicReference<>();
-        AtomicReference<DeferredHolder<Fluid, BaseFlowingFluid.Flowing>> flowing = new AtomicReference<>();
-        AtomicReference<DeferredHolder<Item, NonPlaceableBucketItem>> bucket = new AtomicReference<>();
+    private static RegisteredFluid registerFluid(IndustrialFluid fluid) {
+        DeferredHolder<FluidType, MaterialFluidType> type =
+                FLUID_TYPES.register(
+                        fluid.registryName(),
+                        () -> new MaterialFluidType(fluid)
+                );
 
-        Supplier<BaseFlowingFluid.Properties> properties = () -> new BaseFlowingFluid.Properties(type, () -> source.get().get(), () -> flowing.get().get())
-                .bucket(() -> bucket.get().get())
-                .tickRate(fluid.isGas() ? 2 : 5)
-                .levelDecreasePerBlock(fluid.isGas() ? 2 : 1);
+        AtomicReference<DeferredHolder<Fluid, BaseFlowingFluid.Source>> source =
+                new AtomicReference<>();
 
-        source.set(FLUIDS.register(fluid.registryName(), () -> new BaseFlowingFluid.Source(properties.get())));
-        flowing.set(FLUIDS.register("flowing_" + fluid.registryName(), () -> new BaseFlowingFluid.Flowing(properties.get())));
-        bucket.set(BUCKET_ITEMS.register(fluid.bucketName(), () ->
-                new NonPlaceableBucketItem(source.get().get(), new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1))));
+        AtomicReference<DeferredHolder<Fluid, BaseFlowingFluid.Flowing>> flowing =
+                new AtomicReference<>();
 
-        return new RegisteredFluid(fluid, type, source.get(), flowing.get(), bucket.get());
+        AtomicReference<DeferredHolder<Item, NonPlaceableBucketItem>> bucket =
+                new AtomicReference<>();
+
+        AtomicReference<DeferredHolder<Item, NonPlaceableBucketItem>> firedBucket =
+                new AtomicReference<>();
+
+        Supplier<BaseFlowingFluid.Properties> properties = () ->
+                new BaseFlowingFluid.Properties(
+                        type,
+                        () -> source.get().get(),
+                        () -> flowing.get().get()
+                )
+                        .bucket(() -> bucket.get().get())
+                        .tickRate(fluid.isGas() ? 2 : 5)
+                        .levelDecreasePerBlock(fluid.isGas() ? 2 : 1);
+
+        source.set(
+                FLUIDS.register(
+                        fluid.registryName(),
+                        () -> new BaseFlowingFluid.Source(properties.get())
+                )
+        );
+
+        flowing.set(
+                FLUIDS.register(
+                        "flowing_" + fluid.registryName(),
+                        () -> new BaseFlowingFluid.Flowing(properties.get())
+                )
+        );
+
+        bucket.set(
+                BUCKET_ITEMS.register(
+                        fluid.bucketName(),
+                        () -> new NonPlaceableBucketItem(
+                                source.get().get(),
+                                new Item.Properties()
+                                        .craftRemainder(Items.BUCKET)
+                                        .stacksTo(1)
+                        )
+                )
+        );
+
+        firedBucket.set(
+                BUCKET_ITEMS.register(
+                        "fired_" + fluid.bucketName(),
+                        () -> new NonPlaceableBucketItem(
+                                source.get().get(),
+                                new Item.Properties().stacksTo(1)
+                        )
+                )
+        );
+
+        return new RegisteredFluid(
+                fluid,
+                type,
+                source.get(),
+                flowing.get(),
+                bucket.get(),
+                firedBucket.get()
+        );
+    }
+
+    private static boolean isVanillaFluid(IndustrialFluid fluid) {
+        return fluid.registryName().equals("water")
+                || fluid.registryName().equals("lava");
     }
 
     private static IndustrialFluid materialFluid(IndustrialMaterial material) {
         if (isGasAtRoomTemperature(material)) {
-            return IndustrialFluids.gas(material.id(), material.displayName(), material.color())
+            return IndustrialFluids
+                    .gas(material.id(), material.displayName(), material.color())
                     .temperature(300)
                     .build();
         }
 
         if (material.meltingPoint() <= 20) {
-            return IndustrialFluids.fluid(material.id(), material.displayName(), material.color())
+            return IndustrialFluids
+                    .fluid(material.id(), material.displayName(), material.color())
                     .temperature(300)
                     .build();
         }
 
-        return IndustrialFluids.molten(material.id(), material.displayName(), material.color(), material.meltingPoint()).build();
+        return IndustrialFluids
+                .molten(
+                        material.id(),
+                        material.displayName(),
+                        material.color(),
+                        material.meltingPoint()
+                )
+                .build();
     }
 
     private static boolean isGasAtRoomTemperature(IndustrialMaterial material) {
@@ -128,8 +266,28 @@ public class FluidRegistry {
                  "xenon",
                  "radon",
                  "oganesson" -> true;
+
             default -> false;
         };
+    }
+
+    public static void buildFiredBucketMaps() {
+        if (!FIRED_BUCKET_BY_NORMAL_BUCKET.isEmpty()) {
+            return;
+        }
+
+        putBucket(Items.BUCKET, ItemRegistry.FIRED_BUCKET.get());
+        putBucket(Items.WATER_BUCKET, FIRED_WATER_BUCKET.get());
+        putBucket(Items.LAVA_BUCKET, FIRED_LAVA_BUCKET.get());
+
+        for (RegisteredFluid fluid : allFluids()) {
+            putBucket(fluid.bucket().get(), fluid.firedBucket().get());
+        }
+    }
+
+    private static void putBucket(Item normalBucket, Item firedBucket) {
+        FIRED_BUCKET_BY_NORMAL_BUCKET.put(normalBucket, firedBucket);
+        NORMAL_BUCKET_BY_FIRED_BUCKET.put(firedBucket, normalBucket);
     }
 
     public record RegisteredFluid(
@@ -137,7 +295,8 @@ public class FluidRegistry {
             DeferredHolder<FluidType, MaterialFluidType> type,
             DeferredHolder<Fluid, BaseFlowingFluid.Source> source,
             DeferredHolder<Fluid, BaseFlowingFluid.Flowing> flowing,
-            DeferredHolder<Item, NonPlaceableBucketItem> bucket
+            DeferredHolder<Item, NonPlaceableBucketItem> bucket,
+            DeferredHolder<Item, NonPlaceableBucketItem> firedBucket
     ) {
     }
 }

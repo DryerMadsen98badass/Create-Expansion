@@ -13,6 +13,11 @@ The current example is:
 
 machines/TestFoundry.java
 
+CE recipe multiblocks use the same `CERecipeLogic` lifecycle as singleblock machines. Structure,
+ports, routes, tier, overclock, and parallel behavior are supplied through the multiblock adapter;
+recipe search, progress, resource stalls, output stalls, persistence, GUI progress, and Jade
+progress are shared. See `Programering help/CE machine runtime.txt`.
+
 
 How to add a new multiblock
 ===========================
@@ -33,20 +38,21 @@ public final class ArcFurnace {
             "block/machines/overlay/foundry/foundry_on"
     );
 
-    public static final MultiblockDefinition DEFINITION = MultiblockDefinition.controller(CONTROLLER)
-            .displayName("Arc Furnace")
-            .tooltip(
+    public static final MultiblockDefinition DEFINITION = MultiblockDefinition.machine()
+            .machineDefinition(Option.controller(CONTROLLER))
+            .machineDefinition(Option.displayName("Arc Furnace"))
+            .machineDefinition(Option.tooltip(
                     "Short description shown on the controller item.",
                     "Second tooltip line."
-            )
-            .recipeTypes(CERecipeTypes.ARC_FURNACE)
-            .variant("1", pattern -> pattern
+            ))
+            .machineDefinition(Option.recipeType(CERecipeTypes.ARC_FURNACE))
+            .machineDefinition(Option.variant("1", pattern -> pattern
                     .layer(row(c, c, c), row(c, c, c), row(c, c, c))
                     .layer(row(c, p, c), row(c, controller, c), row(c, p, c))
                     .layer(row(c, c, c), row(c, c, c), row(c, c, c))
-            )
-            .where(c, tieredMachineCasings())
-            .where(p, ability(needed))
+            ))
+            .machineDefinition(Option.where(c, tieredMachineCasings()))
+            .machineDefinition(Option.where(p, ability(needed)))
             .build();
 
     private ArcFurnace() {
@@ -201,14 +207,15 @@ Controller tooltips
 
 Add controller item tooltip lines directly on the multiblock definition:
 
-public static final MultiblockDefinition DEFINITION = MultiblockDefinition.controller(CONTROLLER)
-        .displayName("Large Heater")
-        .externalHeatSource()
-        .tooltip(
+public static final MultiblockDefinition DEFINITION = MultiblockDefinition.machine()
+        .machineDefinition(Option.controller(CONTROLLER))
+        .machineDefinition(Option.displayName("Large Heater"))
+        .machineDefinition(Option.externalHeatSource())
+        .machineDefinition(Option.tooltip(
                 "Electric heat source for the Foundry.",
                 "Energy use: ceil(coil heat * coil count * foundry inside blocks / 500) CE/t."
-        )
-        .variant(...);
+        ))
+        .machineDefinition(Option.variant(...));
 
 The tooltip is shown by MultiblockControllerBlock by looking up the formed definition through
 the controller id. This means the tooltip stays next to the machine definition instead of being
@@ -250,12 +257,13 @@ their required/consumed inputs in the controller GUI.
 
 Example:
 
-public static final MultiblockDefinition DEFINITION = MultiblockDefinition.controller(CONTROLLER)
-        .displayName("Example Input Machine")
-        .inputOnly(100, 60)
-        .inputItem("minecraft:dirt", 5)
-        .inputFluid("minecraft:water", 100)
-        .variant(...);
+public static final MultiblockDefinition DEFINITION = MultiblockDefinition.machine()
+        .machineDefinition(Option.controller(CONTROLLER))
+        .machineDefinition(Option.displayName("Example Input Machine"))
+        .machineDefinition(Option.inputOnly(100, 60))
+        .machineDefinition(Option.inputItem("minecraft:dirt", 5))
+        .machineDefinition(Option.inputFluid("minecraft:water", 100))
+        .machineDefinition(Option.variant(...));
 
 This displays:
 

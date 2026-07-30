@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:tantalum_nugget"
+    },
+    {
+      "item": "create_expansion:tantalum_nugget"
+    },
+    {
+      "item": "create_expansion:tantalum_nugget"
+    },
+    {
+      "item": "create_expansion:tantalum_nugget"
+    },
+    {
+      "item": "create_expansion:tantalum_nugget"
+    },
+    {
+      "item": "create_expansion:tantalum_nugget"
+    },
+    {
+      "item": "create_expansion:tantalum_nugget"
+    },
+    {
+      "item": "create_expansion:tantalum_nugget"
+    },
+    {
+      "item": "create_expansion:tantalum_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:tantalum_ingot"
+    }
+  ]
+}

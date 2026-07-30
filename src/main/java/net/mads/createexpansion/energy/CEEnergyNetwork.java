@@ -2,6 +2,7 @@ package net.mads.createexpansion.energy;
 
 import net.mads.createexpansion.debug.CEPerformanceProfiler;
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
+import net.mads.createexpansion.machine.SingleBlockMachineBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -20,7 +21,6 @@ import java.util.WeakHashMap;
 
 public final class CEEnergyNetwork {
     private static final Map<Level, LevelRouteCache> ROUTE_CACHES = new WeakHashMap<>();
-    private static final Map<Level, Map<BlockPos, FlowSample>> WIRE_FLOWS = new WeakHashMap<>();
 
     private CEEnergyNetwork() {
     }
@@ -35,12 +35,12 @@ public final class CEEnergyNetwork {
         }
     }
 
-    public static int acceptFromWire(Level level, BlockPos sourceWirePos, Direction sourceSide, int voltage, int amperage) {
+    public static long acceptFromWire(Level level, BlockPos sourceWirePos, Direction sourceSide, long voltage, long amperage) {
         if (level == null || level.isClientSide() || voltage <= 0 || amperage <= 0) {
             return 0;
         }
 
-        int usedAmps = 0;
+        long usedAmps = 0L;
         for (EnergyRoutePath path : cachedRoutes(level, sourceWirePos, sourceSide)) {
             if (usedAmps >= amperage) {
                 break;
@@ -52,17 +52,25 @@ public final class CEEnergyNetwork {
                 continue;
             }
 
-            int accepted = destination.acceptEnergyFromNetwork(path.targetSide, voltage, amperage - usedAmps);
+            long pathVoltage = voltage;
+            for (BlockPos wirePos : path.wires) {
+                if (level.getBlockEntity(wirePos) instanceof EnergyWireBlockEntity wire
+                        && voltage > wire.maxVoltage()) {
+                    wire.applyOverVoltage(voltage);
+                    pathVoltage = Math.min(pathVoltage, wire.maxVoltage());
+                }
+            }
+
+            long accepted = destination.acceptEnergyFromNetwork(path.targetSide, pathVoltage, amperage - usedAmps);
             if (accepted <= 0) {
                 continue;
             }
 
             usedAmps += accepted;
             if (targetBlockEntity instanceof MachinePortBlockEntity port) {
-                port.recordEnergyNetworkInput(accepted * voltage, voltage);
+                port.recordEnergyNetworkInput(saturatedMultiply(accepted, pathVoltage), pathVoltage);
             }
             for (BlockPos wirePos : path.wires) {
-                recordWireFlow(level, wirePos, accepted * voltage, voltage);
                 if (level.getBlockEntity(wirePos) instanceof EnergyWireBlockEntity wire) {
                     wire.incrementAmperage(accepted, voltage);
                 }
@@ -71,7 +79,7 @@ public final class CEEnergyNetwork {
         return usedAmps;
     }
 
-    public static int outputToAdjacentWires(Level level, BlockPos sourcePos, CEEnergyContainer source) {
+    public static long outputToAdjacentWires(Level level, BlockPos sourcePos, CEEnergyContainer source) {
         long profileStart = CEPerformanceProfiler.begin(level);
         try {
             return outputToAdjacentWiresInner(level, sourcePos, source);
@@ -80,93 +88,14 @@ public final class CEEnergyNetwork {
         }
     }
 
-    public static void recordPortLoad(Level level, BlockPos portPos, int cePerTick, int voltage) {
-        if (level == null || level.isClientSide() || cePerTick <= 0 || voltage <= 0) {
-            return;
-        }
-
-        Queue<BlockPos> queue = new ArrayDeque<>();
-        Set<BlockPos> seen = new HashSet<>();
-        for (Direction direction : Direction.values()) {
-            BlockPos wirePos = portPos.relative(direction);
-            BlockState wireState = level.getBlockState(wirePos);
-            if (wireState.getBlock() instanceof EnergyWireBlock && EnergyWireBlock.hasEnabledConnection(wireState, direction.getOpposite()) && seen.add(wirePos)) {
-                queue.add(wirePos);
-            }
-        }
-
-        while (!queue.isEmpty()) {
-            BlockPos wirePos = queue.remove();
-            BlockState state = level.getBlockState(wirePos);
-            if (!(state.getBlock() instanceof EnergyWireBlock)) {
-                continue;
-            }
-
-            if (level.getBlockEntity(wirePos) instanceof EnergyWireBlockEntity wire) {
-                wire.incrementLoad(cePerTick, voltage);
-            }
-            recordWireFlow(level, wirePos, cePerTick, voltage);
-
-            for (Direction direction : Direction.values()) {
-                if (!EnergyWireBlock.hasEnabledConnection(state, direction)) {
-                    continue;
-                }
-                BlockPos nextPos = wirePos.relative(direction);
-                BlockState nextState = level.getBlockState(nextPos);
-                if (nextState.getBlock() instanceof EnergyWireBlock && EnergyWireBlock.wiresConnect(state, direction, nextState) && seen.add(nextPos)) {
-                    queue.add(nextPos);
-                }
-            }
-        }
-    }
-
-    public static int currentWireCEt(Level level, BlockPos wirePos) {
-        FlowSample sample = currentWireFlow(level, wirePos);
-        return sample == null ? 0 : sample.cePerTick;
-    }
-
-    public static int currentWireVoltage(Level level, BlockPos wirePos) {
-        FlowSample sample = currentWireFlow(level, wirePos);
-        return sample == null ? 0 : sample.voltage;
-    }
-
-    private static FlowSample currentWireFlow(Level level, BlockPos wirePos) {
-        if (level == null || wirePos == null) {
-            return null;
-        }
-        Map<BlockPos, FlowSample> flows = WIRE_FLOWS.get(level);
-        if (flows == null) {
-            return null;
-        }
-        FlowSample sample = flows.get(wirePos);
-        if (sample == null || level.getGameTime() - sample.tick > 40) {
-            return null;
-        }
-        return sample;
-    }
-
-    private static void recordWireFlow(Level level, BlockPos wirePos, int cePerTick, int voltage) {
-        if (level == null || level.isClientSide() || wirePos == null || cePerTick <= 0 || voltage <= 0) {
-            return;
-        }
-        Map<BlockPos, FlowSample> flows = WIRE_FLOWS.computeIfAbsent(level, ignored -> new HashMap<>());
-        long tick = level.getGameTime();
-        FlowSample previous = flows.get(wirePos);
-        if (previous != null && previous.tick == tick) {
-            flows.put(wirePos, new FlowSample(previous.cePerTick + cePerTick, Math.max(previous.voltage, voltage), tick));
-        } else {
-            flows.put(wirePos, new FlowSample(cePerTick, voltage, tick));
-        }
-    }
-
-    private static int outputToAdjacentWiresInner(Level level, BlockPos sourcePos, CEEnergyContainer source) {
+    private static long outputToAdjacentWiresInner(Level level, BlockPos sourcePos, CEEnergyContainer source) {
         if (level == null || level.isClientSide() || source == null || source.getOutputVoltage() <= 0 || source.getOutputAmperage() <= 0) {
             return 0;
         }
 
-        int remainingAmps = source.getOutputAmperage();
-        int usedAmps = 0;
-        int voltage = source.getOutputVoltage();
+        long remainingAmps = Math.min(source.getEnergyStored() / source.getOutputVoltage(), source.getOutputAmperage());
+        long usedAmps = 0L;
+        long voltage = source.getOutputVoltage();
         for (Direction direction : Direction.values()) {
             if (remainingAmps <= 0) {
                 break;
@@ -175,23 +104,33 @@ public final class CEEnergyNetwork {
                 continue;
             }
 
-            BlockPos wirePos = sourcePos.relative(direction);
-            BlockState wireState = level.getBlockState(wirePos);
-            if (!(wireState.getBlock() instanceof EnergyWireBlock) || !EnergyWireBlock.hasEnabledConnection(wireState, direction.getOpposite())) {
-                continue;
-            }
-
-            int canExtract = Math.min(remainingAmps, source.extract(remainingAmps * voltage, true) / voltage);
+            BlockPos targetPos = sourcePos.relative(direction);
+            BlockState targetState = level.getBlockState(targetPos);
+            long canExtract = Math.min(remainingAmps, source.extract(saturatedMultiply(remainingAmps, voltage), true) / voltage);
             if (canExtract <= 0) {
                 continue;
             }
 
-            int accepted = acceptFromWire(level, wirePos, direction.getOpposite(), voltage, canExtract);
+            long accepted;
+            if (targetState.getBlock() instanceof EnergyWireBlock
+                    && EnergyWireBlock.hasEnabledConnection(targetState, direction.getOpposite())) {
+                accepted = acceptFromWire(level, targetPos, direction.getOpposite(), voltage, canExtract);
+            } else {
+                CEEnergyContainer destination = energyContainer(level.getBlockEntity(targetPos));
+                Direction targetSide = direction.getOpposite();
+                accepted = destination != null && destination.inputsEnergy(targetSide)
+                        ? destination.acceptEnergyFromNetwork(targetSide, voltage, canExtract)
+                        : 0L;
+            }
             if (accepted <= 0) {
                 continue;
             }
 
-            source.extract(accepted * voltage, false);
+            if (!(targetState.getBlock() instanceof EnergyWireBlock)
+                    && level.getBlockEntity(targetPos) instanceof MachinePortBlockEntity port) {
+                port.recordEnergyNetworkInput(saturatedMultiply(accepted, voltage), voltage);
+            }
+            source.extract(saturatedMultiply(accepted, voltage), false);
             usedAmps += accepted;
             remainingAmps -= accepted;
         }
@@ -263,6 +202,9 @@ public final class CEEnergyNetwork {
         if (blockEntity instanceof CreativeEnergyBlockEntity creative) {
             return creative.ceContainer();
         }
+        if (blockEntity instanceof SingleBlockMachineBlockEntity machine) {
+            return machine.ceContainer();
+        }
         return null;
     }
 
@@ -275,14 +217,18 @@ public final class CEEnergyNetwork {
     private record RouteKey(long startPos, Direction sourceSide) {
     }
 
-    private record FlowSample(int cePerTick, int voltage, long tick) {
-    }
-
     private static final class LevelRouteCache {
         private final Map<RouteKey, List<EnergyRoutePath>> routes = new HashMap<>();
 
         private void clear() {
             routes.clear();
         }
+    }
+
+    private static long saturatedMultiply(long first, long second) {
+        if (first > 0L && second > Long.MAX_VALUE / first) {
+            return Long.MAX_VALUE;
+        }
+        return first * second;
     }
 }

@@ -10,8 +10,10 @@ record OreDeposit(
         int weight,
         int minY,
         int maxY,
+        int horizontalRadius,
         int verticalRadius,
         double density,
+        boolean surfaceOnly,
         List<BiomeGroup> biomeGroups,
         List<SurfaceIndicator> surfaceIndicators,
         List<OreDepositLayer> layers
@@ -23,6 +25,10 @@ record OreDeposit(
 
         if (minY > maxY) {
             throw new IllegalArgumentException("Ore deposit minY cannot be above maxY");
+        }
+
+        if (horizontalRadius <= 0) {
+            throw new IllegalArgumentException("Ore deposit horizontal radius must be positive");
         }
 
         if (verticalRadius <= 0) {

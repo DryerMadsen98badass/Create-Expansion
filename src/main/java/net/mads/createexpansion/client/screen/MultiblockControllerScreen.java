@@ -1,5 +1,7 @@
 package net.mads.createexpansion.client.screen;
 
+import net.mads.createexpansion.client.gui.CEMachineGuiTextures;
+import net.mads.createexpansion.gui.ProgressBar;
 import net.mads.createexpansion.menu.MultiblockControllerMenu;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlockEntity;
@@ -59,7 +61,7 @@ public class MultiblockControllerScreen extends AbstractContainerScreen<Multiblo
         drawRecipePreview(graphics, x, y);
 
         for (Slot slot : menu.slots) {
-            drawSlot(graphics, x + slot.x, y + slot.y, false);
+            CEMachineGuiTextures.drawItemSlot(graphics, x + slot.x, y + slot.y);
         }
     }
 
@@ -81,22 +83,17 @@ public class MultiblockControllerScreen extends AbstractContainerScreen<Multiblo
     }
 
     private void drawProgress(GuiGraphics graphics, int x, int y) {
-        int barX = x + 12;
-        int barY = y + 29;
-        int barWidth = imageWidth - 24;
+        MultiblockControllerBlockEntity controller = menu.blockEntity();
+        ProgressBar bar = controller == null ? ProgressBar.ARROW : controller.progressBar();
         int duration = Math.max(1, menu.duration());
         int progress = Math.min(menu.progress(), duration);
-        int fill = menu.processing() ? (int) ((barWidth - 2) * (progress / (float) duration)) : 0;
-
-        graphics.fill(barX, barY, barX + barWidth, barY + 14, 0xFF0E1217);
-        graphics.fill(barX + 1, barY + 1, barX + 1 + fill, barY + 13, BLUE);
-        graphics.fill(barX, barY, barX + barWidth, barY + 1, PANEL_EDGE);
-        graphics.fill(barX, barY + 13, barX + barWidth, barY + 14, PANEL_EDGE);
-
-        String text = menu.processing()
-                ? Math.max(0, duration - progress) + " ticks remaining"
-                : "Idle";
-        graphics.drawString(font, text, barX + barWidth / 2 - font.width(text) / 2, barY + 3, TEXT, false);
+        CEMachineGuiTextures.drawProgressBar(
+                graphics,
+                bar,
+                x + (imageWidth - bar.width()) / 2,
+                y + 26,
+                progress / (float) duration
+        );
     }
 
     private void drawRecipePreview(GuiGraphics graphics, int x, int y) {
@@ -172,7 +169,7 @@ public class MultiblockControllerScreen extends AbstractContainerScreen<Multiblo
         for (int i = 0; i < Math.min(4, stacks.size()); i++) {
             int slotX = x + (i % 2) * 18;
             int slotY = y + (i / 2) * 18;
-            drawSlot(graphics, slotX, slotY, dark);
+            CEMachineGuiTextures.drawItemSlot(graphics, slotX, slotY);
             graphics.renderItem(stacks.get(i), slotX + 1, slotY + 1);
             graphics.renderItemDecorations(font, stacks.get(i), slotX + 1, slotY + 1);
         }
@@ -181,8 +178,8 @@ public class MultiblockControllerScreen extends AbstractContainerScreen<Multiblo
     private void drawFluids(GuiGraphics graphics, List<FluidStack> fluids, int x, int y) {
         for (int i = 0; i < Math.min(2, fluids.size()); i++) {
             int slotX = x + 45 + i * 18;
-            drawSlot(graphics, slotX, y, true);
-            graphics.fill(slotX + 3, y + 3, slotX + 15, y + 15, fluidColor(fluids.get(i)));
+            CEMachineGuiTextures.drawFluidSlot(graphics, slotX, y);
+            CEMachineGuiTextures.drawFluid(graphics, fluids.get(i), slotX + 1, y + 1);
         }
     }
 
@@ -195,17 +192,4 @@ public class MultiblockControllerScreen extends AbstractContainerScreen<Multiblo
         graphics.fill(x + 5, y + 23, x + width - 5, y + height - 5, PANEL);
     }
 
-    private static void drawSlot(GuiGraphics graphics, int x, int y, boolean fluid) {
-        graphics.fill(x, y, x + 18, y + 18, SLOT_EDGE);
-        graphics.fill(x + 1, y + 1, x + 17, y + 17, fluid ? SLOT_DARK : SLOT);
-        graphics.fill(x + 2, y + 2, x + 16, y + 16, fluid ? 0xFF10141A : 0xFF171D23);
-    }
-
-    private static int fluidColor(FluidStack stack) {
-        int hash = stack.getFluid().builtInRegistryHolder().key().location().toString().hashCode();
-        int red = 70 + Math.floorMod(hash, 110);
-        int green = 90 + Math.floorMod(hash >> 8, 100);
-        int blue = 130 + Math.floorMod(hash >> 16, 90);
-        return 0xFF000000 | red << 16 | green << 8 | blue;
-    }
 }

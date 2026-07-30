@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "create_expansion:treated_wood"
+  },
+  "result": {
+    "id": "create_expansion:treated_wood_wall"
+  }
+}

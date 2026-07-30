@@ -1,10 +1,5 @@
 {
   "values": [
-    "create_expansion:bronze_hot_cast_gear_mold",
-    "create_expansion:wrought_iron_hot_cast_gear_mold",
-    "create_expansion:brass_hot_cast_gear_mold",
-    "create_expansion:electrum_hot_cast_gear_mold",
-    "create_expansion:andesite_alloy_hot_cast_gear_mold",
     "create_expansion:lithium_hot_cast_gear_mold",
     "create_expansion:beryllium_hot_cast_gear_mold",
     "create_expansion:sodium_hot_cast_gear_mold",
@@ -94,6 +89,12 @@
     "create_expansion:nihonium_hot_cast_gear_mold",
     "create_expansion:flerovium_hot_cast_gear_mold",
     "create_expansion:moscovium_hot_cast_gear_mold",
-    "create_expansion:livermorium_hot_cast_gear_mold"
+    "create_expansion:livermorium_hot_cast_gear_mold",
+    "create_expansion:bronze_hot_cast_gear_mold",
+    "create_expansion:steel_hot_cast_gear_mold",
+    "create_expansion:wrought_iron_hot_cast_gear_mold",
+    "create_expansion:brass_hot_cast_gear_mold",
+    "create_expansion:electrum_hot_cast_gear_mold",
+    "create_expansion:andesite_alloy_hot_cast_gear_mold"
   ]
 }

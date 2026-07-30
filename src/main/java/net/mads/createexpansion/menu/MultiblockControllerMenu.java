@@ -14,19 +14,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class MultiblockControllerMenu extends AbstractContainerMenu {
-    private static final int DATA_COUNT = 5;
-    private static final int DATA_FORMED = 0;
-    private static final int DATA_PROCESSING = 1;
-    private static final int DATA_PROGRESS = 2;
-    private static final int DATA_DURATION = 3;
-    private static final int DATA_PARALLEL = 4;
-
     private final MultiblockControllerBlockEntity blockEntity;
     private final ContainerData data;
     private final int playerInventoryStart;
 
     public MultiblockControllerMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buffer) {
-        this(containerId, playerInventory, clientBlockEntity(playerInventory, buffer), new SimpleContainerData(DATA_COUNT));
+        this(containerId, playerInventory, clientBlockEntity(playerInventory, buffer), new SimpleContainerData(CERecipeMenuData.COUNT));
     }
 
     public MultiblockControllerMenu(int containerId, Inventory playerInventory, MultiblockControllerBlockEntity blockEntity) {
@@ -53,28 +46,7 @@ public class MultiblockControllerMenu extends AbstractContainerMenu {
     }
 
     private static ContainerData serverData(MultiblockControllerBlockEntity controller) {
-        return new ContainerData() {
-            @Override
-            public int get(int index) {
-                return switch (index) {
-                    case DATA_FORMED -> controller.isFormed() ? 1 : 0;
-                    case DATA_PROCESSING -> controller.isProcessing() ? 1 : 0;
-                    case DATA_PROGRESS -> controller.recipeProgress();
-                    case DATA_DURATION -> controller.recipeDuration();
-                    case DATA_PARALLEL -> controller.activeParallel();
-                    default -> 0;
-                };
-            }
-
-            @Override
-            public void set(int index, int value) {
-            }
-
-            @Override
-            public int getCount() {
-                return DATA_COUNT;
-            }
-        };
+        return new CERecipeMenuData(controller, controller::isFormed);
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -129,22 +101,22 @@ public class MultiblockControllerMenu extends AbstractContainerMenu {
     }
 
     public boolean formed() {
-        return data.get(DATA_FORMED) == 1;
+        return data.get(CERecipeMenuData.FORMED) == 1;
     }
 
     public boolean processing() {
-        return data.get(DATA_PROCESSING) == 1;
+        return data.get(CERecipeMenuData.PROCESSING) == 1;
     }
 
     public int progress() {
-        return data.get(DATA_PROGRESS);
+        return data.get(CERecipeMenuData.PROGRESS);
     }
 
     public int duration() {
-        return data.get(DATA_DURATION);
+        return data.get(CERecipeMenuData.DURATION);
     }
 
     public int parallel() {
-        return Math.max(1, data.get(DATA_PARALLEL));
+        return Math.max(1, data.get(CERecipeMenuData.PARALLEL));
     }
 }

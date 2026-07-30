@@ -1,93 +1,24 @@
-Adding recipe types and recipe logic
-====================================
+Create Expansion - Adding CE Recipe Types
+=========================================
 
+Put one recipe type definition per file in `recipe/recipetypes`, then include it in
+`CERecipeTypes.ALL`.
 
-Adding a new recipe type
-========================
+```java
+import net.mads.createexpansion.recipe.RecipeTypeDefinition.Option;
 
-Main files:
-
-src/main/java/net/mads/createexpansion/recipe/CERecipeTypes.java
-src/main/java/net/mads/createexpansion/recipe/CERecipeTypeDefinition.java
-
-Example:
-
-public static final CERecipeTypeDefinition ARC_FURNACE = type("arc_furnace")
-        .displayName("Arc Furnace")
-        .maxIO(2, 2, 1, 1)
-        .energyInput()
-        .noKinetic()
+public static final RecipeTypeDefinition HAMMERING = RecipeTypeDefinition.recipeType()
+        .recipeTypeDefinition(Option.id("hammering"))
+        .recipeTypeDefinition(Option.displayName("Hammering"))
+        .recipeTypeDefinition(Option.maxIO(1, 1, 0, 0))
+        .recipeTypeDefinition(Option.energyInput())
+        .recipeTypeDefinition(Option.noKinetic())
+        .recipeTypeDefinition(Option.progressBar(ProgressBar.HAMMER))
         .build();
+```
 
-Then add it to CERecipeTypes.ALL:
+The recipe type defines maximum item/fluid IO, permitted energy and kinetic directions, supported
+logic, and the default JEI/machine progress bar. Ctrl+Click an `Option` method for its JavaDoc.
 
-public static final List<CERecipeTypeDefinition> ALL = List.of(
-        TEST_FOUNDRY,
-        ARC_FURNACE
-);
-
-Recipe type fields:
-
-- maxItemInputs
-- maxItemOutputs
-- maxFluidInputs
-- maxFluidOutputs
-- kineticMode: NONE, CONSUMES, GENERATES, BOTH
-- energyMode: NONE, CONSUMES, GENERATES, BOTH
-- supportedLogic
-
-Useful builder methods:
-
-- maxIO(itemInputs, itemOutputs, fluidInputs, fluidOutputs)
-- rpm()
-- rpm(false)
-- noKinetic()
-- kineticInput()
-- kineticOutput()
-- kineticInputAndOutput()
-- noEnergy()
-- energyInput()
-- energyOutput()
-- energyInputAndOutput()
-- logic(CERecipeLogicDefinition logic)
-
-
-Important for multiblocks
-=========================
-
-MultiblockDefinition reads the recipe type and can automatically require needed ports:
-
-- item input slots require ITEM_INPUT
-- item output slots require ITEM_OUTPUT
-- fluid input slots require FLUID_INPUT
-- fluid output slots require FLUID_OUTPUT
-- kinetic input requires KINETIC_INPUT
-- kinetic output requires KINETIC_OUTPUT
-- energy input requires ENERGY_INPUT
-- energy output requires ENERGY_OUTPUT
-
-Use ability(needed) in a pattern symbol when you want the structure to accept whatever ports the
-recipe type needs.
-
-
-Adding a new recipe logic
-=========================
-
-Main files:
-
-src/main/java/net/mads/createexpansion/recipe/CERecipeLogics.java
-src/main/java/net/mads/createexpansion/recipe/CERecipeLogicDefinition.java
-
-Example:
-
-public static final CERecipeLogicDefinition VACUUM = logic("vacuum", "Vacuum");
-
-Then add it to CERecipeLogics.ALL.
-
-Use it in a recipe type:
-
-.logic(CERecipeLogics.VACUUM)
-
-Use it in a multiblock definition:
-
-.logic(CERecipeLogics.VACUUM)
+CE multiblocks use the recipe type's requirements to resolve needed item, fluid, kinetic, and
+energy abilities. Create recipe types do not use `RecipeTypeDefinition` and remain unchanged.

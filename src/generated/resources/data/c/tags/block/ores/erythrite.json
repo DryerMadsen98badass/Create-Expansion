@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:erythrite_andesite_ore",
-    "create_expansion:erythrite_diorite_ore",
-    "create_expansion:erythrite_ore",
-    "create_expansion:erythrite_end_stone_ore",
-    "create_expansion:erythrite_blackstone_ore",
-    "create_expansion:erythrite_deepslate_ore",
-    "create_expansion:erythrite_granite_ore",
     "create_expansion:erythrite_netherrack_ore",
-    "create_expansion:erythrite_tuff_ore"
+    "create_expansion:erythrite_deepslate_ore",
+    "create_expansion:erythrite_andesite_ore",
+    "create_expansion:erythrite_end_stone_ore",
+    "create_expansion:erythrite_diorite_ore",
+    "create_expansion:erythrite_tuff_ore",
+    "create_expansion:erythrite_blackstone_ore",
+    "create_expansion:erythrite_ore",
+    "create_expansion:erythrite_granite_ore"
   ]
 }

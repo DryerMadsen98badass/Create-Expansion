@@ -1,0 +1,18 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "create_expansion:pentlandite_crushed_ore"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "id": "create_expansion:pentlandite_impure_dust"
+    },
+    {
+      "chance": 0.5,
+      "id": "create_expansion:pentlandite_impure_dust"
+    }
+  ]
+}

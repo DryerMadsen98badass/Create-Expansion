@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:rutherfordium_andesite_ore",
-    "create_expansion:rutherfordium_diorite_ore",
-    "create_expansion:rutherfordium_ore",
-    "create_expansion:rutherfordium_end_stone_ore",
-    "create_expansion:rutherfordium_blackstone_ore",
-    "create_expansion:rutherfordium_deepslate_ore",
-    "create_expansion:rutherfordium_granite_ore",
     "create_expansion:rutherfordium_netherrack_ore",
-    "create_expansion:rutherfordium_tuff_ore"
+    "create_expansion:rutherfordium_deepslate_ore",
+    "create_expansion:rutherfordium_andesite_ore",
+    "create_expansion:rutherfordium_end_stone_ore",
+    "create_expansion:rutherfordium_diorite_ore",
+    "create_expansion:rutherfordium_tuff_ore",
+    "create_expansion:rutherfordium_blackstone_ore",
+    "create_expansion:rutherfordium_ore",
+    "create_expansion:rutherfordium_granite_ore"
   ]
 }

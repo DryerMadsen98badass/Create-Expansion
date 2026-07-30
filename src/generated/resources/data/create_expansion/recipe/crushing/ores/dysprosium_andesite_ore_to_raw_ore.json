@@ -1,0 +1,22 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "create_expansion:dysprosium_andesite_ore"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "count": 2,
+      "id": "create_expansion:dysprosium_raw_ore"
+    },
+    {
+      "count": 2,
+      "id": "create:experience_nugget"
+    },
+    {
+      "id": "minecraft:andesite"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#casing"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#casing"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#casing"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#casing"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#casing"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#casing"
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#front"
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        -0.02
+      ],
+      "to": [
+        16.0,
+        16.0,
+        -0.01
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "casing": "create_expansion:block/casings/casing/silica_bricks",
+    "front": "create_expansion:block/machines/overlay/coke_oven/coke_oven_on",
+    "particle": "create_expansion:block/casings/casing/silica_bricks"
+  }
+}

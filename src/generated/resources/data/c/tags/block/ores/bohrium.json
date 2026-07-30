@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:bohrium_andesite_ore",
-    "create_expansion:bohrium_diorite_ore",
-    "create_expansion:bohrium_ore",
-    "create_expansion:bohrium_end_stone_ore",
-    "create_expansion:bohrium_blackstone_ore",
-    "create_expansion:bohrium_deepslate_ore",
-    "create_expansion:bohrium_granite_ore",
     "create_expansion:bohrium_netherrack_ore",
-    "create_expansion:bohrium_tuff_ore"
+    "create_expansion:bohrium_deepslate_ore",
+    "create_expansion:bohrium_andesite_ore",
+    "create_expansion:bohrium_end_stone_ore",
+    "create_expansion:bohrium_diorite_ore",
+    "create_expansion:bohrium_tuff_ore",
+    "create_expansion:bohrium_blackstone_ore",
+    "create_expansion:bohrium_ore",
+    "create_expansion:bohrium_granite_ore"
   ]
 }

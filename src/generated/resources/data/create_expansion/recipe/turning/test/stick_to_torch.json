@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:turning",
+  "ingredients": [
+    {
+      "item": "minecraft:stick"
+    }
+  ],
+  "min_rpm": 32,
+  "results": [
+    {
+      "id": "minecraft:torch"
+    }
+  ]
+}

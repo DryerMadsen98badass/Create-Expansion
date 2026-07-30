@@ -1,0 +1,26 @@
+{
+  "type": "create_expansion:machine",
+  "cet": 0,
+  "duration": 100,
+  "fluid_outputs": [
+    {
+      "amount": 100,
+      "id": "create_expansion:plant_oil"
+    }
+  ],
+  "item_inputs": [
+    {
+      "count": 4,
+      "item": "minecraft:pumpkin_seeds"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:biomass"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:steam_extractor"
+}

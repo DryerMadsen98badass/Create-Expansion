@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:praseodymium_andesite_ore",
-    "create_expansion:praseodymium_diorite_ore",
-    "create_expansion:praseodymium_ore",
-    "create_expansion:praseodymium_end_stone_ore",
-    "create_expansion:praseodymium_blackstone_ore",
-    "create_expansion:praseodymium_deepslate_ore",
-    "create_expansion:praseodymium_granite_ore",
     "create_expansion:praseodymium_netherrack_ore",
-    "create_expansion:praseodymium_tuff_ore"
+    "create_expansion:praseodymium_deepslate_ore",
+    "create_expansion:praseodymium_andesite_ore",
+    "create_expansion:praseodymium_end_stone_ore",
+    "create_expansion:praseodymium_diorite_ore",
+    "create_expansion:praseodymium_tuff_ore",
+    "create_expansion:praseodymium_blackstone_ore",
+    "create_expansion:praseodymium_ore",
+    "create_expansion:praseodymium_granite_ore"
   ]
 }

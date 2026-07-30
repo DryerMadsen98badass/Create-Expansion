@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:magnesium_andesite_ore",
-    "create_expansion:magnesium_diorite_ore",
-    "create_expansion:magnesium_ore",
-    "create_expansion:magnesium_end_stone_ore",
-    "create_expansion:magnesium_blackstone_ore",
-    "create_expansion:magnesium_deepslate_ore",
-    "create_expansion:magnesium_granite_ore",
     "create_expansion:magnesium_netherrack_ore",
-    "create_expansion:magnesium_tuff_ore"
+    "create_expansion:magnesium_deepslate_ore",
+    "create_expansion:magnesium_andesite_ore",
+    "create_expansion:magnesium_end_stone_ore",
+    "create_expansion:magnesium_diorite_ore",
+    "create_expansion:magnesium_tuff_ore",
+    "create_expansion:magnesium_blackstone_ore",
+    "create_expansion:magnesium_ore",
+    "create_expansion:magnesium_granite_ore"
   ]
 }

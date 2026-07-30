@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:curium_ingot"
+    },
+    {
+      "item": "create_expansion:curium_ingot"
+    },
+    {
+      "item": "create_expansion:curium_ingot"
+    },
+    {
+      "item": "create_expansion:curium_ingot"
+    },
+    {
+      "item": "create_expansion:curium_ingot"
+    },
+    {
+      "item": "create_expansion:curium_ingot"
+    },
+    {
+      "item": "create_expansion:curium_ingot"
+    },
+    {
+      "item": "create_expansion:curium_ingot"
+    },
+    {
+      "item": "create_expansion:curium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:curium_block"
+    }
+  ]
+}

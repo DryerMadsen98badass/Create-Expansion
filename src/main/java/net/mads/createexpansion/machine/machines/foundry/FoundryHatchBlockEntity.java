@@ -2,8 +2,12 @@ package net.mads.createexpansion.machine.machines.foundry;
 
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.mads.createexpansion.registry.BlockRegistry;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraft.core.BlockPos;
@@ -13,7 +17,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 public class FoundryHatchBlockEntity extends BlockEntity {
-    private final IFluidHandler fluidHandler = new HatchFluidHandler();
+    private final IFluidHandler fluidHandler = new HatchFluidHandler(false);
     private final IItemHandler itemHandler = new BusItemHandler();
     private BlockPos cachedController;
 
@@ -23,6 +27,33 @@ public class FoundryHatchBlockEntity extends BlockEntity {
 
     public IFluidHandler fluidCapability() {
         return fluidHandler;
+    }
+
+    public boolean supportsBucketInteraction(ItemStack stack) {
+        return stack.getItem() instanceof BucketItem
+                && (hatchType().input() || hatchType().output());
+    }
+
+    public boolean interactWithBucket(
+            Player player,
+            InteractionHand hand,
+            ItemStack stack
+    ) {
+        if (!supportsBucketInteraction(stack)) {
+            return false;
+        }
+
+        boolean interacted = FluidUtil.interactWithFluidHandler(
+                player,
+                hand,
+                new HatchFluidHandler(true)
+        );
+
+        if (interacted) {
+            setChanged();
+        }
+
+        return interacted;
     }
 
     @Nullable
@@ -93,6 +124,11 @@ public class FoundryHatchBlockEntity extends BlockEntity {
     }
 
     private final class HatchFluidHandler implements IFluidHandler {
+        private final boolean bucketInteraction;
+
+        private HatchFluidHandler(boolean bucketInteraction) {
+            this.bucketInteraction = bucketInteraction;
+        }
         @Override
         public int getTanks() {
             FoundryControllerBlockEntity controller = controller();
@@ -123,7 +159,7 @@ public class FoundryHatchBlockEntity extends BlockEntity {
         @Override
         public int fill(FluidStack resource, FluidAction action) {
             FoundryControllerBlockEntity controller = controller();
-            if (controller == null || !hatchType().input()) {
+            if (controller == null || !canFill()) {
                 return 0;
             }
             return controller.fill(resource, action);
@@ -132,7 +168,7 @@ public class FoundryHatchBlockEntity extends BlockEntity {
         @Override
         public FluidStack drain(FluidStack resource, FluidAction action) {
             FoundryControllerBlockEntity controller = controller();
-            if (controller == null || !hatchType().output()) {
+            if (controller == null || !canDrain()) {
                 return FluidStack.EMPTY;
             }
             return controller.drain(resource, action);
@@ -141,10 +177,18 @@ public class FoundryHatchBlockEntity extends BlockEntity {
         @Override
         public FluidStack drain(int maxDrain, FluidAction action) {
             FoundryControllerBlockEntity controller = controller();
-            if (controller == null || !hatchType().output()) {
+            if (controller == null || !canDrain()) {
                 return FluidStack.EMPTY;
             }
             return controller.drain(maxDrain, action);
+        }
+        private boolean canFill() {
+            return hatchType().input();
+        }
+
+        private boolean canDrain() {
+            return hatchType().output()
+                    || (bucketInteraction && hatchType().input());
         }
     }
 

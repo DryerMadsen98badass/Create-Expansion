@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:mendelevium_andesite_ore",
-    "create_expansion:mendelevium_diorite_ore",
-    "create_expansion:mendelevium_ore",
-    "create_expansion:mendelevium_end_stone_ore",
-    "create_expansion:mendelevium_blackstone_ore",
-    "create_expansion:mendelevium_deepslate_ore",
-    "create_expansion:mendelevium_granite_ore",
     "create_expansion:mendelevium_netherrack_ore",
-    "create_expansion:mendelevium_tuff_ore"
+    "create_expansion:mendelevium_deepslate_ore",
+    "create_expansion:mendelevium_andesite_ore",
+    "create_expansion:mendelevium_end_stone_ore",
+    "create_expansion:mendelevium_diorite_ore",
+    "create_expansion:mendelevium_tuff_ore",
+    "create_expansion:mendelevium_blackstone_ore",
+    "create_expansion:mendelevium_ore",
+    "create_expansion:mendelevium_granite_ore"
   ]
 }

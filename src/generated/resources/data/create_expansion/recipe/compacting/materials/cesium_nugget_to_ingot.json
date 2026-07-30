@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:cesium_nugget"
+    },
+    {
+      "item": "create_expansion:cesium_nugget"
+    },
+    {
+      "item": "create_expansion:cesium_nugget"
+    },
+    {
+      "item": "create_expansion:cesium_nugget"
+    },
+    {
+      "item": "create_expansion:cesium_nugget"
+    },
+    {
+      "item": "create_expansion:cesium_nugget"
+    },
+    {
+      "item": "create_expansion:cesium_nugget"
+    },
+    {
+      "item": "create_expansion:cesium_nugget"
+    },
+    {
+      "item": "create_expansion:cesium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:cesium_ingot"
+    }
+  ]
+}

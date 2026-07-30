@@ -3,26 +3,38 @@ package net.mads.createexpansion.machine.machines.electric.multiblock;
 import net.mads.createexpansion.energy.CEEnergyContainer;
 import net.mads.createexpansion.energy.CEEnergyNetwork;
 import net.mads.createexpansion.debug.CEPerformanceProfiler;
+import net.mads.createexpansion.gui.ProgressBar;
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.MachineTierStats;
+import net.mads.createexpansion.machine.FireboxBlock;
+import net.mads.createexpansion.machine.interaction.InteractionContext;
+import net.mads.createexpansion.machine.interaction.InteractionPhase;
+import net.mads.createexpansion.machine.interaction.InteractionRuntime;
+import net.mads.createexpansion.machine.interaction.InteractionWearStore;
+import net.mads.createexpansion.machine.interaction.MachineModifier;
+import net.mads.createexpansion.machine.interaction.ConditionFailure;
+import net.mads.createexpansion.machine.runtime.CERecipeExecution;
+import net.mads.createexpansion.machine.runtime.CERecipeLogic;
+import net.mads.createexpansion.machine.runtime.CERecipeLogicHost;
+import net.mads.createexpansion.machine.runtime.CERecipeLogicMachine;
+import net.mads.createexpansion.machine.runtime.CERecipeTickResult;
 import net.mads.createexpansion.machine.coil.CoilBlock;
 import net.mads.createexpansion.recipe.CERecipe;
 import net.mads.createexpansion.recipe.CERecipeInput;
+import net.mads.createexpansion.recipe.CERecipeLookup;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
-import net.mads.createexpansion.registry.RecipeRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -32,6 +44,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.mads.createexpansion.menu.MultiblockControllerMenu;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -50,9 +63,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class MultiblockControllerBlockEntity extends BlockEntity implements MenuProvider {
+public class MultiblockControllerBlockEntity extends BlockEntity implements MenuProvider, CERecipeLogicMachine {
     private static final int VALIDATION_INTERVAL = 40;
-    private static final int IDLE_RECIPE_CHECK_INTERVAL = 5;
+    private static final int IDLE_RECIPE_CHECK_INTERVAL = 20;
     private static final int ACTIVE_SYNC_INTERVAL = 20;
     private static final int EXTERNAL_OPERATION_DURATION = 20;
 
@@ -70,19 +83,13 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
     private int recipeProgress;
     private int recipeDuration;
     private int activeCEt;
-    private int activeParallel = 1;
     private int activeSyncCooldown;
-    private ResourceLocation activeRecipeId;
     private ResourceLocation preferredRecipeId;
-    private boolean activeUsesIoColor;
-    private DyeColor activeIoColor = DyeColor.GRAY;
-    private List<ItemStack> activeItemInputs = List.of();
-    private List<FluidStack> activeFluidInputs = List.of();
-    private List<ItemStack> activeItemOutputs = List.of();
-    private List<FluidStack> activeFluidOutputs = List.of();
     private int externalActiveTicks;
     private int externalCEt;
     private int externalWarmupTicks;
+    private final InteractionWearStore interactionWear = new InteractionWearStore();
+    private final CERecipeLogic recipeLogic = new CERecipeLogic(new RecipeHost());
 
     public MultiblockControllerBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityRegistry.MULTIBLOCK_CONTROLLER.get(), pos, state);
@@ -157,7 +164,7 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         externalActiveTicks = Math.max(externalActiveTicks, ticks + 2);
         externalCEt = energyPerTick;
         activeCEt = energyPerTick;
-        if (activeRecipeId == null && !wasExternallyActive) {
+        if (!recipeLogic.isProcessing() && !wasExternallyActive) {
             recipeProgress = 0;
             recipeDuration = externalOperationDuration(definition);
             externalWarmupTicks = 0;
@@ -193,6 +200,7 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
 
     public void clearFormation() {
         setCoilsActive(false);
+        setFireboxesActive(false);
         detachParts();
         formed = false;
         formedVariant = "";
@@ -205,6 +213,7 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         externalActiveTicks = 0;
         externalCEt = 0;
         externalWarmupTicks = 0;
+        recipeLogic.cancel();
         clearActiveRecipe();
         updateBlockFormedState(false);
         updateBlockActiveState(false);
@@ -238,6 +247,7 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
     private void form(MultiblockMatchResult result) {
         boolean keepActive = isProcessing();
         setCoilsActive(false);
+        setFireboxesActive(false);
         detachParts();
         formed = true;
         formedVariant = result.variant();
@@ -280,6 +290,7 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
 
     private void tickRecipeInner() {
         if (level == null || !formed || !(getBlockState().getBlock() instanceof MultiblockControllerBlock controllerBlock)) {
+            recipeLogic.cancel();
             clearActiveRecipe();
             setActive(false);
             return;
@@ -287,139 +298,11 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
 
         MultiblockDefinition definition = currentDefinition(controllerBlock);
         if (definition == null || definition.recipeTypes().isEmpty()) {
+            recipeLogic.cancel();
             tickExternalOperation(definition);
             return;
         }
-
-        if (activeRecipeId != null) {
-            tickActiveRecipe();
-            return;
-        }
-
-        if (recipeCheckCooldown > 0) {
-            recipeCheckCooldown--;
-            return;
-        }
-
-        if (tryStartRecipe(definition)) {
-            return;
-        }
-
-        clearActiveRecipe();
-        setActive(definition.externalHeatSource() && externallyActive());
-        recipeCheckCooldown = IDLE_RECIPE_CHECK_INTERVAL;
-    }
-
-    private boolean tryStartRecipe(MultiblockDefinition definition) {
-        if (level == null) {
-            return false;
-        }
-
-        List<MachinePortBlockEntity> inputPorts = itemPorts(MultiblockAbility.ITEM_INPUT);
-        List<MachinePortBlockEntity> fluidInputPorts = fluidPorts(MultiblockAbility.FLUID_INPUT);
-        Optional<MachineTier> kineticTier = highestPortTier(MultiblockAbility.KINETIC_INPUT);
-        EnergyRuntime energyRuntime = energyRuntime();
-        int rpm = maxKineticRpm();
-
-        for (InputRoute route : inputRoutes(inputPorts, fluidInputPorts)) {
-            CERecipeInput input = new CERecipeInput(
-                    itemStacks(route.itemPorts()),
-                    fluidStacks(route.fluidPorts()),
-                    route.circuit(),
-                    Set.copyOf(definition.logicIds()),
-                    energyRuntime.recipeAccessTier().or(() -> Optional.ofNullable(formedTier)),
-                    kineticTier,
-                    energyRuntime.recipeAccessTier(),
-                    rpm,
-                    formedCoilHeat
-            );
-
-            Optional<RecipeHolder<CERecipe>> match = matchingRecipe(definition, input);
-            if (match.isEmpty()) {
-                continue;
-            }
-
-            CERecipe recipe = match.get().value();
-            List<MachinePortBlockEntity> outputPorts = outputPorts(MultiblockAbility.ITEM_OUTPUT, route);
-            List<MachinePortBlockEntity> fluidOutputPorts = outputPorts(MultiblockAbility.FLUID_OUTPUT, route);
-            MachineTier runtimeTier = runtimeTier(recipe, input, energyRuntime);
-            int parallel = recipe.generatesEnergy() ? outputParallel(recipe, runtimeTier) : 1;
-            List<ItemStack> plannedItemOutputs = multiplyItems(guaranteedItemOutputs(recipe), parallel);
-            List<FluidStack> plannedFluidOutputs = multiplyFluids(fluidOutputs(recipe), parallel);
-            if (!canFitItemOutputs(outputPorts, plannedItemOutputs) || !canFitFluidOutputs(fluidOutputPorts, plannedFluidOutputs)) {
-                continue;
-            }
-
-            int signedCEt = signedRuntimeCEt(recipe, runtimeTier, parallel);
-            if (!canProcessEnergy(signedCEt)) {
-                continue;
-            }
-
-            if (!canConsumeInputs(route.itemPorts(), recipe, parallel) || !canConsumeFluidInputs(route.fluidPorts(), recipe, parallel)) {
-                continue;
-            }
-
-            if (!consumeInputs(route.itemPorts(), recipe, parallel) || !consumeFluidInputs(route.fluidPorts(), recipe, parallel)) {
-                continue;
-            }
-
-            startRecipe(match.get().id(), recipe, plannedItemOutputs, plannedFluidOutputs, route, recipe.runtimeDuration(runtimeTier, rpm), signedCEt, parallel);
-            return true;
-        }
-
-        return false;
-    }
-
-    private void tickActiveRecipe() {
-        if (level == null) {
-            return;
-        }
-
-        recipeCheckCooldown = 0;
-
-        if (recipeDuration <= 0) {
-            recipeDuration = 1;
-        }
-
-        if (recipeProgress < recipeDuration) {
-            if (!processEnergy(activeCEt)) {
-                MultiblockDefinition definition = currentDefinition();
-                setActive(definition != null && definition.externalHeatSource() && externallyActive());
-                return;
-            }
-            setActive(true);
-            recipeProgress++;
-            setChanged();
-            syncActiveProgress();
-            return;
-        }
-
-        InputRoute route = activeUsesIoColor ? InputRoute.outputOnly(activeIoColor) : InputRoute.uncolored();
-        List<MachinePortBlockEntity> outputPorts = outputPorts(MultiblockAbility.ITEM_OUTPUT, route);
-        List<MachinePortBlockEntity> fluidOutputPorts = outputPorts(MultiblockAbility.FLUID_OUTPUT, route);
-        if (!canFitItemOutputs(outputPorts, activeItemOutputs) || !canFitFluidOutputs(fluidOutputPorts, activeFluidOutputs)) {
-            setChanged();
-            syncActiveProgress();
-            return;
-        }
-
-        insertItemOutputs(outputPorts, activeItemOutputs, false);
-        insertFluidOutputs(fluidOutputPorts, activeFluidOutputs, false);
-        clearActiveRecipe();
-        recipeCheckCooldown = 0;
-
-        MultiblockDefinition definition = null;
-        if (getBlockState().getBlock() instanceof MultiblockControllerBlock controllerBlock) {
-            definition = MultiblockRegistry.byController(controllerBlock.controllerId()).orElse(null);
-        }
-        if (definition != null && !definition.recipeTypes().isEmpty() && tryStartRecipe(definition)) {
-            setChanged();
-            return;
-        }
-
-        setActive(definition != null && definition.externalHeatSource() && externallyActive());
-        setChanged();
-        syncToClient();
+        recipeLogic.serverTick();
     }
 
     private boolean externallyActive() {
@@ -482,25 +365,6 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         }
     }
 
-    private void startRecipe(ResourceLocation recipeId, CERecipe recipe, List<ItemStack> itemOutputs, List<FluidStack> fluidOutputs, InputRoute route, int duration, int signedCEt, int parallel) {
-        activeRecipeId = recipeId;
-        preferredRecipeId = recipeId;
-        recipeProgress = 0;
-        recipeDuration = Math.max(1, duration);
-        activeCEt = signedCEt;
-        activeParallel = Math.max(1, parallel);
-        activeSyncCooldown = 0;
-        activeUsesIoColor = route.usesColor();
-        activeIoColor = route.color();
-        activeItemInputs = multiplyItems(displayItemInputs(recipe), activeParallel);
-        activeFluidInputs = multiplyFluids(displayFluidInputs(recipe), activeParallel);
-        activeItemOutputs = copyItems(itemOutputs);
-        activeFluidOutputs = copyFluids(fluidOutputs);
-        setActive(true);
-        setChanged();
-        syncToClient();
-    }
-
     private void syncActiveProgress() {
         if (activeSyncCooldown > 0) {
             activeSyncCooldown--;
@@ -525,20 +389,20 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
             return Optional.empty();
         }
 
-        List<RecipeHolder<CERecipe>> recipes = level.getRecipeManager().getAllRecipesFor(RecipeRegistry.MACHINE_RECIPE_TYPE.get());
         if (preferredRecipeId != null) {
-            Optional<RecipeHolder<CERecipe>> preferred = recipes.stream()
-                    .filter(recipe -> recipe.id().equals(preferredRecipeId))
-                    .filter(recipe -> definition.recipeTypes().contains(recipe.value().recipeType()))
-                    .filter(recipe -> recipe.value().matches(input, level))
-                    .findFirst();
+            Optional<RecipeHolder<CERecipe>> preferred = CERecipeLookup.preferred(
+                            level.getRecipeManager(),
+                            preferredRecipeId,
+                            Set.copyOf(definition.recipeTypes())
+                    )
+                    .filter(recipe -> recipe.value().matches(input, level));
             if (preferred.isPresent()) {
                 return preferred;
             }
         }
 
-        return recipes.stream()
-                .filter(recipe -> definition.recipeTypes().contains(recipe.value().recipeType()))
+        return CERecipeLookup.candidatesByTypes(level.getRecipeManager(), definition.recipeTypes(), input)
+                .stream()
                 .filter(recipe -> recipe.value().matches(input, level))
                 .sorted(Comparator.comparing(recipe -> recipe.id().toString()))
                 .findFirst();
@@ -569,8 +433,8 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         }
 
         MachineTier baseTier = highest.get();
-        int baseVoltage = Math.max(1, MachineTierStats.ceTier(baseTier));
-        int equivalentBaseAmps = energyCapacity(MultiblockAbility.ENERGY_INPUT) / baseVoltage;
+        long baseVoltage = Math.max(1L, MachineTierStats.ceTier(baseTier));
+        long equivalentBaseAmps = energyCapacity(MultiblockAbility.ENERGY_INPUT) / baseVoltage;
         int overclockSteps = 0;
         while (equivalentBaseAmps >= 4 && overclockSteps < MachineTier.ALL.size()) {
             equivalentBaseAmps /= 4;
@@ -610,9 +474,9 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
             }
 
             if (ability == MultiblockAbility.ENERGY_INPUT) {
-                capacity += (long) port.displayInputVoltage() * container.getInputAmperage();
+                capacity += saturatedMultiply(port.displayInputVoltage(), container.getInputAmperage());
             } else if (ability == MultiblockAbility.ENERGY_OUTPUT) {
-                capacity += (long) container.getOutputVoltage() * container.getOutputAmperage();
+                capacity += saturatedMultiply(container.getOutputVoltage(), container.getOutputAmperage());
             }
             if (capacity >= Integer.MAX_VALUE) {
                 return Integer.MAX_VALUE;
@@ -701,22 +565,21 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
                 continue;
             }
 
-            int moved;
+            long moved;
             if (signedCEt > 0) {
-                int inputVoltage = port.displayInputVoltage();
-                int portLimit = Math.max(0, inputVoltage * container.getInputAmperage());
+                long inputVoltage = port.displayInputVoltage();
+                long portLimit = Math.max(0L, saturatedMultiply(inputVoltage, container.getInputAmperage()));
                 if (portLimit <= 0) {
                     continue;
                 }
                 moved = container.extract(Math.min(remaining, portLimit), simulate);
                 if (!simulate && moved > 0) {
                     port.recordEnergyInputLoad(moved, inputVoltage);
-                    CEEnergyNetwork.recordPortLoad(level, pos, moved, inputVoltage);
                 }
             } else {
                 moved = container.insert(remaining, simulate);
             }
-            remaining -= moved;
+            remaining -= (int) moved;
             if (remaining <= 0) {
                 return true;
             }
@@ -843,45 +706,182 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         return stacks;
     }
 
-    private static boolean consumeInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, int multiplier) {
-        return consumeInputs(ports, recipe, multiplier, false);
+    private List<ItemEntity> worldInputEntities(MultiblockDefinition definition) {
+        if (level == null) {
+            return List.of();
+        }
+
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof MultiblockControllerBlock)
+                || !state.hasProperty(MultiblockControllerBlock.FACING)) {
+            return List.of();
+        }
+
+        Direction facing = state.getValue(MultiblockControllerBlock.FACING);
+        List<ItemEntity> entities = new ArrayList<>();
+        Set<Integer> seenEntityIds = new HashSet<>();
+
+        for (BlockPos inputPos : definition.worldInteractionPositions(
+                worldPosition,
+                facing,
+                MultiblockDefinition.WorldInteractionType.INPUT
+        )) {
+            for (ItemEntity entity : level.getEntitiesOfClass(
+                    ItemEntity.class,
+                    new AABB(inputPos),
+                    entity -> entity.isAlive() && !entity.getItem().isEmpty()
+            )) {
+                if (seenEntityIds.add(entity.getId())) {
+                    entities.add(entity);
+                }
+            }
+        }
+
+        return entities;
     }
 
-    private static boolean canConsumeInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, int multiplier) {
-        return consumeInputs(ports, recipe, multiplier, true);
+    private static List<ItemStack> worldItemStacks(List<ItemEntity> entities) {
+        List<ItemStack> stacks = new ArrayList<>();
+        for (ItemEntity entity : entities) {
+            ItemStack stack = entity.getItem();
+            if (!stack.isEmpty()) {
+                stacks.add(stack.copy());
+            }
+        }
+        return stacks;
     }
 
-    private static boolean consumeInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, int multiplier, boolean simulate) {
-        for (SizedIngredient input : recipe.itemInputs()) {
-            int remaining = multiplyClamped(input.count(), multiplier);
+    private static boolean consumeInputs(
+            List<MachinePortBlockEntity> ports,
+            List<ItemEntity> worldEntities,
+            CERecipe recipe,
+            int multiplier
+    ) {
+        return consumeInputs(ports, worldEntities, recipe, multiplier, false);
+    }
+
+    private static boolean canConsumeInputs(
+            List<MachinePortBlockEntity> ports,
+            List<ItemEntity> worldEntities,
+            CERecipe recipe,
+            int multiplier
+    ) {
+        return consumeInputs(ports, worldEntities, recipe, multiplier, true);
+    }
+
+    private static boolean consumeInputs(
+            List<MachinePortBlockEntity> ports,
+            List<ItemEntity> worldEntities,
+            CERecipe recipe,
+            int multiplier,
+            boolean simulate
+    ) {
+        List<ItemStack> simulatedPortStacks = new ArrayList<>();
+        List<ItemStack> simulatedWorldStacks = new ArrayList<>();
+
+        if (simulate) {
             for (MachinePortBlockEntity port : ports) {
                 ItemStackHandler handler = port.items();
                 for (int slot = 0; slot < handler.getSlots(); slot++) {
-                    ItemStack stack = handler.getStackInSlot(slot);
-                    if (stack.isEmpty() || !input.ingredient().test(stack)) {
-                        continue;
-                    }
+                    simulatedPortStacks.add(handler.getStackInSlot(slot).copy());
+                }
+            }
+            for (ItemEntity entity : worldEntities) {
+                simulatedWorldStacks.add(entity.getItem().copy());
+            }
+        }
 
-                    int taken = Math.min(remaining, stack.getCount());
-                    if (!simulate) {
-                        stack.shrink(taken);
-                        handler.setStackInSlot(slot, stack);
-                    }
-                    remaining -= taken;
-                    if (remaining <= 0) {
-                        break;
-                    }
-                }
-                if (remaining <= 0) {
-                    break;
-                }
+        for (SizedIngredient input : recipe.itemInputs()) {
+            int remaining = multiplyClamped(input.count(), multiplier);
+
+            if (simulate) {
+                remaining = consumeFromStacks(simulatedPortStacks, input, remaining);
+                remaining = consumeFromStacks(simulatedWorldStacks, input, remaining);
+            } else {
+                remaining = consumeFromPorts(ports, input, remaining);
+                remaining = consumeFromWorldEntities(worldEntities, input, remaining);
             }
 
             if (remaining > 0) {
                 return false;
             }
         }
+
         return true;
+    }
+
+    private static int consumeFromStacks(
+            List<ItemStack> stacks,
+            SizedIngredient input,
+            int remaining
+    ) {
+        for (ItemStack stack : stacks) {
+            if (remaining <= 0) {
+                break;
+            }
+            if (stack.isEmpty() || !input.ingredient().test(stack)) {
+                continue;
+            }
+
+            int taken = Math.min(remaining, stack.getCount());
+            stack.shrink(taken);
+            remaining -= taken;
+        }
+        return remaining;
+    }
+
+    private static int consumeFromPorts(
+            List<MachinePortBlockEntity> ports,
+            SizedIngredient input,
+            int remaining
+    ) {
+        for (MachinePortBlockEntity port : ports) {
+            ItemStackHandler handler = port.items();
+            for (int slot = 0; slot < handler.getSlots(); slot++) {
+                if (remaining <= 0) {
+                    return 0;
+                }
+
+                ItemStack stack = handler.getStackInSlot(slot);
+                if (stack.isEmpty() || !input.ingredient().test(stack)) {
+                    continue;
+                }
+
+                int taken = Math.min(remaining, stack.getCount());
+                stack.shrink(taken);
+                handler.setStackInSlot(slot, stack);
+                remaining -= taken;
+            }
+        }
+        return remaining;
+    }
+
+    private static int consumeFromWorldEntities(
+            List<ItemEntity> entities,
+            SizedIngredient input,
+            int remaining
+    ) {
+        for (ItemEntity entity : entities) {
+            if (remaining <= 0) {
+                return 0;
+            }
+
+            ItemStack stack = entity.getItem();
+            if (stack.isEmpty() || !input.ingredient().test(stack)) {
+                continue;
+            }
+
+            int taken = Math.min(remaining, stack.getCount());
+            stack.shrink(taken);
+            remaining -= taken;
+
+            if (stack.isEmpty()) {
+                entity.discard();
+            } else {
+                entity.setItem(stack);
+            }
+        }
+        return remaining;
     }
 
     private static boolean consumeFluidInputs(List<MachinePortBlockEntity> ports, CERecipe recipe, int multiplier) {
@@ -918,6 +918,78 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
             }
         }
         return true;
+    }
+
+    private boolean canRouteItemOutputs(
+            MultiblockDefinition definition,
+            List<MachinePortBlockEntity> outputPorts,
+            List<ItemStack> outputs
+    ) {
+        if (outputs.isEmpty()) {
+            return true;
+        }
+
+        /*
+         * En eksisterende output bus har absolutt prioritet.
+         * Hvis den finnes, må alle outputs få plass der.
+         */
+        if (!outputPorts.isEmpty()) {
+            return canFitItemOutputs(outputPorts, outputs);
+        }
+
+        /*
+         * World output brukes bare når multiblocken ikke har
+         * noen gyldig output bus for denne ruten.
+         */
+        return !worldOutputPositions(definition).isEmpty();
+    }
+
+    private List<BlockPos> worldOutputPositions(MultiblockDefinition definition) {
+        BlockState state = getBlockState();
+        if (!state.hasProperty(MultiblockControllerBlock.FACING)) {
+            return List.of();
+        }
+
+        Direction facing = state.getValue(MultiblockControllerBlock.FACING);
+        return definition.worldInteractionPositions(
+                worldPosition,
+                facing,
+                MultiblockDefinition.WorldInteractionType.OUTPUT
+        );
+    }
+
+    private void dropItemOutputsInWorld(
+            MultiblockDefinition definition,
+            List<ItemStack> outputs
+    ) {
+        if (level == null || outputs.isEmpty()) {
+            return;
+        }
+
+        List<BlockPos> positions = worldOutputPositions(definition);
+        if (positions.isEmpty()) {
+            return;
+        }
+
+        int index = 0;
+        for (ItemStack output : outputs) {
+            if (output.isEmpty()) {
+                continue;
+            }
+
+            BlockPos pos = positions.get(index % positions.size());
+            ItemEntity entity = new ItemEntity(
+                    level,
+                    pos.getX() + 0.5D,
+                    pos.getY() + 0.5D,
+                    pos.getZ() + 0.5D,
+                    output.copy()
+            );
+            entity.setDefaultPickUpDelay();
+            entity.setDeltaMovement(0.0D, 0.0D, 0.0D);
+            level.addFreshEntity(entity);
+            index++;
+        }
     }
 
     private static boolean canFitItemOutputs(List<MachinePortBlockEntity> ports, List<ItemStack> outputs) {
@@ -1081,15 +1153,7 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         recipeProgress = 0;
         recipeDuration = 0;
         activeCEt = 0;
-        activeParallel = 1;
         activeSyncCooldown = 0;
-        activeRecipeId = null;
-        activeUsesIoColor = false;
-        activeIoColor = DyeColor.GRAY;
-        activeItemInputs = List.of();
-        activeFluidInputs = List.of();
-        activeItemOutputs = List.of();
-        activeFluidOutputs = List.of();
     }
 
     private void detachParts() {
@@ -1125,20 +1189,12 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         tag.putInt("RecipeProgress", recipeProgress);
         tag.putInt("RecipeDuration", recipeDuration);
         tag.putInt("ActiveCEt", activeCEt);
-        tag.putInt("ActiveParallel", activeParallel);
         tag.putInt("ExternalCEt", externalCEt);
-        if (activeRecipeId != null) {
-            tag.putString("ActiveRecipe", activeRecipeId.toString());
-        }
         if (preferredRecipeId != null) {
             tag.putString("PreferredRecipe", preferredRecipeId.toString());
         }
-        tag.putBoolean("ActiveUsesIoColor", activeUsesIoColor);
-        tag.putInt("ActiveIoColor", activeIoColor.getId());
-        tag.put("ActiveItemInputs", saveItems(activeItemInputs, registries));
-        tag.put("ActiveFluidInputs", saveFluids(activeFluidInputs, registries));
-        tag.put("ActiveItemOutputs", saveItems(activeItemOutputs, registries));
-        tag.put("ActiveFluidOutputs", saveFluids(activeFluidOutputs, registries));
+        interactionWear.save(tag);
+        recipeLogic.save(tag, registries);
     }
 
     @Override
@@ -1162,55 +1218,18 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         recipeProgress = tag.getInt("RecipeProgress");
         recipeDuration = tag.getInt("RecipeDuration");
         activeCEt = tag.getInt("ActiveCEt");
-        activeParallel = Math.max(1, tag.getInt("ActiveParallel"));
         externalCEt = tag.getInt("ExternalCEt");
-        activeRecipeId = tag.contains("ActiveRecipe") ? ResourceLocation.parse(tag.getString("ActiveRecipe")) : null;
         preferredRecipeId = tag.contains("PreferredRecipe") ? ResourceLocation.parse(tag.getString("PreferredRecipe")) : null;
-        activeUsesIoColor = tag.getBoolean("ActiveUsesIoColor");
-        activeIoColor = tag.contains("ActiveIoColor") ? DyeColor.byId(tag.getInt("ActiveIoColor")) : DyeColor.GRAY;
-        activeItemInputs = loadItems(tag.getList("ActiveItemInputs", Tag.TAG_COMPOUND), registries);
-        activeFluidInputs = loadFluids(tag.getList("ActiveFluidInputs", Tag.TAG_COMPOUND), registries);
-        activeItemOutputs = loadItems(tag.getList("ActiveItemOutputs", Tag.TAG_COMPOUND), registries);
-        activeFluidOutputs = loadFluids(tag.getList("ActiveFluidOutputs", Tag.TAG_COMPOUND), registries);
+        interactionWear.load(tag);
+        recipeLogic.load(tag, registries);
         dirty = true;
     }
 
-    private static ListTag saveItems(List<ItemStack> stacks, HolderLookup.Provider registries) {
-        ListTag list = new ListTag();
-        for (ItemStack stack : stacks) {
-            list.add(stack.saveOptional(registries));
+    private static long saturatedMultiply(long first, long second) {
+        if (first > 0L && second > Long.MAX_VALUE / first) {
+            return Long.MAX_VALUE;
         }
-        return list;
-    }
-
-    private static List<ItemStack> loadItems(ListTag list, HolderLookup.Provider registries) {
-        List<ItemStack> stacks = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            ItemStack stack = ItemStack.parseOptional(registries, list.getCompound(i));
-            if (!stack.isEmpty()) {
-                stacks.add(stack);
-            }
-        }
-        return stacks;
-    }
-
-    private static ListTag saveFluids(List<FluidStack> stacks, HolderLookup.Provider registries) {
-        ListTag list = new ListTag();
-        for (FluidStack stack : stacks) {
-            list.add(stack.saveOptional(registries));
-        }
-        return list;
-    }
-
-    private static List<FluidStack> loadFluids(ListTag list, HolderLookup.Provider registries) {
-        List<FluidStack> stacks = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            FluidStack stack = FluidStack.parseOptional(registries, list.getCompound(i));
-            if (!stack.isEmpty()) {
-                stacks.add(stack);
-            }
-        }
-        return stacks;
+        return first * second;
     }
 
     @Override
@@ -1235,7 +1254,8 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         boolean targetActive = active && formed;
         boolean changed = updateBlockActiveState(targetActive);
         boolean coilChanged = setCoilsActive(targetActive);
-        if (changed || coilChanged) {
+        boolean fireboxChanged = setFireboxesActive(targetActive);
+        if (changed || coilChanged || fireboxChanged) {
             setChanged();
             syncToClient();
         }
@@ -1286,6 +1306,24 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
         return changed;
     }
 
+    private boolean setFireboxesActive(boolean active) {
+        if (level == null) {
+            return false;
+        }
+
+        boolean changed = false;
+        for (BlockPos partPos : formedPositions) {
+            BlockState state = level.getBlockState(partPos);
+            if (!(state.getBlock() instanceof FireboxBlock) || !state.hasProperty(FireboxBlock.ACTIVE) || state.getValue(FireboxBlock.ACTIVE) == active) {
+                continue;
+            }
+
+            level.setBlock(partPos, state.setValue(FireboxBlock.ACTIVE, active), 3);
+            changed = true;
+        }
+        return changed;
+    }
+
     private void syncToClient() {
         if (level == null || level.isClientSide()) {
             return;
@@ -1297,7 +1335,8 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
 
     public boolean isProcessing() {
         MultiblockDefinition definition = currentDefinition();
-        return activeRecipeId != null || (definition != null && definition.externalHeatSource() && externallyActive());
+        return recipeLogic.isProcessing()
+                || (definition != null && definition.externalHeatSource() && externallyActive());
     }
 
     @Nullable
@@ -1314,44 +1353,51 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
     }
 
     public int recipeProgress() {
-        return recipeProgress;
+        return recipeLogic.isProcessing() ? recipeLogic.progress() : recipeProgress;
     }
 
     public int recipeDuration() {
-        return recipeDuration;
+        return recipeLogic.isProcessing() ? recipeLogic.duration() : recipeDuration;
     }
 
     public int recipeRemaining() {
-        return Math.max(0, recipeDuration - recipeProgress);
+        return recipeLogic.isProcessing()
+                ? recipeLogic.remaining()
+                : Math.max(0, recipeDuration - recipeProgress);
     }
 
     public int activeCEt() {
-        return activeCEt;
+        return recipeLogic.isProcessing() ? recipeLogic.resourcePerTick() : activeCEt;
     }
 
     public int activeParallel() {
-        return activeParallel;
+        return recipeLogic.parallel();
     }
 
     @Nullable
     public ResourceLocation activeRecipeId() {
-        return activeRecipeId;
+        CERecipeExecution execution = recipeLogic.execution();
+        return execution == null ? null : execution.recipeId();
     }
 
     public List<ItemStack> activeItemInputs() {
-        return activeItemInputs;
+        CERecipeExecution execution = recipeLogic.execution();
+        return execution == null ? List.of() : execution.itemInputs();
     }
 
     public List<FluidStack> activeFluidInputs() {
-        return activeFluidInputs;
+        CERecipeExecution execution = recipeLogic.execution();
+        return execution == null ? List.of() : execution.fluidInputs();
     }
 
     public List<ItemStack> activeItemOutputs() {
-        return activeItemOutputs;
+        CERecipeExecution execution = recipeLogic.execution();
+        return execution == null ? List.of() : execution.itemOutputs();
     }
 
     public List<FluidStack> activeFluidOutputs() {
-        return activeFluidOutputs;
+        CERecipeExecution execution = recipeLogic.execution();
+        return execution == null ? List.of() : execution.fluidOutputs();
     }
 
     @Override
@@ -1366,6 +1412,281 @@ public class MultiblockControllerBlockEntity extends BlockEntity implements Menu
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
         return new MultiblockControllerMenu(containerId, playerInventory, this);
+    }
+
+    @Override
+    public CERecipeLogic recipeLogic() {
+        return recipeLogic;
+    }
+
+    public ProgressBar progressBar() {
+        MultiblockDefinition definition = currentDefinition();
+        return definition == null ? ProgressBar.ARROW : definition.progressBar();
+    }
+
+    private Optional<CERecipe> recipeById(ResourceLocation recipeId) {
+        if (level == null) {
+            return Optional.empty();
+        }
+        return level.getRecipeManager()
+                .byKey(recipeId)
+                .filter(holder -> holder.value() instanceof CERecipe)
+                .map(holder -> (CERecipe) holder.value());
+    }
+
+    private InteractionContext interactionContext(List<ItemStack> items, List<FluidStack> fluids) {
+        Direction facing = getBlockState().hasProperty(MultiblockControllerBlock.FACING)
+                ? getBlockState().getValue(MultiblockControllerBlock.FACING)
+                : Direction.NORTH;
+        return new InteractionContext() {
+            @Override
+            public Level level() {
+                return level;
+            }
+
+            @Override
+            public BlockPos origin() {
+                return worldPosition;
+            }
+
+            @Override
+            public Direction facing() {
+                return facing;
+            }
+
+            @Override
+            public List<ItemStack> itemInputs() {
+                return items;
+            }
+
+            @Override
+            public List<FluidStack> fluidInputs() {
+                return fluids;
+            }
+
+            @Override
+            public InteractionWearStore wearStore() {
+                return interactionWear;
+            }
+        };
+    }
+
+    private Optional<CERecipeExecution> prepareRecipeExecution(MultiblockDefinition definition) {
+        if (level == null) {
+            return Optional.empty();
+        }
+
+        List<MachinePortBlockEntity> inputPorts = itemPorts(MultiblockAbility.ITEM_INPUT);
+        List<MachinePortBlockEntity> fluidInputPorts = fluidPorts(MultiblockAbility.FLUID_INPUT);
+        Optional<MachineTier> kineticTier = highestPortTier(MultiblockAbility.KINETIC_INPUT);
+        EnergyRuntime energyRuntime = energyRuntime();
+        int rpm = maxKineticRpm();
+
+        for (InputRoute route : inputRoutes(inputPorts, fluidInputPorts)) {
+            List<ItemEntity> worldInputEntities = worldInputEntities(definition);
+            List<ItemStack> availableItems = new ArrayList<>(itemStacks(route.itemPorts()));
+            availableItems.addAll(worldItemStacks(worldInputEntities));
+            List<FluidStack> availableFluids = fluidStacks(route.fluidPorts());
+            InteractionContext interactionContext = interactionContext(availableItems, availableFluids);
+            CERecipeInput input = new CERecipeInput(
+                    availableItems,
+                    availableFluids,
+                    route.circuit(),
+                    Set.copyOf(definition.logicIds()),
+                    energyRuntime.recipeAccessTier().or(() -> Optional.ofNullable(formedTier)),
+                    kineticTier,
+                    energyRuntime.recipeAccessTier(),
+                    rpm,
+                    formedCoilHeat
+            );
+
+            Optional<RecipeHolder<CERecipe>> match = matchingRecipe(definition, input);
+            if (match.isEmpty()) {
+                continue;
+            }
+
+            CERecipe recipe = match.get().value();
+            if (!InteractionRuntime.conditionsMatch(definition.conditions(), interactionContext, InteractionPhase.ON_START)
+                    || !InteractionRuntime.conditionsMatch(recipe.conditions(), interactionContext, InteractionPhase.ON_START)
+                    || !InteractionRuntime.interactionsMatch(definition.blockInteractions(), interactionContext, InteractionPhase.ON_START)
+                    || !InteractionRuntime.interactionsMatch(recipe.blockInteractions(), interactionContext, InteractionPhase.ON_START)
+                    || !InteractionRuntime.interactionsMatch(definition.blockInteractions(), interactionContext, InteractionPhase.ON_COMPLETE)
+                    || !InteractionRuntime.interactionsMatch(recipe.blockInteractions(), interactionContext, InteractionPhase.ON_COMPLETE)) {
+                continue;
+            }
+            List<MachinePortBlockEntity> outputPorts = outputPorts(MultiblockAbility.ITEM_OUTPUT, route);
+            List<MachinePortBlockEntity> fluidOutputPorts = outputPorts(MultiblockAbility.FLUID_OUTPUT, route);
+            MachineTier runtimeTier = runtimeTier(recipe, input, energyRuntime);
+            int parallel = recipe.generatesEnergy() ? outputParallel(recipe, runtimeTier) : 1;
+            Optional<MachineModifier> machineModifier =
+                    InteractionRuntime.firstMatchingModifier(definition.modifiers(), interactionContext);
+            Optional<MachineModifier> recipeModifier =
+                    InteractionRuntime.firstMatchingModifier(recipe.modifiers(), interactionContext);
+            List<ItemStack> possibleItemOutputs = new ArrayList<>();
+            for (int run = 0; run < parallel; run++) {
+                recipe.itemOutputs().forEach(output -> possibleItemOutputs.add(output.stack().copy()));
+            }
+            List<FluidStack> plannedFluidOutputs = multiplyFluids(fluidOutputs(recipe), parallel);
+            int signedCEt = signedRuntimeCEt(recipe, runtimeTier, parallel);
+            signedCEt = recipe.generatesEnergy()
+                    ? signedCEt
+                    : InteractionRuntime.adjustedResource(signedCEt, false, machineModifier, recipeModifier);
+
+            if (!canRouteItemOutputs(definition, outputPorts, possibleItemOutputs)
+                    || !canFitFluidOutputs(fluidOutputPorts, plannedFluidOutputs)
+                    || !canProcessEnergy(signedCEt)
+                    || !canConsumeInputs(route.itemPorts(), worldInputEntities, recipe, parallel)
+                    || !canConsumeFluidInputs(route.fluidPorts(), recipe, parallel)) {
+                continue;
+            }
+            if (!consumeInputs(route.itemPorts(), worldInputEntities, recipe, parallel)
+                    || !consumeFluidInputs(route.fluidPorts(), recipe, parallel)) {
+                continue;
+            }
+
+            List<ItemStack> plannedItemOutputs = rollItemOutputs(recipe, parallel);
+            InteractionRuntime.applyInteractions(definition.blockInteractions(), interactionContext, InteractionPhase.ON_START);
+            InteractionRuntime.applyInteractions(recipe.blockInteractions(), interactionContext, InteractionPhase.ON_START);
+            CompoundTag machineData = new CompoundTag();
+            machineData.putBoolean("UsesIoColor", route.usesColor());
+            machineData.putInt("IoColor", route.color().getId());
+            preferredRecipeId = match.get().id();
+            return Optional.of(new CERecipeExecution(
+                    match.get().id(),
+                    recipe.recipeType(),
+                    InteractionRuntime.adjustedDuration(recipe.runtimeDuration(runtimeTier, rpm), machineModifier, recipeModifier),
+                    signedCEt,
+                    parallel,
+                    multiplyItems(displayItemInputs(recipe), parallel),
+                    multiplyFluids(displayFluidInputs(recipe), parallel),
+                    plannedItemOutputs,
+                    plannedFluidOutputs,
+                    machineData
+            ));
+        }
+        return Optional.empty();
+    }
+
+    private InputRoute executionRoute(CERecipeExecution execution) {
+        CompoundTag data = execution.machineData();
+        return data.getBoolean("UsesIoColor")
+                ? InputRoute.outputOnly(DyeColor.byId(data.getInt("IoColor")))
+                : InputRoute.uncolored();
+    }
+
+    private List<ItemStack> rollItemOutputs(CERecipe recipe, int parallel) {
+        if (level == null) {
+            return List.of();
+        }
+        List<ItemStack> outputs = new ArrayList<>();
+        for (int run = 0; run < Math.max(1, parallel); run++) {
+            for (net.mads.createexpansion.recipe.CEChancedItemOutput output : recipe.itemOutputs()) {
+                if (output.chance() >= net.mads.createexpansion.recipe.CEChancedItemOutput.MAX_CHANCE
+                        || level.random.nextInt(net.mads.createexpansion.recipe.CEChancedItemOutput.MAX_CHANCE)
+                        < output.chance()) {
+                    outputs.add(output.stack().copy());
+                }
+            }
+        }
+        return outputs;
+    }
+
+    private final class RecipeHost implements CERecipeLogicHost {
+        @Override
+        public boolean recipeMachineReady() {
+            MultiblockDefinition definition = currentDefinition();
+            return level != null && formed && definition != null && !definition.recipeTypes().isEmpty();
+        }
+
+        @Override
+        public Optional<CERecipeExecution> findAndConsumeRecipeInputs() {
+            MultiblockDefinition definition = currentDefinition();
+            return definition == null ? Optional.empty() : prepareRecipeExecution(definition);
+        }
+
+        @Override
+        public CERecipeTickResult consumeRecipeTick(CERecipeExecution execution) {
+            MultiblockDefinition definition = currentDefinition();
+            Optional<CERecipe> recipe = recipeById(execution.recipeId());
+            InteractionContext context = interactionContext(execution.itemInputs(), execution.fluidInputs());
+            if (definition == null) {
+                return CERecipeTickResult.WAIT_FOR_RESOURCE;
+            }
+            ConditionFailure machineFailure = InteractionRuntime.failedConditionBehavior(definition.conditions(), context, InteractionPhase.WHILE_PROCESSING);
+            ConditionFailure recipeFailure = recipe.map(value -> InteractionRuntime.failedConditionBehavior(value.conditions(), context, InteractionPhase.WHILE_PROCESSING)).orElse(null);
+            ConditionFailure failure = machineFailure != null ? machineFailure : recipeFailure;
+            if (failure != null) {
+                return failure == ConditionFailure.CANCEL
+                        ? CERecipeTickResult.CANCEL
+                        : failure == ConditionFailure.RESET ? CERecipeTickResult.WAIT_FOR_RESOURCE : CERecipeTickResult.PAUSE;
+            }
+            return processEnergy(execution.resourcePerTick())
+                    ? CERecipeTickResult.CONTINUE
+                    : CERecipeTickResult.WAIT_FOR_RESOURCE;
+        }
+
+        @Override
+        public boolean canCompleteRecipe(CERecipeExecution execution) {
+            MultiblockDefinition definition = currentDefinition();
+            if (definition == null) {
+                return false;
+            }
+            Optional<CERecipe> recipe = recipeById(execution.recipeId());
+            if (recipe.isEmpty()) {
+                return false;
+            }
+            InteractionContext context = interactionContext(execution.itemInputs(), execution.fluidInputs());
+            InputRoute route = executionRoute(execution);
+            return canRouteItemOutputs(
+                    definition,
+                    outputPorts(MultiblockAbility.ITEM_OUTPUT, route),
+                    execution.itemOutputs()
+            ) && canFitFluidOutputs(
+                    outputPorts(MultiblockAbility.FLUID_OUTPUT, route),
+                    execution.fluidOutputs()
+            ) && InteractionRuntime.conditionsMatch(definition.conditions(), context, InteractionPhase.ON_COMPLETE)
+                    && InteractionRuntime.conditionsMatch(recipe.get().conditions(), context, InteractionPhase.ON_COMPLETE)
+                    && InteractionRuntime.interactionsMatch(definition.blockInteractions(), context, InteractionPhase.ON_COMPLETE)
+                    && InteractionRuntime.interactionsMatch(recipe.get().blockInteractions(), context, InteractionPhase.ON_COMPLETE);
+        }
+
+        @Override
+        public void completeRecipe(CERecipeExecution execution) {
+            MultiblockDefinition definition = currentDefinition();
+            if (definition == null) {
+                return;
+            }
+            Optional<CERecipe> recipe = recipeById(execution.recipeId());
+            if (recipe.isPresent()) {
+                InteractionContext context = interactionContext(execution.itemInputs(), execution.fluidInputs());
+                InteractionRuntime.applyInteractions(definition.blockInteractions(), context, InteractionPhase.ON_COMPLETE);
+                InteractionRuntime.applyInteractions(recipe.get().blockInteractions(), context, InteractionPhase.ON_COMPLETE);
+            }
+            InputRoute route = executionRoute(execution);
+            List<MachinePortBlockEntity> itemOutputPorts =
+                    outputPorts(MultiblockAbility.ITEM_OUTPUT, route);
+            if (itemOutputPorts.isEmpty()) {
+                dropItemOutputsInWorld(definition, execution.itemOutputs());
+            } else {
+                insertItemOutputs(itemOutputPorts, execution.itemOutputs(), false);
+            }
+            insertFluidOutputs(
+                    outputPorts(MultiblockAbility.FLUID_OUTPUT, route),
+                    execution.fluidOutputs(),
+                    false
+            );
+        }
+
+        @Override
+        public void onRecipeLogicChanged(boolean activeChanged) {
+            setActive(recipeLogic.isActive());
+            setChanged();
+            if (activeChanged) {
+                syncToClient();
+            } else {
+                syncActiveProgress();
+            }
+        }
     }
 
     private static final class SimulatedTank {

@@ -38,19 +38,6 @@ public class RecipeRemovalProvider implements DataProvider {
         conditions.add(falseCondition);
         json.add("neoforge:conditions", conditions);
 
-        json.addProperty("type", "minecraft:crafting_shapeless");
-        json.addProperty("category", "misc");
-
-        JsonArray ingredients = new JsonArray();
-        JsonObject ingredient = new JsonObject();
-        ingredient.addProperty("item", "minecraft:barrier");
-        ingredients.add(ingredient);
-        json.add("ingredients", ingredients);
-
-        JsonObject result = new JsonObject();
-        result.addProperty("id", "minecraft:barrier");
-        json.add("result", result);
-
         return json;
     }
 

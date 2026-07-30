@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:dubnium_ingot"
+    },
+    {
+      "item": "create_expansion:dubnium_ingot"
+    },
+    {
+      "item": "create_expansion:dubnium_ingot"
+    },
+    {
+      "item": "create_expansion:dubnium_ingot"
+    },
+    {
+      "item": "create_expansion:dubnium_ingot"
+    },
+    {
+      "item": "create_expansion:dubnium_ingot"
+    },
+    {
+      "item": "create_expansion:dubnium_ingot"
+    },
+    {
+      "item": "create_expansion:dubnium_ingot"
+    },
+    {
+      "item": "create_expansion:dubnium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:dubnium_block"
+    }
+  ]
+}

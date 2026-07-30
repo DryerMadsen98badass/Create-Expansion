@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:steel_ingot"
+    },
+    {
+      "item": "create_expansion:steel_ingot"
+    },
+    {
+      "item": "create_expansion:steel_ingot"
+    },
+    {
+      "item": "create_expansion:steel_ingot"
+    },
+    {
+      "item": "create_expansion:steel_ingot"
+    },
+    {
+      "item": "create_expansion:steel_ingot"
+    },
+    {
+      "item": "create_expansion:steel_ingot"
+    },
+    {
+      "item": "create_expansion:steel_ingot"
+    },
+    {
+      "item": "create_expansion:steel_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:steel_block"
+    }
+  ]
+}

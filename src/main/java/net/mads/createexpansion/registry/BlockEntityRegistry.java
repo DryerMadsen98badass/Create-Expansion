@@ -1,6 +1,7 @@
 package net.mads.createexpansion.registry;
 
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
+import net.mads.createexpansion.machine.SingleBlockMachineBlockEntity;
 import net.mads.createexpansion.energy.CreativeEnergyBlockEntity;
 import net.mads.createexpansion.energy.EnergyWireBlockEntity;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlockEntity;
@@ -44,6 +45,9 @@ public class BlockEntityRegistry {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MultiblockControllerBlockEntity>> MULTIBLOCK_CONTROLLER = BLOCK_ENTITIES.register("multiblock_controller", () ->
             BlockEntityType.Builder.of(MultiblockControllerBlockEntity::new, allControllerBlocks()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SingleBlockMachineBlockEntity>> SINGLE_BLOCK_MACHINE = BLOCK_ENTITIES.register("single_block_machine", () ->
+            BlockEntityType.Builder.of(SingleBlockMachineBlockEntity::new, allSingleBlockMachineBlocks()).build(null));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FoundryControllerBlockEntity>> FOUNDRY_CONTROLLER = BLOCK_ENTITIES.register("foundry_controller", () ->
             BlockEntityType.Builder.of(FoundryControllerBlockEntity::new, BlockRegistry.FOUNDRY_CONTROLLER.get(), BlockRegistry.CREATIVE_FOUNDRY_CONTROLLER.get()).build(null));
@@ -109,6 +113,8 @@ public class BlockEntityRegistry {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, HYDRAULIC_PRESS.get(), (press, side) -> press.itemCapability());
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, HYDRAULIC_PRESS.get(), (press, side) -> press.fluidCapability(side));
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, SPRING_COILING_MACHINE.get(), (machine, side) -> machine.itemCapability());
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, SINGLE_BLOCK_MACHINE.get(), (machine, side) -> machine.itemCapability(side));
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, SINGLE_BLOCK_MACHINE.get(), (machine, side) -> machine.fluidCapability(side));
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, FOUNDRY_HATCH.get(), (hatch, side) -> hatch.fluidCapability());
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, FOUNDRY_HATCH.get(), (hatch, side) -> hatch.itemCapability());
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, FOUNDRY_MOLD_CASTER.get(), (caster, side) -> caster.itemCapability());
@@ -123,6 +129,12 @@ public class BlockEntityRegistry {
 
     private static Block[] allControllerBlocks() {
         return BlockRegistry.getAllMultiblockControllers().stream()
+                .map(DeferredHolder::get)
+                .toArray(Block[]::new);
+    }
+
+    private static Block[] allSingleBlockMachineBlocks() {
+        return BlockRegistry.getAllSingleBlockMachines().stream()
                 .map(DeferredHolder::get)
                 .toArray(Block[]::new);
     }

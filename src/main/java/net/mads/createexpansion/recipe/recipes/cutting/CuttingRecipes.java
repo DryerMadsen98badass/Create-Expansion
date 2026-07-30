@@ -12,11 +12,11 @@ public final class CuttingRecipes {
     }
 
     public static void build(List<CompletableFuture<?>> futures, CachedOutput output, PackOutput.PathProvider recipes) {
-        // CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/test/apple_to_golden_apple")
-        //         .inputItem("minecraft:apple")
-        //         .outputItem("minecraft:golden_apple").chance(0.1F)
-        //         .duration(100)
-        //         .save();
+       //  CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/materials/plate_to_long_rod")
+       //          .inputItem("create_expansion:wood_plate")
+       //          .outputItem("create_expansion:wood_long_rod")
+       //          .duration(100)
+       //          .save();
 
         terracotta(futures, output, recipes, "white", "terracotta_screw");
         terracotta(futures, output, recipes, "orange", "terracotta_nugget");

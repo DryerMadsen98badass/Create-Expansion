@@ -5,6 +5,9 @@ import com.simibubi.create.foundation.item.TooltipModifier;
 import net.mads.createexpansion.client.screen.FoundryControllerScreen;
 import net.mads.createexpansion.client.screen.MachinePortScreen;
 import net.mads.createexpansion.client.screen.MultiblockControllerScreen;
+import net.mads.createexpansion.client.screen.SingleBlockMachineScreen;
+import net.mads.createexpansion.block.SimpleBlockDefinition;
+import net.mads.createexpansion.block.SimpleBlocks;
 import net.mads.createexpansion.energy.EnergyWireBlock;
 import net.mads.createexpansion.material.MaterialBlock;
 import net.mads.createexpansion.material.MaterialItem;
@@ -12,6 +15,7 @@ import net.mads.createexpansion.material.MaterialPart;
 import net.mads.createexpansion.machine.MachineCasingBlock;
 import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
+import net.mads.createexpansion.machine.SingleBlockMachineBlock;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
 import net.mads.createexpansion.machine.machines.foundry.FoundryMoldCasterRenderer;
 import net.mads.createexpansion.machine.machines.kinetic.centrifuge.KineticCentrifugeRenderer;
@@ -113,6 +117,9 @@ public class ClientSetup {
         Item[] multiblockControllers = ItemRegistry.getAllMultiblockControllerItems().stream()
                 .map(item -> item.get())
                 .toArray(Item[]::new);
+        Item[] singleBlockMachines = ItemRegistry.getAllSingleBlockMachineItems().stream()
+                .map(item -> item.get())
+                .toArray(Item[]::new);
 
         event.register((stack, tintIndex) -> {
             if (!isMaterialTintLayer(tintIndex)) {
@@ -199,6 +206,55 @@ public class ClientSetup {
 
             return -1;
         }, multiblockControllers);
+
+        event.register((stack, tintIndex) -> {
+            if (tintIndex != 0) {
+                return -1;
+            }
+
+            if (stack.getItem() instanceof BlockItem blockItem
+                    && blockItem.getBlock() instanceof SingleBlockMachineBlock machine) {
+                return opaque(machine.instance().tier().color());
+            }
+
+            return -1;
+        }, singleBlockMachines);
+
+
+        for (SimpleBlockDefinition definition : SimpleBlocks.ALL) {
+            if (!definition.hasColor()) {
+                continue;
+            }
+
+            Item[] simpleBlockItems = merge(
+                    new Item[]{
+                            ItemRegistry
+                                    .getSimpleBlockItem(
+                                            definition.id()
+                                    )
+                                    .get()
+                    },
+                    definition.variants()
+                            .stream()
+                            .map(variant ->
+                                    ItemRegistry
+                                            .getSimpleBlockVariantItem(
+                                                    definition.id(),
+                                                    variant
+                                            )
+                                            .get()
+                            )
+                            .toArray(Item[]::new)
+            );
+
+            event.register(
+                    (stack, tintIndex) ->
+                            tintIndex == 0
+                                    ? definition.blockColor()
+                                    : -1,
+                    simpleBlockItems
+            );
+        }
     }
 
     @SubscribeEvent
@@ -222,6 +278,9 @@ public class ClientSetup {
                 .map(block -> block.get())
                 .toArray(Block[]::new);
         Block[] multiblockControllers = BlockRegistry.getAllMultiblockControllers().stream()
+                .map(block -> block.get())
+                .toArray(Block[]::new);
+        Block[] singleBlockMachines = BlockRegistry.getAllSingleBlockMachines().stream()
                 .map(block -> block.get())
                 .toArray(Block[]::new);
 
@@ -288,6 +347,54 @@ public class ClientSetup {
 
             return -1;
         }, multiblockControllers);
+
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex != 0) {
+                return -1;
+            }
+
+            if (state.getBlock() instanceof SingleBlockMachineBlock machine) {
+                return opaque(machine.instance().tier().color());
+            }
+
+            return -1;
+        }, singleBlockMachines);
+
+
+        for (SimpleBlockDefinition definition : SimpleBlocks.ALL) {
+            if (!definition.hasColor()) {
+                continue;
+            }
+
+            Block[] simpleBlocks = merge(
+                    new Block[]{
+                            BlockRegistry
+                                    .getSimpleBlock(
+                                            definition.id()
+                                    )
+                                    .get()
+                    },
+                    definition.variants()
+                            .stream()
+                            .map(variant ->
+                                    BlockRegistry
+                                            .getSimpleBlockVariant(
+                                                    definition.id(),
+                                                    variant
+                                            )
+                                            .get()
+                            )
+                            .toArray(Block[]::new)
+            );
+
+            event.register(
+                    (state, level, pos, tintIndex) ->
+                            tintIndex == 0
+                                    ? definition.blockColor()
+                                    : -1,
+                    simpleBlocks
+            );
+        }
     }
 
     @SubscribeEvent
@@ -317,6 +424,7 @@ public class ClientSetup {
         event.register(MenuRegistry.MACHINE_PORT.get(), MachinePortScreen::new);
         event.register(MenuRegistry.MULTIBLOCK_CONTROLLER.get(), MultiblockControllerScreen::new);
         event.register(MenuRegistry.FOUNDRY_CONTROLLER.get(), FoundryControllerScreen::new);
+        event.register(MenuRegistry.SINGLE_BLOCK_MACHINE.get(), SingleBlockMachineScreen::new);
     }
 
     private static boolean isMaterialTintLayer(int tintIndex) {

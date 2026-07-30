@@ -4,6 +4,7 @@ import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.menu.FoundryControllerMenu;
 import net.mads.createexpansion.menu.MachinePortMenu;
 import net.mads.createexpansion.menu.MultiblockControllerMenu;
+import net.mads.createexpansion.menu.SingleBlockMachineMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.bus.api.IEventBus;
@@ -22,6 +23,9 @@ public class MenuRegistry {
 
     public static final DeferredHolder<MenuType<?>, MenuType<FoundryControllerMenu>> FOUNDRY_CONTROLLER =
             MENUS.register("foundry_controller", () -> IMenuTypeExtension.create(FoundryControllerMenu::new));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<SingleBlockMachineMenu>> SINGLE_BLOCK_MACHINE =
+            MENUS.register("single_block_machine", () -> IMenuTypeExtension.create(SingleBlockMachineMenu::new));
 
     public static void register(IEventBus modEventBus) {
         MENUS.register(modEventBus);

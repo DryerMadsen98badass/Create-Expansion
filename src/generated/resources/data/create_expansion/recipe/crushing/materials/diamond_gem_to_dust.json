@@ -1,0 +1,14 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "minecraft:diamond"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "id": "create_expansion:diamond_dust"
+    }
+  ]
+}

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:cobalt_andesite_ore",
-    "create_expansion:cobalt_diorite_ore",
-    "create_expansion:cobalt_ore",
-    "create_expansion:cobalt_end_stone_ore",
-    "create_expansion:cobalt_blackstone_ore",
-    "create_expansion:cobalt_deepslate_ore",
-    "create_expansion:cobalt_granite_ore",
     "create_expansion:cobalt_netherrack_ore",
-    "create_expansion:cobalt_tuff_ore"
+    "create_expansion:cobalt_deepslate_ore",
+    "create_expansion:cobalt_andesite_ore",
+    "create_expansion:cobalt_end_stone_ore",
+    "create_expansion:cobalt_diorite_ore",
+    "create_expansion:cobalt_tuff_ore",
+    "create_expansion:cobalt_blackstone_ore",
+    "create_expansion:cobalt_ore",
+    "create_expansion:cobalt_granite_ore"
   ]
 }

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:carbon_andesite_ore",
-    "create_expansion:carbon_diorite_ore",
-    "create_expansion:carbon_ore",
-    "create_expansion:carbon_end_stone_ore",
-    "create_expansion:carbon_blackstone_ore",
-    "create_expansion:carbon_deepslate_ore",
-    "create_expansion:carbon_granite_ore",
     "create_expansion:carbon_netherrack_ore",
-    "create_expansion:carbon_tuff_ore"
+    "create_expansion:carbon_deepslate_ore",
+    "create_expansion:carbon_andesite_ore",
+    "create_expansion:carbon_end_stone_ore",
+    "create_expansion:carbon_diorite_ore",
+    "create_expansion:carbon_tuff_ore",
+    "create_expansion:carbon_blackstone_ore",
+    "create_expansion:carbon_ore",
+    "create_expansion:carbon_granite_ore"
   ]
 }

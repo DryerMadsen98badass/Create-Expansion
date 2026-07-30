@@ -1,0 +1,22 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:iridium_impure_dust"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:stone_dust"
+    },
+    {
+      "count": 4,
+      "id": "create_expansion:iridium_tiny_dust"
+    },
+    {
+      "chance": 0.5,
+      "count": 2,
+      "id": "create_expansion:iridium_tiny_dust"
+    }
+  ]
+}

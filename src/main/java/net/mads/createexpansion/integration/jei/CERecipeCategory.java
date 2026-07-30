@@ -1,6 +1,5 @@
 package net.mads.createexpansion.integration.jei;
 
-import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -13,15 +12,18 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.mads.createexpansion.client.gui.CEMachineGuiTextures;
+import net.mads.createexpansion.gui.MachineGuiLayout;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.MachineTierStats;
 import net.mads.createexpansion.recipe.CEChancedItemOutput;
 import net.mads.createexpansion.recipe.CERecipe;
-import net.mads.createexpansion.recipe.CERecipeTypeDefinition;
+import net.mads.createexpansion.recipe.RecipeTypeDefinition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -35,29 +37,34 @@ import java.util.List;
 import java.util.Map;
 
 public class CERecipeCategory implements IRecipeCategory<CERecipe> {
-    private static final int WIDTH = 176;
+    private static final int MIN_WIDTH = 176;
     private static final int TOP = 22;
     private static final int LEFT_X = 8;
-    private static final int RIGHT_X = 110;
     private static final int SLOT = 18;
     private static final int SLOT_STEP = 20;
     private static final int MAX_COLUMNS = 3;
     private static final int SECTION_GAP = 10;
     private static final int INFO_ROW_HEIGHT = 11;
     private static final int INFO_ROWS_RESERVED = 6;
-    private static final int TIER_BUTTON_X = WIDTH - 47;
     private static final int TIER_BUTTON_WIDTH = 39;
     private static final int TIER_BUTTON_HEIGHT = 13;
-
-    private final CERecipeTypeDefinition recipeType;
+    private final RecipeTypeDefinition recipeType;
     private final RecipeType<CERecipe> jeiRecipeType;
     private final IDrawable icon;
+    private final MachineGuiLayout layout;
     private final Map<CERecipe, Integer> selectedTierIndexes = new HashMap<>();
 
-    public CERecipeCategory(CERecipeTypeDefinition recipeType, RecipeType<CERecipe> jeiRecipeType, IGuiHelper guiHelper, ItemStack icon) {
+    public CERecipeCategory(RecipeTypeDefinition recipeType, RecipeType<CERecipe> jeiRecipeType, IGuiHelper guiHelper, ItemStack icon) {
         this.recipeType = recipeType;
         this.jeiRecipeType = jeiRecipeType;
         this.icon = guiHelper.createDrawableItemStack(icon);
+        this.layout = MachineGuiLayout.automatic(
+                recipeType.maxItemInputs(),
+                recipeType.maxItemOutputs(),
+                recipeType.maxFluidInputs(),
+                recipeType.maxFluidOutputs(),
+                recipeType.progressBar()
+        );
     }
 
     @Override
@@ -77,16 +84,13 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return layout.width();
     }
 
     @Override
     public int getHeight() {
-        int inputHeight = stackHeight(itemInputSlotCount(), fluidInputSlotCount());
-        int outputHeight = stackHeight(itemOutputSlotCount(), fluidOutputSlotCount());
-        int contentHeight = Math.max(inputHeight, outputHeight);
         int infoHeight = INFO_ROWS_RESERVED * INFO_ROW_HEIGHT;
-        return Math.max(104, TOP + contentHeight + 12 + infoHeight + 6);
+        return Math.max(104, layout.machineTop() + layout.contentHeight() + 12 + infoHeight + 6);
     }
 
     @Override
@@ -123,8 +127,8 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
         int height = getHeight();
         MachineTier selectedTier = selectedTier(recipe);
 
-        guiGraphics.fill(0, 0, WIDTH, height, 0xFF1B1D20);
-        guiGraphics.fill(1, 1, WIDTH - 1, height - 1, 0xFF262A2F);
+        int width = getWidth();
+        CEMachineGuiTextures.drawMachinePanel(guiGraphics, 0, 0, width, height);
         drawTierButton(recipe, selectedTier, guiGraphics, font, height);
 
         List<SizedIngredient> itemInputs = itemInputs(recipe);
@@ -137,33 +141,28 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
         int itemOutputSlots = itemOutputSlotCount(itemOutputs);
         int fluidOutputSlots = fluidOutputSlotCount(fluidOutputs);
 
-        drawSection(guiGraphics, font, "Item Inputs", LEFT_X, TOP, itemInputSlots, 0xFF353A40);
-        drawSection(guiGraphics, font, "Fluid Inputs", LEFT_X, fluidY(TOP, itemInputSlots, fluidInputSlots), fluidInputSlots, 0xFF1D2C34);
-        drawSection(guiGraphics, font, "Item Outputs", RIGHT_X, TOP, itemOutputSlots, 0xFF353A40);
-        drawSection(guiGraphics, font, "Fluid Outputs", RIGHT_X, fluidY(TOP, itemOutputSlots, fluidOutputSlots), fluidOutputSlots, 0xFF1D2C34);
-
-        int contentHeight = Math.max(stackHeight(itemInputSlots, fluidInputSlots), stackHeight(itemOutputSlots, fluidOutputSlots));
-        drawArrow(guiGraphics, TOP + Math.max(SLOT, contentHeight) / 2);
-        drawInfo(guiGraphics, font, recipe, selectedTier, TOP + contentHeight + 12);
+        drawSlots(guiGraphics, itemInputSlots, fluidInputSlots, itemOutputSlots, fluidOutputSlots);
+        int contentHeight = layout.contentHeight();
+        int runtimeDuration = Math.max(1, recipe.runtimeDuration(selectedTier, recipe.baseRpm()));
+        long cycle = runtimeDuration * 50L;
+        float progress = (System.currentTimeMillis() % cycle) / (float) cycle;
+        drawProgressBar(guiGraphics, progress);
+        drawInfo(guiGraphics, font, recipe, selectedTier, layout.machineTop() + contentHeight + 12);
     }
 
     @Override
     public void getTooltip(ITooltipBuilder tooltip, CERecipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
-        int contentHeight = Math.max(
-                stackHeight(itemInputSlotCount(itemInputs(recipe)), fluidInputSlotCount(fluidInputs(recipe))),
-                stackHeight(itemOutputSlotCount(recipe.itemOutputs()), fluidOutputSlotCount(recipe.fluidOutputs()))
-        );
-        int infoY = TOP + contentHeight + 12;
+        int infoY = layout.machineTop() + layout.contentHeight() + 12;
         MachineTier selectedTier = selectedTier(recipe);
 
-        if (hasTierButton(recipe) && inside(mouseX, mouseY, TIER_BUTTON_X, tierButtonY(getHeight()), TIER_BUTTON_WIDTH, TIER_BUTTON_HEIGHT)) {
+        if (hasTierButton(recipe) && inside(mouseX, mouseY, tierButtonX(), tierButtonY(getHeight()), TIER_BUTTON_WIDTH, TIER_BUTTON_HEIGHT)) {
             tooltip.add(Component.literal("Tier: " + selectedTier.displayName()));
             tooltip.add(Component.literal("Left click: higher tier"));
             tooltip.add(Component.literal("Right click: lower tier"));
             return;
         }
 
-        if (mouseX >= 8 && mouseX <= WIDTH - 8 && mouseY >= infoY && mouseY <= getHeight() - 6) {
+        if (mouseX >= 8 && mouseX <= getWidth() - 8 && mouseY >= infoY && mouseY <= getHeight() - 6) {
             tooltip.add(Component.literal("Duration: " + durationText(recipe, selectedTier) + " ticks"));
             if (recipe.cet() != 0) {
                 tooltip.add(Component.literal((recipe.generatesEnergy() ? "Generates: " : "Consumes: ") + recipe.runtimeCEt(selectedTier) + " CE/t"));
@@ -175,43 +174,49 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
         }
     }
 
-    private static void addItemInputs(IRecipeLayoutBuilder builder, int slotCount, List<SizedIngredient> inputs) {
+    private void addItemInputs(IRecipeLayoutBuilder builder, int slotCount, List<SizedIngredient> inputs) {
         for (int i = 0; i < slotCount; i++) {
-            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, slotX(LEFT_X, i), slotY(TOP, i))
-                    .setStandardSlotBackground();
+            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, layout.inputItemX(i), layout.inputItemY(i));
+
             if (i < inputs.size()) {
-                List<ItemStack> stacks = Arrays.asList(inputs.get(i).ingredient().getItems());
-                slot.addIngredients(VanillaTypes.ITEM_STACK, stacks);
+                slot.addItemStacks(stacksWithCount(inputs.get(i)));
             }
         }
     }
 
-    private static void addFluidInputs(IRecipeLayoutBuilder builder, int itemInputCount, int slotCount, List<SizedFluidIngredient> inputs) {
-        int y = fluidY(TOP, itemInputCount, slotCount);
+    private static List<ItemStack> stacksWithCount(SizedIngredient ingredient) {
+        int count = ingredient.count();
+
+        return Arrays.stream(ingredient.ingredient().getItems())
+                .map(stack -> {
+                    ItemStack copy = stack.copy();
+                    copy.setCount(Math.max(1, count));
+                    return copy;
+                })
+                .toList();
+    }
+
+    private void addFluidInputs(IRecipeLayoutBuilder builder, int itemInputCount, int slotCount, List<SizedFluidIngredient> inputs) {
         for (int i = 0; i < slotCount; i++) {
-            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, slotX(LEFT_X, i), slotY(y, i))
-                    .setStandardSlotBackground();
+            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, layout.inputFluidX(i), layout.inputFluidY(i));
             if (i < inputs.size()) {
                 addFluidIngredient(slot, inputs.get(i));
             }
         }
     }
 
-    private static void addItemOutputs(IRecipeLayoutBuilder builder, int slotCount, List<CEChancedItemOutput> outputs) {
+    private void addItemOutputs(IRecipeLayoutBuilder builder, int slotCount, List<CEChancedItemOutput> outputs) {
         for (int i = 0; i < slotCount; i++) {
-            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, slotX(RIGHT_X, i), slotY(TOP, i))
-                    .setStandardSlotBackground();
+            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, layout.outputItemX(i), layout.outputItemY(i));
             if (i < outputs.size()) {
                 slot.addItemStack(outputs.get(i).stack());
             }
         }
     }
 
-    private static void addFluidOutputs(IRecipeLayoutBuilder builder, int itemOutputCount, int slotCount, List<FluidStack> outputs) {
-        int y = fluidY(TOP, itemOutputCount, slotCount);
+    private void addFluidOutputs(IRecipeLayoutBuilder builder, int itemOutputCount, int slotCount, List<FluidStack> outputs) {
         for (int i = 0; i < slotCount; i++) {
-            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, slotX(RIGHT_X, i), slotY(y, i))
-                    .setStandardSlotBackground();
+            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, layout.outputFluidX(i), layout.outputFluidY(i));
             if (i < outputs.size()) {
                 addFluidStack(slot, outputs.get(i));
             }
@@ -233,32 +238,53 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
                 .addFluidStack(stack.getFluid(), stack.getAmount(), stack.getComponentsPatch());
     }
 
-    private static void drawSection(GuiGraphics guiGraphics, net.minecraft.client.gui.Font font, String label, int x, int y, int count, int fillColor) {
-        if (count <= 0) {
-            return;
+    private void drawSlots(
+            GuiGraphics graphics,
+            int itemInputs,
+            int fluidInputs,
+            int itemOutputs,
+        int fluidOutputs
+    ) {
+        for (int i = 0; i < itemInputs; i++) {
+            drawJeiSlot(graphics, layout.inputItemX(i), layout.inputItemY(i), false, false);
         }
-
-        int columns = Math.min(MAX_COLUMNS, count);
-        int rows = rows(count);
-        int width = columns * SLOT_STEP - 2;
-        int height = rows * SLOT_STEP - 2;
-
-        guiGraphics.drawString(font, label, x, y - 11, 0xFFB8C0C8, false);
-        guiGraphics.fill(x - 3, y - 3, x + width + 3, y + height + 3, 0xFF17191C);
-        guiGraphics.fill(x - 2, y - 2, x + width + 2, y + height + 2, fillColor);
+        for (int i = 0; i < fluidInputs; i++) {
+            drawJeiSlot(graphics, layout.inputFluidX(i), layout.inputFluidY(i), true, false);
+        }
+        for (int i = 0; i < itemOutputs; i++) {
+            drawJeiSlot(graphics, layout.outputItemX(i), layout.outputItemY(i), false, true);
+        }
+        for (int i = 0; i < fluidOutputs; i++) {
+            drawJeiSlot(graphics, layout.outputFluidX(i), layout.outputFluidY(i), true, true);
+        }
     }
 
-    private static void drawArrow(GuiGraphics guiGraphics, int centerY) {
-        int x = 77;
-        int y = centerY - 1;
-        guiGraphics.fill(x, y, x + 22, y + 2, 0xFF9EA6AF);
-        guiGraphics.fill(x + 22, y - 4, x + 24, y + 6, 0xFF9EA6AF);
-        guiGraphics.fill(x + 24, y - 3, x + 26, y + 5, 0xFF9EA6AF);
-        guiGraphics.fill(x + 26, y - 2, x + 28, y + 4, 0xFF9EA6AF);
-        guiGraphics.fill(x + 28, y - 1, x + 30, y + 3, 0xFF9EA6AF);
+    private static void drawJeiSlot(GuiGraphics graphics, int contentX, int contentY, boolean fluid, boolean output) {
+        int frameX = contentX - 1;
+        int frameY = contentY - 1;
+        if (fluid) {
+            CEMachineGuiTextures.drawFluidSlot(graphics, frameX, frameY);
+        } else {
+            CEMachineGuiTextures.drawItemSlot(graphics, frameX, frameY);
+        }
+        if (output) {
+            CEMachineGuiTextures.drawOutputOverlay(graphics, frameX, frameY);
+        } else {
+            CEMachineGuiTextures.drawInputOverlay(graphics, frameX, frameY);
+        }
     }
 
-    private static void drawInfo(GuiGraphics guiGraphics, net.minecraft.client.gui.Font font, CERecipe recipe, MachineTier selectedTier, int startY) {
+    private void drawProgressBar(GuiGraphics guiGraphics, float progress) {
+        CEMachineGuiTextures.drawProgressBar(
+                guiGraphics,
+                recipeType.progressBar(),
+                layout.progressX(),
+                layout.progressY(),
+                progress
+        );
+    }
+
+    private void drawInfo(GuiGraphics guiGraphics, net.minecraft.client.gui.Font font, CERecipe recipe, MachineTier selectedTier, int startY) {
         List<String> lines = new ArrayList<>();
         lines.add("Duration: " + durationText(recipe, selectedTier) + " t");
         if (recipe.cet() != 0) {
@@ -275,9 +301,7 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
 
         for (int i = 0; i < lines.size(); i++) {
             int y = startY + i * INFO_ROW_HEIGHT;
-            guiGraphics.fill(8, y - 1, WIDTH - 8, y + 9, 0xFF17191C);
-            guiGraphics.fill(9, y, WIDTH - 9, y + 8, 0xFF31363D);
-            guiGraphics.drawString(font, lines.get(i), 12, y, 0xFFE6EAEE, false);
+            guiGraphics.drawString(font, lines.get(i), 12, y, 0xFF404040, false);
         }
     }
 
@@ -329,16 +353,17 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
                 .orElse(0);
     }
 
-    private static void drawTierButton(CERecipe recipe, MachineTier selectedTier, GuiGraphics guiGraphics, net.minecraft.client.gui.Font font, int height) {
+    private void drawTierButton(CERecipe recipe, MachineTier selectedTier, GuiGraphics guiGraphics, net.minecraft.client.gui.Font font, int height) {
         if (!hasTierButton(recipe)) {
             return;
         }
 
         int color = 0xFF000000 | selectedTier.color();
+        int x = tierButtonX();
         int y = tierButtonY(height);
-        guiGraphics.fill(TIER_BUTTON_X, y, TIER_BUTTON_X + TIER_BUTTON_WIDTH, y + TIER_BUTTON_HEIGHT, 0xFF111315);
-        guiGraphics.fill(TIER_BUTTON_X + 1, y + 1, TIER_BUTTON_X + TIER_BUTTON_WIDTH - 1, y + TIER_BUTTON_HEIGHT - 1, color);
-        int textX = TIER_BUTTON_X + (TIER_BUTTON_WIDTH - font.width(selectedTier.displayName())) / 2;
+        guiGraphics.fill(x, y, x + TIER_BUTTON_WIDTH, y + TIER_BUTTON_HEIGHT, 0xFF111315);
+        guiGraphics.fill(x + 1, y + 1, x + TIER_BUTTON_WIDTH - 1, y + TIER_BUTTON_HEIGHT - 1, color);
+        int textX = x + (TIER_BUTTON_WIDTH - font.width(selectedTier.displayName())) / 2;
         guiGraphics.drawString(font, selectedTier.displayName(), textX, y + 3, 0xFFFFFFFF, false);
     }
 
@@ -417,6 +442,18 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
         return count <= 0 ? 0 : (count + MAX_COLUMNS - 1) / MAX_COLUMNS;
     }
 
+    private static int gridWidth() {
+        return MAX_COLUMNS * SLOT_STEP - 2;
+    }
+
+    private int rightX() {
+        return getWidth() - LEFT_X - gridWidth();
+    }
+
+    private int tierButtonX() {
+        return getWidth() - 47;
+    }
+
     private static boolean inside(double mouseX, double mouseY, int x, int y, int width, int height) {
         return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
@@ -436,12 +473,12 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
 
         @Override
         public ScreenRectangle getArea() {
-            return new ScreenRectangle(0, 0, WIDTH, category.getHeight());
+            return new ScreenRectangle(0, 0, category.getWidth(), category.getHeight());
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (!hasTierButton(recipe) || !inside(mouseX, mouseY, TIER_BUTTON_X, tierButtonY(category.getHeight()), TIER_BUTTON_WIDTH, TIER_BUTTON_HEIGHT)) {
+            if (!hasTierButton(recipe) || !inside(mouseX, mouseY, category.tierButtonX(), tierButtonY(category.getHeight()), TIER_BUTTON_WIDTH, TIER_BUTTON_HEIGHT)) {
                 return false;
             }
 

@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:copernicium_nugget"
+    },
+    {
+      "item": "create_expansion:copernicium_nugget"
+    },
+    {
+      "item": "create_expansion:copernicium_nugget"
+    },
+    {
+      "item": "create_expansion:copernicium_nugget"
+    },
+    {
+      "item": "create_expansion:copernicium_nugget"
+    },
+    {
+      "item": "create_expansion:copernicium_nugget"
+    },
+    {
+      "item": "create_expansion:copernicium_nugget"
+    },
+    {
+      "item": "create_expansion:copernicium_nugget"
+    },
+    {
+      "item": "create_expansion:copernicium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:copernicium_ingot"
+    }
+  ]
+}

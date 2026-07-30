@@ -1,10 +1,5 @@
 {
   "values": [
-    "create_expansion:bronze_cast_plate_mold",
-    "create_expansion:wrought_iron_cast_plate_mold",
-    "create_expansion:brass_cast_plate_mold",
-    "create_expansion:electrum_cast_plate_mold",
-    "create_expansion:andesite_alloy_cast_plate_mold",
     "create_expansion:lithium_cast_plate_mold",
     "create_expansion:beryllium_cast_plate_mold",
     "create_expansion:sodium_cast_plate_mold",
@@ -94,6 +89,12 @@
     "create_expansion:nihonium_cast_plate_mold",
     "create_expansion:flerovium_cast_plate_mold",
     "create_expansion:moscovium_cast_plate_mold",
-    "create_expansion:livermorium_cast_plate_mold"
+    "create_expansion:livermorium_cast_plate_mold",
+    "create_expansion:bronze_cast_plate_mold",
+    "create_expansion:steel_cast_plate_mold",
+    "create_expansion:wrought_iron_cast_plate_mold",
+    "create_expansion:brass_cast_plate_mold",
+    "create_expansion:electrum_cast_plate_mold",
+    "create_expansion:andesite_alloy_cast_plate_mold"
   ]
 }

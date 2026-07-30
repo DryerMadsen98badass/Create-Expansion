@@ -10,6 +10,7 @@ public enum MaterialPart {
     NETHERRACK_ORE("netherrack_ore", "Netherrack Ore", Kind.BLOCK),
     BLACKSTONE_ORE("blackstone_ore", "Blackstone Ore", Kind.BLOCK),
     END_STONE_ORE("end_stone_ore", "End Stone Ore", Kind.BLOCK),
+    STONES("stones", "Stones", Kind.BLOCK),
     RAW_ORE("raw_ore", "Raw Ore", Kind.ITEM),
     RAW_BLOCK("raw_block", "Raw Block", Kind.BLOCK),
 

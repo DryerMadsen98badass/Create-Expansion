@@ -1,0 +1,17 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "type": "neoforge:single",
+      "amount": 250,
+      "fluid": "create_expansion:fermentation_mash"
+    }
+  ],
+  "processing_time": 2400,
+  "results": [
+    {
+      "amount": 250,
+      "id": "create_expansion:fermented_mash"
+    }
+  ]
+}

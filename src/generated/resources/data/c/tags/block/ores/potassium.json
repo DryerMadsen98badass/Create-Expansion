@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:potassium_andesite_ore",
-    "create_expansion:potassium_diorite_ore",
-    "create_expansion:potassium_ore",
-    "create_expansion:potassium_end_stone_ore",
-    "create_expansion:potassium_blackstone_ore",
-    "create_expansion:potassium_deepslate_ore",
-    "create_expansion:potassium_granite_ore",
     "create_expansion:potassium_netherrack_ore",
-    "create_expansion:potassium_tuff_ore"
+    "create_expansion:potassium_deepslate_ore",
+    "create_expansion:potassium_andesite_ore",
+    "create_expansion:potassium_end_stone_ore",
+    "create_expansion:potassium_diorite_ore",
+    "create_expansion:potassium_tuff_ore",
+    "create_expansion:potassium_blackstone_ore",
+    "create_expansion:potassium_ore",
+    "create_expansion:potassium_granite_ore"
   ]
 }

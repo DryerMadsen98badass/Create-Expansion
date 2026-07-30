@@ -1,0 +1,14 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "create_expansion:boron_gem"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "id": "create_expansion:boron_dust"
+    }
+  ]
+}

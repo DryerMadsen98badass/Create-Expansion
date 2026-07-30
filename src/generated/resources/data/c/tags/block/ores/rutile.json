@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:rutile_andesite_ore",
-    "create_expansion:rutile_diorite_ore",
-    "create_expansion:rutile_ore",
-    "create_expansion:rutile_end_stone_ore",
-    "create_expansion:rutile_blackstone_ore",
-    "create_expansion:rutile_deepslate_ore",
-    "create_expansion:rutile_granite_ore",
     "create_expansion:rutile_netherrack_ore",
-    "create_expansion:rutile_tuff_ore"
+    "create_expansion:rutile_deepslate_ore",
+    "create_expansion:rutile_andesite_ore",
+    "create_expansion:rutile_end_stone_ore",
+    "create_expansion:rutile_diorite_ore",
+    "create_expansion:rutile_tuff_ore",
+    "create_expansion:rutile_blackstone_ore",
+    "create_expansion:rutile_ore",
+    "create_expansion:rutile_granite_ore"
   ]
 }

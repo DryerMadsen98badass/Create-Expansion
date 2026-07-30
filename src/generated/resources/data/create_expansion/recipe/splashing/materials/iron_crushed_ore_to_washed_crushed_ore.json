@@ -1,0 +1,16 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create:crushed_raw_iron"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:iron_washed_crushed_ore"
+    },
+    {
+      "id": "create_expansion:stone_dust"
+    }
+  ]
+}

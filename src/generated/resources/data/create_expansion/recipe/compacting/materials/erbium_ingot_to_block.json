@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:erbium_ingot"
+    },
+    {
+      "item": "create_expansion:erbium_ingot"
+    },
+    {
+      "item": "create_expansion:erbium_ingot"
+    },
+    {
+      "item": "create_expansion:erbium_ingot"
+    },
+    {
+      "item": "create_expansion:erbium_ingot"
+    },
+    {
+      "item": "create_expansion:erbium_ingot"
+    },
+    {
+      "item": "create_expansion:erbium_ingot"
+    },
+    {
+      "item": "create_expansion:erbium_ingot"
+    },
+    {
+      "item": "create_expansion:erbium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:erbium_block"
+    }
+  ]
+}

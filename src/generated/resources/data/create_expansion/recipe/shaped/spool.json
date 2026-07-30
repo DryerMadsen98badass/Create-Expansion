@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:string"
+    }
+  },
+  "pattern": [
+    "AAA",
+    " A ",
+    "AAA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_expansion:spool"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "create:sandpaper_polishing",
+  "ingredients": [
+    {
+      "item": "create_expansion:wood_plate"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:wood_gear"
+    }
+  ]
+}

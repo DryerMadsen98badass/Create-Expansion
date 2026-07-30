@@ -15,9 +15,11 @@ Start here:
 - recipes\turning recipes.txt
 - recipes\machine recipes.txt
 - recipes\adding recipe types.txt
+- simple blocks.txt
 - Create\How to implement a Create kinetic block.txt
 - multiblocks.txt
 - kinetic machines.txt
+- active blocks.txt
 
 Main rule
 ---------

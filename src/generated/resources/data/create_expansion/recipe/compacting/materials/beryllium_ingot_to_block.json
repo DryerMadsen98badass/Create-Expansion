@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:beryllium_ingot"
+    },
+    {
+      "item": "create_expansion:beryllium_ingot"
+    },
+    {
+      "item": "create_expansion:beryllium_ingot"
+    },
+    {
+      "item": "create_expansion:beryllium_ingot"
+    },
+    {
+      "item": "create_expansion:beryllium_ingot"
+    },
+    {
+      "item": "create_expansion:beryllium_ingot"
+    },
+    {
+      "item": "create_expansion:beryllium_ingot"
+    },
+    {
+      "item": "create_expansion:beryllium_ingot"
+    },
+    {
+      "item": "create_expansion:beryllium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:beryllium_block"
+    }
+  ]
+}

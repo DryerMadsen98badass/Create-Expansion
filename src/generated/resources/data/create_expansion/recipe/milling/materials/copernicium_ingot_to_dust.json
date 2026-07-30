@@ -1,0 +1,14 @@
+{
+  "type": "create:milling",
+  "ingredients": [
+    {
+      "item": "create_expansion:copernicium_ingot"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "id": "create_expansion:copernicium_dust"
+    }
+  ]
+}

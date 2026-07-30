@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:uranium_andesite_ore",
-    "create_expansion:uranium_diorite_ore",
-    "create_expansion:uranium_ore",
-    "create_expansion:uranium_end_stone_ore",
-    "create_expansion:uranium_blackstone_ore",
-    "create_expansion:uranium_deepslate_ore",
-    "create_expansion:uranium_granite_ore",
     "create_expansion:uranium_netherrack_ore",
-    "create_expansion:uranium_tuff_ore"
+    "create_expansion:uranium_deepslate_ore",
+    "create_expansion:uranium_andesite_ore",
+    "create_expansion:uranium_end_stone_ore",
+    "create_expansion:uranium_diorite_ore",
+    "create_expansion:uranium_tuff_ore",
+    "create_expansion:uranium_blackstone_ore",
+    "create_expansion:uranium_ore",
+    "create_expansion:uranium_granite_ore"
   ]
 }

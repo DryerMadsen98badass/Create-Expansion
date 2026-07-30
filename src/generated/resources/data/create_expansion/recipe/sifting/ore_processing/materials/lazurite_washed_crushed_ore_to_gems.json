@@ -1,0 +1,24 @@
+{
+  "type": "create_expansion:sifting",
+  "ingredients": [
+    {
+      "item": "create_expansion:lazurite_washed_crushed_ore"
+    }
+  ],
+  "min_rpm": 64,
+  "processing_time": 200,
+  "results": [
+    {
+      "chance": 0.75,
+      "id": "create_expansion:lazurite_gem"
+    },
+    {
+      "chance": 0.25,
+      "id": "create_expansion:lazurite_flawless_gem"
+    },
+    {
+      "chance": 0.05,
+      "id": "create_expansion:lazurite_exquisite_gem"
+    }
+  ]
+}

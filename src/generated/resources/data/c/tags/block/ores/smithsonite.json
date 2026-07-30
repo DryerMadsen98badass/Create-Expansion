@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:smithsonite_andesite_ore",
-    "create_expansion:smithsonite_diorite_ore",
-    "create_expansion:smithsonite_ore",
-    "create_expansion:smithsonite_end_stone_ore",
-    "create_expansion:smithsonite_blackstone_ore",
-    "create_expansion:smithsonite_deepslate_ore",
-    "create_expansion:smithsonite_granite_ore",
     "create_expansion:smithsonite_netherrack_ore",
-    "create_expansion:smithsonite_tuff_ore"
+    "create_expansion:smithsonite_deepslate_ore",
+    "create_expansion:smithsonite_andesite_ore",
+    "create_expansion:smithsonite_end_stone_ore",
+    "create_expansion:smithsonite_diorite_ore",
+    "create_expansion:smithsonite_tuff_ore",
+    "create_expansion:smithsonite_blackstone_ore",
+    "create_expansion:smithsonite_ore",
+    "create_expansion:smithsonite_granite_ore"
   ]
 }

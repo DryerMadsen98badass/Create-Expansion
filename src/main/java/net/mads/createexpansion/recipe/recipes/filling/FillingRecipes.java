@@ -1,27 +1,39 @@
 package net.mads.createexpansion.recipe.recipes.filling;
 
-import com.google.gson.JsonObject;
+import net.mads.createexpansion.recipe.recipes.CreateRecipeBuilder;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static net.mads.createexpansion.recipe.recipes.CreateRecipeJson.*;
-
 public final class FillingRecipes {
     private FillingRecipes() {
     }
 
     public static void build(List<CompletableFuture<?>> futures, CachedOutput output, PackOutput.PathProvider recipes) {
-        // save(futures, output, recipes, "filling/test/water_bottle", filling("minecraft:glass_bottle", "minecraft:water", 250, "minecraft:potion"));
-    }
+        CreateRecipeBuilder.filling(futures, output, recipes, "filling/treated_wood_from_spruce")
+                .inputItem("minecraft:spruce_planks")
+                .inputFluid("create_expansion:creosote_oil", 100)
+                .outputItem("create_expansion:treated_wood")
+                .save();
 
-    private static JsonObject filling(String itemInput, String fluidInput, int amount, String output) {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", "create:filling");
-        json.add("ingredients", ingredients(item(itemInput), fluid(fluidInput, amount)));
-        json.add("results", results(result(output)));
-        return json;
+        CreateRecipeBuilder.filling(futures, output, recipes, "filling/treated_wood_from_oak")
+                .inputItem("minecraft:oak_planks")
+                .inputFluid("create_expansion:creosote_oil", 100)
+                .outputItem("create_expansion:treated_wood")
+                .save();
+
+        CreateRecipeBuilder.filling(futures, output, recipes, "filling/electron_tube")
+                .inputItem("create:polished_rose_quartz")
+                .inputFluid("create_expansion:molten_iron", 144)
+                .outputItem("create:electron_tube")
+                .save();
+
+        CreateRecipeBuilder.filling(futures, output, recipes, "filling/treated_wood_from_birch")
+                .inputItem("minecraft:birch_planks")
+                .inputFluid("create_expansion:creosote_oil", 100)
+                .outputItem("create_expansion:treated_wood")
+                .save();
     }
 }

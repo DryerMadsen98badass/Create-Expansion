@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 200,
+  "experience": 0.7,
+  "ingredient": {
+    "item": "create_expansion:lepidolite_purified_dust"
+  },
+  "result": {
+    "id": "create_expansion:lithium_nugget"
+  }
+}

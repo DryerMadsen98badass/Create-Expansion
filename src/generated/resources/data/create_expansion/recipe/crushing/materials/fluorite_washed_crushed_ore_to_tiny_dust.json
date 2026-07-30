@@ -1,0 +1,15 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "create_expansion:fluorite_washed_crushed_ore"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "count": 6,
+      "id": "create_expansion:fluorite_tiny_dust"
+    }
+  ]
+}

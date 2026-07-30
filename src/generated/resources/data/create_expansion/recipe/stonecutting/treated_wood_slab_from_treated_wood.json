@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "create_expansion:treated_wood"
+  },
+  "result": {
+    "count": 2,
+    "id": "create_expansion:treated_wood_slab"
+  }
+}

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:fermium_andesite_ore",
-    "create_expansion:fermium_diorite_ore",
-    "create_expansion:fermium_ore",
-    "create_expansion:fermium_end_stone_ore",
-    "create_expansion:fermium_blackstone_ore",
-    "create_expansion:fermium_deepslate_ore",
-    "create_expansion:fermium_granite_ore",
     "create_expansion:fermium_netherrack_ore",
-    "create_expansion:fermium_tuff_ore"
+    "create_expansion:fermium_deepslate_ore",
+    "create_expansion:fermium_andesite_ore",
+    "create_expansion:fermium_end_stone_ore",
+    "create_expansion:fermium_diorite_ore",
+    "create_expansion:fermium_tuff_ore",
+    "create_expansion:fermium_blackstone_ore",
+    "create_expansion:fermium_ore",
+    "create_expansion:fermium_granite_ore"
   ]
 }

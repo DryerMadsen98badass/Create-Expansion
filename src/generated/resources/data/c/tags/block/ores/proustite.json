@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:proustite_andesite_ore",
-    "create_expansion:proustite_diorite_ore",
-    "create_expansion:proustite_ore",
-    "create_expansion:proustite_end_stone_ore",
-    "create_expansion:proustite_blackstone_ore",
-    "create_expansion:proustite_deepslate_ore",
-    "create_expansion:proustite_granite_ore",
     "create_expansion:proustite_netherrack_ore",
-    "create_expansion:proustite_tuff_ore"
+    "create_expansion:proustite_deepslate_ore",
+    "create_expansion:proustite_andesite_ore",
+    "create_expansion:proustite_end_stone_ore",
+    "create_expansion:proustite_diorite_ore",
+    "create_expansion:proustite_tuff_ore",
+    "create_expansion:proustite_blackstone_ore",
+    "create_expansion:proustite_ore",
+    "create_expansion:proustite_granite_ore"
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "minecraft:andesite_slab"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:cogwheel"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 1,
+      "item": "create:shaft"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    }
+  ],
+  "result": {
+    "id": "create:millstone"
+  }
+}

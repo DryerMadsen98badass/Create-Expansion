@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 200,
+  "experience": 0.7,
+  "ingredient": {
+    "item": "create_expansion:ilmenite_raw_ore"
+  },
+  "result": {
+    "id": "create_expansion:titanium_nugget"
+  }
+}

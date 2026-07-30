@@ -28,6 +28,10 @@ import net.mads.createexpansion.data.ModDataGenerators;
 
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockDefinitions;
 import net.mads.createexpansion.machine.machines.kinetic.KineticMachineStress;
+import net.mads.createexpansion.recipe.remove.RecipeRemovalEvents;
+import net.mads.createexpansion.worldgen.OreVeinLocator;
+import net.minecraft.server.level.ServerLevel;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
 
 
@@ -80,6 +84,7 @@ public class CreateExpansion {
         
 
         NeoForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.addListener(RecipeRemovalEvents::onDatapackSync);
 
     }
 
@@ -104,6 +109,13 @@ public class CreateExpansion {
 
         MyCommand.register(event.getDispatcher());
 
+    }
+
+    @SubscribeEvent
+    public void onLevelLoad(LevelEvent.Load event) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            OreVeinLocator.ensureSavedData(level);
+        }
     }
 
 }

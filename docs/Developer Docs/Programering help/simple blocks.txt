@@ -1,0 +1,56 @@
+Create Expansion - Simple Blocks
+================================
+
+Use simple blocks for normal full blocks and their optional slab/stair/wall/fence/button/pressure plate variants.
+
+Definition file
+---------------
+Add new entries here:
+
+src/main/java/net/mads/createexpansion/block/SimpleBlocks.java
+
+Example:
+
+block("firebricks", "Firebricks")
+
+Variants:
+
+blockColor("treated_wood", "Treated Wood", "minecraft:block/oak_planks", 0xFF6B4526).all()
+
+Custom face textures:
+
+blockCustom(
+        "example_custom_block",
+        "Example Custom Block",
+        "block/example_north",
+        "block/example_east",
+        "block/example_south",
+        "block/example_west",
+        "block/example_top",
+        "block/example_bottom"
+)
+
+The six texture arguments are north, east, south, west, top, and bottom.
+They use the same texture path rules as `blockColor`: namespace paths like
+`minecraft:block/oak_planks` are accepted, and local paths resolve under
+`assets/create_expansion/textures/`.
+
+Tool selection
+--------------
+Simple blocks default to pickaxe mining and stone-tool drop level.
+
+To change the mineable tool tags, add `.mineableWith(...)`:
+
+block("example_wood_block", "Example Wood Block")
+        .mineableWith(MiningTool.AXE)
+
+Multiple tools are allowed:
+
+block("example_multi_tool_block", "Example Multi Tool Block")
+        .mineableWith(MiningTool.PICKAXE, MiningTool.AXE)
+
+The same mining tags are applied to all variants generated from that simple block.
+
+After changing definitions
+--------------------------
+Run datagen so blockstates, models, language, loot, recipes, and mining tags are updated.

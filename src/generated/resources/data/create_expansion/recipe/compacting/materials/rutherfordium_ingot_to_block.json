@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:rutherfordium_ingot"
+    },
+    {
+      "item": "create_expansion:rutherfordium_ingot"
+    },
+    {
+      "item": "create_expansion:rutherfordium_ingot"
+    },
+    {
+      "item": "create_expansion:rutherfordium_ingot"
+    },
+    {
+      "item": "create_expansion:rutherfordium_ingot"
+    },
+    {
+      "item": "create_expansion:rutherfordium_ingot"
+    },
+    {
+      "item": "create_expansion:rutherfordium_ingot"
+    },
+    {
+      "item": "create_expansion:rutherfordium_ingot"
+    },
+    {
+      "item": "create_expansion:rutherfordium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:rutherfordium_block"
+    }
+  ]
+}

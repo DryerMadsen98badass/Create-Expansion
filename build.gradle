@@ -24,6 +24,7 @@ sourceSets.main.resources {
     // Exclude common development only resources from finalized outputs
     exclude("**/*.bbmodel") // BlockBench project files
     exclude("src/generated/**/.cache") // datagen cache files
+    exclude("data/create_expansion/recipe/**/test/**") // Create recipe examples are development-only
 }
 
 repositories {

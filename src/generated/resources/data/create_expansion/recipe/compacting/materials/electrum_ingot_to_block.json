@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:electrum_ingot"
+    },
+    {
+      "item": "create_expansion:electrum_ingot"
+    },
+    {
+      "item": "create_expansion:electrum_ingot"
+    },
+    {
+      "item": "create_expansion:electrum_ingot"
+    },
+    {
+      "item": "create_expansion:electrum_ingot"
+    },
+    {
+      "item": "create_expansion:electrum_ingot"
+    },
+    {
+      "item": "create_expansion:electrum_ingot"
+    },
+    {
+      "item": "create_expansion:electrum_ingot"
+    },
+    {
+      "item": "create_expansion:electrum_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:electrum_block"
+    }
+  ]
+}

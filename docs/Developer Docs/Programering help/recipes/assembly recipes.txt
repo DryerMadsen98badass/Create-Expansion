@@ -1,0 +1,37 @@
+Assembly recipes
+================
+
+Assembly recipes are custom Create Expansion recipes with type `create_expansion:assembly`.
+They are applied directly to the base block in the world, not by Create sequenced assembly and not
+by a separate machine block.
+
+Player flow:
+
+1. Place the base block in the world.
+2. Right-click that block with each required input item in order.
+3. When the final input is accepted, the base block is replaced by the output block if the output is
+   a block item. Non-block outputs drop as an item and remove the base block.
+
+Datagen example:
+
+new AssemblyRecipeBuilder("test/iron_gold_block")
+        .baseBlock("minecraft:iron_block")
+        .inputItem("minecraft:iron_ingot", 4)
+        .inputItem("minecraft:gold_ingot", 2)
+        .loops(1)
+        .outputBlock("minecraft:gold_block")
+        .save(output);
+
+Rules:
+
+- `baseBlock(...)` must point to a block item.
+- `inputItem(id, count)` calls are ordered. The count is the number of manual right-clicks required,
+  not the number consumed in one click. Example: count 4 means four separate right-clicks, each
+  consuming one item.
+- `loops(n)` repeats the whole input chain n times before the output is created.
+- Recipes may contain any number of input steps.
+- JEI shows the base, output, and the first 16 configured input groups in order with their click counts.
+- Jade on the active world block shows total progress plus the current input group and the next two
+  input groups in the looped order. Example after the first application in `4 iron, 2 gold`:
+  `4 iron`, `2 gold`, `4 iron`.
+- Successful clicks spawn small particles; completion spawns a larger burst.

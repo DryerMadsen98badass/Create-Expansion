@@ -1,0 +1,24 @@
+{
+  "type": "create_expansion:machine",
+  "cet": 0,
+  "duration": 400,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "create_expansion:cooperite_purified_dust"
+    },
+    {
+      "count": 8,
+      "item": "create_expansion:bio_char_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 4,
+        "id": "create_expansion:platinum_nugget"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:blast_furnace"
+}

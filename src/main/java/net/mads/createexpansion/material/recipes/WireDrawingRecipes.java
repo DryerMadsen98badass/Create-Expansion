@@ -17,6 +17,13 @@ public final class WireDrawingRecipes {
     }
 
     public static void build(RecipeOutput output, HolderLookup.Provider holderLookup) {
+        recipe("test/iron_ingot_to_chain")
+                .inputItem("minecraft:iron_ingot")
+                .outputItem("minecraft:chain")
+                .duration(100)
+                .maxRpm(128)
+                .save(output);
+
         for (IndustrialMaterial material : IndustrialMaterials.ALL) {
             if (MaterialRecipeHelper.hasItems(material, MaterialPart.PLATE, MaterialPart.WIRE)) {
                 recipe("materials/" + material.id() + "_plate_to_wire")

@@ -1,0 +1,15 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create:fluid_pipe"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:cogwheel"
+    }
+  ],
+  "result": {
+    "id": "create:mechanical_pump"
+  }
+}

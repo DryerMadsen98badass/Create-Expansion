@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "D": {
+      "item": "create_expansion:francium_small_dust"
+    }
+  },
+  "pattern": [
+    "DDD",
+    "D  ",
+    "   "
+  ],
+  "result": {
+    "count": 9,
+    "id": "create_expansion:francium_tiny_dust"
+  }
+}

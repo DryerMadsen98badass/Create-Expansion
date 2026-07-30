@@ -3,21 +3,28 @@ package net.mads.createexpansion.worldgen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class OreVeinLocator {
     private static final int CHUNK_SIZE = 16;
     private static final int DEFAULT_SEARCH_RADIUS_GRIDS = 48;
+    private static final Map<ResourceKey<Level>, Map<Long, SavedVein>> GENERATED_VEINS = new ConcurrentHashMap<>();
 
     private OreVeinLocator() {
     }
@@ -42,38 +49,69 @@ public final class OreVeinLocator {
 
     public static Optional<Result> locate(ServerLevel level, BlockPos origin, String query, int radiusGrids) {
         String normalizedQuery = normalize(query);
-        int originChunkX = Math.floorDiv(origin.getX(), CHUNK_SIZE);
-        int originChunkZ = Math.floorDiv(origin.getZ(), CHUNK_SIZE);
-        int originGridX = Math.floorDiv(originChunkX, OreDepositDefinitions.GRID_SIZE_CHUNKS);
-        int originGridZ = Math.floorDiv(originChunkZ, OreDepositDefinitions.GRID_SIZE_CHUNKS);
-        Result closest = null;
+        int maxDistanceBlocks = radiusGrids * OreDepositDefinitions.GRID_SIZE_CHUNKS * CHUNK_SIZE;
+        return locateGenerated(level, origin, normalizedQuery, maxDistanceBlocks);
+    }
 
-        for (int gridX = originGridX - radiusGrids; gridX <= originGridX + radiusGrids; gridX++) {
-            for (int gridZ = originGridZ - radiusGrids; gridZ <= originGridZ + radiusGrids; gridZ++) {
-                Optional<GridResult> resolved = resolveGrid(level, gridX, gridZ);
-                if (resolved.isEmpty() || !matches(resolved.get().deposit(), normalizedQuery)) {
-                    continue;
-                }
+    public static List<Result> listNearby(ServerLevel level, BlockPos origin, int radiusBlocks) {
+        loadSaved(level);
+        Map<Long, SavedVein> veins = GENERATED_VEINS.getOrDefault(level.dimension(), Map.of());
+        return veins.values().stream()
+                .map(vein -> toResult(vein, origin))
+                .filter(result -> result.distanceBlocks() <= radiusBlocks)
+                .sorted(Comparator.comparingInt(Result::distanceBlocks))
+                .toList();
+    }
 
-                GridResult gridResult = resolved.get();
-                int dx = gridResult.centerX() - origin.getX();
-                int dz = gridResult.centerZ() - origin.getZ();
-                int distance = Mth.floor(Math.sqrt(dx * dx + dz * dz));
-                Result candidate = new Result(
-                        gridResult.deposit().id(),
-                        new BlockPos(gridResult.centerX(), gridResult.centerY(), gridResult.centerZ()),
-                        distance,
-                        gridResult.deposit().layers().stream().map(OreDepositLayer::id).toList(),
-                        gridResult.deposit().surfaceIndicators().stream().map(indicator -> indicator.name().toLowerCase(Locale.ROOT)).toList()
-                );
+    public static void ensureSavedData(ServerLevel level) {
+        loadSaved(level);
+    }
 
-                if (closest == null || candidate.distanceBlocks() < closest.distanceBlocks()) {
-                    closest = candidate;
-                }
-            }
+    static void registerGenerated(WorldGenLevel level, OreDeposit deposit, BlockPos center, BlockPos surfaceIndicator) {
+        ResourceKey<Level> dimension = level.getLevel().dimension();
+        SavedVein vein = new SavedVein(
+                deposit,
+                center,
+                surfaceIndicator,
+                dimension.location().toString()
+        );
+        GENERATED_VEINS
+                .computeIfAbsent(dimension, ignored -> new ConcurrentHashMap<>())
+                .putIfAbsent(centerKey(center), vein);
+        OreVeinSavedData.get(level.getLevel()).addIfMissing(vein);
+    }
+
+    private static Optional<Result> locateGenerated(ServerLevel level, BlockPos origin, String normalizedQuery, int maxDistanceBlocks) {
+        loadSaved(level);
+        Map<Long, SavedVein> veins = GENERATED_VEINS.getOrDefault(level.dimension(), Map.of());
+        return veins.values().stream()
+                .filter(vein -> matches(vein.deposit(), normalizedQuery))
+                .map(vein -> toResult(vein, origin))
+                .filter(result -> result.distanceBlocks() <= maxDistanceBlocks)
+                .min(Comparator.comparingInt(Result::distanceBlocks));
+    }
+
+    private static void loadSaved(ServerLevel level) {
+        Map<Long, SavedVein> veins = GENERATED_VEINS.computeIfAbsent(level.dimension(), ignored -> new ConcurrentHashMap<>());
+        for (SavedVein vein : OreVeinSavedData.get(level).veins()) {
+            veins.putIfAbsent(centerKey(vein.center()), vein);
         }
+    }
 
-        return Optional.ofNullable(closest);
+    private static Result toResult(SavedVein vein, BlockPos origin) {
+        BlockPos center = vein.center();
+        int dx = center.getX() - origin.getX();
+        int dz = center.getZ() - origin.getZ();
+        int distance = Mth.floor(Math.sqrt(dx * dx + dz * dz));
+        return new Result(
+                vein.deposit().id(),
+                center,
+                vein.surfaceIndicator(),
+                vein.dimension(),
+                distance,
+                vein.deposit().layers().stream().map(OreDepositLayer::id).toList(),
+                vein.deposit().surfaceIndicators().stream().map(indicator -> indicator.name().toLowerCase(Locale.ROOT)).toList()
+        );
     }
 
     private static Optional<GridResult> resolveGrid(ServerLevel level, int gridX, int gridZ) {
@@ -154,6 +192,12 @@ public final class OreVeinLocator {
         return value.toLowerCase(Locale.ROOT).replace(' ', '_');
     }
 
+    private static long centerKey(BlockPos center) {
+        int chunkX = Math.floorDiv(center.getX(), CHUNK_SIZE);
+        int chunkZ = Math.floorDiv(center.getZ(), CHUNK_SIZE);
+        return (((long) chunkX) << 32) ^ (chunkZ & 0xffffffffL);
+    }
+
     private static long mixedSeed(long seed, int a, int b, int c) {
         long value = seed;
         value ^= (long) a * 0x9E3779B97F4A7C15L;
@@ -177,9 +221,19 @@ public final class OreVeinLocator {
     public record Result(
             String depositId,
             BlockPos center,
+            BlockPos surfaceIndicator,
+            String dimension,
             int distanceBlocks,
             List<String> layers,
             List<String> surfaceIndicators
+    ) {
+    }
+
+    record SavedVein(
+            OreDeposit deposit,
+            BlockPos center,
+            BlockPos surfaceIndicator,
+            String dimension
     ) {
     }
 }

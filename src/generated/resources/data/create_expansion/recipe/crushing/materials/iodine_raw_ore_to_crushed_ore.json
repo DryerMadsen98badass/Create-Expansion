@@ -1,0 +1,21 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "create_expansion:iodine_raw_ore"
+    }
+  ],
+  "processing_time": 200,
+  "results": [
+    {
+      "id": "create_expansion:iodine_crushed_ore"
+    },
+    {
+      "chance": 0.5,
+      "id": "create_expansion:iodine_crushed_ore"
+    },
+    {
+      "id": "create:experience_nugget"
+    }
+  ]
+}

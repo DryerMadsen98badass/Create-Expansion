@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:wulfenite_andesite_ore",
-    "create_expansion:wulfenite_diorite_ore",
-    "create_expansion:wulfenite_ore",
-    "create_expansion:wulfenite_end_stone_ore",
-    "create_expansion:wulfenite_blackstone_ore",
-    "create_expansion:wulfenite_deepslate_ore",
-    "create_expansion:wulfenite_granite_ore",
     "create_expansion:wulfenite_netherrack_ore",
-    "create_expansion:wulfenite_tuff_ore"
+    "create_expansion:wulfenite_deepslate_ore",
+    "create_expansion:wulfenite_andesite_ore",
+    "create_expansion:wulfenite_end_stone_ore",
+    "create_expansion:wulfenite_diorite_ore",
+    "create_expansion:wulfenite_tuff_ore",
+    "create_expansion:wulfenite_blackstone_ore",
+    "create_expansion:wulfenite_ore",
+    "create_expansion:wulfenite_granite_ore"
   ]
 }

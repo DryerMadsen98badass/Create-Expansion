@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:rolling",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    }
+  ],
+  "max_rpm": 32,
+  "results": [
+    {
+      "id": "minecraft:map"
+    }
+  ]
+}

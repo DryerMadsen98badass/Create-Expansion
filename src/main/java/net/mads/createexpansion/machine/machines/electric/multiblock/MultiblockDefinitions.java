@@ -1,12 +1,16 @@
 package net.mads.createexpansion.machine.machines.electric.multiblock;
 
-import net.mads.createexpansion.machine.machines.electric.multiblock.machines.Heater;
+import net.mads.createexpansion.machine.machines.electric.multiblock.machines.heater;
+import net.mads.createexpansion.machine.machines.without_energy.multiblock.blast_furnace;
+import net.mads.createexpansion.machine.machines.without_energy.multiblock.coke_oven;
 
 import java.util.List;
 
 public final class MultiblockDefinitions {
     public static final List<MultiblockDefinition> ALL = List.of(
-            Heater.DEFINITION
+            heater.DEFINITION,
+            blast_furnace.DEFINITION,
+            coke_oven.DEFINITION
     );
 
     private MultiblockDefinitions() {

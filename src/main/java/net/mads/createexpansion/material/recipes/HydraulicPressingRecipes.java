@@ -15,6 +15,12 @@ public final class HydraulicPressingRecipes {
     }
 
     public static void build(RecipeOutput output, HolderLookup.Provider holderLookup) {
+        recipe("test/coal_to_diamond")
+                .inputItem("minecraft:coal")
+                .outputItem("minecraft:diamond")
+                .blows(5)
+                .save(output);
+
         for (IndustrialMaterial material : IndustrialMaterials.ALL) {
             if (MaterialRecipeHelper.hasItems(material, MaterialPart.INGOT, MaterialPart.PLATE)) {
                 recipe("materials/" + material.id() + "_ingot_to_plate")

@@ -262,7 +262,7 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
         if (lastRecipe.consumesItem()) {
             ItemStack inputStack = inputInv.getStackInSlot(0);
             ItemStack craftingRemainingItem = inputStack.getCraftingRemainingItem();
-            inputStack.shrink(1);
+            inputStack.shrink(lastRecipe.consumedItemCount());
             inputInv.setStackInSlot(0, inputStack);
             if (!craftingRemainingItem.isEmpty()) {
                 ItemHandlerHelper.insertItemStacked(outputInv, craftingRemainingItem, false);

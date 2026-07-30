@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:terbium_ingot"
+    },
+    {
+      "item": "create_expansion:terbium_ingot"
+    },
+    {
+      "item": "create_expansion:terbium_ingot"
+    },
+    {
+      "item": "create_expansion:terbium_ingot"
+    },
+    {
+      "item": "create_expansion:terbium_ingot"
+    },
+    {
+      "item": "create_expansion:terbium_ingot"
+    },
+    {
+      "item": "create_expansion:terbium_ingot"
+    },
+    {
+      "item": "create_expansion:terbium_ingot"
+    },
+    {
+      "item": "create_expansion:terbium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:terbium_block"
+    }
+  ]
+}

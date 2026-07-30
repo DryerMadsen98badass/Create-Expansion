@@ -1,0 +1,16 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:cerium_crushed_ore"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:cerium_washed_crushed_ore"
+    },
+    {
+      "id": "create_expansion:stone_dust"
+    }
+  ]
+}

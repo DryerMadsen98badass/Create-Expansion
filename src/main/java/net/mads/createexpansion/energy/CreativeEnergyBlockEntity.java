@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 public class CreativeEnergyBlockEntity extends BlockEntity {
     private MachineTier tier = MachineTier.ULV;
     private int amps = 1;
-    private int stored;
+    private long stored;
     private final CEEnergyContainer container = new CreativeContainer();
 
     public CreativeEnergyBlockEntity(BlockPos pos, BlockState blockState) {
@@ -35,11 +35,11 @@ public class CreativeEnergyBlockEntity extends BlockEntity {
         return amps;
     }
 
-    public int ceStored() {
+    public long ceStored() {
         return stored;
     }
 
-    public int ceCapacity() {
+    public long ceCapacity() {
         return MachineTierStats.ceCapacity(tier);
     }
 
@@ -93,7 +93,7 @@ public class CreativeEnergyBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
         tag.putString("Tier", tier.id());
         tag.putInt("Amps", amps);
-        tag.putInt("CE", stored);
+        tag.putLong("CE", stored);
     }
 
     @Override
@@ -106,47 +106,50 @@ public class CreativeEnergyBlockEntity extends BlockEntity {
                     .orElse(MachineTier.ULV);
         }
         amps = Math.max(1, tag.getInt("Amps"));
-        stored = Math.max(0, Math.min(tag.getInt("CE"), ceCapacity()));
+        stored = Math.max(0L, Math.min(tag.getLong("CE"), ceCapacity()));
     }
 
     private class CreativeContainer implements CEEnergyContainer {
+        private long acceptedAmperage;
+        private long lastInputTick = Long.MIN_VALUE;
+
         @Override
         public MachineTier tier() {
             return CreativeEnergyBlockEntity.this.tier;
         }
 
         @Override
-        public int voltage() {
+        public long voltage() {
             return MachineTierStats.ceTier(tier);
         }
 
         @Override
-        public int getEnergyStored() {
+        public long getEnergyStored() {
             return ceStored();
         }
 
         @Override
-        public int getEnergyCapacity() {
+        public long getEnergyCapacity() {
             return ceCapacity();
         }
 
         @Override
-        public int getInputAmperage() {
+        public long getInputAmperage() {
             return provider() ? 0 : amps;
         }
 
         @Override
-        public int getOutputAmperage() {
+        public long getOutputAmperage() {
             return provider() ? amps : 0;
         }
 
         @Override
-        public int getInputVoltage() {
+        public long getInputVoltage() {
             return MachineTierStats.ceTier(tier);
         }
 
         @Override
-        public int getOutputVoltage() {
+        public long getOutputVoltage() {
             return MachineTierStats.ceTier(tier);
         }
 
@@ -161,30 +164,40 @@ public class CreativeEnergyBlockEntity extends BlockEntity {
         }
 
         @Override
-        public int acceptEnergyFromNetwork(Direction side, int voltage, int amperage) {
+        public long acceptEnergyFromNetwork(Direction side, long voltage, long amperage) {
             if (!inputsEnergy(side) || voltage <= 0 || amperage <= 0) {
                 return 0;
             }
             if (voltage > getInputVoltage()) {
                 explodeEnergyBlock();
-                return 0;
+                return Math.min(amperage, remainingInputAmperage());
             }
-            int acceptedAmps = Math.min(amperage, getInputAmperage());
+            long acceptedAmps = Math.min(amperage, remainingInputAmperage());
             acceptedAmps = Math.min(acceptedAmps, (ceCapacity() - stored) / voltage);
             if (acceptedAmps > 0) {
                 changeEnergy(acceptedAmps * voltage);
+                acceptedAmperage += acceptedAmps;
             }
             return acceptedAmps;
         }
 
         @Override
-        public int changeEnergy(int differenceAmount) {
-            int previous = stored;
-            stored = Math.max(0, Math.min(ceCapacity(), stored + differenceAmount));
+        public long changeEnergy(long differenceAmount) {
+            long previous = stored;
+            stored = Math.max(0L, Math.min(ceCapacity(), stored + differenceAmount));
             if (stored != previous) {
                 contentChanged();
             }
             return stored - previous;
+        }
+
+        private long remainingInputAmperage() {
+            long tick = level == null ? Long.MIN_VALUE : level.getGameTime();
+            if (tick != lastInputTick) {
+                acceptedAmperage = 0L;
+                lastInputTick = tick;
+            }
+            return Math.max(0L, getInputAmperage() - acceptedAmperage);
         }
     }
 

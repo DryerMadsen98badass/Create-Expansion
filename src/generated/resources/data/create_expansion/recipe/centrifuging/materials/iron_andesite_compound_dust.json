@@ -1,0 +1,21 @@
+{
+  "type": "create_expansion:centrifuging",
+  "ingredients": [
+    {
+      "count": 9,
+      "item": "create_expansion:iron_andesite_compound_dust"
+    }
+  ],
+  "max_rpm": 256,
+  "min_rpm": 16,
+  "processing_time": 1800,
+  "results": [
+    {
+      "id": "create_expansion:iron_dust"
+    },
+    {
+      "count": 8,
+      "id": "create_expansion:andesite_dust"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:nihonium_nugget"
+    },
+    {
+      "item": "create_expansion:nihonium_nugget"
+    },
+    {
+      "item": "create_expansion:nihonium_nugget"
+    },
+    {
+      "item": "create_expansion:nihonium_nugget"
+    },
+    {
+      "item": "create_expansion:nihonium_nugget"
+    },
+    {
+      "item": "create_expansion:nihonium_nugget"
+    },
+    {
+      "item": "create_expansion:nihonium_nugget"
+    },
+    {
+      "item": "create_expansion:nihonium_nugget"
+    },
+    {
+      "item": "create_expansion:nihonium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:nihonium_ingot"
+    }
+  ]
+}

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:polonium_andesite_ore",
-    "create_expansion:polonium_diorite_ore",
-    "create_expansion:polonium_ore",
-    "create_expansion:polonium_end_stone_ore",
-    "create_expansion:polonium_blackstone_ore",
-    "create_expansion:polonium_deepslate_ore",
-    "create_expansion:polonium_granite_ore",
     "create_expansion:polonium_netherrack_ore",
-    "create_expansion:polonium_tuff_ore"
+    "create_expansion:polonium_deepslate_ore",
+    "create_expansion:polonium_andesite_ore",
+    "create_expansion:polonium_end_stone_ore",
+    "create_expansion:polonium_diorite_ore",
+    "create_expansion:polonium_tuff_ore",
+    "create_expansion:polonium_blackstone_ore",
+    "create_expansion:polonium_ore",
+    "create_expansion:polonium_granite_ore"
   ]
 }

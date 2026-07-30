@@ -1,0 +1,21 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "item": "create_expansion:tuff_dust"
+    },
+    {
+      "item": "create_expansion:nether_brick_dust"
+    },
+    {
+      "item": "create_expansion:clay_dust"
+    }
+  ],
+  "processing_time": 600,
+  "results": [
+    {
+      "count": 3,
+      "id": "create_expansion:seared_dust"
+    }
+  ]
+}

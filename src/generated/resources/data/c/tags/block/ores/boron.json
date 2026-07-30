@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:boron_andesite_ore",
-    "create_expansion:boron_diorite_ore",
-    "create_expansion:boron_ore",
-    "create_expansion:boron_end_stone_ore",
-    "create_expansion:boron_blackstone_ore",
-    "create_expansion:boron_deepslate_ore",
-    "create_expansion:boron_granite_ore",
     "create_expansion:boron_netherrack_ore",
-    "create_expansion:boron_tuff_ore"
+    "create_expansion:boron_deepslate_ore",
+    "create_expansion:boron_andesite_ore",
+    "create_expansion:boron_end_stone_ore",
+    "create_expansion:boron_diorite_ore",
+    "create_expansion:boron_tuff_ore",
+    "create_expansion:boron_blackstone_ore",
+    "create_expansion:boron_ore",
+    "create_expansion:boron_granite_ore"
   ]
 }

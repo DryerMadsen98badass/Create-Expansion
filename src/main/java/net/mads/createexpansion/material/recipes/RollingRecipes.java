@@ -16,6 +16,13 @@ public final class RollingRecipes {
     }
 
     public static void build(RecipeOutput output, HolderLookup.Provider holderLookup) {
+        recipe("test/paper_to_map")
+                .inputItem("minecraft:paper")
+                .outputItem("minecraft:map")
+                .duration(100)
+                .maxRpm(32)
+                .save(output);
+
         for (IndustrialMaterial material : IndustrialMaterials.ALL) {
             if (MaterialRecipeHelper.hasItems(material, MaterialPart.PLATE, MaterialPart.FOIL)) {
                 recipe("materials/" + material.id() + "_plate_to_foil")

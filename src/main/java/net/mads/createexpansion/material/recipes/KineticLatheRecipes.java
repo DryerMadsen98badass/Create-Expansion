@@ -16,6 +16,13 @@ public final class KineticLatheRecipes {
     }
 
     public static void build(RecipeOutput output, HolderLookup.Provider holderLookup) {
+        recipe("test/stick_to_torch")
+                .inputItem("minecraft:stick")
+                .outputItem("minecraft:torch")
+                .duration(100)
+                .minRpm(32)
+                .save(output);
+
         for (IndustrialMaterial material : IndustrialMaterials.ALL) {
             if (MaterialRecipeHelper.hasItems(material, MaterialPart.ROD, MaterialPart.BOLT)) {
                 recipe("materials/" + material.id() + "_rod_to_bolt")

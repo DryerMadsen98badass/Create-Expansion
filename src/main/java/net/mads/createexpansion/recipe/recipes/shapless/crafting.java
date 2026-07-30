@@ -20,10 +20,48 @@ public class crafting {
 
     public static void build(RecipeOutput output) {
         // Test recipe: 2 epler -> 1 gyllent eple (bare eksempel/mal)
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, item("minecraft:golden_apple"))
-                .requires(item("minecraft:apple"), 2)
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("create_expansion:iron_andesite_compound_dust"))
+                .requires(item("create_expansion:iron_dust"), 1)
+                .requires(item("create_expansion:andesite_dust"), 8)
                 .unlockedBy("always_unlocked", alwaysTrue())
-                .save(output, CreateExpansion.MOD_ID + ":test/shapeless_apple_to_golden_apple");
+                .save(output, CreateExpansion.MOD_ID + ":shapeless/unfired_firebrick");
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("create_expansion:treated_wood"))
+                .requires(item("create_expansion:creosote_oil_bucket"), 1)
+                .requires(item("minecraft:spruce_planks"), 1)
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shapeless/treated_wood_from_spruce");
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("create_expansion:treated_wood"))
+                .requires(item("create_expansion:creosote_oil_bucket"), 1)
+                .requires(item("minecraft:oak_planks"), 1)
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shapeless/treated_wood_from_oak");
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("create_expansion:treated_wood"))
+                .requires(item("create_expansion:creosote_oil_bucket"), 1)
+                .requires(item("minecraft:birch_planks"), 1)
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shapeless/treated_wood_from_birch");
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("create_expansion:seared_dust"))
+                .requires(item("create_expansion:tuff_dust"), 1)
+                .requires(item("create_expansion:nether_brick_dust"), 1)
+                .requires(item("create_expansion:clay_dust"), 1)
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shapeless/seared_dust");
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("create_expansion:mesh"))
+                .requires(item("minecraft:string"), 9)
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shapeless/mesh");
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("minecraft:flint_and_steel"))
+                .requires(item("create_expansion:steel_ingot"))
+                .requires(item("minecraft:flint"))
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shapeless/flint_and_steel");
+
     }
 
     private static Item item(String id) {

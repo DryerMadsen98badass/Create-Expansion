@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:californium_ingot"
+    },
+    {
+      "item": "create_expansion:californium_ingot"
+    },
+    {
+      "item": "create_expansion:californium_ingot"
+    },
+    {
+      "item": "create_expansion:californium_ingot"
+    },
+    {
+      "item": "create_expansion:californium_ingot"
+    },
+    {
+      "item": "create_expansion:californium_ingot"
+    },
+    {
+      "item": "create_expansion:californium_ingot"
+    },
+    {
+      "item": "create_expansion:californium_ingot"
+    },
+    {
+      "item": "create_expansion:californium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:californium_block"
+    }
+  ]
+}

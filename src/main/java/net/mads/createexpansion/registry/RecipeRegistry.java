@@ -3,6 +3,7 @@ package net.mads.createexpansion.registry;
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.recipe.CERecipe;
 import net.mads.createexpansion.recipe.CERecipeSerializer;
+import net.mads.createexpansion.recipe.recipes.assembly.AssemblyRecipe;
 import net.mads.createexpansion.recipe.recipes.foundry.CasterTransformationRecipe;
 import net.mads.createexpansion.recipe.recipes.foundry.FoundryMeltingRecipe;
 import net.mads.createexpansion.recipe.recipes.centrifuge.CentrifugingRecipe;
@@ -12,6 +13,7 @@ import net.mads.createexpansion.recipe.recipes.rolling.RollingRecipe;
 import net.mads.createexpansion.recipe.recipes.wiredrawer.WireDrawingRecipe;
 import net.mads.createexpansion.recipe.recipes.hydraulicpress.HydraulicPressingRecipe;
 import net.mads.createexpansion.recipe.recipes.coiling.CoilingRecipe;
+import net.mads.createexpansion.recipe.recipetypes.AssemblyRecipeType;
 import net.mads.createexpansion.recipe.recipetypes.CasterTransformationRecipeType;
 import net.mads.createexpansion.recipe.recipetypes.CentrifugingRecipeType;
 import net.mads.createexpansion.recipe.recipetypes.FoundryMeltingRecipeType;
@@ -99,6 +101,12 @@ public class RecipeRegistry {
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<CoilingRecipe>> COILING_RECIPE_TYPE =
             RECIPE_TYPES.register(CoilingRecipeType.NAME, () -> namedType(CoilingRecipeType.NAME));
+
+    public static final DeferredHolder<RecipeSerializer<?>, AssemblyRecipe.Serializer> ASSEMBLY_RECIPE_SERIALIZER =
+            RECIPE_SERIALIZERS.register(AssemblyRecipeType.NAME, AssemblyRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<AssemblyRecipe>> ASSEMBLY_RECIPE_TYPE =
+            RECIPE_TYPES.register(AssemblyRecipeType.NAME, () -> namedType(AssemblyRecipeType.NAME));
 
     public static final DeferredHolder<RecipeSerializer<?>, FoundryMeltingRecipe.Serializer> FOUNDRY_MELTING_RECIPE_SERIALIZER =
             RECIPE_SERIALIZERS.register(FoundryMeltingRecipeType.NAME, FoundryMeltingRecipe.Serializer::new);

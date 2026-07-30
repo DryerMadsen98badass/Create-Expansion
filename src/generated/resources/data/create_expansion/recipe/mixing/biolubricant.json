@@ -1,0 +1,21 @@
+{
+  "type": "create:mixing",
+  "heat_requirement": "heated",
+  "ingredients": [
+    {
+      "type": "neoforge:single",
+      "amount": 250,
+      "fluid": "create_expansion:plant_oil"
+    },
+    {
+      "item": "create_expansion:plant_wax"
+    }
+  ],
+  "processing_time": 400,
+  "results": [
+    {
+      "amount": 250,
+      "id": "create_expansion:biolubricant"
+    }
+  ]
+}

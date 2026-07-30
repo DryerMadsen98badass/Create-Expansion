@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "D": {
+      "item": "create_expansion:technetium_small_dust"
+    }
+  },
+  "pattern": [
+    "DDD",
+    "D  ",
+    "   "
+  ],
+  "result": {
+    "count": 9,
+    "id": "create_expansion:technetium_tiny_dust"
+  }
+}

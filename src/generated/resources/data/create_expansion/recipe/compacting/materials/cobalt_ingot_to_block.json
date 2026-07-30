@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:cobalt_ingot"
+    },
+    {
+      "item": "create_expansion:cobalt_ingot"
+    },
+    {
+      "item": "create_expansion:cobalt_ingot"
+    },
+    {
+      "item": "create_expansion:cobalt_ingot"
+    },
+    {
+      "item": "create_expansion:cobalt_ingot"
+    },
+    {
+      "item": "create_expansion:cobalt_ingot"
+    },
+    {
+      "item": "create_expansion:cobalt_ingot"
+    },
+    {
+      "item": "create_expansion:cobalt_ingot"
+    },
+    {
+      "item": "create_expansion:cobalt_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:cobalt_block"
+    }
+  ]
+}

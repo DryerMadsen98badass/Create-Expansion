@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:technetium_nugget"
+    },
+    {
+      "item": "create_expansion:technetium_nugget"
+    },
+    {
+      "item": "create_expansion:technetium_nugget"
+    },
+    {
+      "item": "create_expansion:technetium_nugget"
+    },
+    {
+      "item": "create_expansion:technetium_nugget"
+    },
+    {
+      "item": "create_expansion:technetium_nugget"
+    },
+    {
+      "item": "create_expansion:technetium_nugget"
+    },
+    {
+      "item": "create_expansion:technetium_nugget"
+    },
+    {
+      "item": "create_expansion:technetium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:technetium_ingot"
+    }
+  ]
+}

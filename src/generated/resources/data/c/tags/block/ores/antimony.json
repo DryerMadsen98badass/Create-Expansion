@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:antimony_andesite_ore",
-    "create_expansion:antimony_diorite_ore",
-    "create_expansion:antimony_ore",
-    "create_expansion:antimony_end_stone_ore",
-    "create_expansion:antimony_blackstone_ore",
-    "create_expansion:antimony_deepslate_ore",
-    "create_expansion:antimony_granite_ore",
     "create_expansion:antimony_netherrack_ore",
-    "create_expansion:antimony_tuff_ore"
+    "create_expansion:antimony_deepslate_ore",
+    "create_expansion:antimony_andesite_ore",
+    "create_expansion:antimony_end_stone_ore",
+    "create_expansion:antimony_diorite_ore",
+    "create_expansion:antimony_tuff_ore",
+    "create_expansion:antimony_blackstone_ore",
+    "create_expansion:antimony_ore",
+    "create_expansion:antimony_granite_ore"
   ]
 }

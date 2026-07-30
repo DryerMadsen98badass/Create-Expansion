@@ -4,6 +4,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.MachineTierStats;
+import net.mads.createexpansion.machine.interaction.BlockInteraction;
+import net.mads.createexpansion.machine.interaction.MachineCondition;
+import net.mads.createexpansion.machine.interaction.MachineModifier;
 import net.mads.createexpansion.registry.RecipeRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -41,7 +44,10 @@ public record CERecipe(
         Optional<Integer> maxRpm,
         Optional<Integer> requiredTemp,
         List<ResourceLocation> requiredLogic,
-        List<ResourceLocation> optionalLogic
+        List<ResourceLocation> optionalLogic,
+        List<BlockInteraction> blockInteractions,
+        List<MachineCondition> conditions,
+        List<MachineModifier> modifiers
 ) implements Recipe<CERecipeInput> {
     public static final int DEFAULT_MAX_RPM = 256;
 
@@ -60,7 +66,8 @@ public record CERecipe(
             ExtraCodecs.NON_EMPTY_STRING.optionalFieldOf("tier").forGetter(CERecipe::tier),
             ExtraCodecs.NON_EMPTY_STRING.optionalFieldOf("kinetic").forGetter(CERecipe::kineticTier),
             RuntimeFields.CODEC.forGetter(recipe -> new RuntimeFields(recipe.minRpm(), recipe.maxRpm(), recipe.requiredTemp())),
-            LogicFields.CODEC.forGetter(recipe -> new LogicFields(recipe.requiredLogic(), recipe.optionalLogic()))
+            LogicFields.CODEC.forGetter(recipe -> new LogicFields(recipe.requiredLogic(), recipe.optionalLogic())),
+            InteractionFields.CODEC.forGetter(recipe -> new InteractionFields(recipe.blockInteractions(), recipe.conditions(), recipe.modifiers()))
     ).apply(instance, CERecipe::fromCodec));
 
     public CERecipe {
@@ -72,6 +79,9 @@ public record CERecipe(
         fluidOutputs = List.copyOf(fluidOutputs);
         requiredLogic = List.copyOf(requiredLogic);
         optionalLogic = List.copyOf(optionalLogic);
+        blockInteractions = List.copyOf(blockInteractions);
+        conditions = List.copyOf(conditions);
+        modifiers = List.copyOf(modifiers);
     }
 
     private static CERecipe fromCodec(
@@ -89,17 +99,18 @@ public record CERecipe(
             Optional<String> tier,
             Optional<String> kineticTier,
             RuntimeFields runtimeFields,
-            LogicFields logicFields
+            LogicFields logicFields,
+            InteractionFields interactionFields
     ) {
         int signedCet = energyDirection == EnergyDirection.GENERATE ? -cet : cet;
-        return new CERecipe(recipeType, itemInputs, fluidInputs, notConsumableItems, notConsumableFluids, itemOutputs, fluidOutputs, duration, signedCet, circuit, tier, kineticTier, runtimeFields.minRpm(), runtimeFields.maxRpm(), runtimeFields.requiredTemp(), logicFields.requiredLogic(), logicFields.optionalLogic());
+        return new CERecipe(recipeType, itemInputs, fluidInputs, notConsumableItems, notConsumableFluids, itemOutputs, fluidOutputs, duration, signedCet, circuit, tier, kineticTier, runtimeFields.minRpm(), runtimeFields.maxRpm(), runtimeFields.requiredTemp(), logicFields.requiredLogic(), logicFields.optionalLogic(), interactionFields.blockInteractions(), interactionFields.conditions(), interactionFields.modifiers());
     }
 
     private record RuntimeFields(Optional<Integer> minRpm, Optional<Integer> maxRpm, Optional<Integer> requiredTemp) {
         private static final MapCodec<RuntimeFields> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("min_rpm").forGetter(RuntimeFields::minRpm),
                 ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_rpm").forGetter(RuntimeFields::maxRpm),
-                ExtraCodecs.POSITIVE_INT.optionalFieldOf("temp").forGetter(RuntimeFields::requiredTemp)
+            ExtraCodecs.POSITIVE_INT.optionalFieldOf("temp").forGetter(RuntimeFields::requiredTemp)
         ).apply(instance, RuntimeFields::new));
     }
 
@@ -108,6 +119,14 @@ public record CERecipe(
                 ResourceLocation.CODEC.listOf().optionalFieldOf("required_logic", List.of()).forGetter(LogicFields::requiredLogic),
                 ResourceLocation.CODEC.listOf().optionalFieldOf("optional_logic", List.of()).forGetter(LogicFields::optionalLogic)
         ).apply(instance, LogicFields::new));
+    }
+
+    private record InteractionFields(List<BlockInteraction> blockInteractions, List<MachineCondition> conditions, List<MachineModifier> modifiers) {
+        private static final MapCodec<InteractionFields> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                BlockInteraction.CODEC.listOf().optionalFieldOf("block_interactions", List.of()).forGetter(InteractionFields::blockInteractions),
+                MachineCondition.CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(InteractionFields::conditions),
+                MachineModifier.CODEC.listOf().optionalFieldOf("modifiers", List.of()).forGetter(InteractionFields::modifiers)
+        ).apply(instance, InteractionFields::new));
     }
 
     public boolean generatesEnergy() {

@@ -1,5 +1,6 @@
 package net.mads.createexpansion.client.screen;
 
+import net.mads.createexpansion.client.gui.CEMachineGuiTextures;
 import net.mads.createexpansion.menu.MachinePortMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -58,11 +59,11 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
         }
         if (menu.fluidSlotCount() > 0) {
             graphics.drawString(font, Component.literal("Fluids").withStyle(ChatFormatting.GRAY), x + menu.contentX(), y + menu.fluidSlotY() - 10, MUTED, false);
-            drawFluidSlots(graphics);
+            drawFluidSlots(graphics, mouseX, mouseY);
         }
 
         for (Slot slot : menu.slots) {
-            drawSlot(graphics, x + slot.x, y + slot.y, false);
+            CEMachineGuiTextures.drawItemSlot(graphics, x + slot.x, y + slot.y);
         }
     }
 
@@ -78,6 +79,13 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
             int action = clickedConfigAction((int) mouseX, (int) mouseY, button);
             if (action >= 0) {
                 minecraft.gameMode.handleInventoryButtonClick(menu.containerId, action);
+                return true;
+            }
+        }
+        if (button == 1 && minecraft != null && minecraft.gameMode != null) {
+            int fluidSlot = hoveredFluidSlot((int) mouseX, (int) mouseY);
+            if (fluidSlot >= 0) {
+                minecraft.gameMode.handleInventoryButtonClick(menu.containerId, MachinePortMenu.BUTTON_FLUID_SLOT + fluidSlot);
                 return true;
             }
         }
@@ -178,12 +186,15 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
         }
     }
 
-    private void drawFluidSlots(GuiGraphics graphics) {
+    private void drawFluidSlots(GuiGraphics graphics, int mouseX, int mouseY) {
         List<FluidTank> tanks = menu.fluidTanks();
         for (int i = 0; i < menu.fluidSlotCount(); i++) {
             int x = leftPos + menu.fluidSlotX(i);
             int y = topPos + menu.fluidSlotY();
-            drawSlot(graphics, x, y, true);
+            CEMachineGuiTextures.drawFluidSlot(graphics, x, y);
+            if (isHoveringArea(mouseX, mouseY, x, y, 18, 18)) {
+                graphics.fill(x, y, x + 18, y + 18, 0x60FFFFFF);
+            }
 
             if (i >= tanks.size()) {
                 continue;
@@ -191,7 +202,7 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
 
             FluidStack stack = tanks.get(i).getFluid();
             if (!stack.isEmpty()) {
-                graphics.fill(x + 3, y + 3, x + 15, y + 15, fluidColor(stack));
+                CEMachineGuiTextures.drawFluid(graphics, stack, x + 1, y + 1);
                 String amount = formatAmount(stack.getAmount());
                 int amountX = x + 9 - font.width(amount) / 2;
                 graphics.drawString(font, amount, amountX, y + 20, MUTED, false);
@@ -221,6 +232,17 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
         }
     }
 
+    private int hoveredFluidSlot(int mouseX, int mouseY) {
+        for (int i = 0; i < menu.fluidSlotCount(); i++) {
+            int x = leftPos + menu.fluidSlotX(i);
+            int y = topPos + menu.fluidSlotY();
+            if (isHoveringArea(mouseX, mouseY, x, y, 18, 18)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private static boolean isHoveringArea(int mouseX, int mouseY, int x, int y, int width, int height) {
         return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
     }
@@ -232,12 +254,6 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
         graphics.fill(x, y, x + 1, y + height, PANEL_EDGE);
         graphics.fill(x + width - 1, y, x + width, y + height, PANEL_EDGE);
         graphics.fill(x + 5, y + 15, x + width - 5, y + height - 5, PANEL);
-    }
-
-    private static void drawSlot(GuiGraphics graphics, int x, int y, boolean fluid) {
-        graphics.fill(x, y, x + 18, y + 18, SLOT_EDGE);
-        graphics.fill(x + 1, y + 1, x + 17, y + 17, fluid ? SLOT_DARK : SLOT);
-        graphics.fill(x + 2, y + 2, x + 16, y + 16, fluid ? 0xFF10141A : 0xFF171D23);
     }
 
     private static int configButtonX(int panelX) {
@@ -263,14 +279,6 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
             case LIGHT_GRAY -> "Lt Gray";
             default -> color.getName();
         };
-    }
-
-    private static int fluidColor(FluidStack stack) {
-        int hash = stack.getFluid().builtInRegistryHolder().key().location().toString().hashCode();
-        int red = 70 + Math.floorMod(hash, 110);
-        int green = 90 + Math.floorMod(hash >> 8, 100);
-        int blue = 130 + Math.floorMod(hash >> 16, 90);
-        return 0xFF000000 | red << 16 | green << 8 | blue;
     }
 
     private static String formatAmount(int amount) {

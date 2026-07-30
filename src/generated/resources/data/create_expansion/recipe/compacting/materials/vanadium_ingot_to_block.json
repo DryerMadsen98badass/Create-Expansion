@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:vanadium_ingot"
+    },
+    {
+      "item": "create_expansion:vanadium_ingot"
+    },
+    {
+      "item": "create_expansion:vanadium_ingot"
+    },
+    {
+      "item": "create_expansion:vanadium_ingot"
+    },
+    {
+      "item": "create_expansion:vanadium_ingot"
+    },
+    {
+      "item": "create_expansion:vanadium_ingot"
+    },
+    {
+      "item": "create_expansion:vanadium_ingot"
+    },
+    {
+      "item": "create_expansion:vanadium_ingot"
+    },
+    {
+      "item": "create_expansion:vanadium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:vanadium_block"
+    }
+  ]
+}

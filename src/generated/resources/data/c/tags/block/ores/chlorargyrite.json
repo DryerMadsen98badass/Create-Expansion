@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:chlorargyrite_andesite_ore",
-    "create_expansion:chlorargyrite_diorite_ore",
-    "create_expansion:chlorargyrite_ore",
-    "create_expansion:chlorargyrite_end_stone_ore",
-    "create_expansion:chlorargyrite_blackstone_ore",
-    "create_expansion:chlorargyrite_deepslate_ore",
-    "create_expansion:chlorargyrite_granite_ore",
     "create_expansion:chlorargyrite_netherrack_ore",
-    "create_expansion:chlorargyrite_tuff_ore"
+    "create_expansion:chlorargyrite_deepslate_ore",
+    "create_expansion:chlorargyrite_andesite_ore",
+    "create_expansion:chlorargyrite_end_stone_ore",
+    "create_expansion:chlorargyrite_diorite_ore",
+    "create_expansion:chlorargyrite_tuff_ore",
+    "create_expansion:chlorargyrite_blackstone_ore",
+    "create_expansion:chlorargyrite_ore",
+    "create_expansion:chlorargyrite_granite_ore"
   ]
 }

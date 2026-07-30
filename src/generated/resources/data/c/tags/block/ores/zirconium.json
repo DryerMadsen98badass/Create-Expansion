@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:zirconium_andesite_ore",
-    "create_expansion:zirconium_diorite_ore",
-    "create_expansion:zirconium_ore",
-    "create_expansion:zirconium_end_stone_ore",
-    "create_expansion:zirconium_blackstone_ore",
-    "create_expansion:zirconium_deepslate_ore",
-    "create_expansion:zirconium_granite_ore",
     "create_expansion:zirconium_netherrack_ore",
-    "create_expansion:zirconium_tuff_ore"
+    "create_expansion:zirconium_deepslate_ore",
+    "create_expansion:zirconium_andesite_ore",
+    "create_expansion:zirconium_end_stone_ore",
+    "create_expansion:zirconium_diorite_ore",
+    "create_expansion:zirconium_tuff_ore",
+    "create_expansion:zirconium_blackstone_ore",
+    "create_expansion:zirconium_ore",
+    "create_expansion:zirconium_granite_ore"
   ]
 }

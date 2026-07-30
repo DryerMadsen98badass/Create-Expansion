@@ -1,0 +1,19 @@
+{
+  "values": [
+    "create_expansion:coal_netherrack_ore",
+    {
+      "id": "minecraft:deepslate_coal_ore",
+      "required": false
+    },
+    "create_expansion:coal_andesite_ore",
+    "create_expansion:coal_end_stone_ore",
+    "create_expansion:coal_diorite_ore",
+    "create_expansion:coal_tuff_ore",
+    "create_expansion:coal_blackstone_ore",
+    {
+      "id": "minecraft:coal_ore",
+      "required": false
+    },
+    "create_expansion:coal_granite_ore"
+  ]
+}

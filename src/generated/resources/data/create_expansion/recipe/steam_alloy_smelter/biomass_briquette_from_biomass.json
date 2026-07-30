@@ -1,0 +1,20 @@
+{
+  "type": "create_expansion:machine",
+  "cet": 0,
+  "duration": 200,
+  "item_inputs": [
+    {
+      "count": 9,
+      "item": "create_expansion:biomass"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:biomass_briquette"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:steam_alloy_smelter"
+}

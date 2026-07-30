@@ -1,0 +1,35 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "minecraft:stripped_spruce_wood"
+  },
+  "inputs": [
+    {
+      "count": 4,
+      "item": "create:andesite_alloy"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:wood_gear"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:wood_small_gear"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 4,
+      "item": "create:andesite_alloy"
+    }
+  ],
+  "result": {
+    "id": "create:andesite_casing"
+  }
+}

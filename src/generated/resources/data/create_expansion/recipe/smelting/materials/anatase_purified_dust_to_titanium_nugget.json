@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 200,
+  "experience": 0.7,
+  "ingredient": {
+    "item": "create_expansion:anatase_purified_dust"
+  },
+  "result": {
+    "id": "create_expansion:titanium_nugget"
+  }
+}

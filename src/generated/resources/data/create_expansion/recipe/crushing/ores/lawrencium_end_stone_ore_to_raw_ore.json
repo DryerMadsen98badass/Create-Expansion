@@ -1,0 +1,22 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "create_expansion:lawrencium_end_stone_ore"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "count": 2,
+      "id": "create_expansion:lawrencium_raw_ore"
+    },
+    {
+      "count": 2,
+      "id": "create:experience_nugget"
+    },
+    {
+      "id": "minecraft:end_stone"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ package net.mads.createexpansion.recipe.recipes.sequencedassembly;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import net.mads.createexpansion.recipe.recipes.CreateRecipeBuilder;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
 
@@ -15,25 +16,20 @@ public final class SequencedAssemblyRecipes {
     }
 
     public static void build(List<CompletableFuture<?>> futures, CachedOutput output, PackOutput.PathProvider recipes) {
-        // save(futures, output, recipes, "sequenced_assembly/test/iron_double_plate", doublePlate("create_expansion:iron_plate", "create_expansion:iron_double_plate"));
+        CreateRecipeBuilder.sequencedAssembly(futures, output, recipes, "sequenced_assembly/test/reinforced_apple")
+                .inputItem("minecraft:apple")
+                .loops(1)
+                .transitionalItem("minecraft:apple")
+                .sequence(sequence("minecraft:apple", "minecraft:gold_ingot"))
+                .outputItem("minecraft:golden_apple")
+                .save();
     }
 
-    private static JsonObject doublePlate(String plate, String doublePlate) {
+    private static JsonArray sequence(String transitionalItem, String heldItem) {
         JsonArray sequence = new JsonArray();
-        sequence.add(deployingStep(doublePlate, plate));
-        sequence.add(pressingStep(doublePlate));
-
-        JsonObject transitional = new JsonObject();
-        transitional.addProperty("id", doublePlate);
-
-        JsonObject json = new JsonObject();
-        json.addProperty("type", "create:sequenced_assembly");
-        json.add("ingredient", item(plate));
-        json.addProperty("loops", 1);
-        json.add("transitional_item", transitional);
-        json.add("sequence", sequence);
-        json.add("results", results(result(doublePlate)));
-        return json;
+        sequence.add(deployingStep(transitionalItem, heldItem));
+        sequence.add(pressingStep(transitionalItem));
+        return sequence;
     }
 
     private static JsonObject deployingStep(String transitionalItem, String heldItem) {

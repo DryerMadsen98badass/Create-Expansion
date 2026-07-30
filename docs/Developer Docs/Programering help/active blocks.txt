@@ -1,0 +1,71 @@
+Create Expansion - Active Blocks
+================================
+
+Use active blocks for simple blocks that only need one boolean blockstate:
+
+- active=false
+- active=true
+
+Definition file
+---------------
+Add new entries here:
+
+src/main/java/net/mads/createexpansion/block/ActiveBlocks.java
+
+Example:
+
+activeBlock(
+        "firebrick_firebox",
+        "Firebrick Firebox",
+        "block/casings/firebox/firebrick_firebox_off",
+        "block/casings/firebox/firebrick_firebox_on"
+)
+
+Tool selection
+--------------
+Active blocks default to pickaxe mining and stone-tool drop level.
+
+To change the mineable tool tags, add `.mineableWith(...)`:
+
+activeBlock(
+        "example_active_block",
+        "Example Active Block",
+        "block/example_active_block_off",
+        "block/example_active_block_on"
+).mineableWith(MiningTool.AXE)
+
+Multiple tools are allowed:
+
+activeBlock(
+        "example_multi_tool_block",
+        "Example Multi Tool Block",
+        "block/example_multi_tool_block_off",
+        "block/example_multi_tool_block_on"
+).mineableWith(MiningTool.PICKAXE, MiningTool.AXE)
+
+What the definition provides
+----------------------------
+Each entry automatically drives:
+
+1. Block registration as a FireboxBlock-style active block.
+2. BlockItem registration.
+3. English language entry.
+4. Creative tab entry in the Industry tab.
+5. Loot table.
+6. Blockstate with active=false and active=true.
+7. Off/on block models.
+8. Item model using the off model.
+9. Mining tags for the selected tool or tools.
+10. Stone-tool drop level tags.
+
+Textures
+--------
+The texture strings may be full resource locations like:
+
+minecraft:block/stone
+
+or Create Expansion texture paths like:
+
+block/casings/firebox/firebrick_firebox_off
+
+Run datagen after adding a new active block so the generated resources are updated.

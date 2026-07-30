@@ -1,0 +1,27 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create:brass_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:cogwheel"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 1,
+      "item": "create:electron_tube"
+    },
+    {
+      "count": 1,
+      "item": "create:crafter_slot_cover"
+    }
+  ],
+  "result": {
+    "id": "create:mechanical_crafter"
+  }
+}

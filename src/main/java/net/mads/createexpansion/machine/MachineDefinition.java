@@ -1,26 +1,27 @@
 package net.mads.createexpansion.machine;
 
-import java.util.Arrays;
+import net.mads.createexpansion.machine.machines.electric.singleblock.ElectricSingleBlockMachines;
+import net.mads.createexpansion.machine.machines.steam.singleblock.SteamSingleBlockMachines;
+import net.mads.createexpansion.machine.machines.without_energy.singleblock.WithoutEnergySingleBlockMachines;
+
 import java.util.List;
 import java.util.stream.Stream;
 
-public record MachineDefinition(String id, String displayName, MachineTier tier) {
-    public static final List<MachineDefinition> ALL = Stream.<List<MachineDefinition>>of(
-            // Add machines here later, for example:
-            // MachineDefinition.forTiers("electric_furnace", "Electric Furnace", MachineTier.LV, MachineTier.MV, MachineTier.HV)
-    ).flatMap(List::stream).toList();
+public final class MachineDefinition {
+    public static final List<SingleBlockDefinition> ALL =
+            Stream.of(
+                            SteamSingleBlockMachines.ALL,
+                            WithoutEnergySingleBlockMachines.ALL,
+                            ElectricSingleBlockMachines.ALL
+                    )
+                    .flatMap(List::stream)
+                    .toList();
 
-    public static List<MachineDefinition> forTiers(String id, String displayName, MachineTier... tiers) {
-        return Arrays.stream(tiers)
-                .map(tier -> new MachineDefinition(id, displayName, tier))
-                .toList();
-    }
+    public static final List<SingleBlockMachineInstance> INSTANCES =
+            ALL.stream()
+                    .flatMap(definition -> definition.expand().stream())
+                    .toList();
 
-    public String controllerRegistryName() {
-        return tier.id() + "_" + id + "_controller";
-    }
-
-    public String casingRegistryName() {
-        return tier.casingRegistryName();
+    private MachineDefinition() {
     }
 }

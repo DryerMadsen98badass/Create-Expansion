@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:hematite_andesite_ore",
-    "create_expansion:hematite_diorite_ore",
-    "create_expansion:hematite_ore",
-    "create_expansion:hematite_end_stone_ore",
-    "create_expansion:hematite_blackstone_ore",
-    "create_expansion:hematite_deepslate_ore",
-    "create_expansion:hematite_granite_ore",
     "create_expansion:hematite_netherrack_ore",
-    "create_expansion:hematite_tuff_ore"
+    "create_expansion:hematite_deepslate_ore",
+    "create_expansion:hematite_andesite_ore",
+    "create_expansion:hematite_end_stone_ore",
+    "create_expansion:hematite_diorite_ore",
+    "create_expansion:hematite_tuff_ore",
+    "create_expansion:hematite_blackstone_ore",
+    "create_expansion:hematite_ore",
+    "create_expansion:hematite_granite_ore"
   ]
 }

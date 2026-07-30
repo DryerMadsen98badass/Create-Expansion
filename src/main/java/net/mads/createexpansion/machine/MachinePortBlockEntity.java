@@ -17,6 +17,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -25,6 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
@@ -44,7 +47,7 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
     private final List<FluidTank> fluidTanks;
     private final IItemHandler itemCapability;
     private final IFluidHandler fluidCapability;
-    private final int ceCapacity;
+    private final long ceCapacity;
     private final CEEnergyStorage ceStorage;
     private final float kineticStressPerRpm;
 
@@ -53,11 +56,11 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
     private DyeColor ioColor = DyeColor.GRAY;
     private int circuit;
     private boolean autoOutput;
-    private int lastInputCEt;
-    private int lastInputVoltage;
+    private long lastInputCEt;
+    private long lastInputVoltage;
     private long lastInputLoadTick = -1;
-    private int lastNetworkInputCEt;
-    private int lastNetworkInputVoltage;
+    private long lastNetworkInputCEt;
+    private long lastNetworkInputVoltage;
     private long lastNetworkInputTick = -1;
 
     public MachinePortBlockEntity(BlockPos pos, BlockState state) {
@@ -93,7 +96,58 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         return fluidTanks.isEmpty() ? null : fluidCapability;
     }
 
-    public int ceCapacity() {
+    public boolean supportsBucketInteraction(ItemStack stack) {
+        return stack.getItem() instanceof BucketItem
+                && !fluidTanks.isEmpty()
+                && (abilities.contains(MultiblockAbility.FLUID_INPUT)
+                || abilities.contains(MultiblockAbility.FLUID_OUTPUT)
+                || abilities.contains(MultiblockAbility.IO_INTERFACE));
+    }
+
+    public boolean allowsGuiFluidFill() {
+        return abilities.contains(MultiblockAbility.FLUID_INPUT)
+                || abilities.contains(MultiblockAbility.IO_INTERFACE);
+    }
+
+    public boolean allowsGuiFluidDrain() {
+        return abilities.contains(MultiblockAbility.FLUID_OUTPUT)
+                || abilities.contains(MultiblockAbility.IO_INTERFACE);
+    }
+
+    public boolean interactWithBucket(
+            Player player,
+            InteractionHand hand,
+            ItemStack stack
+    ) {
+        if (!supportsBucketInteraction(stack)) {
+            return false;
+        }
+
+        boolean allowFill = abilities.contains(MultiblockAbility.FLUID_INPUT)
+                || abilities.contains(MultiblockAbility.IO_INTERFACE);
+
+        boolean allowDrain = allowFill
+                || abilities.contains(MultiblockAbility.FLUID_OUTPUT)
+                || abilities.contains(MultiblockAbility.IO_INTERFACE);
+
+        boolean interacted = FluidUtil.interactWithFluidHandler(
+                player,
+                hand,
+                new PortFluidHandler(
+                        fluidTanks,
+                        allowFill,
+                        allowDrain
+                )
+        );
+
+        if (interacted) {
+            contentChanged();
+        }
+
+        return interacted;
+    }
+
+    public long ceCapacity() {
         return ceCapacity;
     }
 
@@ -102,11 +156,11 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         return ceStorage;
     }
 
-    public int ceStored() {
+    public long ceStored() {
         return ceStorage == null ? 0 : ceStorage.stored();
     }
 
-    public void recordEnergyInputLoad(int cePerTick, int voltage) {
+    public void recordEnergyInputLoad(long cePerTick, long voltage) {
         if (level == null || level.isClientSide() || cePerTick <= 0 || voltage <= 0) {
             return;
         }
@@ -116,7 +170,7 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         contentChanged();
     }
 
-    public void recordEnergyNetworkInput(int cePerTick, int voltage) {
+    public void recordEnergyNetworkInput(long cePerTick, long voltage) {
         if (level == null || level.isClientSide() || cePerTick <= 0 || voltage <= 0) {
             return;
         }
@@ -132,20 +186,20 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         contentChanged();
     }
 
-    public int lastInputCEt() {
+    public long lastInputCEt() {
         return isInputLoadVisible() ? lastInputCEt : 0;
     }
 
-    public int lastInputVoltage() {
+    public long lastInputVoltage() {
         return isInputLoadVisible() ? lastInputVoltage : 0;
     }
 
-    public int recentNetworkInputVoltage() {
+    public long recentNetworkInputVoltage() {
         return isNetworkInputVisible() ? lastNetworkInputVoltage : 0;
     }
 
-    public int displayInputVoltage() {
-        int voltage = recentNetworkInputVoltage();
+    public long displayInputVoltage() {
+        long voltage = recentNetworkInputVoltage();
         return voltage > 0 ? voltage : (ceStorage == null ? 0 : ceStorage.getInputVoltage());
     }
 
@@ -376,12 +430,13 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         tag.putInt("Circuit", circuit);
         tag.putBoolean("AutoOutput", autoOutput);
         if (ceStorage != null) {
-            tag.putInt("CE", ceStorage.stored());
+            tag.putLong("CE", ceStorage.stored());
         }
-        tag.putInt("LastInputCEt", lastInputCEt());
-        tag.putInt("LastInputVoltage", lastInputVoltage());
-        tag.putInt("LastNetworkInputCEt", isNetworkInputVisible() ? lastNetworkInputCEt : 0);
-        tag.putInt("LastNetworkInputVoltage", recentNetworkInputVoltage());
+        tag.putLong("LastInputCEt", lastInputCEt());
+        tag.putLong("LastInputVoltage", lastInputVoltage());
+        tag.putLong("LastNetworkInputCEt", isNetworkInputVisible() ? lastNetworkInputCEt : 0);
+        tag.putLong("LastNetworkInputVoltage", isNetworkInputVisible() ? lastNetworkInputVoltage : 0);
+        tag.putLong("LastNetworkInputVoltage", recentNetworkInputVoltage());
     }
 
     @Override
@@ -411,15 +466,15 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         circuit = Math.max(0, Math.min(32, tag.getInt("Circuit")));
         autoOutput = tag.getBoolean("AutoOutput");
         if (ceStorage != null) {
-            ceStorage.setStored(tag.getInt("CE"));
+            ceStorage.setStored(tag.getLong("CE"));
         }
-        lastInputCEt = Math.max(0, tag.getInt("LastInputCEt"));
-        lastInputVoltage = Math.max(0, tag.getInt("LastInputVoltage"));
+        lastInputCEt = Math.max(0L, tag.getLong("LastInputCEt"));
+        lastInputVoltage = Math.max(0L, tag.getLong("LastInputVoltage"));
         if (lastInputCEt > 0 && lastInputVoltage > 0) {
             lastInputLoadTick = level == null ? 0 : level.getGameTime();
         }
-        lastNetworkInputCEt = Math.max(0, tag.getInt("LastNetworkInputCEt"));
-        lastNetworkInputVoltage = Math.max(0, tag.getInt("LastNetworkInputVoltage"));
+        lastNetworkInputCEt = Math.max(0L, tag.getLong("LastNetworkInputCEt"));
+        lastNetworkInputVoltage = Math.max(0L, tag.getLong("LastNetworkInputVoltage"));
         if (lastNetworkInputCEt > 0 && lastNetworkInputVoltage > 0) {
             lastNetworkInputTick = level == null ? 0 : level.getGameTime();
         }
@@ -459,7 +514,7 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         return tanks;
     }
 
-    private int energyCapacity() {
+    private long energyCapacity() {
         if (abilities.contains(MultiblockAbility.ENERGY_INPUT) || abilities.contains(MultiblockAbility.ENERGY_OUTPUT)) {
             return MachineTierStats.ceCapacity(tier);
         }
@@ -477,14 +532,25 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
                 () -> abilities.contains(MultiblockAbility.ENERGY_INPUT),
                 () -> abilities.contains(MultiblockAbility.ENERGY_OUTPUT),
                 ignored -> contentChanged(),
-                ignored -> explodeEnergyBlock());
+                ignored -> explodeEnergyBlock(),
+                () -> level == null ? Long.MIN_VALUE : level.getGameTime()) {
+            @Override
+            public long getInputAmperage() {
+                return abilities.contains(MultiblockAbility.ENERGY_INPUT) ? 2L : 0L;
+            }
+
+            @Override
+            public long getOutputAmperage() {
+                return abilities.contains(MultiblockAbility.ENERGY_OUTPUT) ? 2L : 0L;
+            }
+        };
     }
 
     private void explodeEnergyBlock() {
         if (level == null || level.isClientSide()) {
             return;
         }
-        level.explode(null, worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D, 4.0F, Level.ExplosionInteraction.BLOCK);
+        level.explode(null, worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D, 4.0F, Level.ExplosionInteraction.TNT);
     }
 
     private boolean isInputLoadVisible() {

@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 public final class CreateExpansionPartialModels {
     public static final PartialModel CENTRIFUGE_ROTOR = block("machines/kinetic/centrifuge/centrifuge_rotor");
     public static final PartialModel CENTRIFUGE_BASIN = block("machines/kinetic/centrifuge/centrifuge_basin");
+    public static final PartialModel CENTRIFUGE_JEI_ASSEMBLY = block("machines/kinetic/centrifuge/centrifuge_jei_assembly");
     public static final PartialModel LATHE_SIDE_SHAFT = block("machines/kinetic/lathe/lathe_side_shaft");
     public static final PartialModel ROLLING_MILL_ROTOR_1 = block("machines/kinetic/rolling_mill/rolling_mill_rotor_1");
     public static final PartialModel ROLLING_MILL_ROTOR_2 = block("machines/kinetic/rolling_mill/rolling_mill_rotor_2");

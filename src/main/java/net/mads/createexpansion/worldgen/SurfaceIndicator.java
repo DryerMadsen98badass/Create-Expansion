@@ -8,7 +8,11 @@ enum SurfaceIndicator {
     CRACKED_GROUND(4),
     CRYSTAL_SPOT(2),
     DEAD_PLANTS(4),
-    BOULDER_CLUSTER(5);
+    BOULDER_CLUSTER(5),
+    NETHER_SULFUR_CRUST(7),
+    NETHER_ASH_PATCH(6),
+    NETHER_BASALT_SPOT(6),
+    NETHER_GOLD_FLECKS(3);
 
     private final int weight;
 

@@ -1,0 +1,15 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "create_expansion:beryllium_washed_crushed_ore"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "count": 6,
+      "id": "create_expansion:beryllium_tiny_dust"
+    }
+  ]
+}

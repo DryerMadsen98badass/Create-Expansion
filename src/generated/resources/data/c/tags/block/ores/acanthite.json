@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:acanthite_andesite_ore",
-    "create_expansion:acanthite_diorite_ore",
-    "create_expansion:acanthite_ore",
-    "create_expansion:acanthite_end_stone_ore",
-    "create_expansion:acanthite_blackstone_ore",
-    "create_expansion:acanthite_deepslate_ore",
-    "create_expansion:acanthite_granite_ore",
     "create_expansion:acanthite_netherrack_ore",
-    "create_expansion:acanthite_tuff_ore"
+    "create_expansion:acanthite_deepslate_ore",
+    "create_expansion:acanthite_andesite_ore",
+    "create_expansion:acanthite_end_stone_ore",
+    "create_expansion:acanthite_diorite_ore",
+    "create_expansion:acanthite_tuff_ore",
+    "create_expansion:acanthite_blackstone_ore",
+    "create_expansion:acanthite_ore",
+    "create_expansion:acanthite_granite_ore"
   ]
 }

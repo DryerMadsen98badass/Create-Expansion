@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:manganese_ingot"
+    },
+    {
+      "item": "create_expansion:manganese_ingot"
+    },
+    {
+      "item": "create_expansion:manganese_ingot"
+    },
+    {
+      "item": "create_expansion:manganese_ingot"
+    },
+    {
+      "item": "create_expansion:manganese_ingot"
+    },
+    {
+      "item": "create_expansion:manganese_ingot"
+    },
+    {
+      "item": "create_expansion:manganese_ingot"
+    },
+    {
+      "item": "create_expansion:manganese_ingot"
+    },
+    {
+      "item": "create_expansion:manganese_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:manganese_block"
+    }
+  ]
+}

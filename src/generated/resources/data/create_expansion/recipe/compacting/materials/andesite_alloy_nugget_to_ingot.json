@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:andesite_alloy_nugget"
+    },
+    {
+      "item": "create_expansion:andesite_alloy_nugget"
+    },
+    {
+      "item": "create_expansion:andesite_alloy_nugget"
+    },
+    {
+      "item": "create_expansion:andesite_alloy_nugget"
+    },
+    {
+      "item": "create_expansion:andesite_alloy_nugget"
+    },
+    {
+      "item": "create_expansion:andesite_alloy_nugget"
+    },
+    {
+      "item": "create_expansion:andesite_alloy_nugget"
+    },
+    {
+      "item": "create_expansion:andesite_alloy_nugget"
+    },
+    {
+      "item": "create_expansion:andesite_alloy_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create:andesite_alloy"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:flerovium_ingot"
+    },
+    {
+      "item": "create_expansion:flerovium_ingot"
+    },
+    {
+      "item": "create_expansion:flerovium_ingot"
+    },
+    {
+      "item": "create_expansion:flerovium_ingot"
+    },
+    {
+      "item": "create_expansion:flerovium_ingot"
+    },
+    {
+      "item": "create_expansion:flerovium_ingot"
+    },
+    {
+      "item": "create_expansion:flerovium_ingot"
+    },
+    {
+      "item": "create_expansion:flerovium_ingot"
+    },
+    {
+      "item": "create_expansion:flerovium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:flerovium_block"
+    }
+  ]
+}

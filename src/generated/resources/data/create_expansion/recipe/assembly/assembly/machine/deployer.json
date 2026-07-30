@@ -1,0 +1,35 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create:andesite_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:electron_tube"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 1,
+      "item": "create:shaft"
+    },
+    {
+      "count": 1,
+      "item": "create:piston_extension_pole"
+    },
+    {
+      "count": 1,
+      "item": "create:brass_hand"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    }
+  ],
+  "result": {
+    "id": "create:deployer"
+  }
+}

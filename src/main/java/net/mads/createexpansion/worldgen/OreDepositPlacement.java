@@ -30,6 +30,14 @@ final class OreDepositPlacement {
         int minY = Math.max(minBuildHeight, deposit.minY());
         int maxY = Math.min(maxBuildHeight - 1, deposit.maxY());
 
+        if (deposit.surfaceOnly()) {
+            return Mth.clamp(
+                    terrainY,
+                    minY,
+                    maxY
+            );
+        }
+
         if (terrainY > minBuildHeight) {
             int undergroundMargin = Math.max(6, deposit.verticalRadius() / 2);
             maxY = Math.min(maxY, terrainY - undergroundMargin);

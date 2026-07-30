@@ -18,6 +18,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
@@ -28,7 +29,7 @@ public class CentrifugingRecipe implements Recipe<CentrifugingRecipeInput> {
     public static final int DEFAULT_MIN_RPM = 0;
 
     public static final MapCodec<CentrifugingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Ingredient.CODEC_NONEMPTY.listOf().optionalFieldOf("ingredients", List.of()).forGetter(CentrifugingRecipe::itemIngredients),
+            SizedIngredient.FLAT_CODEC.listOf().optionalFieldOf("ingredients", List.of()).forGetter(CentrifugingRecipe::itemIngredients),
             SizedFluidIngredient.FLAT_CODEC.listOf().optionalFieldOf("fluid_ingredients", List.of()).forGetter(CentrifugingRecipe::fluidIngredients),
             ProcessingOutput.CODEC.listOf().optionalFieldOf("results", List.of()).forGetter(CentrifugingRecipe::itemResults),
             FluidStack.CODEC.listOf().optionalFieldOf("fluid_results", List.of()).forGetter(CentrifugingRecipe::fluidResults),
@@ -37,7 +38,7 @@ public class CentrifugingRecipe implements Recipe<CentrifugingRecipeInput> {
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_rpm").forGetter(CentrifugingRecipe::maxRpm)
     ).apply(instance, CentrifugingRecipe::new));
 
-    private final List<Ingredient> itemIngredients;
+    private final List<SizedIngredient> itemIngredients;
     private final List<SizedFluidIngredient> fluidIngredients;
     private final List<ProcessingOutput> itemResults;
     private final List<FluidStack> fluidResults;
@@ -46,7 +47,7 @@ public class CentrifugingRecipe implements Recipe<CentrifugingRecipeInput> {
     private final Optional<Integer> maxRpm;
 
     public CentrifugingRecipe(
-            List<Ingredient> itemIngredients,
+            List<SizedIngredient> itemIngredients,
             List<SizedFluidIngredient> fluidIngredients,
             List<ProcessingOutput> itemResults,
             List<FluidStack> fluidResults,
@@ -78,7 +79,8 @@ public class CentrifugingRecipe implements Recipe<CentrifugingRecipeInput> {
         if (stack.isEmpty()) {
             return false;
         }
-        return itemIngredients.getFirst().test(stack);
+        SizedIngredient ingredient = itemIngredients.getFirst();
+        return stack.getCount() >= ingredient.count() && ingredient.ingredient().test(stack);
     }
 
     public boolean matchesFluid(FluidStack stack) {
@@ -101,7 +103,7 @@ public class CentrifugingRecipe implements Recipe<CentrifugingRecipeInput> {
         return speed >= minRpm && maxRpm.map(max -> speed <= max).orElse(true);
     }
 
-    public List<Ingredient> itemIngredients() {
+    public List<SizedIngredient> itemIngredients() {
         return itemIngredients;
     }
 
@@ -173,8 +175,12 @@ public class CentrifugingRecipe implements Recipe<CentrifugingRecipeInput> {
     @Override
     public NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> ingredients = NonNullList.create();
-        itemIngredients.forEach(ingredients::add);
+        itemIngredients.forEach(input -> ingredients.add(input.ingredient()));
         return ingredients;
+    }
+
+    public int consumedItemCount() {
+        return itemIngredients.isEmpty() ? 0 : itemIngredients.getFirst().count();
     }
 
     @Override

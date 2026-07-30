@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:stibiopalladinite_andesite_ore",
-    "create_expansion:stibiopalladinite_diorite_ore",
-    "create_expansion:stibiopalladinite_ore",
-    "create_expansion:stibiopalladinite_end_stone_ore",
-    "create_expansion:stibiopalladinite_blackstone_ore",
-    "create_expansion:stibiopalladinite_deepslate_ore",
-    "create_expansion:stibiopalladinite_granite_ore",
     "create_expansion:stibiopalladinite_netherrack_ore",
-    "create_expansion:stibiopalladinite_tuff_ore"
+    "create_expansion:stibiopalladinite_deepslate_ore",
+    "create_expansion:stibiopalladinite_andesite_ore",
+    "create_expansion:stibiopalladinite_end_stone_ore",
+    "create_expansion:stibiopalladinite_diorite_ore",
+    "create_expansion:stibiopalladinite_tuff_ore",
+    "create_expansion:stibiopalladinite_blackstone_ore",
+    "create_expansion:stibiopalladinite_ore",
+    "create_expansion:stibiopalladinite_granite_ore"
   ]
 }

@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:hafnium_ingot"
+    },
+    {
+      "item": "create_expansion:hafnium_ingot"
+    },
+    {
+      "item": "create_expansion:hafnium_ingot"
+    },
+    {
+      "item": "create_expansion:hafnium_ingot"
+    },
+    {
+      "item": "create_expansion:hafnium_ingot"
+    },
+    {
+      "item": "create_expansion:hafnium_ingot"
+    },
+    {
+      "item": "create_expansion:hafnium_ingot"
+    },
+    {
+      "item": "create_expansion:hafnium_ingot"
+    },
+    {
+      "item": "create_expansion:hafnium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:hafnium_block"
+    }
+  ]
+}

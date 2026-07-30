@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:tungsten_ingot"
+    },
+    {
+      "item": "create_expansion:tungsten_ingot"
+    },
+    {
+      "item": "create_expansion:tungsten_ingot"
+    },
+    {
+      "item": "create_expansion:tungsten_ingot"
+    },
+    {
+      "item": "create_expansion:tungsten_ingot"
+    },
+    {
+      "item": "create_expansion:tungsten_ingot"
+    },
+    {
+      "item": "create_expansion:tungsten_ingot"
+    },
+    {
+      "item": "create_expansion:tungsten_ingot"
+    },
+    {
+      "item": "create_expansion:tungsten_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:tungsten_block"
+    }
+  ]
+}

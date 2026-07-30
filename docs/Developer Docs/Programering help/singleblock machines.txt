@@ -1,0 +1,77 @@
+Create Expansion - Singleblock Machines
+=======================================
+
+Singleblock CE machines use `SingleBlockDefinition`. Put definitions in the matching package:
+
+- `machine/machines/steam/singleblock`
+- `machine/machines/electric/singleblock`
+- `machine/machines/without_energy/singleblock`
+
+Example
+-------
+
+```java
+import net.mads.createexpansion.machine.SingleBlockDefinition.Option;
+
+SingleBlockDefinition.machine()
+        .machineDefinition(Option.id("steam_hammer"))
+        .machineDefinition(Option.displayName("Steam Hammer"))
+        .machineDefinition(Option.consumesSteam())
+        .machineDefinition(Option.tier(MachineTier.STEAM_COPPER))
+        .machineDefinition(Option.recipeType(CERecipeTypes.TEST_STEAM_MACHINE))
+        .machineDefinition(Option.slots(1, 1, 0, 0))
+        .machineDefinition(Option.steamCapacity(4000))
+        .machineDefinition(Option.steamUsage(100))
+        .machineDefinition(Option.progressBar(ProgressBar.HAMMER))
+        .machineDefinition(Option.overlay(
+                "block/machines/ino/energy_input_hatch",
+                "block/machines/ino/redstone_port",
+                "block/machines/ino/input_bus",
+                "block/machines/ino/input_hatch"
+        ))
+        .machineDefinition(Option.mineableWith(MiningTool.PICKAXE))
+        .machineDefinition(Option.miningTier(MiningTier.IRON))
+        .build();
+```
+
+Use Ctrl+Click or hover on an `Option` method for its JavaDoc. Only singleblock-relevant options
+are exposed by autocomplete.
+
+Tier and resource rules
+-----------------------
+
+- Steam copper generates copper and bronze variants.
+- Steam bronze generates only bronze.
+- Electric tiers generate the selected tier and every registered higher electric tier.
+- Copper runs CE recipes at 8x ULV duration.
+- Bronze runs them at 4x ULV duration.
+- Bronze doubles the configured copper steam usage and capacity.
+- Use `consumesSteam`, `producesSteam`, `consumesEnergy`, or `producesEnergy` to declare direction.
+
+Runtime and IO
+--------------
+
+Singleblocks and CE multiblocks share `CERecipeLogic`. Item/fluid inputs are consumed once,
+resource use or production occurs each processing tick, output space is checked before completion,
+and execution is persisted. Losing steam or CE resets progress to zero without consuming inputs
+again.
+
+`.slots(itemInputs, itemOutputs, fluidInputs, fluidOutputs)` controls storage and GUI layout.
+Definitions are validated against every attached recipe type's maximum IO. GUI item/fluid slots
+use the CE slot textures and fluid slots render the real fluid texture.
+
+Steam machine top faces are reserved for the muffler. A blocked vent can only explode while the
+machine is actively processing. Electric machines do not render the muffler.
+
+Progress bars
+-------------
+
+The recipe type supplies the default typed `ProgressBar`. A singleblock can override it with
+`Option.progressBar(...)`. The GUI centers the selected bar and expands to avoid slot overlap.
+
+Deferred
+--------
+
+First-pass `BlockInteraction`, conditions, and modifiers are implemented for singleblocks and shared
+with CE multiblocks. General timed definition IO remains stored on definitions but not run by the
+generic runtime yet. See `Programering help/block interactions and conditions.txt`.

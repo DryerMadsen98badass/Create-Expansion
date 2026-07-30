@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:rhenium_andesite_ore",
-    "create_expansion:rhenium_diorite_ore",
-    "create_expansion:rhenium_ore",
-    "create_expansion:rhenium_end_stone_ore",
-    "create_expansion:rhenium_blackstone_ore",
-    "create_expansion:rhenium_deepslate_ore",
-    "create_expansion:rhenium_granite_ore",
     "create_expansion:rhenium_netherrack_ore",
-    "create_expansion:rhenium_tuff_ore"
+    "create_expansion:rhenium_deepslate_ore",
+    "create_expansion:rhenium_andesite_ore",
+    "create_expansion:rhenium_end_stone_ore",
+    "create_expansion:rhenium_diorite_ore",
+    "create_expansion:rhenium_tuff_ore",
+    "create_expansion:rhenium_blackstone_ore",
+    "create_expansion:rhenium_ore",
+    "create_expansion:rhenium_granite_ore"
   ]
 }

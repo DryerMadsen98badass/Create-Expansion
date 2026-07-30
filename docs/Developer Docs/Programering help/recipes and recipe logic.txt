@@ -10,6 +10,7 @@ See:
 - recipes\turning recipes.txt
 - recipes\machine recipes.txt
 - recipes\adding recipe types.txt
+- block interactions and conditions.txt
 
 Datagen entry point:
 
@@ -128,3 +129,63 @@ Rules:
 - Cutting recipes now use `CreateRecipeBuilder` from `recipe/recipes/CreateRecipeBuilder.java`.
 - Terracotta mold templates are generated as one cutting recipe per colored terracotta input.
 - Each colored terracotta recipe has one 5% output and 100 tick duration.
+IndustrialMaterials automatic material recipes
+==============================================
+
+- For normal material parts, use `.existing(PART, "namespace:item_or_block")` when the part already
+  exists outside this mod. Use `.notexisting(PART, "texture/path")` when Create Expansion should
+  register the part itself but use a custom texture instead of the tintable material-set model.
+  Item parts generate an `item/generated` model with `layer0`; block parts generate a `cube_all`
+  model. Texture paths are relative to `assets/create_expansion/textures/` unless a namespace is
+  included.
+- Materials with `NUGGET`, `INGOT`, and `BLOCK` automatically generate Create compacting recipes:
+  9 nuggets -> 1 ingot, and 9 ingots -> 1 block.
+- Materials with `DUST`, `SMALL_DUST`, and `TINY_DUST` automatically generate crafting table
+  recipes: dust -> 4 small dust, dust -> 9 tiny dust, 4 small dust -> dust, and 9 tiny dust -> dust.
+- Materials with `INGOT` and `DUST` automatically generate a Create milling recipe:
+  1 ingot -> 1 dust.
+- Use `.stone()` on a material with `DUST` to generate a Create milling recipe from
+  `minecraft:<material_id>` to that material's dust.
+- Use `.existing(STONE, "namespace:block")` when the input stone block already exists but is
+  not the default minecraft id, for example `minecraft:diorite`. The first argument is an
+  `IndustrialMaterial`, matching the existing style used by `.existing(ORE, "...")`.
+- Use `.notexisting(STONE, "block/path/texture")` when the input stone block should be
+  auto-registered. The generated block id is `<material_id>_stone`, its model is `cube_all`, and the
+  texture path is relative to `assets/create_expansion/textures/` unless a namespace is included.
+- Short and typo aliases are intentionally supported in `IndustrialMaterials.java`:
+  `.existing(STONE, ...)`/`.exisitng(STONE, ...)` map to `.existingStone(...)`, and
+  `.notexisting(STONE, ...)`/`.notexisitng(STONE, ...)` map to `.notexistingStone(...)`.
+- The generated recipe id is
+  `create_expansion:milling/stones/<material_id>_<stone_source_id>_to_dust`.
+- Vanilla/Create duplicate crafting recipes for ingot/nugget/block compression and decompression
+  are removed manually through the recipe removal list.
+
+Generic centrifuge/electrolyser recipe types
+============================================
+
+- `IndustrialMaterials` now supports material processing flags:
+  `.centrifuge(MachineTier.ULV)`, `.centrifuge(MachineTier.ULV, inputCount)`, and
+  `.electrolyser(MachineTier.ULV)`. The centrifuge input count override applies only to centrifuge
+  recipes; if it is `0`/omitted, input dust count defaults to the total component amount.
+  `.electrolyzer(...)` is an alias for `.electrolyser(...)`.
+- Material centrifuge/electrolyser recipes are generated from `contains(...)` using dust input and
+  dust outputs. The input dust count equals the total component amount, and output dust counts match
+  each component amount. If the input material or any component lacks `DUST`, no recipe is generated.
+- Base duration is `total_component_amount * 200` ticks. Large Kinetic Centrifuge recipes are brass
+  tier (`MachineTier.LV`) and use half that duration. Electric Centrifuge and Electrolyser recipes
+  use the base duration; `CERecipe.runtimeDuration(...)` handles higher-tier overclocking. Electrolyser
+  recipes are clamped to minimum `MachineTier.ULV`.
+- ULV centrifuge materials also generate recipes for the small kinetic centrifuge when the outputs
+  fit its limits. The small kinetic centrifuge now uses sized item inputs.
+- `CERecipeTypes.LARGE_KINETIC_CENTRIFUGE` is a generic CE recipe type with max 2 item inputs,
+  1 fluid input, 9 item outputs, 3 fluid outputs, kinetic input, and no CE input. The brass-tier
+  large kinetic machine should write recipes with `.kinetic(MachineTier.LV)` because brass static
+  kinetic ports map to LV in `StaticMachinePortType`.
+- `CERecipeTypes.ELECTRIC_CENTRIFUGE` is the electric version with the same IO limits, no kinetic
+  input, and CE input. Put the machine tier on the recipe with `.tier(...)`/`.CEt(...)`.
+- `CERecipeTypes.ELECTROLYSER` is the electric electrolyser type with the same IO limits, no kinetic
+  input, and CE input. Material auto-generation should not create electrolyser recipes below
+  `MachineTier.ULV`.
+- These use the generic `CERecipe` serializer/type (`create_expansion:machine`); the recipe's
+  top-level `recipe_type` selects the machine logic, while `tier`, `kinetic`, `cet`, duration, IO,
+  and optional runtime fields stay on the recipe JSON.

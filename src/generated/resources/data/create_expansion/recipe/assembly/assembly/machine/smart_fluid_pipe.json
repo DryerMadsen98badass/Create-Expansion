@@ -1,0 +1,19 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create:fluid_pipe"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:brass_sheet"
+    },
+    {
+      "count": 4,
+      "item": "create_expansion:brass_screw"
+    }
+  ],
+  "result": {
+    "id": "create:smart_fluid_pipe"
+  }
+}

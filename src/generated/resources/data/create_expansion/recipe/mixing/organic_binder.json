@@ -1,0 +1,22 @@
+{
+  "type": "create:mixing",
+  "heat_requirement": "heated",
+  "ingredients": [
+    {
+      "type": "neoforge:single",
+      "amount": 200,
+      "fluid": "create_expansion:industrial_resin"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:plant_fiber"
+    }
+  ],
+  "processing_time": 400,
+  "results": [
+    {
+      "amount": 250,
+      "id": "create_expansion:organic_binder"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "values": [
+    "create_expansion:firebricks",
+    "create_expansion:silica_bricks",
+    "create_expansion:bricked_copper_casing",
+    "create_expansion:bricked_bronze_casing",
+    "create_expansion:firebrick_firebox",
+    "create_expansion:steam_copper_steam_forge_hammer",
+    "create_expansion:steam_bronze_steam_forge_hammer",
+    "create_expansion:steam_copper_steam_alloy_smelter",
+    "create_expansion:steam_bronze_steam_alloy_smelter",
+    "create_expansion:steam_copper_steam_induction_chamber",
+    "create_expansion:steam_bronze_steam_induction_chamber",
+    "create_expansion:steam_copper_steam_autoclave",
+    "create_expansion:steam_bronze_steam_autoclave",
+    "create_expansion:steam_copper_steam_extractor",
+    "create_expansion:steam_bronze_steam_extractor",
+    "create_expansion:steam_copper_steam_compressor",
+    "create_expansion:steam_bronze_steam_compressor",
+    "create_expansion:steam_copper_steam_distillery",
+    "create_expansion:steam_bronze_steam_distillery"
+  ]
+}

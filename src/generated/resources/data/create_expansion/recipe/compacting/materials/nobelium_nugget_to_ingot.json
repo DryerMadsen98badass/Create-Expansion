@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:nobelium_nugget"
+    },
+    {
+      "item": "create_expansion:nobelium_nugget"
+    },
+    {
+      "item": "create_expansion:nobelium_nugget"
+    },
+    {
+      "item": "create_expansion:nobelium_nugget"
+    },
+    {
+      "item": "create_expansion:nobelium_nugget"
+    },
+    {
+      "item": "create_expansion:nobelium_nugget"
+    },
+    {
+      "item": "create_expansion:nobelium_nugget"
+    },
+    {
+      "item": "create_expansion:nobelium_nugget"
+    },
+    {
+      "item": "create_expansion:nobelium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:nobelium_ingot"
+    }
+  ]
+}

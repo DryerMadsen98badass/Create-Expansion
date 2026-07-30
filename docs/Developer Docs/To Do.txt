@@ -1,6 +1,188 @@
 Current verification
 ====================
 
+- 2026-07-29: Added GTCEu-style right-click fluid slot interaction for singleblock machine GUIs
+  and machine port GUIs. Fluid slots are still visual slots, but right-clicking a highlighted slot
+  sends a menu button to the server and `FluidSlotClickHandler` moves one carried fluid container
+  into or out of the target tank through the item fluid capability. Singleblock input fluid slots
+  can fill/drain, singleblock output fluid slots drain only, input hatches fill, output hatches
+  drain, and I/O interfaces do both. See
+  `Programering help/machine gui fluid slots.txt` for file paths and manual test steps.
+
+- 2026-07-29: Reworked CE transfer to a GTCEu-style packet model while deliberately keeping CE
+  cables lossless and preserving every existing cable's `maxAmps()` calculation. Energy storage,
+  voltage, amperage, and transfer APIs now use `long`; standard machine/hatch buffers hold 64
+  tier-voltage packets and default to 1A input/output; consumers enforce one shared per-tick amp
+  limit across all sources; sources deduct only accepted whole packets; and directly adjacent
+  containers use the same transfer contract as cable routes. Fake network-wide recipe-load flow
+  was removed, so only successful transfers mark the cables on the selected route. Cables now
+  track a 20-tick amperage average, current packet voltage, GTCEu-style temperature, overamp,
+  overvoltage, insulation failure, cooling, and melting. Jade now matches GTCEu's Voltage,
+  Amperage current/max, overload percentage, and yellow machine energy progress presentation.
+  CE has no distance loss and no loss display.
+
+- 2026-07-29: Replaced the public CE definition builders with filtered typed-option APIs:
+  `SingleBlockDefinition.Option`, `MultiblockDefinition.Option`,
+  `RecipeTypeDefinition.Option`, and `RecipeDefinition.Option`. Existing CE singleblocks,
+  CE multiblocks, recipe types, manual CE recipes, and IndustrialMaterials-generated CE recipes
+  have been migrated. Create kinetic machine definitions and Create recipe builders remain
+  untouched. Recipe types define a typed `ProgressBar` default and machines may override it.
+  CE GUI and JEI use the custom item/fluid slot textures, render actual fluid textures, center
+  progress bars, and expand singleblock/JEI layout for configured slots and progress-bar size.
+  JavaDoc on every option provides Ctrl+Click/hover documentation.
+
+- 2026-07-29: Implemented first-pass CE block interactions, conditions, and modifiers for both
+  singleblock machines and CE multiblock controllers. Machine-side rules apply to every recipe that
+  machine runs, while recipe-side rules serialize into CE recipe JSON and apply only to that recipe.
+  Interactions use direct controller-relative `.at(x, y, z)` coordinates rotated by machine facing;
+  no anchor/name mapping is used. Implemented actions are require, consume, convert, place, and
+  persistent damage/wear with machine-owned NBT counters and machine-only loot drops. Implemented
+  requirements include any block, empty, exact block, block tag, fluid, any-of, all-of, and not.
+  Implemented conditions include weather, time, height, redstone, light, biome, biome tag, dimension,
+  sky exposure, all/any/not groups, and ON_START/WHILE_PROCESSING/ON_COMPLETE checks. Implemented
+  modifiers support ordered first-match behavior with stacked recipe speed, energy usage, and steam
+  usage effects. Temporary test/example machines and recipes were removed again; use
+  `Programering help/block interactions and conditions.txt` for examples instead.
+  `compileJava -x createMinecraftArtifacts` succeeds.
+
+- 2026-07-28: Replaced the separate singleblock and CE multiblock recipe loops with one
+  GTCEu-inspired `CERecipeLogic` lifecycle and persisted `CERecipeExecution`. Both machine forms
+  now share recipe search, input consumption, per-tick resource use/production, progress,
+  power/steam reset behavior, output blocking, completion, menu data, and Jade progress. Existing
+  machine and recipe definitions remain the source data and are adapted into the common
+  runtime. CE multiblocks retain structure, colored IO routes, buses/hatches, world IO, tiers,
+  overclocking, coils, kinetic requirements, and generator parallel. Create kinetic machines were
+  not changed. `compileJava` succeeds.
+
+- Remaining after first-pass interaction work: in-game verification for singleblock and multiblock
+  interaction timing, block-state property requirements, true fluid source draining/filling,
+  richer visual/debug feedback for failed conditions/interactions, general timed definition IO from
+  `.inputItem(...)`, `.inputFluid(...)`, `.outputItem(...)`, and
+  `.outputFluid(...)`; and automated GameTests for complete machine lifecycles.
+
+- 2026-07-29: Optimized CE machine recipe search with a GTCEu-style first pass. Singleblock
+  machines now persist a preferred last successful recipe id, matching the multiblock controller
+  behavior. Both singleblocks and multiblocks try the preferred recipe first, then fall back to
+  `CERecipeLookup`, which indexes recipes per `RecipeManager` as
+  `recipe_type -> first item ingredient -> candidate recipes`. Recipes without item ingredients
+  stay in a recipe-type fallback list, so fluid-only recipes still work. Recipe-side modifiers are
+  still evaluated during preparation, so preferred recipes keep their recipe-specific modifier
+  checks.
+
+- 2026-07-28: Singleblock machines now have first-pass real processing. Steam and electric test
+  machines share the CE recipe system, with one item input and one item output. Steam consumes
+  stored steam every tick, applies copper x8 / bronze x4 duration scaling, doubles bronze steam
+  usage/capacity, emits top steam particles while active, blocks top IO, and explodes if the vent
+  is blocked while active for 100 ticks. Electric test machines have an internal CE buffer connected
+  to the CE wire network and consume CE/t while processing. GUI, item IO, generated recipes, Jade
+  steam/progress display, and model tint removal are implemented. Remaining later work:
+  multi-slot runtime, fluid recipe IO, animated overlay cycling, blockinteraction, and recipe
+  conditions.
+
+- 2026-07-28: Follow-up fixes for singleblock machines: the GUI now uses the vanilla furnace
+  texture and furnace progress arrow with synced menu progress data; steam tank insertion is
+  hard-capped to the tier capacity; electric singleblock machines no longer render the steam
+  muffler overlay; electric singleblock casing models use tier tint on the universal casing
+  texture; electric singleblock machines connect directly to CE wires; and JEI registers every
+  singleblock machine item as a catalyst for its recipe types.
+
+- 2026-07-28: Steam singleblock machine item tooltips now show steam usage in `mB/t` and the
+  duration multiplier relative to ULV recipes. CE recipe JEI categories now draw a vanilla
+  furnace-style progress bar between inputs and outputs.
+
+- 2026-07-28: Singleblock machine GUI was changed away from the furnace screen to a vanilla
+  inventory-style panel. Item and fluid slots now expand from `.slots(...)`; recipe fluid input and
+  output tanks are stored on the block entity; fluid recipes can match/drain/fill those tanks; and
+  GUI fluid slots render the real fluid still texture with tint instead of flat color boxes.
+
+- 2026-07-28: CE recipe JEI catalysts now use the command block only as a fallback. If at least one
+  singleblock or multiblock machine uses a CE recipe type, that machine is the catalyst and the
+  command block is not added for that recipe type.
+
+- 2026-07-28: Electric singleblock machines now use the shared `CEEnergyStorage` implementation
+  used by energy input hatches instead of a custom CE container, while keeping dynamic tier,
+  capacity, and stored-energy fields on the singleblock block entity.
+
+- 2026-07-28: Singleblock Jade display no longer duplicates steam tank information; Jade's normal
+  fluid/tank display owns stored steam, while the singleblock provider shows active recipe and a
+  compact progress bar with ticks.
+
+- 2026-07-28: Singleblock follow-up: Jade progress now uses a real Jade progress element, electric
+  singleblock Jade CE display writes stored/capacity from the block entity directly, CE/steam loss
+  resets processing to 0 and deactivates particles/active overlay, and active front overlays cycle
+  with an `overlay_frame` blockstate every 5 ticks. JEI CE recipe category icons now use the first
+  singleblock or multiblock machine using that recipe type before falling back to command block.
+
+- 2026-07-28: Singleblock Jade progress and electric energy now share one provider with flat,
+  uniquely prefixed server fields. The generic CE provider skips singleblock machines, preventing
+  its stale duplicate `0` display. Resource use begins after recipe initialization, so total steam
+  or CE consumption is exactly adjusted duration times configured per-tick use.
+
+- 2026-07-26: Added generated vanilla furnace and vanilla blast furnace recipes for gem materials.
+  Materials with GEM plus RAW_ORE, CRUSHED_ORE, or WASHED_CRUSHED_ORE now generate cooking recipes
+  that output the material gem. Smelting takes 200 ticks; blasting takes 100 ticks.
+
+- 2026-07-26: Ore vein locator now uses a runtime generated-vein list. When worldgen reaches
+  the center chunk for a deposit, it registers dimension, deposit id, center position, surface
+  indicator position, layers, and indicator types. `/create_expansion ore_vein <target>` searches
+  this generated list only, so it reports the exact center coordinate of a nearby loaded/generated
+  vein. The surface indicator uses the same X/Z as the center and a surface Y, so digging straight
+  down from the marker leads toward the vein center. The list is saved through `SavedData` as
+  `create_expansion_ore_veins.dat` in the world/dimension data folder, with readable NBT entries
+  for dimension, deposit id, center, surface indicator, layers, and indicator types.
+  A human-readable text export is also written to the world `data` folder as
+  `create_expansion_ore_veins.txt` or a dimension-suffixed variant.
+  The mod opens this saved data on server-level load so the file is created after a world save,
+  even if no ore vein entry has been added yet.
+  `/create_expansion ore_veins` lists the nearest generated veins in the current dimension within
+  10000 blocks.
+
+- 2026-07-26: Reworked ore deposits to the GTCEu/realistic vein plan. Overworld now uses
+  grouped veins such as coal, iron, copper, tin, zinc_lead, silver, gold, aluminum,
+  nickel_cobalt, manganese, chromium, reduced deep tungsten/molybdenum/platinum,
+  reduced thorium_rare_earth, salt, carbonate, gypsum, apatite_fluorite, lithium,
+  lapis, diamond, emerald, ruby_sapphire, and topaz_quartz. Coal is included as a
+  real material layer in carbon/iron/diamond-style veins. Village bonus deposits were
+  kept unchanged.
+
+- 2026-07-26: Added Nether-specific ore veins and surface markers. New Nether deposits include
+  nether_coal_sulfur, nether_copper_sulfide, nether_nickel_cobalt, nether_tungsten_moly,
+  nether_platinum, and nether_salt_potash, with existing nether_quartz, nether_gold,
+  nether_sulfur, and basalt_heavy adjusted to the new plan. Surface indicators now include
+  Nether sulfur crust, ash patch, basalt spot, and gold flecks.
+
+- 2026-07-26: Added large rare End surface-only deposits. End deposits now use a larger
+  horizontal radius and surface-centered placement for end_titanium, end_rare_earth,
+  end_crystal, end_thorium, end_uranium, end_platinum, end_tungsten,
+  end_lithium_beryllium, and end_gem.
+
+- 2026-07-26: Extended MaterialOreLootProvider so existing vanilla/Create ore blocks listed
+  in IndustrialMaterials, such as minecraft:iron_ore and create:zinc_ore, generate override
+  loot tables under their own namespaces using the same CE material ore loot logic. This keeps
+  vanilla iron ore dropping IRON-family outputs, not hematite outputs.
+
+- 2026-07-25: Ore generation follow-up: add/verify ore generation in Nether and End,
+  include coal in ore veins, and fix existing ore/deepslate ore loot tables so they use
+  the same correct ore-drop behavior as the other generated ores.
+
+- 2026-07-25: Added a dynamic ActiveBlocks definition path for blocks with only an
+  `active` state. Firebrick Firebox now lives in `src/main/java/net/mads/createexpansion/block/ActiveBlocks.java`
+  with id, display name, off texture, and on texture. Registration, item registration,
+  language, creative tab entry, loot, blockstate, block models, and item model are driven
+  from that list. Verification was not completed because the user will run compile/datagen locally.
+
+- 2026-07-25: Added dynamic mining-tool tags for simple blocks and active blocks.
+  Definitions default to pickaxe mining with stone-tool drop level, and can call
+  `.mineableWith(MiningTool.AXE)`, `.mineableWith(MiningTool.SHOVEL)`,
+  `.mineableWith(MiningTool.HOE)`, `.mineableWith(MiningTool.PICKAXE)`, or multiple
+  tools. Generated simple-block variants inherit the parent mining tools. Foundry
+  blocks and auto-generated multiblock controllers now also get pickaxe mining plus
+  stone-tool drop level through datagen.
+
+- 2026-07-26: Added generated loot tables for all Foundry blocks:
+  foundry_casing, foundry_controller, creative_foundry_controller, foundry_input_hatch,
+  foundry_output_hatch, foundry_input_bus, foundry_drain, and foundry_mold_caster.
+
 - 2026-07-17: Copied the Spring Coiling Machine model asset group from the official
   Negodya1/Create-Vintage-Improvements 1.20.1 source into
   `models/block/machines/kinetic/spring_coiling_machine/`, with required local textures under the
@@ -70,8 +252,10 @@ Current verification
 - `latest.log` currently reports missing blockstate definitions for `kinetic_centrifuge_part` and
   `kinetic_wire_drawer_part`. Add air-backed part blockstates in a separate implementation pass.
 
-- Run `runClient` and verify Jade on a live energy wire. Expected wire tooltip is only `Flow: <amps>A` and `Tier: <flow tier>`.
-- If it still shows `Flow: 0A` and `Tier: none`, add a temporary Jade debug line showing whether data came from server cache, wire BE, or adjacent input hatch scan.
+- Run `runClient` and verify active cable Jade shows `Voltage: current / maximum` and
+  `Amperage: 20-tick average / maximum`; inactive cables should show only their maximum values.
+- Verify cable Jade never displays recipe demand on cable branches that did not carry a successful
+  packet transfer.
 
 Kinetic Single Block Machines
 =============================
@@ -563,6 +747,84 @@ Implementation checklist per machine
 
 Recent small fixes
 ------------------
+- 2026-07-26: Started one-use fired bucket system. `fired_bucket` uses
+  `textures/item/standalone/bucket_brick.png`, and fired filled bucket variants are registered for
+  water, lava, and generated CE fluids. Fired buckets intentionally have no crafting remainder, so
+  crafting consumes the container. Runtime recipe injection wraps loaded crafting recipes that use
+  normal buckets and adds `create_expansion:fired_bucket/...` copies where fired buckets match as
+  their normal equivalents and bucket outputs are converted to fired bucket outputs.
+- 2026-07-26: Industrial materials now support per-part furnace fuel values with
+  `.furnaceFuel(MaterialPart, itemsSmelted)`. Coal fuel values are: `GEM`/vanilla coal = 8 items,
+  `DUST` = 8 items, `FLAWLESS_GEM` = 16 items, and `EXQUISITE_GEM` = 32 items. `FuelEvents` now
+  reads material-part fuel entries in addition to SimpleItems and SimpleBlocks.
+- 2026-07-26: Added `RecipeRemovalEvents` on the NeoForge GAME bus. It listens to
+  `OnDatapackSyncEvent`, filters loaded `RecipeHolder<?>` entries against
+  `RemovedCreateRecipes.ALL`, and calls `RecipeManager.replaceRecipes(...)`. The old generated
+  `neoforge:false` overrides remain as a datagen fallback, and the runtime mixin remains disabled.
+- 2026-07-26: After testing showed no recipe-removal log output, `RecipeRemovalEvents` is now
+  registered explicitly with `NeoForge.EVENT_BUS.addListener(...)` from `CreateExpansion` instead
+  of relying on `@EventBusSubscriber` discovery.
+- 2026-07-26: Removed the leftover `@SubscribeEvent` annotation from `RecipeRemovalEvents` after
+  switching to explicit listener registration.
+- 2026-07-26: Tried a KubeJS-style `RecipeManagerMixin` that removed ids from
+  `RemovedCreateRecipes.ALL` after recipe loading. It is no longer active; the mixin json has an
+  empty `mixins` list and recipe removal now uses `RecipeRemovalEvents`.
+- 2026-07-26: Added temporary recipe removal debug logging to `RecipeManagerMixin`; it reports
+  removed ids, configured ids missing from runtime `RecipeManager`, and up to 300 matching loaded
+  recipe ids for iron/copper/gold/zinc/brass/andesite/cogwheel/mechanical/casing/crushed/raw/tuff.
+- 2026-07-26: Declared `createexpansion.mixins.json` in `neoforge.mods.toml` via `[[mixins]]`;
+  the mixin JSON existed in resources but was not loaded before this metadata entry.
+- 2026-07-26: Fixed `RecipeManagerMixin` world-load crash caused by mutating immutable
+  `RecipeManager.byName` directly. The mixin now filters `getRecipes()` and calls Minecraft's
+  `replaceRecipes(...)` with the kept recipes.
+- 2026-07-26: Made recipe removal crash-safe with a catch/log fallback and excluded generated
+  `data/create_expansion/recipe/**/test/**` example recipes from runtime resources, because stale
+  Create example recipes were causing datapack parsing errors during world load.
+- 2026-07-26: Disabled runtime `RecipeManagerMixin` removal again after world-load crashes during
+  testing. Active recipe removal is back to datagen JSON overrides from `RecipeRemovalProvider`.
+- 2026-07-26: Recipe removals use `RemovedCreateRecipes.ALL` to generate one minimal recipe
+  override per target id. Each generated file only contains `neoforge:false`, without a dummy
+  barrier recipe payload.
+- 2026-07-26: Replaced `RemovedCreateRecipes.ALL` with the current in-game recipe ids provided
+  by testing, removing stale vanilla ids and duplicate entries from the old removal list.
+- 2026-07-26: Wired IndustrialMaterials washed crushed ore sifter recipes into `CERecipeProvider`
+  next to the manual `SifterRecipes` build call. These generated sifter recipes now require 64 RPM.
+- 2026-07-26: Village coal bonus deposits now use material layers instead of the vanilla-only
+  coal helper: Coal 82, Graphite 17, Diamond 1. Coal also has generated ore variants for diorite,
+  andesite, granite, tuff, netherrack, blackstone, and end stone while keeping vanilla coal ore and
+  deepslate coal ore as existing blocks.
+- 2026-07-22: Added custom manual assembly recipes using `create_expansion:assembly`, not Create
+  sequenced assembly. The player places the base block in-world and right-clicks that block with
+  ordered counted item inputs. Counts mean repeated one-item right-clicks, and `loops(n)` repeats
+  the whole chain. Successful clicks and completion spawn particles. The final action replaces the
+  base block with the output block when the result is a block item. JEI shows up to 16 ordered input
+  stacks with counts; Jade shows the next required single item and total progress on the active
+  world block.
+- 2026-07-22: Mechanical Centrifuge JEI preview now renders the static base, rotor, and four basin
+  partials as one rotating assembly by rotating the basin offsets around the center. Visual runtime
+  check is still needed in JEI because local Gradle compile is blocked by the wrapper
+  `ClassNotFoundException: org.gradle.launcher.GradleMain`.
+- 2026-07-22: Small kinetic centrifuge now supports sized item inputs and material centrifuge flags
+  support `.centrifuge(MachineTier tier, int inputCount)`. Remaining follow-up: upgrade the other
+  custom kinetic recipe classes/builders to sized item inputs everywhere and add chanced fluid output
+  support only to recipe types that actually accept fluids.
+- 2026-07-22: IndustrialMaterials stone crushing API is implemented, but final compile/runData
+  verification still needs the local Gradle wrapper fixed because `compileJava` fails before project
+  compilation with `ClassNotFoundException: org.gradle.launcher.GradleMain`.
 - 2026-07-18: Mechanical Centrifuge item tooltip says "Right click with four basins".
 - 2026-07-18: Moved IndustrialMaterials-driven recipe providers/lists/helpers to material/recipes.
 - 2026-07-18: Made material recipe builder constructors public so material/recipes can instantiate them.
+ENERGY/Jade verification:
+- Verify in-game that an actively transferring cable shows non-zero measured amps after registering the server provider against BlockEntity.class exactly like GTCEu.
+- Verify cable Jade decays to 0.0A after consumption stops and after a consumer is removed.
+- Verify hatches transfer 2A, singleblocks accept 1A, and both show their complete CE buffer in Jade.
+- Verify active recipes show readable inputs, outputs, progress, and no recipe ID.
+- Verify electric singleblock Jade shows runtime A, voltage tier, CE/t, progress, input, output, and energy buffer.
+- Verify a continuously powered LV route displays Voltage: LV rather than None.
+- Verify two continuously processing 1A machines settle at 2.0A with no recipe-start power gaps.
+- Verify explicit singleblock update packets keep Jade energy stored, recipe inputs/outputs, CE/t, and duration progress synchronized.
+- Verify singleblock duration uses a red bar with white text and energy uses a yellow bar with white text.
+- Verify CE machine GUI and CE JEI categories have identical capability slot and progressbar placement for item-only, fluid-only, and mixed recipes.
+- Add explicit custom machine UI providers only when a machine cannot use the shared automatic layout.
+- Verify mirrored input ordering for partial and full rows in both machine GUI and JEI.
+- Verify over-voltage creates a destructive TNT-style explosion for singleblocks and energy hatches.

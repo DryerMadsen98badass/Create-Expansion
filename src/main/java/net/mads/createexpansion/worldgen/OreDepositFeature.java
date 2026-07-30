@@ -31,7 +31,6 @@ import java.util.Optional;
 
 public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
     private static final int CHUNK_SIZE = 16;
-    private static final int HORIZONTAL_RADIUS_BLOCKS = 24;
     private static final double ORE_DENSITY_MULTIPLIER = 2.35D;
     private static final double HALO_DENSITY = 0.34D;
     private static final double HALO_EDGE_FADE_START = 0.70D;
@@ -132,6 +131,7 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
 
     private static boolean generateChunkDeposit(WorldGenLevel level, int chunkX, int chunkZ, GridDeposit gridDeposit) {
         OreDeposit deposit = gridDeposit.deposit();
+        int horizontalRadius = deposit.horizontalRadius();
         int minX = chunkX * CHUNK_SIZE;
         int minZ = chunkZ * CHUNK_SIZE;
         int minY = Math.max(level.getMinBuildHeight(), gridDeposit.centerY() - deposit.verticalRadius());
@@ -140,13 +140,14 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
         if (gridDeposit.allowSurfaceIndicator() && isCenterChunk(chunkX, chunkZ, gridDeposit)) {
+            registerGeneratedDeposit(level, gridDeposit);
             placed |= generateSurfaceIndicator(level, gridDeposit);
         }
 
         for (int x = minX; x < minX + CHUNK_SIZE; x++) {
             for (int z = minZ; z < minZ + CHUNK_SIZE; z++) {
-                double dx = (x + 0.5D - gridDeposit.centerX()) / HORIZONTAL_RADIUS_BLOCKS;
-                double dz = (z + 0.5D - gridDeposit.centerZ()) / HORIZONTAL_RADIUS_BLOCKS;
+                double dx = (x + 0.5D - gridDeposit.centerX()) / horizontalRadius;
+                double dz = (z + 0.5D - gridDeposit.centerZ()) / horizontalRadius;
 
                 for (int y = minY; y <= maxY; y++) {
                     double dy = (y + 0.5D - gridDeposit.centerY()) / deposit.verticalRadius();
@@ -197,6 +198,17 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
                 && chunkZ == Math.floorDiv(gridDeposit.centerZ(), CHUNK_SIZE);
     }
 
+    private static void registerGeneratedDeposit(WorldGenLevel level, GridDeposit gridDeposit) {
+        BlockPos center = new BlockPos(gridDeposit.centerX(), gridDeposit.centerY(), gridDeposit.centerZ());
+        BlockPos surface = findSurfaceGround(level, gridDeposit.centerX(), gridDeposit.centerZ());
+        if (surface == null) {
+            int surfaceY = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, gridDeposit.centerX(), gridDeposit.centerZ()) - 1;
+            surface = new BlockPos(gridDeposit.centerX(), surfaceY, gridDeposit.centerZ());
+        }
+
+        OreVeinLocator.registerGenerated(level, gridDeposit.deposit(), center, surface);
+    }
+
     private static boolean generateSurfaceIndicator(WorldGenLevel level, GridDeposit gridDeposit) {
         OreDeposit deposit = gridDeposit.deposit();
         if (deposit.surfaceIndicators().isEmpty()) {
@@ -217,6 +229,10 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
             case CRYSTAL_SPOT -> placeCrystalSpot(level, gridDeposit);
             case DEAD_PLANTS -> placeDeadPlants(level, gridDeposit);
             case BOULDER_CLUSTER -> placeBoulderCluster(level, gridDeposit);
+            case NETHER_SULFUR_CRUST -> placeNetherSulfurCrust(level, gridDeposit);
+            case NETHER_ASH_PATCH -> placeNetherAshPatch(level, gridDeposit);
+            case NETHER_BASALT_SPOT -> placeNetherBasaltSpot(level, gridDeposit);
+            case NETHER_GOLD_FLECKS -> placeNetherGoldFlecks(level, gridDeposit);
         };
     }
 
@@ -368,6 +384,22 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
         }
 
         return placed;
+    }
+
+    private static boolean placeNetherSulfurCrust(WorldGenLevel level, GridDeposit gridDeposit) {
+        return placeGroundPatch(level, gridDeposit, 5, 0x5F1F00, (seed, x, z) -> netherSulfurCrustBlock(seed, x, z));
+    }
+
+    private static boolean placeNetherAshPatch(WorldGenLevel level, GridDeposit gridDeposit) {
+        return placeGroundPatch(level, gridDeposit, 5, 0xA55A5, (seed, x, z) -> netherAshPatchBlock(seed, x, z));
+    }
+
+    private static boolean placeNetherBasaltSpot(WorldGenLevel level, GridDeposit gridDeposit) {
+        return placeGroundPatch(level, gridDeposit, 5, 0xBA5A17, (seed, x, z) -> netherBasaltSpotBlock(seed, x, z));
+    }
+
+    private static boolean placeNetherGoldFlecks(WorldGenLevel level, GridDeposit gridDeposit) {
+        return placeGroundPatch(level, gridDeposit, 4, 0x901D, (seed, x, z) -> netherGoldFleckBlock(seed, x, z));
     }
 
     private static boolean placeGroundPatch(WorldGenLevel level, GridDeposit gridDeposit, int radius, int salt, SurfaceBlockPicker blockPicker) {
@@ -554,6 +586,74 @@ public class OreDepositFeature extends Feature<NoneFeatureConfiguration> {
         }
 
         return Blocks.STONE.defaultBlockState();
+    }
+
+    private static BlockState netherSulfurCrustBlock(long seed, int x, int z) {
+        double roll = randomUnit(mixedSeed(seed, x, z, 0x5F1F));
+        if (roll < 0.30D) {
+            return Blocks.MAGMA_BLOCK.defaultBlockState();
+        }
+
+        if (roll < 0.62D) {
+            return Blocks.SOUL_SAND.defaultBlockState();
+        }
+
+        if (roll < 0.82D) {
+            return Blocks.GRAVEL.defaultBlockState();
+        }
+
+        return Blocks.NETHERRACK.defaultBlockState();
+    }
+
+    private static BlockState netherAshPatchBlock(long seed, int x, int z) {
+        double roll = randomUnit(mixedSeed(seed, x, z, 0xA55));
+        if (roll < 0.36D) {
+            return Blocks.SOUL_SOIL.defaultBlockState();
+        }
+
+        if (roll < 0.68D) {
+            return Blocks.BLACKSTONE.defaultBlockState();
+        }
+
+        if (roll < 0.86D) {
+            return Blocks.BASALT.defaultBlockState();
+        }
+
+        return Blocks.GRAVEL.defaultBlockState();
+    }
+
+    private static BlockState netherBasaltSpotBlock(long seed, int x, int z) {
+        double roll = randomUnit(mixedSeed(seed, x, z, 0xBA5));
+        if (roll < 0.38D) {
+            return Blocks.BASALT.defaultBlockState();
+        }
+
+        if (roll < 0.66D) {
+            return Blocks.BLACKSTONE.defaultBlockState();
+        }
+
+        if (roll < 0.84D) {
+            return Blocks.SMOOTH_BASALT.defaultBlockState();
+        }
+
+        return Blocks.MAGMA_BLOCK.defaultBlockState();
+    }
+
+    private static BlockState netherGoldFleckBlock(long seed, int x, int z) {
+        double roll = randomUnit(mixedSeed(seed, x, z, 0x901D));
+        if (roll < 0.18D) {
+            return Blocks.GILDED_BLACKSTONE.defaultBlockState();
+        }
+
+        if (roll < 0.50D) {
+            return Blocks.BLACKSTONE.defaultBlockState();
+        }
+
+        if (roll < 0.72D) {
+            return Blocks.MAGMA_BLOCK.defaultBlockState();
+        }
+
+        return Blocks.NETHERRACK.defaultBlockState();
     }
 
     private static BlockState boulderBlock(long seed, int index, int y) {

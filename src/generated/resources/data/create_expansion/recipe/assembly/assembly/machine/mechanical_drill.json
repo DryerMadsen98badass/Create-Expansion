@@ -1,0 +1,27 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create:andesite_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create_expansion:drill_head"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 1,
+      "item": "create:shaft"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    }
+  ],
+  "result": {
+    "id": "create:mechanical_drill"
+  }
+}

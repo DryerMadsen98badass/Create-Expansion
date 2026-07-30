@@ -1,5 +1,6 @@
 package net.mads.createexpansion.client.screen;
 
+import net.mads.createexpansion.client.gui.CEMachineGuiTextures;
 import net.mads.createexpansion.menu.FoundryControllerMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -317,8 +318,7 @@ public class FoundryControllerScreen extends AbstractContainerScreen<FoundryCont
     }
 
     private static void drawSlot(GuiGraphics graphics, int x, int y) {
-        drawInset(graphics, x, y, 18, 18);
-        graphics.fill(x + 2, y + 2, x + 16, y + 16, SLOT);
+        CEMachineGuiTextures.drawItemSlot(graphics, x, y);
     }
 
     private static void drawInset(GuiGraphics graphics, int x, int y, int width, int height) {

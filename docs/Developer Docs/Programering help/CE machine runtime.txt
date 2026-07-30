@@ -1,0 +1,152 @@
+Create Expansion - Shared CE Machine Runtime
+============================================
+
+Scope
+-----
+
+Singleblock machines and CE multiblocks use the same recipe lifecycle in
+`machine/runtime/CERecipeLogic`.
+
+Create kinetic machines are intentionally outside this runtime. Hydraulic Press, Kinetic
+Centrifuge, Kinetic Lathe, Kinetic Sifter, Kinetic Wire Drawer, Kinetic Rolling Mill, and
+Kinetic Coiling Machine keep their Create-based processing.
+
+Definitions remain the public API
+---------------------------------
+
+Machine definitions and CE recipe definitions remain declarative. Definitions do not implement
+their own tick loop. The runtime converts a matching `CERecipe` plus the machine definition into a
+persisted `CERecipeExecution`.
+
+The public definition entry points are:
+
+- `SingleBlockDefinition.machine()` with `.machineDefinition(SingleBlockDefinition.Option...)`
+- `MultiblockDefinition.machine()` with `.machineDefinition(MultiblockDefinition.Option...)`
+- `RecipeTypeDefinition.recipeType()` with
+  `.recipeTypeDefinition(RecipeTypeDefinition.Option...)`
+- `RecipeDefinition.recipe()` with `.recipeDefinition(RecipeDefinition.Option...)`
+
+Each nested `Option` type is deliberately separate. Autocomplete therefore only exposes valid
+options for the definition being written. Create kinetic machines and their Create recipe builders
+do not use this API.
+
+The shared execution contains:
+
+- recipe id and CE recipe type
+- adjusted duration
+- signed resource use per tick (positive consumes, negative produces)
+- parallel count
+- resolved item/fluid inputs and outputs
+- machine-specific route data
+
+Recipe lifecycle
+----------------
+
+`CERecipeLogic` owns the common lifecycle:
+
+1. Check that the machine is ready.
+2. Search for a compatible recipe.
+3. Validate output space and required resources.
+4. Consume recipe inputs once when the recipe starts.
+5. Consume or produce CE/steam every processing tick.
+6. Complete only when all outputs still fit.
+7. Insert outputs and clear the active execution.
+
+Recipe search is optimized in two steps:
+
+- Each machine/controller remembers the last successfully started recipe id and tries that recipe
+  first on the next search. This also reuses recipe-side modifiers naturally because the same recipe
+  is checked before falling back to wider lookup.
+- If the preferred recipe no longer matches, `CERecipeLookup` uses a per-`RecipeManager` index:
+  `recipe_type -> first item ingredient -> candidate recipes`. Recipes with no item ingredient, for
+  example fluid-only recipes, are kept in that recipe type's fallback list. This is a practical
+  GTCEu-style ingredient tree for item inputs without streaming every CE recipe for each idle
+  search.
+
+The runtime status is one of:
+
+- `IDLE`
+- `WORKING`
+- `WAITING_FOR_RESOURCE`
+- `WAITING_FOR_OUTPUT`
+- `MACHINE_INVALID`
+
+If CE or steam disappears, processing becomes inactive and progress resets to zero. The prepared
+execution remains, so already-consumed item/fluid inputs are not consumed a second time when power
+returns. An output blockage keeps completed progress until the outputs can be inserted.
+
+The complete execution and progress are saved to block entity NBT. Reloading a world does not
+reroll outputs or lose an active process.
+
+Machine adapters
+----------------
+
+`CERecipeLogicHost` is the adapter between the common lifecycle and physical machine storage.
+
+Singleblock machines adapt:
+
+- local item input/output handlers
+- local fluid input/output tanks
+- local steam tank
+- local CE energy storage
+- the generated steam/electric tier instance
+
+CE multiblocks adapt:
+
+- formed-structure validation
+- color-routed item buses and fluid hatches
+- world item input/output positions
+- energy input/output hatches
+- tier, voltage, amperage, coil heat, kinetic, and parallel rules
+
+The multiblock stores its selected IO color route in `CERecipeExecution.machineData`, so a running
+recipe finishes on the same route after save/load.
+
+GUI, Jade, and JEI
+------------------
+
+`CERecipeMenuData` is the common menu data source for singleblock and multiblock screens. It
+provides formed state, processing state, progress, duration, parallel, and signed resource use.
+
+Jade uses one `MachineInfoProvider` for both machine forms. It reads the common recipe logic,
+shows the active recipe, uses Jade's progress element, and reports waiting-for-resource,
+output-full, or invalid-machine states. Electric singleblocks send their real server-side stored
+energy and capacity.
+
+JEI remains recipe-type driven. Every singleblock or multiblock definition using a CE recipe type
+is a catalyst for that category. The first real machine is the category icon. A command block is
+used only when no machine currently uses that recipe type.
+
+Recipe types select a typed default progress bar with
+`RecipeTypeDefinition.Option.progressBar(ProgressBar.HAMMER)`. A machine can override the GUI bar
+with its own `Option.progressBar(...)`; JEI keeps the recipe type default. CE item/fluid slots use
+the textures in `assets/create_expansion/gui/slot`, and fluid slots render the fluid's still
+texture and tint.
+
+Singleblock and machine-port fluid slots are clickable GUI fluid slots, not vanilla item slots.
+Right-clicking a hovered fluid slot sends a menu button to the server. The server reads the carried
+cursor item, uses its item fluid capability, and moves one container worth of fluid into or out of
+the target `FluidTank`. See `Programering help/machine gui fluid slots.txt` for the exact files and
+test flow.
+
+Deferred extensions
+-------------------
+
+These are first-pass implemented in the current runtime:
+
+- machine and recipe `BlockInteraction` at controller-relative coordinates
+- machine and recipe conditions for weather, time, height, redstone, light, biome, biome tag,
+  dimension, sky exposure, and all/any/not groups
+- require, consume, convert, place, and persistent damage interactions
+- machine and recipe modifiers for recipe speed, CE usage, and steam usage
+
+These are still deferred:
+
+- block-state property requirements
+- true fluid source fill/drain as a world action
+- general definition-driven timed `.inputItem(...)`, `.inputFluid(...)`, `.outputItem(...)`, and
+  `.outputFluid(...)` operations outside CE recipes
+- dedicated automated GameTests for the full lifecycle
+
+See also `Programering help/block interactions and conditions.txt` for the proposed API shape for
+the deferred block-interaction and condition work.

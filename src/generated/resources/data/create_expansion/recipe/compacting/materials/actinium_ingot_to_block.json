@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:actinium_ingot"
+    },
+    {
+      "item": "create_expansion:actinium_ingot"
+    },
+    {
+      "item": "create_expansion:actinium_ingot"
+    },
+    {
+      "item": "create_expansion:actinium_ingot"
+    },
+    {
+      "item": "create_expansion:actinium_ingot"
+    },
+    {
+      "item": "create_expansion:actinium_ingot"
+    },
+    {
+      "item": "create_expansion:actinium_ingot"
+    },
+    {
+      "item": "create_expansion:actinium_ingot"
+    },
+    {
+      "item": "create_expansion:actinium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:actinium_block"
+    }
+  ]
+}

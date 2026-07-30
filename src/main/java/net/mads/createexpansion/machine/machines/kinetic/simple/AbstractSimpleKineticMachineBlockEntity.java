@@ -252,7 +252,7 @@ public abstract class AbstractSimpleKineticMachineBlockEntity extends KineticBlo
     }
 
     protected void consumeRecipeInputs(SingleItemKineticRecipe recipe) {
-        inputInv.extractItem(0, 1, false);
+        inputInv.extractItem(0, recipe.inputCount(), false);
     }
 
     private boolean canFit(ItemStack result) {

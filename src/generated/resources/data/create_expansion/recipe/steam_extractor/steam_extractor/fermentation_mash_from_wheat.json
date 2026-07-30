@@ -1,0 +1,26 @@
+{
+  "type": "create_expansion:machine",
+  "cet": 0,
+  "duration": 220,
+  "fluid_outputs": [
+    {
+      "amount": 200,
+      "id": "create_expansion:fermentation_mash"
+    }
+  ],
+  "item_inputs": [
+    {
+      "count": 8,
+      "item": "minecraft:wheat"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:wet_biomass"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:steam_extractor"
+}

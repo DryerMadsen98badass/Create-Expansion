@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:osmium_nugget"
+    },
+    {
+      "item": "create_expansion:osmium_nugget"
+    },
+    {
+      "item": "create_expansion:osmium_nugget"
+    },
+    {
+      "item": "create_expansion:osmium_nugget"
+    },
+    {
+      "item": "create_expansion:osmium_nugget"
+    },
+    {
+      "item": "create_expansion:osmium_nugget"
+    },
+    {
+      "item": "create_expansion:osmium_nugget"
+    },
+    {
+      "item": "create_expansion:osmium_nugget"
+    },
+    {
+      "item": "create_expansion:osmium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:osmium_ingot"
+    }
+  ]
+}

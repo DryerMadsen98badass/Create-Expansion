@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:silicon_andesite_ore",
-    "create_expansion:silicon_diorite_ore",
-    "create_expansion:silicon_ore",
-    "create_expansion:silicon_end_stone_ore",
-    "create_expansion:silicon_blackstone_ore",
-    "create_expansion:silicon_deepslate_ore",
-    "create_expansion:silicon_granite_ore",
     "create_expansion:silicon_netherrack_ore",
-    "create_expansion:silicon_tuff_ore"
+    "create_expansion:silicon_deepslate_ore",
+    "create_expansion:silicon_andesite_ore",
+    "create_expansion:silicon_end_stone_ore",
+    "create_expansion:silicon_diorite_ore",
+    "create_expansion:silicon_tuff_ore",
+    "create_expansion:silicon_blackstone_ore",
+    "create_expansion:silicon_ore",
+    "create_expansion:silicon_granite_ore"
   ]
 }

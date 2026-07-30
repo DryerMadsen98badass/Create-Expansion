@@ -1,6 +1,7 @@
 package net.mads.createexpansion.energy;
 
 import net.mads.createexpansion.machine.MachineTierStats;
+import net.mads.createexpansion.registry.BlockRegistry;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -13,78 +14,85 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class EnergyWireBlockEntity extends BlockEntity {
-    private static final int MELT_HEAT = 1000;
-    private static final int FLOW_VISIBLE_TICKS = 40;
+import java.util.Arrays;
+import java.util.Optional;
 
-    private int currentVoltage;
-    private int currentAmperage;
-    private int currentCEt;
-    private int displayVoltage;
-    private int displayCEt;
-    private long lastTransferTick = -1;
-    private int heat;
+public class EnergyWireBlockEntity extends BlockEntity {
+    public static final int DEFAULT_TEMPERATURE = 293;
+    public static final int INSULATION_FAILURE_TEMPERATURE = 1500;
+    public static final int MELT_TEMPERATURE = 3000;
+
+    private static final int FLOW_AVERAGE_TICKS = 20;
+
+    private final PerTickAverage amperage = new PerTickAverage(FLOW_AVERAGE_TICKS);
+    private long currentVoltage;
+    private long recentVoltage;
+    private long currentAmperage;
+    private long lastFlowTick = Long.MIN_VALUE;
+    private long syncedVoltage;
+    private double syncedAmperage;
+    private long lastBroadcastVoltage = Long.MIN_VALUE;
+    private double lastBroadcastAmperage = Double.NaN;
+    private int heatQueue;
+    private int temperature = DEFAULT_TEMPERATURE;
 
     public EnergyWireBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.ENERGY_WIRE.get(), pos, blockState);
     }
 
-    public int maxVoltage() {
-        return wire().map(wire -> MachineTierStats.ceTier(wire.tier())).orElse(0);
+    public long maxVoltage() {
+        return wire().map(wire -> MachineTierStats.ceTier(wire.tier())).orElse(0L);
     }
 
-    public int maxAmperage() {
+    public long maxAmperage() {
         return wire().map(EnergyWireBlock::maxAmps).orElse(0);
     }
 
-    public int currentVoltage() {
-        return isFlowVisible() ? currentVoltage : 0;
+    public long currentVoltage() {
+        if (level != null && level.isClientSide()) {
+            return syncedVoltage;
+        }
+        return level == null ? 0L : currentVoltageForTick(level.getGameTime());
     }
 
-    public int currentAmperage() {
-        return isFlowVisible() ? currentAmperage : 0;
+    public double averageAmperage() {
+        if (level != null && level.isClientSide()) {
+            return syncedAmperage;
+        }
+        return level == null ? 0.0D : amperage.average(level.getGameTime());
     }
 
-    public int currentCEt() {
-        return isFlowVisible() ? (displayCEt > 0 ? displayCEt : currentCEt) : 0;
+    public int temperature() {
+        return temperature;
     }
 
-    public int displayVoltage() {
-        return isFlowVisible() ? (displayVoltage > 0 ? displayVoltage : currentVoltage) : 0;
-    }
-
-    public void incrementAmperage(int amps, int voltage) {
-        if (level == null || level.isClientSide() || amps <= 0 || voltage <= 0) {
+    public void incrementAmperage(long amps, long voltage) {
+        if (level == null || level.isClientSide() || amps <= 0L || voltage <= 0L) {
             return;
         }
 
-        resetFlowForNewTick();
-
+        long tick = level.getGameTime();
+        resetCurrentTick(tick);
         currentAmperage += amps;
-        currentCEt += amps * voltage;
         currentVoltage = Math.max(currentVoltage, voltage);
+        recentVoltage = Math.max(recentVoltage, voltage);
+        amperage.increment(tick, amps);
 
-        if (voltage > maxVoltage()) {
-            heat += 80;
+        long overAmps = currentAmperage - maxAmperage();
+        if (overAmps > 0L) {
+            heatQueue += saturatedInt(overAmps * 40L);
         }
-        int overAmps = currentAmperage - maxAmperage();
-        if (overAmps > 0) {
-            heat += overAmps * 40;
-        }
-
-        contentChanged();
+        syncFlowIfChanged();
     }
 
-    public void incrementLoad(int cePerTick, int voltage) {
-        if (level == null || level.isClientSide() || cePerTick <= 0 || voltage <= 0) {
+    public void applyOverVoltage(long voltage) {
+        if (voltage <= maxVoltage()) {
             return;
         }
-
-        resetFlowForNewTick();
-
-        displayCEt += cePerTick;
-        displayVoltage = Math.max(displayVoltage, voltage);
-
+        int suppliedTier = MachineTierStats.tierIndex(MachineTierStats.tierForVoltage(voltage));
+        int cableTier = MachineTierStats.tierIndex(MachineTierStats.tierForVoltage(maxVoltage()));
+        int tierDifference = Math.max(1, suppliedTier - cableTier);
+        heatQueue += saturatedInt((long) tierDifference * 80L);
         contentChanged();
     }
 
@@ -92,49 +100,57 @@ public class EnergyWireBlockEntity extends BlockEntity {
         if (level.isClientSide()) {
             return;
         }
-        if (wire.heat >= MELT_HEAT) {
+
+        wire.amperage.advance(level.getGameTime());
+        wire.resetCurrentTick(level.getGameTime());
+        wire.syncFlowIfChanged();
+
+        if (wire.heatQueue > 0) {
+            wire.temperature = saturatedInt((long) wire.temperature + wire.heatQueue);
+            wire.heatQueue = 0;
+            wire.contentChanged();
+        } else if (wire.temperature > DEFAULT_TEMPERATURE) {
+            int cooling = Math.max(1, (int) Math.pow(wire.temperature - DEFAULT_TEMPERATURE, 0.35D));
+            wire.temperature = Math.max(DEFAULT_TEMPERATURE, wire.temperature - cooling);
+            wire.contentChanged();
+        }
+
+        if (wire.temperature >= MELT_TEMPERATURE) {
             level.setBlockAndUpdate(pos, Blocks.FIRE.defaultBlockState());
             return;
         }
-        if (wire.heat > 0 && level.getGameTime() % 20 == 0) {
-            wire.heat = Math.max(0, wire.heat - 25);
-            wire.contentChanged();
-        }
-        if ((wire.currentAmperage != 0 || wire.currentCEt != 0 || wire.displayCEt != 0) && !wire.isFlowVisible()) {
-            wire.currentAmperage = 0;
-            wire.currentVoltage = 0;
-            wire.currentCEt = 0;
-            wire.displayVoltage = 0;
-            wire.displayCEt = 0;
-            wire.contentChanged();
+
+        if (wire.temperature >= INSULATION_FAILURE_TEMPERATURE
+                && state.getBlock() instanceof EnergyWireBlock cable
+                && cable.insulated()
+                && level.random.nextFloat() < 0.1F) {
+            wire.removeInsulation(level, pos, state, cable);
         }
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt("Heat", heat);
+        tag.putInt("Temperature", temperature);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        heat = Math.max(0, tag.getInt("Heat"));
+        temperature = Math.max(DEFAULT_TEMPERATURE, tag.getInt("Temperature"));
+        if (tag.contains("FlowVoltage")) {
+            syncedVoltage = tag.getLong("FlowVoltage");
+            syncedAmperage = tag.getDouble("FlowAmperage");
+        }
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putInt("Heat", heat);
-        writeFlowUpdate(tag);
+        tag.putInt("Temperature", temperature);
+        tag.putLong("FlowVoltage", currentVoltage());
+        tag.putDouble("FlowAmperage", averageAmperage());
         return tag;
-    }
-
-    @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        super.handleUpdateTag(tag, registries);
-        heat = Math.max(0, tag.getInt("Heat"));
-        readFlowUpdate(tag);
     }
 
     @Override
@@ -142,42 +158,37 @@ public class EnergyWireBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    private boolean isFlowVisible() {
-        return level != null && lastTransferTick >= 0 && level.getGameTime() - lastTransferTick <= FLOW_VISIBLE_TICKS;
-    }
-
-    private void resetFlowForNewTick() {
-        long now = level.getGameTime();
-        if (lastTransferTick != now) {
-            currentAmperage = 0;
-            currentVoltage = 0;
-            currentCEt = 0;
-            displayVoltage = 0;
-            displayCEt = 0;
-            lastTransferTick = now;
+    private void resetCurrentTick(long tick) {
+        if (lastFlowTick != tick) {
+            currentVoltage = 0L;
+            currentAmperage = 0L;
+            lastFlowTick = tick;
         }
     }
 
-    private void writeFlowUpdate(CompoundTag tag) {
-        tag.putInt("CurrentVoltage", currentVoltage());
-        tag.putInt("CurrentAmperage", currentAmperage());
-        tag.putInt("CurrentCEt", currentCEt());
-        tag.putInt("DisplayVoltage", displayVoltage());
-    }
-
-    private void readFlowUpdate(CompoundTag tag) {
-        currentVoltage = Math.max(0, tag.getInt("CurrentVoltage"));
-        currentAmperage = Math.max(0, tag.getInt("CurrentAmperage"));
-        currentCEt = Math.max(0, tag.getInt("CurrentCEt"));
-        displayVoltage = Math.max(0, tag.getInt("DisplayVoltage"));
-        displayCEt = currentCEt;
-        if (currentAmperage > 0 || currentCEt > 0 || displayVoltage > 0) {
-            lastTransferTick = level == null ? 0 : level.getGameTime();
+    private void removeInsulation(Level level, BlockPos pos, BlockState state, EnergyWireBlock cable) {
+        var tierWires = BlockRegistry.ENERGY_WIRES.get(cable.tier().id());
+        if (tierWires == null || !tierWires.containsKey(cable.thickness())) {
+            return;
+        }
+        EnergyWireBlock replacement = tierWires.get(cable.thickness()).get();
+        int oldTemperature = temperature;
+        level.setBlockAndUpdate(pos, EnergyWireBlock.copyConnections(state, replacement));
+        if (level.getBlockEntity(pos) instanceof EnergyWireBlockEntity replacementEntity) {
+            replacementEntity.temperature = oldTemperature;
+            replacementEntity.contentChanged();
         }
     }
 
-    private java.util.Optional<EnergyWireBlock> wire() {
-        return getBlockState().getBlock() instanceof EnergyWireBlock wire ? java.util.Optional.of(wire) : java.util.Optional.empty();
+    private long currentVoltageForTick(long tick) {
+        if (lastFlowTick == tick) {
+            return currentVoltage;
+        }
+        return amperage.average(tick) > 0.0D ? recentVoltage : 0L;
+    }
+
+    private Optional<EnergyWireBlock> wire() {
+        return getBlockState().getBlock() instanceof EnergyWireBlock wire ? Optional.of(wire) : Optional.empty();
     }
 
     private void contentChanged() {
@@ -185,6 +196,76 @@ public class EnergyWireBlockEntity extends BlockEntity {
         if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, 3);
+        }
+    }
+
+    private void syncFlowIfChanged() {
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+        long voltage = currentVoltage();
+        double average = averageAmperage();
+        if (voltage == lastBroadcastVoltage && Double.compare(average, lastBroadcastAmperage) == 0) {
+            return;
+        }
+        lastBroadcastVoltage = voltage;
+        lastBroadcastAmperage = average;
+        contentChanged();
+    }
+
+    private static int saturatedInt(long value) {
+        return (int) Math.min(Integer.MAX_VALUE, Math.max(Integer.MIN_VALUE, value));
+    }
+
+    private static final class PerTickAverage {
+        private final long[] values;
+        private long lastTick = Long.MIN_VALUE;
+        private int index;
+
+        private PerTickAverage(int length) {
+            values = new long[length];
+        }
+
+        private void increment(long tick, long value) {
+            advance(tick);
+            values[index] = saturatedAdd(values[index], value);
+        }
+
+        private double average(long tick) {
+            advance(tick);
+            long sum = 0L;
+            for (long value : values) {
+                sum = saturatedAdd(sum, value);
+            }
+            return sum / (double) values.length;
+        }
+
+        private void advance(long tick) {
+            if (lastTick == Long.MIN_VALUE) {
+                lastTick = tick;
+                return;
+            }
+            long difference = tick - lastTick;
+            if (difference <= 0L) {
+                return;
+            }
+            if (difference >= values.length) {
+                Arrays.fill(values, 0L);
+                index = 0;
+            } else {
+                for (long offset = 0; offset < difference; offset++) {
+                    index = (index + 1) % values.length;
+                    values[index] = 0L;
+                }
+            }
+            lastTick = tick;
+        }
+
+        private static long saturatedAdd(long first, long second) {
+            if (second > 0L && first > Long.MAX_VALUE - second) {
+                return Long.MAX_VALUE;
+            }
+            return first + second;
         }
     }
 }

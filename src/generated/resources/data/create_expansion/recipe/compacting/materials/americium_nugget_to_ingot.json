@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:americium_nugget"
+    },
+    {
+      "item": "create_expansion:americium_nugget"
+    },
+    {
+      "item": "create_expansion:americium_nugget"
+    },
+    {
+      "item": "create_expansion:americium_nugget"
+    },
+    {
+      "item": "create_expansion:americium_nugget"
+    },
+    {
+      "item": "create_expansion:americium_nugget"
+    },
+    {
+      "item": "create_expansion:americium_nugget"
+    },
+    {
+      "item": "create_expansion:americium_nugget"
+    },
+    {
+      "item": "create_expansion:americium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:americium_ingot"
+    }
+  ]
+}

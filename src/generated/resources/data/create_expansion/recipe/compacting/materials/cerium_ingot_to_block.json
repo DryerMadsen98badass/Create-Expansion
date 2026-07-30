@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:cerium_ingot"
+    },
+    {
+      "item": "create_expansion:cerium_ingot"
+    },
+    {
+      "item": "create_expansion:cerium_ingot"
+    },
+    {
+      "item": "create_expansion:cerium_ingot"
+    },
+    {
+      "item": "create_expansion:cerium_ingot"
+    },
+    {
+      "item": "create_expansion:cerium_ingot"
+    },
+    {
+      "item": "create_expansion:cerium_ingot"
+    },
+    {
+      "item": "create_expansion:cerium_ingot"
+    },
+    {
+      "item": "create_expansion:cerium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:cerium_block"
+    }
+  ]
+}

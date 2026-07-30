@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:wire_drawing",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot"
+    }
+  ],
+  "max_rpm": 128,
+  "results": [
+    {
+      "id": "minecraft:chain"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "D": {
+      "item": "create_expansion:emerald_small_dust"
+    }
+  },
+  "pattern": [
+    "DDD",
+    "D  ",
+    "   "
+  ],
+  "result": {
+    "count": 9,
+    "id": "create_expansion:emerald_tiny_dust"
+  }
+}

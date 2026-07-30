@@ -1,0 +1,26 @@
+{
+  "type": "create_expansion:machine",
+  "cet": 0,
+  "duration": 600,
+  "fluid_outputs": [
+    {
+      "amount": 10,
+      "id": "create_expansion:creosote_oil"
+    }
+  ],
+  "item_inputs": [
+    {
+      "count": 6,
+      "item": "minecraft:sugar_cane"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:bio_char_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:coke_oven"
+}

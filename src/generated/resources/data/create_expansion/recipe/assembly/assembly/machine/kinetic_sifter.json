@@ -1,0 +1,23 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create:andesite_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create_expansion:mesh"
+    },
+    {
+      "count": 1,
+      "item": "create:cogwheel"
+    },
+    {
+      "count": 4,
+      "item": "create_expansion:wrought_iron_screw"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:kinetic_sifter"
+  }
+}

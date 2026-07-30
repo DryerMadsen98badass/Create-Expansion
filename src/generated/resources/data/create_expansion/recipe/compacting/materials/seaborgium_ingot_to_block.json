@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:seaborgium_ingot"
+    },
+    {
+      "item": "create_expansion:seaborgium_ingot"
+    },
+    {
+      "item": "create_expansion:seaborgium_ingot"
+    },
+    {
+      "item": "create_expansion:seaborgium_ingot"
+    },
+    {
+      "item": "create_expansion:seaborgium_ingot"
+    },
+    {
+      "item": "create_expansion:seaborgium_ingot"
+    },
+    {
+      "item": "create_expansion:seaborgium_ingot"
+    },
+    {
+      "item": "create_expansion:seaborgium_ingot"
+    },
+    {
+      "item": "create_expansion:seaborgium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:seaborgium_block"
+    }
+  ]
+}

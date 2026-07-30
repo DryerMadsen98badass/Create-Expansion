@@ -1,0 +1,24 @@
+Ore deposits
+============
+
+- Ore deposits are grid-based and seed-stable, but the locator command now uses the runtime
+  generated-vein list instead of reporting purely hypothetical unresolved veins.
+- `OreDepositFeature` registers a vein when the deposit's center chunk is generated.
+- Registered data includes dimension, deposit id, vein center, surface indicator position, layers,
+  and indicator types.
+- The vein center is the coordinate the ore blob generates around.
+- The surface indicator position uses the same X/Z as the vein center and the terrain surface Y.
+  This keeps the player rule simple: find the marker, dig straight down.
+- `/create_expansion ore_vein <target>` searches the generated list for the current dimension and
+  returns the nearest matching generated vein within the configured grid search radius.
+- `/create_expansion ore_veins` lists generated veins in the current dimension within 10000 blocks,
+  sorted by distance. It shows the nearest 20 entries to keep chat output readable.
+- The generated-vein list is cached in memory in `OreVeinLocator.GENERATED_VEINS` and persisted
+  with `SavedData` as `create_expansion_ore_veins.dat` in the world/dimension data folder.
+- `CreateExpansion.onLevelLoad` opens the saved data for every server level, so the file should
+  exist after the world has loaded and saved even before any new vein entries are added.
+- Saved entries include dimension, deposit id, center position, surface indicator position, layers,
+  and surface indicator types. Use an NBT viewer/editor to read the `.dat` file directly.
+- A readable text export is written next to the save data as `create_expansion_ore_veins.txt`.
+  Nether/End exports get a dimension suffix, such as
+  `create_expansion_ore_veins_minecraft_the_nether.txt`.

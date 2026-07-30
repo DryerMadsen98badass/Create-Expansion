@@ -16,6 +16,7 @@ public final class CoilingRecipes {
     }
 
     public static void build(RecipeOutput output, HolderLookup.Provider holderLookup) {
+
         for (IndustrialMaterial material : IndustrialMaterials.ALL) {
             if (MaterialRecipeHelper.hasItems(material, MaterialPart.WIRE, MaterialPart.SPRING)) {
                 recipe("materials/" + material.id() + "_wire_to_spring")

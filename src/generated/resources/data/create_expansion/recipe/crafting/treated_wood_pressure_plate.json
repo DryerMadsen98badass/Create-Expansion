@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "X": {
+      "item": "create_expansion:treated_wood"
+    }
+  },
+  "pattern": [
+    "XX"
+  ],
+  "result": {
+    "id": "create_expansion:treated_wood_pressure_plate"
+  }
+}

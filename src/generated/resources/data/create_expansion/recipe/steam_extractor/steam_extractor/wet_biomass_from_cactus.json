@@ -1,0 +1,20 @@
+{
+  "type": "create_expansion:machine",
+  "cet": 0,
+  "duration": 100,
+  "item_inputs": [
+    {
+      "count": 2,
+      "item": "minecraft:cactus"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:wet_biomass"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:steam_extractor"
+}

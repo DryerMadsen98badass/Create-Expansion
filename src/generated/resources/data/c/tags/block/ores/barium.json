@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:barium_andesite_ore",
-    "create_expansion:barium_diorite_ore",
-    "create_expansion:barium_ore",
-    "create_expansion:barium_end_stone_ore",
-    "create_expansion:barium_blackstone_ore",
-    "create_expansion:barium_deepslate_ore",
-    "create_expansion:barium_granite_ore",
     "create_expansion:barium_netherrack_ore",
-    "create_expansion:barium_tuff_ore"
+    "create_expansion:barium_deepslate_ore",
+    "create_expansion:barium_andesite_ore",
+    "create_expansion:barium_end_stone_ore",
+    "create_expansion:barium_diorite_ore",
+    "create_expansion:barium_tuff_ore",
+    "create_expansion:barium_blackstone_ore",
+    "create_expansion:barium_ore",
+    "create_expansion:barium_granite_ore"
   ]
 }

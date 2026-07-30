@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:europium_nugget"
+    },
+    {
+      "item": "create_expansion:europium_nugget"
+    },
+    {
+      "item": "create_expansion:europium_nugget"
+    },
+    {
+      "item": "create_expansion:europium_nugget"
+    },
+    {
+      "item": "create_expansion:europium_nugget"
+    },
+    {
+      "item": "create_expansion:europium_nugget"
+    },
+    {
+      "item": "create_expansion:europium_nugget"
+    },
+    {
+      "item": "create_expansion:europium_nugget"
+    },
+    {
+      "item": "create_expansion:europium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:europium_ingot"
+    }
+  ]
+}

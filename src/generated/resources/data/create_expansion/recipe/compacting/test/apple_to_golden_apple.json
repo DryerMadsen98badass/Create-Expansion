@@ -1,0 +1,17 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "count": 5,
+      "item": "minecraft:apple"
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "chance": 0.1,
+      "count": 2,
+      "id": "minecraft:golden_apple"
+    }
+  ]
+}

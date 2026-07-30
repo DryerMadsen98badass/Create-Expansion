@@ -1,0 +1,426 @@
+Create Expansion - Block Interactions, Conditions, and Modifiers
+================================================================
+
+Status: implemented first pass for CE singleblocks and CE multiblocks.
+
+Core rule
+---------
+
+The same systems can be defined on machines and recipes:
+
+- Machine definition rules apply to every recipe that machine runs.
+- Recipe definition rules apply only to that recipe.
+- Runtime combines machine rules plus recipe rules.
+- No anchors are used. Every world target uses direct controller-relative `.at(x, y, z)`.
+
+Coordinates
+-----------
+
+`0, 0, 0` is the singleblock machine or multiblock controller. X is right/left, Y is vertical, and
+Z is forward/back relative to the machine. Coordinates rotate with the machine/controller facing.
+
+Block interactions
+------------------
+
+```java
+BlockInteraction.require()
+BlockInteraction.consume()
+BlockInteraction.convert().to("minecraft:cobblestone")
+BlockInteraction.place().block("minecraft:lightning_rod")
+BlockInteraction.damage()
+```
+
+`require` only checks. `consume` removes the matched block. `convert` replaces it. `place` places a
+new block. `damage` adds persistent wear to the target position until `breakAfter(...)` is reached.
+
+Example:
+
+```java
+BlockInteraction.consume()
+        .at(0, -1, 0)
+        .when(InteractionPhase.ON_COMPLETE)
+        .requires(BlockRequirement.anyOf(
+                BlockRequirement.block("minecraft:stone")
+                        .actionChance(0.25F)
+                        .lootTable(BlockLoot.dropSelf()),
+                BlockRequirement.block("minecraft:deepslate")
+                        .actionChance(0.10F)
+                        .lootTable(BlockLoot.item("minecraft:cobbled_deepslate", 0.25F)),
+                BlockRequirement.block("minecraft:tuff")
+                        .actionChance(0.0F)
+                        .lootTable(BlockLoot.none())
+        ))
+```
+
+`actionChance(0.0F)` means the requirement still matches, but the action never happens.
+
+Block requirements
+------------------
+
+```java
+BlockRequirement.anyBlock()
+BlockRequirement.empty()
+BlockRequirement.block("minecraft:stone")
+BlockRequirement.tag("minecraft:base_stone_overworld")
+BlockRequirement.fluid("minecraft:water")
+BlockRequirement.anyOf(...)
+BlockRequirement.allOf(...)
+BlockRequirement.not(...)
+```
+
+Block loot
+----------
+
+```java
+BlockLoot.dropSelf()
+BlockLoot.none()
+BlockLoot.item("minecraft:flint", 0.25F)
+BlockLoot.allOf(BlockLoot.entry("minecraft:flint", 0.25F))
+BlockLoot.anyOf(
+        BlockLoot.entry("minecraft:cobblestone", 0.75F),
+        BlockLoot.entry("minecraft:flint", 0.25F)
+)
+```
+
+Loot rolls only when the machine removes or breaks the block. If the player breaks a worn block
+manually before the machine reaches `breakAfter(...)`, the machine loot is not used.
+
+Persistent block wear
+---------------------
+
+```java
+BlockInteraction.damage()
+        .at(0, 1, 0)
+        .when(InteractionPhase.ON_COMPLETE)
+        .requires(BlockRequirement.block("minecraft:glass")
+                .damage(1)
+                .damageChance(1.0F)
+                .breakAfter(15)
+                .lootTable(BlockLoot.dropSelf()))
+```
+
+Wear is stored on the singleblock block entity or multiblock controller. The counter is tied to the
+world position and block id.
+
+Conditions
+----------
+
+```java
+Condition.weather(Weather.CLEAR)
+Condition.weather(Weather.RAIN)
+Condition.weather(Weather.THUNDER)
+Condition.time().between(0, 12000)
+Condition.height().between(60, 120)
+Condition.redstone().minimum(8)
+Condition.light().minimum(12)
+Condition.biome("minecraft:desert")
+Condition.biomeTag("minecraft:is_mountain")
+Condition.dimension("minecraft:overworld")
+Condition.canSeeSky()
+Condition.all(...)
+Condition.any(...)
+Condition.not(...)
+```
+
+Example:
+
+```java
+SingleBlockDefinition.machine()
+        .machineDefinition(SingleBlockDefinition.Option.condition(
+                Condition.all(
+                                Condition.dimension("minecraft:overworld"),
+                                Condition.height().between(40, 320),
+                                Condition.canSeeSky()
+                        )
+                        .check(InteractionPhase.WHILE_PROCESSING)
+                        .onFailure(ConditionFailure.PAUSE)
+        ))
+        .build();
+```
+
+Modifiers
+---------
+
+Modifiers can be machine-side or recipe-side. The first matching modifier in each list wins.
+Effects inside the same modifier stack.
+
+```java
+MachineModifier.modifier()
+        .requires(ModifierRequirement.item("minecraft:coal", 1))
+        .requires(ModifierRequirement.fluid("minecraft:water", 100))
+        .effect(ModifierEffect.recipeSpeed(0.15F))
+        .effect(ModifierEffect.energyUsage(-0.05F))
+```
+
+Modifier requirements:
+
+```java
+ModifierRequirement.item("minecraft:coal", 1)
+ModifierRequirement.fluid("minecraft:water", 100)
+ModifierRequirement.block(BlockInteraction.require().at(0, -1, 0).requires(...).build())
+ModifierRequirement.condition(Condition.weather(Weather.RAIN))
+```
+
+Modifier effects:
+
+```java
+ModifierEffect.recipeSpeed(0.15F)
+ModifierEffect.energyUsage(-0.05F)
+ModifierEffect.steamUsage(-0.05F)
+```
+
+Definition entry points
+-----------------------
+
+```java
+SingleBlockDefinition.Option.blockInteraction(...)
+SingleBlockDefinition.Option.condition(...)
+SingleBlockDefinition.Option.modifier(...)
+
+MultiblockDefinition.Option.blockInteraction(...)
+MultiblockDefinition.Option.condition(...)
+MultiblockDefinition.Option.modifier(...)
+
+RecipeDefinition.Option.blockInteraction(...)
+RecipeDefinition.Option.condition(...)
+RecipeDefinition.Option.modifier(...)
+```
+
+Current implementation notes
+----------------------------
+
+- Machine and recipe conditions/interactions are both checked before starting.
+- `ON_START` interactions run after recipe output/resource checks and before normal item/fluid
+  recipe inputs are consumed.
+- `WHILE_PROCESSING` conditions pause the shared recipe logic if they fail.
+- `ON_COMPLETE` interactions run before item/fluid outputs are inserted.
+- Block loot drops in-world at the target position.
+- First pass does not yet implement block-state property requirements or fluid source draining as
+  a true fluid removal operation.
+
+Implemented examples
+--------------------
+
+Use the examples in this document as copy patterns. The temporary in-code test examples were
+removed so production/test machine lists stay clean.
+
+File paths
+----------
+
+Core API/runtime:
+
+- `src/main/java/net/mads/createexpansion/machine/interaction/`
+- `src/main/java/net/mads/createexpansion/machine/SingleBlockDefinition.java`
+- `src/main/java/net/mads/createexpansion/machine/machines/electric/multiblock/MultiblockDefinition.java`
+- `src/main/java/net/mads/createexpansion/recipe/RecipeDefinition.java`
+- `src/main/java/net/mads/createexpansion/recipe/CERecipe.java`
+- `src/main/java/net/mads/createexpansion/machine/SingleBlockMachineBlockEntity.java`
+- `src/main/java/net/mads/createexpansion/machine/machines/electric/multiblock/MultiblockControllerBlockEntity.java`
+
+Singleblock definition lists:
+
+- Steam singleblocks:
+  `src/main/java/net/mads/createexpansion/machine/machines/steam/singleblock/SteamSingleBlockMachines.java`
+- Electric singleblocks:
+  `src/main/java/net/mads/createexpansion/machine/machines/electric/singleblock/ElectricSingleBlockMachines.java`
+- No-energy singleblocks:
+  `src/main/java/net/mads/createexpansion/machine/machines/without_energy/singleblock/`
+
+Recipe type definitions:
+
+- `src/main/java/net/mads/createexpansion/recipe/recipetypes/`
+- Register public constants in `src/main/java/net/mads/createexpansion/recipe/CERecipeTypes.java`
+
+Recipe lists:
+
+- `src/main/java/net/mads/createexpansion/recipe/recipes/`
+- Call new recipe-list builders from `src/main/java/net/mads/createexpansion/data/CERecipeProvider.java`
+
+How to add a steam singleblock
+------------------------------
+
+1. Add or choose a `RecipeTypeDefinition` in `recipe/recipetypes/`.
+2. Expose it in `CERecipeTypes`.
+3. Add the machine to `SteamSingleBlockMachines.ALL`.
+4. Use `Option.consumesSteam()`, a steam tier, `steamCapacity(...)`, and `steamUsage(...)`.
+5. Add optional machine-side `blockInteraction(...)`, `condition(...)`, and `modifier(...)`.
+6. Add recipes in a matching class under `recipe/recipes/<machine_name>/`.
+7. Make sure the recipe builder is called from `CERecipeProvider.buildRecipes(...)`.
+8. Run `compileJava`, then `runData`, then in-game test.
+
+Steam example:
+
+```java
+public static final SingleBlockDefinition STEAM_STONE_WASHER =
+        SingleBlockDefinition.machine()
+                .machineDefinition(Option.id("steam_stone_washer"))
+                .machineDefinition(Option.displayName("Steam Stone Washer"))
+                .machineDefinition(Option.consumesSteam())
+                .machineDefinition(Option.tier(MachineTier.STEAM_COPPER))
+                .machineDefinition(Option.recipeType(CERecipeTypes.STONE_WASHING))
+                .machineDefinition(Option.slots(1, 1, 1, 0))
+                .machineDefinition(Option.steamCapacity(4000))
+                .machineDefinition(Option.steamUsage(100))
+                .machineDefinition(Option.progressBar(ProgressBar.ARROW))
+                .machineDefinition(Option.overlay(
+                        "block/machines/ino/energy_input_hatch",
+                        "block/machines/ino/redstone_port"
+                ))
+                .machineDefinition(Option.condition(
+                        Condition.dimension("minecraft:overworld")
+                                .check(InteractionPhase.ON_START)
+                                .onFailure(ConditionFailure.CANCEL)
+                ))
+                .machineDefinition(Option.blockInteraction(
+                        BlockInteraction.damage()
+                                .at(0, 1, 0)
+                                .when(InteractionPhase.ON_COMPLETE)
+                                .requires(BlockRequirement.block("minecraft:glass")
+                                        .damage(1)
+                                        .damageChance(1.0F)
+                                        .breakAfter(15)
+                                        .lootTable(BlockLoot.dropSelf()))
+                ))
+                .machineDefinition(Option.modifier(
+                        MachineModifier.modifier()
+                                .requires(ModifierRequirement.fluid("minecraft:water", 100))
+                                .effect(ModifierEffect.recipeSpeed(0.10F))
+                                .effect(ModifierEffect.steamUsage(-0.05F))
+                ))
+                .machineDefinition(Option.mineableWith(MiningTool.PICKAXE))
+                .machineDefinition(Option.miningTier(MiningTier.IRON))
+                .build();
+```
+
+How to add an electric singleblock
+----------------------------------
+
+1. Add or choose a `RecipeTypeDefinition`.
+2. Expose it in `CERecipeTypes`.
+3. Add the machine to `ElectricSingleBlockMachines.ALL`.
+4. Use `Option.consumesEnergy()`, an electric tier, and `Option.CEt(...)` as fallback CE/t.
+5. Add optional machine-side interactions, conditions, and modifiers.
+6. Add recipes and call the recipe-list builder from `CERecipeProvider`.
+
+Electric example:
+
+```java
+public static final SingleBlockDefinition ELECTRIC_CRYSTALIZER =
+        SingleBlockDefinition.machine()
+                .machineDefinition(Option.id("electric_crystalizer"))
+                .machineDefinition(Option.displayName("Electric Crystalizer"))
+                .machineDefinition(Option.consumesEnergy())
+                .machineDefinition(Option.tier(MachineTier.LV))
+                .machineDefinition(Option.recipeType(CERecipeTypes.CRYSTALIZING))
+                .machineDefinition(Option.slots(2, 2, 1, 1))
+                .machineDefinition(Option.CEt(16))
+                .machineDefinition(Option.progressBar(ProgressBar.ARROW))
+                .machineDefinition(Option.overlay("block/machines/ino/energy_output_hatch"))
+                .machineDefinition(Option.condition(
+                        Condition.all(
+                                        Condition.canSeeSky(),
+                                        Condition.light().minimum(7)
+                                )
+                                .check(InteractionPhase.WHILE_PROCESSING)
+                                .onFailure(ConditionFailure.PAUSE)
+                ))
+                .machineDefinition(Option.blockInteraction(
+                        BlockInteraction.convert()
+                                .at(1, 0, 0)
+                                .when(InteractionPhase.ON_COMPLETE)
+                                .requires(BlockRequirement.block("minecraft:copper_block").actionChance(0.50F))
+                                .to("minecraft:oxidized_copper")
+                ))
+                .machineDefinition(Option.modifier(
+                        MachineModifier.modifier()
+                                .requires(ModifierRequirement.item("minecraft:nether_star", 1))
+                                .effect(ModifierEffect.energyUsage(-1.0F))
+                ))
+                .machineDefinition(Option.mineableWith(MiningTool.PICKAXE))
+                .machineDefinition(Option.miningTier(MiningTier.IRON))
+                .build();
+```
+
+How to add recipe-side rules
+----------------------------
+
+Use recipe-side rules when only one recipe should require a world setup. Do not add these to the
+machine if every recipe should not inherit them.
+
+```java
+RecipeDefinition.recipe()
+        .recipeDefinition(Option.id("lava_water_cobble"))
+        .recipeDefinition(Option.recipeType(CERecipeTypes.STONE_FORMING))
+        .recipeDefinition(Option.inputItem("minecraft:gravel", 1))
+        .recipeDefinition(Option.inputFluid("minecraft:lava", 100))
+        .recipeDefinition(Option.outputItem("minecraft:cobblestone", 1))
+        .recipeDefinition(Option.duration(200))
+        .recipeDefinition(Option.CEt(16))
+        .recipeDefinition(Option.condition(
+                Condition.dimension("minecraft:overworld")
+                        .check(InteractionPhase.ON_START)
+                        .onFailure(ConditionFailure.CANCEL)
+        ))
+        .recipeDefinition(Option.blockInteraction(
+                BlockInteraction.require()
+                        .at(1, 0, 0)
+                        .requires(BlockRequirement.fluid("minecraft:lava"))
+        ))
+        .recipeDefinition(Option.blockInteraction(
+                BlockInteraction.consume()
+                        .at(0, -1, 0)
+                        .when(InteractionPhase.ON_COMPLETE)
+                        .requires(BlockRequirement.anyBlock()
+                                .actionChance(0.25F)
+                                .lootTable(BlockLoot.dropSelf()))
+        ))
+        .recipeDefinition(Option.modifier(
+                MachineModifier.modifier()
+                        .requires(ModifierRequirement.condition(Condition.weather(Weather.RAIN)))
+                        .effect(ModifierEffect.recipeSpeed(0.25F))
+        ))
+        .save(output);
+```
+
+How to add a CE multiblock with rules
+-------------------------------------
+
+1. Add the controller and structure definition in the existing multiblock definition file/folder.
+2. Use `MultiblockDefinition.machine()`.
+3. Add `Option.recipeType(...)`, pattern `variant(...)`, and `where(...)` predicates as normal.
+4. Add `Option.blockInteraction(...)`, `Option.condition(...)`, and `Option.modifier(...)` the same
+   way as singleblocks.
+5. Coordinates are still relative to the controller and rotate with controller facing.
+
+Multiblock rule example:
+
+```java
+MultiblockDefinition.machine()
+        .machineDefinition(MultiblockDefinition.Option.id("large_crystalizer"))
+        .machineDefinition(MultiblockDefinition.Option.displayName("Large Crystalizer"))
+        .machineDefinition(MultiblockDefinition.Option.recipeType(CERecipeTypes.CRYSTALIZING))
+        .machineDefinition(MultiblockDefinition.Option.condition(
+                Condition.height().between(60, 320)
+                        .check(InteractionPhase.WHILE_PROCESSING)
+                        .onFailure(ConditionFailure.PAUSE)
+        ))
+        .machineDefinition(MultiblockDefinition.Option.blockInteraction(
+                BlockInteraction.consume()
+                        .at(0, -2, 1)
+                        .when(InteractionPhase.ON_COMPLETE)
+                        .requires(BlockRequirement.tag("minecraft:base_stone_overworld")
+                                .actionChance(0.25F)
+                                .lootTable(BlockLoot.dropSelf()))
+        ));
+```
+
+Notes for autocomplete
+----------------------
+
+Use the nested `Option` type for the builder you are inside:
+
+- `SingleBlockDefinition.Option` inside `.machineDefinition(...)` for singleblocks.
+- `MultiblockDefinition.Option` inside `.machineDefinition(...)` for multiblocks.
+- `RecipeDefinition.Option` inside `.recipeDefinition(...)` for recipes.
+
+That keeps Ctrl+Space suggestions filtered to options that belong in that builder.

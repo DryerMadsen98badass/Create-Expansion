@@ -1,0 +1,22 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "create_expansion:goethite_blackstone_ore"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "count": 2,
+      "id": "create_expansion:goethite_raw_ore"
+    },
+    {
+      "count": 2,
+      "id": "create:experience_nugget"
+    },
+    {
+      "id": "minecraft:blackstone"
+    }
+  ]
+}

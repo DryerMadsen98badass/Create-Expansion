@@ -1,6 +1,46 @@
 2026-07-06
 ==========
 
+- 2026-07-22: Added IndustrialMaterials stone crushing sources. Materials can now call
+  `.stone()` for the default `minecraft:<material_id>` block,
+  `.existing(STONE, "namespace:block")` for an existing input block, or
+  `.notexisting(STONE, "texture/path")` to auto-register a
+  `create_expansion:<material_id>_stone` block using that texture. Short and typo-compatible aliases
+  `.existingStone(...)`, `.notexistingStone(...)`, `.exisitng(...)`, and `.notexisitng(...)` are also
+  available for the stone-source API. Datagen now
+  creates generated stone blockstate/item models, language, loot, and Create milling recipes from
+  each stone source to that material's `DUST`. `compileJava` verification is still blocked before
+  project compilation by the local Gradle wrapper `ClassNotFoundException: org.gradle.launcher.GradleMain`.
+- 2026-07-22: Extended `.notexisting(PART, "texture/path")` to normal MaterialPart entries. It adds
+  the part to the material, keeps it registered by Create Expansion, and makes datagen use the
+  custom texture directly instead of the tintable material-set model. The typo alias
+  `.notexisitng(PART, "texture/path")` is also supported.
+- 2026-07-22: Added automatic material recipe generation from present parts. Materials with
+  `NUGGET + INGOT + BLOCK` generate Create compacting recipes for nugget -> ingot and ingot ->
+  block. Materials with `DUST + SMALL_DUST + TINY_DUST` generate crafting table conversions between
+  dust, small dust, and tiny dust. Materials with `INGOT + DUST` generate Create milling
+  ingot -> dust. Stone sources also use Create milling only.
+- 2026-07-22: Added generic CE recipe type definitions for Large Kinetic Centrifuge,
+  Electric Centrifuge, and Electrolyser. They reuse the shared `CERecipe` system instead of adding
+  separate serializers. Large Kinetic Centrifuge accepts kinetic input and has 2 item inputs,
+  1 fluid input, 9 item outputs, and 3 fluid outputs. Electric Centrifuge and Electrolyser use the
+  same IO limits with CE input and no kinetic input. Tier/runtime requirements belong on each recipe.
+- 2026-07-22: Added material metadata flags `.centrifuge(MachineTier tier)` and
+  `.electrolyser(MachineTier tier)` to `IndustrialMaterials`. They store the minimum intended
+  processing tier on the built `IndustrialMaterial`; recipe generation for those flags is separate.
+  `.electrolyzer(...)` is available as a spelling alias.
+- 2026-07-22: Added `MaterialSeparationRecipes` datagen for `.centrifuge(...)` and
+  `.electrolyser(...)`. It uses `contains(...)` to generate dust separation recipes with input dust
+  count equal to total component amount, output dust counts equal to each component amount, and
+  base duration `total * 200` ticks. Centrifuge flags generate Large Kinetic Centrifuge recipes at
+  LV/brass tier with half duration when allowed, plus Electric Centrifuge recipes at the requested
+  tier. Electrolyser flags generate Electric Electrolyser recipes clamped to minimum ULV.
+- 2026-07-22: Added sized item input support to the small kinetic centrifuge recipe type and block
+  entity. `IndustrialMaterials` now supports `.centrifuge(MachineTier tier, int inputCount)` for a
+  centrifuge-only input count override, e.g. `1x andesite_alloy_dust -> 9x andesite_dust + 1x
+  iron_dust`. ULV centrifuge material recipes also generate small kinetic centrifuge recipes when
+  they fit its output limits.
+
 - 2026-07-14: Added first-pass Mechanical Rolling Mill and Mechanical Wire Drawer kinetic blocks.
   They now have block, item, block entity, creative tab, stress, client renderer, item capability,
   item model, blockstate, and loot table registration. Rolling Mill uses the existing user-made
@@ -114,3 +154,18 @@
 - Removed the Large Gear terracotta mold template from SimpleItems and excluded CAST_LARGE_GEAR_MOLD from caster transformation recipe generation.
 - Added `CreateRecipeBuilder` for fluent Create recipe datagen and refactored `CuttingRecipes.java` to generate colored terracotta cutting recipes, one color to one terracotta mold template at 5% chance and 100 ticks.
 - Added placeholder recipe folders/classes under `recipe/recipes` for common Create recipe types. Each class is wired through `CreateRecipeExamplesProvider` and has a commented-out `save(...)` line that becomes a real generated recipe when uncommented; no existing recipe code was moved.
+- Fixed the Mechanical Centrifuge JEI animation to combine the static model, rotor partial, and four basin partials correctly. The basins now orbit the center using the same 28/16 block offset as the world renderer while also rotating with the rotor.
+- Tweaked the Mechanical Centrifuge JEI preview by removing the visible shaft, tilting the model to show more of the inside, and moving it lower in the recipe view.
+- Changed the Mechanical Centrifuge JEI rotor and basin rendering to use one shared PoseStack rotation group, so the basins stay attached to the rotor instead of sliding back and forth while spinning on their own axis.
+- Replaced the separate Mechanical Centrifuge JEI rotor/basin animation with a JEI-only combined partial model, `centrifuge_jei_assembly`, so the rotor and all four basins rotate around one model pivot while the static base stays fixed.
+- Fixed `centrifuge_jei_assembly` texture references to use named keys instead of numeric keys, preventing the JEI rotor assembly from rendering with missing black/purple textures.
+- Regenerated `centrifuge_jei_assembly` with 16px basin offsets because vanilla block models reject element coordinates outside the -16..32 range; the previous 28px offsets made the model fail to bake and fall back to missing texture.
+- Changed generated material dust crafting recipes from shapeless to shaped: dust -> small dust uses a top-left single dust pattern, dust -> tiny dust uses a center single dust pattern, small dust -> dust uses 2x2, and tiny dust -> dust uses 3x3.
+- Added material recipe skip flags through `.existingRecipe(part)` plus typo aliases, and generated gem-only recipes: Create cutting upgrades exquisite gems to flawless gems and flawless gems to gems at 50% chance for 2 outputs, crafting table packs/unpacks gem blocks, and gem raw ores pack/unpack raw blocks unless that recipe is marked existing.
+- Replaced material definitions using `.existingStone("stone", "...")` with `.exisitng(STONE, "...")`, so existing stone sources follow the same uppercase material constant style as `.existing(ORE, "...")`.
+- Added `STONES` as a real `MaterialPart` for stone-source declarations, so materials can use `.existing(STONES, "...")` / `.exisitng(STONES, "...")` like `.existing(ORE, "...")`. The builder special-cases `STONES` into stone-source data and deduplicates repeated default `.stone()` sources.
+- Adjusted shaped material dust split recipes so dust -> small dust places the dust in crafting slot 1, while dust -> tiny dust places the dust in crafting slot 2.
+- Reworked material dust crafting to avoid vanilla shaped recipe trimming conflicts: dust now crafts to 4 small dust, 1 small dust crafts to 4 tiny dust, 4 small dust crafts back to dust, and 9 tiny dust crafts back to dust. Direct dust -> tiny dust generated recipes were removed.
+- Added the Firebrick Firebox block with off/on textures from `textures/block/casings/firebox`, generated blockstate/block/item models, loot table, creative tab and lang entries, and multiblock active-state syncing so formed fireboxes turn on while their controller processes.
+- Extended `CreateRecipeBuilder` with counted item inputs plus emptying, haunting, item application, sandpaper polishing, and splashing factories, then refactored the Create recipe example classes to the fluent `.inputItem(...).outputItem(...).chance(...).duration(...).save()` style.
+- Added simple `test/...` recipes for Spring Coiling Machine, Hydraulic Press, Kinetic Lathe, Rolling Mill, and Wire Drawer through their existing material recipe providers.

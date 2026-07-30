@@ -1,0 +1,20 @@
+{
+  "type": "create_expansion:machine",
+  "cet": 0,
+  "duration": 600,
+  "item_inputs": [
+    {
+      "count": 4,
+      "item": "create_expansion:bio_char_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:activated_carbon_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:steam_induction_chamber"
+}

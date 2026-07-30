@@ -1,0 +1,28 @@
+{
+  "type": "create_expansion:machine",
+  "cet": 0,
+  "duration": 2400,
+  "item_inputs": [
+    {
+      "count": 8,
+      "item": "create_expansion:andesite_dust"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:zinc_dust"
+    },
+    {
+      "count": 48,
+      "item": "create_expansion:bio_char_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create:andesite_alloy"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:blast_furnace"
+}

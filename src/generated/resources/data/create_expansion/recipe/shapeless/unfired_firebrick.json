@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "create_expansion:iron_dust"
+    },
+    {
+      "item": "create_expansion:andesite_dust"
+    },
+    {
+      "item": "create_expansion:andesite_dust"
+    },
+    {
+      "item": "create_expansion:andesite_dust"
+    },
+    {
+      "item": "create_expansion:andesite_dust"
+    },
+    {
+      "item": "create_expansion:andesite_dust"
+    },
+    {
+      "item": "create_expansion:andesite_dust"
+    },
+    {
+      "item": "create_expansion:andesite_dust"
+    },
+    {
+      "item": "create_expansion:andesite_dust"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_expansion:iron_andesite_compound_dust"
+  }
+}

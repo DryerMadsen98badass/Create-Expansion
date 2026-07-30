@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:halite_andesite_ore",
-    "create_expansion:halite_diorite_ore",
-    "create_expansion:halite_ore",
-    "create_expansion:halite_end_stone_ore",
-    "create_expansion:halite_blackstone_ore",
-    "create_expansion:halite_deepslate_ore",
-    "create_expansion:halite_granite_ore",
     "create_expansion:halite_netherrack_ore",
-    "create_expansion:halite_tuff_ore"
+    "create_expansion:halite_deepslate_ore",
+    "create_expansion:halite_andesite_ore",
+    "create_expansion:halite_end_stone_ore",
+    "create_expansion:halite_diorite_ore",
+    "create_expansion:halite_tuff_ore",
+    "create_expansion:halite_blackstone_ore",
+    "create_expansion:halite_ore",
+    "create_expansion:halite_granite_ore"
   ]
 }

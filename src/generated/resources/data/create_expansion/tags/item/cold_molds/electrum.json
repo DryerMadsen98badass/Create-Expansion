@@ -1,19 +1,19 @@
 {
   "values": [
-    "create_expansion:electrum_cast_nugget_mold",
+    "create_expansion:electrum_cast_rod_mold",
+    "create_expansion:electrum_cast_ingot_mold",
     "create_expansion:electrum_cast_bearing_ball_mold",
     "create_expansion:electrum_cast_rotor_mold",
-    "create_expansion:electrum_cast_ingot_mold",
-    "create_expansion:electrum_cast_plate_mold",
-    "create_expansion:electrum_cast_rod_mold",
-    "create_expansion:electrum_cast_long_rod_mold",
-    "create_expansion:electrum_cast_bolt_mold",
-    "create_expansion:electrum_cast_ring_mold",
-    "create_expansion:electrum_cast_small_ring_mold",
     "create_expansion:electrum_cast_large_ring_mold",
-    "create_expansion:electrum_cast_gear_mold",
     "create_expansion:electrum_cast_small_gear_mold",
+    "create_expansion:electrum_cast_screw_mold",
+    "create_expansion:electrum_cast_bolt_mold",
+    "create_expansion:electrum_cast_long_rod_mold",
+    "create_expansion:electrum_cast_nugget_mold",
     "create_expansion:electrum_cast_bearing_mold",
-    "create_expansion:electrum_cast_screw_mold"
+    "create_expansion:electrum_cast_gear_mold",
+    "create_expansion:electrum_cast_small_ring_mold",
+    "create_expansion:electrum_cast_ring_mold",
+    "create_expansion:electrum_cast_plate_mold"
   ]
 }

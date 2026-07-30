@@ -1,0 +1,23 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create_expansion:foundry_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "minecraft:bucket"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:treated_wood_gear"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:treated_wood_screw"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:foundry_input_hatch"
+  }
+}

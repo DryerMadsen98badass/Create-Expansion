@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:indium_nugget"
+    },
+    {
+      "item": "create_expansion:indium_nugget"
+    },
+    {
+      "item": "create_expansion:indium_nugget"
+    },
+    {
+      "item": "create_expansion:indium_nugget"
+    },
+    {
+      "item": "create_expansion:indium_nugget"
+    },
+    {
+      "item": "create_expansion:indium_nugget"
+    },
+    {
+      "item": "create_expansion:indium_nugget"
+    },
+    {
+      "item": "create_expansion:indium_nugget"
+    },
+    {
+      "item": "create_expansion:indium_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:indium_ingot"
+    }
+  ]
+}

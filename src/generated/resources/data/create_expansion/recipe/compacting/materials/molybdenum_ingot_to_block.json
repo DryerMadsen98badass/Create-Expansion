@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:molybdenum_ingot"
+    },
+    {
+      "item": "create_expansion:molybdenum_ingot"
+    },
+    {
+      "item": "create_expansion:molybdenum_ingot"
+    },
+    {
+      "item": "create_expansion:molybdenum_ingot"
+    },
+    {
+      "item": "create_expansion:molybdenum_ingot"
+    },
+    {
+      "item": "create_expansion:molybdenum_ingot"
+    },
+    {
+      "item": "create_expansion:molybdenum_ingot"
+    },
+    {
+      "item": "create_expansion:molybdenum_ingot"
+    },
+    {
+      "item": "create_expansion:molybdenum_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:molybdenum_block"
+    }
+  ]
+}

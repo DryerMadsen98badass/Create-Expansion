@@ -20,13 +20,14 @@ import net.mads.createexpansion.recipe.recipetypes.CentrifugingRecipeType;
 import net.mads.createexpansion.registry.BlockRegistry;
 import net.mads.createexpansion.registry.ItemRegistry;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static mezz.jei.api.recipe.RecipeType.createRecipeHolderType;
@@ -81,7 +82,7 @@ public class CentrifugingCategory implements IRecipeCategory<RecipeHolder<Centri
         if (!recipe.itemIngredients().isEmpty()) {
             builder.addSlot(RecipeIngredientRole.INPUT, 15, 14)
                     .setBackground(CreateRecipeCategory.getRenderedSlot(), -1, -1)
-                    .addIngredients(recipe.itemIngredients().getFirst());
+                    .addItemStacks(stacksWithCount(recipe.itemIngredients().getFirst()));
         }
 
         if (!recipe.fluidIngredients().isEmpty()) {
@@ -107,15 +108,25 @@ public class CentrifugingCategory implements IRecipeCategory<RecipeHolder<Centri
         }
     }
 
+    private static List<ItemStack> stacksWithCount(SizedIngredient ingredient) {
+        return Arrays.stream(ingredient.ingredient().getItems())
+                .map(ItemStack::copy)
+                .peek(stack -> stack.setCount(ingredient.count()))
+                .toList();
+    }
+
     @Override
     public void draw(RecipeHolder<CentrifugingRecipe> holder, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
         AllGuiTextures.JEI_ARROW.render(graphics, 85, 37);
         AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 43, 8);
         AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 43, 52);
-        centrifuge.draw(graphics, 52, 35);
+        centrifuge.draw(graphics, 52, 43);
     }
 
     private static class AnimatedCentrifuge extends AnimatedKinetics {
+        private static final float VIEW_X_ROTATION = 22.5F;
+        private static final float VIEW_Y_ROTATION = -35F;
+
         @Override
         public void draw(GuiGraphics graphics, int xOffset, int yOffset) {
             PoseStack poseStack = graphics.pose();
@@ -123,41 +134,16 @@ public class CentrifugingCategory implements IRecipeCategory<RecipeHolder<Centri
             poseStack.translate(xOffset, yOffset, 200);
 
             int scale = 17;
+            float angle = getCurrentAngle() * 4;
             AllGuiTextures.JEI_SHADOW.render(graphics, -18, 26);
 
-            blockElement(shaft(Direction.Axis.Y))
-                    .rotateBlock(0, getCurrentAngle() * 2, 0)
-                    .atLocal(0, 1.1, 0)
-                    .scale(scale)
-                    .render(graphics);
-
             blockElement(BlockRegistry.KINETIC_CENTRIFUGE.get().defaultBlockState())
+                    .rotateBlock(VIEW_X_ROTATION, VIEW_Y_ROTATION, 0)
                     .scale(scale)
                     .render(graphics);
 
-            blockElement(CreateExpansionPartialModels.CENTRIFUGE_ROTOR)
-                    .rotateBlock(0, getCurrentAngle() * 4, 0)
-                    .scale(scale)
-                    .render(graphics);
-
-            blockElement(CreateExpansionPartialModels.CENTRIFUGE_BASIN)
-                    .rotateBlock(0, getCurrentAngle() * 4, 0)
-                    .atLocal(28 / 16f, 0, 0)
-                    .scale(scale)
-                    .render(graphics);
-            blockElement(CreateExpansionPartialModels.CENTRIFUGE_BASIN)
-                    .rotateBlock(0, getCurrentAngle() * 4, 0)
-                    .atLocal(-28 / 16f, 0, 0)
-                    .scale(scale)
-                    .render(graphics);
-            blockElement(CreateExpansionPartialModels.CENTRIFUGE_BASIN)
-                    .rotateBlock(0, getCurrentAngle() * 4, 0)
-                    .atLocal(0, 0, 28 / 16f)
-                    .scale(scale)
-                    .render(graphics);
-            blockElement(CreateExpansionPartialModels.CENTRIFUGE_BASIN)
-                    .rotateBlock(0, getCurrentAngle() * 4, 0)
-                    .atLocal(0, 0, -28 / 16f)
+            blockElement(CreateExpansionPartialModels.CENTRIFUGE_JEI_ASSEMBLY)
+                    .rotateBlock(VIEW_X_ROTATION, VIEW_Y_ROTATION + angle, 0)
                     .scale(scale)
                     .render(graphics);
 

@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:lanthanum_nugget"
+    },
+    {
+      "item": "create_expansion:lanthanum_nugget"
+    },
+    {
+      "item": "create_expansion:lanthanum_nugget"
+    },
+    {
+      "item": "create_expansion:lanthanum_nugget"
+    },
+    {
+      "item": "create_expansion:lanthanum_nugget"
+    },
+    {
+      "item": "create_expansion:lanthanum_nugget"
+    },
+    {
+      "item": "create_expansion:lanthanum_nugget"
+    },
+    {
+      "item": "create_expansion:lanthanum_nugget"
+    },
+    {
+      "item": "create_expansion:lanthanum_nugget"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:lanthanum_ingot"
+    }
+  ]
+}
