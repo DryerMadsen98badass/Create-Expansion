@@ -104,11 +104,15 @@
     "create_expansion:moscovium_tuff_ore",
     "create_expansion:livermorium_tuff_ore",
     "create_expansion:electrum_tuff_ore",
+    "create_expansion:calcite_tuff_ore",
     "create_expansion:diamond_tuff_ore",
     "create_expansion:emerald_tuff_ore",
     "create_expansion:lapis_tuff_ore",
     "create_expansion:redstone_tuff_ore",
     "create_expansion:quartz_tuff_ore",
+    "create_expansion:topaz_tuff_ore",
+    "create_expansion:ruby_tuff_ore",
+    "create_expansion:sapphire_tuff_ore",
     "create_expansion:graphite_tuff_ore",
     "create_expansion:sodalite_tuff_ore",
     "create_expansion:lazurite_tuff_ore",
@@ -117,6 +121,7 @@
     "create_expansion:goethite_tuff_ore",
     "create_expansion:siderite_tuff_ore",
     "create_expansion:pyrite_tuff_ore",
+    "create_expansion:cinnabar_tuff_ore",
     "create_expansion:chalcopyrite_tuff_ore",
     "create_expansion:malachite_tuff_ore",
     "create_expansion:azurite_tuff_ore",
@@ -173,7 +178,6 @@
     "create_expansion:dolomite_tuff_ore",
     "create_expansion:coal_tuff_ore",
     "create_expansion:carnallite_tuff_ore",
-    "create_expansion:calcite_tuff_ore",
     "create_expansion:gypsum_tuff_ore",
     "create_expansion:fluorite_tuff_ore",
     "create_expansion:apatite_tuff_ore",
@@ -183,9 +187,6 @@
     "create_expansion:sylvite_tuff_ore",
     "create_expansion:orthoclase_tuff_ore",
     "create_expansion:bastnasite_tuff_ore",
-    "create_expansion:xenotime_tuff_ore",
-    "create_expansion:topaz_tuff_ore",
-    "create_expansion:ruby_tuff_ore",
-    "create_expansion:sapphire_tuff_ore"
+    "create_expansion:xenotime_tuff_ore"
   ]
 }

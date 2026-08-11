@@ -19,7 +19,8 @@ RecipeDefinition.recipe()
 Available option groups include:
 
 - item/tag/fluid inputs and non-consumable inputs
-- normal and chanced item outputs and fluid outputs
+- chanced item inputs that must be present for matching but only consume on a chance roll
+- normal and chanced item outputs, including tier-adjusted output chance, and fluid outputs
 - duration and consumed/generated CE/t
 - minimum electric or kinetic tier
 - circuit, temperature, RPM range, and supported recipe logic
@@ -27,6 +28,50 @@ Available option groups include:
 `RecipeDefinition` validates all IO counts and capabilities against its `RecipeTypeDefinition`.
 The generated JSON still uses `create_expansion:machine` with a `recipe_type` field, so both
 singleblocks and CE multiblocks consume the same recipe data through `CERecipeLogic`.
+
+Chanced item inputs
+-------------------
+
+Chanced inputs are still recipe requirements. The item must be present before the recipe can start,
+but each required item is only consumed when its chance roll succeeds.
+
+Chance uses the CE `0..10000` scale:
+
+```java
+.recipeDefinition(Option.chancedInput("minecraft:iron_ingot", 1, 5000))       // 50%
+.recipeDefinition(Option.chancedInput("minecraft:iron_ingot", 1, 5000, 1000)) // 50% + 10% per tier
+.recipeDefinition(Option.chancedInput("minecraft:iron_ingot", 1, 2000, -1000)) // 20%, -10% per tier
+```
+
+The fourth argument is tier bonus. It is added once per runtime tier above the recipe baseline and
+can be positive or negative. The final chance is clamped to `0..10000`. If the recipe has
+`Option.tier(MachineTier.LV)`, LV is the baseline. Otherwise the first machine tier is the
+baseline.
+
+Example: `chance=2000, tierBonus=-1000` means 20% at baseline, 10% one tier above, and 0% two
+tiers above. At 0%, the input is required for matching but is not consumed.
+
+With parallel multiblock processing, the chance is rolled per item per parallel copy. Example:
+`count=1`, `parallel=4`, and `chance=5000` averages two consumed items.
+
+JEI adds a tooltip to chanced input slots showing the effective chance for the currently selected
+JEI tier. If tier bonus is used, the tooltip also shows the base chance and per-tier change.
+
+Chanced item outputs
+--------------------
+
+Chanced outputs use the same `0..10000` chance scale and the same optional tier bonus:
+
+```java
+.recipeDefinition(Option.chancedOutput("create:iron_sheet", 1, 5000))       // 50%
+.recipeDefinition(Option.chancedOutput("create:iron_sheet", 1, 5000, 1000)) // 50% + 10% per tier
+.recipeDefinition(Option.chancedOutput("create:iron_sheet", 1, 8000, -1000)) // 80%, -10% per tier
+```
+
+The output tier bonus is applied when the recipe starts and is rolled per parallel copy for CE
+multiblocks.
+
+JEI adds the same chance tooltip to chanced output slots.
 
 IndustrialMaterials generation
 ------------------------------

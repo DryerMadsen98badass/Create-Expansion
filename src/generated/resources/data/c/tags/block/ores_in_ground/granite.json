@@ -104,11 +104,15 @@
     "create_expansion:moscovium_granite_ore",
     "create_expansion:livermorium_granite_ore",
     "create_expansion:electrum_granite_ore",
+    "create_expansion:calcite_granite_ore",
     "create_expansion:diamond_granite_ore",
     "create_expansion:emerald_granite_ore",
     "create_expansion:lapis_granite_ore",
     "create_expansion:redstone_granite_ore",
     "create_expansion:quartz_granite_ore",
+    "create_expansion:topaz_granite_ore",
+    "create_expansion:ruby_granite_ore",
+    "create_expansion:sapphire_granite_ore",
     "create_expansion:graphite_granite_ore",
     "create_expansion:sodalite_granite_ore",
     "create_expansion:lazurite_granite_ore",
@@ -117,6 +121,7 @@
     "create_expansion:goethite_granite_ore",
     "create_expansion:siderite_granite_ore",
     "create_expansion:pyrite_granite_ore",
+    "create_expansion:cinnabar_granite_ore",
     "create_expansion:chalcopyrite_granite_ore",
     "create_expansion:malachite_granite_ore",
     "create_expansion:azurite_granite_ore",
@@ -173,7 +178,6 @@
     "create_expansion:dolomite_granite_ore",
     "create_expansion:coal_granite_ore",
     "create_expansion:carnallite_granite_ore",
-    "create_expansion:calcite_granite_ore",
     "create_expansion:gypsum_granite_ore",
     "create_expansion:fluorite_granite_ore",
     "create_expansion:apatite_granite_ore",
@@ -183,9 +187,6 @@
     "create_expansion:sylvite_granite_ore",
     "create_expansion:orthoclase_granite_ore",
     "create_expansion:bastnasite_granite_ore",
-    "create_expansion:xenotime_granite_ore",
-    "create_expansion:topaz_granite_ore",
-    "create_expansion:ruby_granite_ore",
-    "create_expansion:sapphire_granite_ore"
+    "create_expansion:xenotime_granite_ore"
   ]
 }

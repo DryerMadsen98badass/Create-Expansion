@@ -2,6 +2,7 @@ package net.mads.createexpansion.machine.machines.electric.multiblock;
 
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.machine.MachineCasingBlock;
+import net.mads.createexpansion.machine.MachinePortBlockEntity;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.MachineTierStats;
 import net.mads.createexpansion.machine.coil.CoilBlock;
@@ -26,6 +27,7 @@ public final class MultiblockPredicates {
             MultiblockAbility.ITEM_INPUT,
             MultiblockAbility.ITEM_OUTPUT,
             MultiblockAbility.FLUID_INPUT,
+            MultiblockAbility.PH_INPUT,
             MultiblockAbility.FLUID_OUTPUT,
             MultiblockAbility.ENERGY_INPUT,
             MultiblockAbility.ENERGY_OUTPUT,
@@ -51,8 +53,8 @@ public final class MultiblockPredicates {
                 : new OrPredicate(first, second);
     }
 
-    public static MultiblockPredicate overlay(MultiblockPredicate predicate, String texture) {
-        return new OverlayPredicate(predicate, MultiblockRegistry.id(texture));
+    public static MultiblockPredicate overlay(MultiblockPredicate predicate, String model) {
+        return new OverlayPredicate(predicate, MultiblockRegistry.id(model));
     }
 
     public static MultiblockPredicate min(MultiblockPredicate predicate, int minimum) {
@@ -61,6 +63,21 @@ public final class MultiblockPredicates {
 
     public static MultiblockPredicate max(MultiblockPredicate predicate, int maximum) {
         return new CountedPredicate(predicate, -1, maximum);
+    }
+
+    public static MultiblockPredicate onlyTier(MultiblockPredicate predicate, MachineTier tier) {
+        return new TierRestrictedPredicate(predicate, Objects.requireNonNull(tier), true);
+    }
+
+    public static MultiblockPredicate tierUpTo(MultiblockPredicate predicate, MachineTier tier) {
+        return new TierRestrictedPredicate(predicate, Objects.requireNonNull(tier), false);
+    }
+
+    public static MultiblockPredicate sequentialInput(MultiblockPredicate predicate, int index) {
+        if (index < 1) {
+            throw new IllegalArgumentException("Sequential input index must be at least 1");
+        }
+        return new SequentialInputPredicate(Objects.requireNonNull(predicate), index);
     }
 
     public static PredicateBuilder where(String blockId) {
@@ -200,6 +217,11 @@ public final class MultiblockPredicates {
         }
 
         @Override
+        public boolean allowsBuildTier(MachineTier candidateTier) {
+            return tier == null || tier == candidateTier;
+        }
+
+        @Override
         public List<MultiblockPredicate.CountRequirement> countRequirements() {
             if (minimum < 0 && maximum < 0) {
                 return List.of();
@@ -214,6 +236,111 @@ public final class MultiblockPredicates {
                     ? (tier == null ? MultiblockPredicate.Match.success() : MultiblockPredicate.Match.tiered(tier))
                     : MultiblockPredicate.Match.abilities(abilities, tier);
         }
+    }
+
+    private record TierRestrictedPredicate(MultiblockPredicate delegate, MachineTier tier, boolean exact) implements MultiblockPredicate {
+        @Override
+        public Match match(Level level, BlockPos pos, BlockState state) {
+            Match match = delegate.match(level, pos, state);
+            if (!match.matches()) {
+                return Match.failed();
+            }
+
+            MachineTier actualTier = match.tier();
+            if (actualTier == null && level.getBlockEntity(pos) instanceof MachinePortBlockEntity port) {
+                actualTier = port.tier();
+            }
+            return actualTier != null && matchesTier(actualTier, tier, exact)
+                    ? match
+                    : Match.failed();
+        }
+
+        @Override
+        public boolean allowsBuildTier(MachineTier candidateTier) {
+            return delegate.allowsBuildTier(candidateTier) && matchesTier(candidateTier, tier, exact);
+        }
+
+        @Override
+        public MultiblockVisualization.SymbolInfo visualizationInfo() {
+            return delegate.visualizationInfo();
+        }
+
+        @Override
+        public List<MultiblockPredicate.CountRequirement> countRequirements() {
+            return delegate.countRequirements();
+        }
+
+        @Override
+        public int sequentialInputIndex() {
+            return delegate.sequentialInputIndex();
+        }
+    }
+
+    private record SequentialInputPredicate(MultiblockPredicate delegate, int index) implements MultiblockPredicate, RecipeTypeAwarePredicate {
+        @Override
+        public Match match(Level level, BlockPos pos, BlockState state) {
+            Match match = delegate.match(level, pos, state);
+            if (!match.matches() || !match.abilities().contains(MultiblockAbility.ITEM_INPUT)) {
+                return Match.failed();
+            }
+            return match;
+        }
+
+        @Override
+        public boolean allowsBuildTier(MachineTier tier) {
+            return delegate.allowsBuildTier(tier);
+        }
+
+        @Override
+        public MultiblockVisualization.SymbolInfo visualizationInfo() {
+            return delegate.visualizationInfo();
+        }
+
+        @Override
+        public List<MultiblockPredicate.CountRequirement> countRequirements() {
+            return delegate.countRequirements();
+        }
+
+        @Override
+        public int sequentialInputIndex() {
+            return index;
+        }
+
+        @Override
+        public MultiblockPredicate bindRecipeAbilities(Set<MultiblockAbility> abilities) {
+            MultiblockPredicate bound = bindIfRecipeAware(delegate, abilities);
+            return bound == delegate ? this : new SequentialInputPredicate(bound, index);
+        }
+
+        @Override
+        public boolean requiresRecipeAbilities() {
+            return delegate instanceof RecipeTypeAwarePredicate recipeAware && recipeAware.requiresRecipeAbilities();
+        }
+
+        private static MultiblockPredicate bindIfRecipeAware(MultiblockPredicate predicate, Set<MultiblockAbility> abilities) {
+            return predicate instanceof RecipeTypeAwarePredicate recipeAware ? recipeAware.bindRecipeAbilities(abilities) : predicate;
+        }
+    }
+
+    private static boolean matchesTier(MachineTier actual, MachineTier limit, boolean exact) {
+        if (exact) {
+            return actual == limit;
+        }
+
+        if (actual.family() != limit.family()) {
+            return false;
+        }
+
+        if (limit == MachineTier.NONE) {
+            return actual == MachineTier.NONE;
+        }
+
+        List<MachineTier> family = limit.isSteam()
+                ? MachineTier.STEAM_SINGLEBLOCK_TIERS
+                : MachineTier.ELECTRIC_TIERS;
+        int actualIndex = family.indexOf(actual);
+        int limitIndex = family.indexOf(limit);
+        return actualIndex >= 0 && limitIndex >= 0 && actualIndex <= limitIndex;
     }
 
     private record AbilityPredicate(Set<MultiblockAbility> abilities, boolean any) implements MultiblockPredicate {
@@ -297,6 +424,11 @@ public final class MultiblockPredicates {
         }
 
         @Override
+        public boolean allowsBuildTier(MachineTier tier) {
+            return left.allowsBuildTier(tier) || right.allowsBuildTier(tier);
+        }
+
+        @Override
         public MultiblockVisualization.SymbolInfo visualizationInfo() {
             return mergeInfo(left.visualizationInfo(), right.visualizationInfo());
         }
@@ -304,6 +436,11 @@ public final class MultiblockPredicates {
         @Override
         public List<MultiblockPredicate.CountRequirement> countRequirements() {
             return mergeRequirements(left, right);
+        }
+
+        @Override
+        public int sequentialInputIndex() {
+            return mergeSequentialInputIndex(left, right);
         }
     }
 
@@ -320,6 +457,11 @@ public final class MultiblockPredicates {
         public Match match(Level level, BlockPos pos, BlockState state) {
             Match leftMatch = left.match(level, pos, state);
             return leftMatch.matches() ? leftMatch : right.match(level, pos, state);
+        }
+
+        @Override
+        public boolean allowsBuildTier(MachineTier tier) {
+            return left.allowsBuildTier(tier) || right.allowsBuildTier(tier);
         }
 
         @Override
@@ -351,6 +493,11 @@ public final class MultiblockPredicates {
         public List<MultiblockPredicate.CountRequirement> countRequirements() {
             return mergeRequirements(left, right);
         }
+
+        @Override
+        public int sequentialInputIndex() {
+            return mergeSequentialInputIndex(left, right);
+        }
     }
 
     private static final class AnyMachineCasingPredicate implements MultiblockPredicate {
@@ -379,10 +526,15 @@ public final class MultiblockPredicates {
         }
     }
 
-    private record OverlayPredicate(MultiblockPredicate predicate, ResourceLocation texture) implements MultiblockPredicate, RecipeTypeAwarePredicate {
+    private record OverlayPredicate(MultiblockPredicate predicate, ResourceLocation model) implements MultiblockPredicate, RecipeTypeAwarePredicate {
         @Override
         public Match match(Level level, BlockPos pos, BlockState state) {
-            return predicate.match(level, pos, state).withOverlay(texture);
+            return predicate.match(level, pos, state).withOverlay(model);
+        }
+
+        @Override
+        public boolean allowsBuildTier(MachineTier tier) {
+            return predicate.allowsBuildTier(tier);
         }
 
         @Override
@@ -396,9 +548,14 @@ public final class MultiblockPredicates {
         }
 
         @Override
+        public int sequentialInputIndex() {
+            return predicate.sequentialInputIndex();
+        }
+
+        @Override
         public MultiblockPredicate bindRecipeAbilities(Set<MultiblockAbility> abilities) {
             MultiblockPredicate bound = bindIfRecipeAware(predicate, abilities);
-            return bound == predicate ? this : new OverlayPredicate(bound, texture);
+            return bound == predicate ? this : new OverlayPredicate(bound, model);
         }
 
         @Override
@@ -427,7 +584,12 @@ public final class MultiblockPredicates {
             if (!match.matches()) {
                 return match;
             }
-            return new Match(true, match.tier(), match.abilities(), mergeCount(match.counts(), countKey()), match.overlayTexture());
+            return new Match(true, match.tier(), match.abilities(), mergeCount(match.counts(), countKey()), match.overlayModel());
+        }
+
+        @Override
+        public boolean allowsBuildTier(MachineTier tier) {
+            return predicate.allowsBuildTier(tier);
         }
 
         @Override
@@ -440,6 +602,11 @@ public final class MultiblockPredicates {
             List<MultiblockPredicate.CountRequirement> requirements = new ArrayList<>(predicate.countRequirements());
             requirements.add(new MultiblockPredicate.CountRequirement(countKey(), null, Math.max(0, minimum), maximum));
             return requirements;
+        }
+
+        @Override
+        public int sequentialInputIndex() {
+            return predicate.sequentialInputIndex();
         }
 
         @Override
@@ -486,6 +653,15 @@ public final class MultiblockPredicates {
             return left;
         }
         return left.merge(right);
+    }
+
+    private static int mergeSequentialInputIndex(MultiblockPredicate left, MultiblockPredicate right) {
+        int leftIndex = left.sequentialInputIndex();
+        int rightIndex = right.sequentialInputIndex();
+        if (leftIndex > 0 && rightIndex > 0 && leftIndex != rightIndex) {
+            throw new IllegalStateException("Combined multiblock predicate cannot use two different sequential input indexes");
+        }
+        return leftIndex > 0 ? leftIndex : rightIndex;
     }
 
     private static List<MultiblockPredicate.CountRequirement> mergeRequirements(MultiblockPredicate left, MultiblockPredicate right) {

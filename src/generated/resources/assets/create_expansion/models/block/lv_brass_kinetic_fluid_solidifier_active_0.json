@@ -1,0 +1,324 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#right_base"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#front_base"
+        },
+        "south": {
+          "texture": "#back_base"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#top_base"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        13.99
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#right_base"
+        },
+        "south": {
+          "texture": "#back_base"
+        },
+        "up": {
+          "texture": "#top_base"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        0,
+        0,
+        14
+      ],
+      "to": [
+        16,
+        6,
+        15
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#right_base"
+        },
+        "south": {
+          "texture": "#back_base"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#top_base"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        0,
+        10,
+        14
+      ],
+      "to": [
+        16,
+        16,
+        15
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "texture": "#right_base"
+        },
+        "south": {
+          "texture": "#back_base"
+        },
+        "up": {
+          "texture": "#top_base"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        0,
+        6,
+        14
+      ],
+      "to": [
+        6,
+        10,
+        15
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#right_base"
+        },
+        "south": {
+          "texture": "#back_base"
+        },
+        "up": {
+          "texture": "#top_base"
+        },
+        "west": {
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        10,
+        6,
+        14
+      ],
+      "to": [
+        16,
+        10,
+        15
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#right_base"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#back_base"
+        },
+        "up": {
+          "texture": "#top_base"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        0,
+        0,
+        15
+      ],
+      "to": [
+        16,
+        2,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#right_base"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#back_base"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#top_base"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        0,
+        14,
+        15
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "texture": "#right_base"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#back_base"
+        },
+        "up": {
+          "texture": "#top_base"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        0,
+        2,
+        15
+      ],
+      "to": [
+        2,
+        14,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#right_base"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#back_base"
+        },
+        "up": {
+          "texture": "#top_base"
+        },
+        "west": {
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        14,
+        2,
+        15
+      ],
+      "to": [
+        16,
+        14,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "north",
+          "texture": "#front_overlay"
+        }
+      },
+      "from": [
+        0,
+        0,
+        -0.01
+      ],
+      "to": [
+        16,
+        16,
+        0
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "back_base": "create_expansion:block/machines/overlay/brass_fluid_solidifier/brass_gearbox",
+    "bottom_base": "create_expansion:block/machines/overlay/brass_fluid_solidifier/brass_casing",
+    "front_base": "create_expansion:block/machines/overlay/brass_fluid_solidifier/brass_casing",
+    "front_overlay": "create_expansion:block/machines/overlay/brass_fluid_solidifier/fan_overlay_1",
+    "left_base": "create_expansion:block/machines/overlay/brass_fluid_solidifier/brass_casing",
+    "muffler": "create_expansion:block/machines/ino/muffler",
+    "particle": "create_expansion:block/machines/overlay/brass_fluid_solidifier/brass_casing",
+    "right_base": "create_expansion:block/machines/overlay/brass_fluid_solidifier/brass_casing",
+    "top_base": "create_expansion:block/machines/overlay/brass_fluid_solidifier/brass_casing"
+  }
+}

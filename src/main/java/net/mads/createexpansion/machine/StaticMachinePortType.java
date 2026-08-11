@@ -18,6 +18,7 @@ public enum StaticMachinePortType {
     BRASS_KINETIC_INPUT_BOX("brass_kinetic_input_box", "Brass Kinetic Input Box", "block/machines/ino/brass_gearbox", "create:block/brass_casing", ModelKind.KINETIC, MachineTier.LV, false, 0, MultiblockAbility.KINETIC_INPUT),
     BRASS_KINETIC_OUTPUT_BOX("brass_kinetic_output_box", "Brass Kinetic Output Box", "block/machines/ino/brass_gearbox", "create:block/brass_casing", ModelKind.KINETIC, MachineTier.LV, false, 0, MultiblockAbility.KINETIC_OUTPUT),
     BRASS_INPUT_HATCH("brass_input_hatch", "Brass Input Hatch", "block/machines/ino/input_hatch", "create:block/brass_casing", ModelKind.OVERLAY, MachineTier.LV, false, 0, MultiblockAbility.FLUID_INPUT),
+    BRASS_PH_HATCH("brass_ph_hatch", "Brass pH Hatch", "block/machines/ino/ph_hatch", "create:block/brass_casing", ModelKind.OVERLAY, MachineTier.LV, false, 0, MultiblockAbility.PH_INPUT),
     BRASS_OUTPUT_HATCH("brass_output_hatch", "Brass Output Hatch", "block/machines/ino/output_hatch", "create:block/brass_casing", ModelKind.OVERLAY, MachineTier.LV, false, 0, MultiblockAbility.FLUID_OUTPUT),
     BRASS_MUFFLER("brass_muffler", "Brass Muffler", "block/machines/ino/muffler", "create:block/brass_casing", ModelKind.OVERLAY, MachineTier.LV, false, 0, MultiblockAbility.MUFFLER),
     BRASS_INPUT_BUS("brass_input_bus", "Brass Input Bus", "block/machines/ino/input_bus", "create:block/brass_casing", ModelKind.OVERLAY, MachineTier.LV, false, 0, MultiblockAbility.ITEM_INPUT),

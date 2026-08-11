@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:scheelite_netherrack_ore",
-    "create_expansion:scheelite_deepslate_ore",
-    "create_expansion:scheelite_andesite_ore",
-    "create_expansion:scheelite_end_stone_ore",
     "create_expansion:scheelite_diorite_ore",
-    "create_expansion:scheelite_tuff_ore",
+    "create_expansion:scheelite_granite_ore",
+    "create_expansion:scheelite_netherrack_ore",
     "create_expansion:scheelite_blackstone_ore",
     "create_expansion:scheelite_ore",
-    "create_expansion:scheelite_granite_ore"
+    "create_expansion:scheelite_deepslate_ore",
+    "create_expansion:scheelite_tuff_ore",
+    "create_expansion:scheelite_andesite_ore",
+    "create_expansion:scheelite_end_stone_ore"
   ]
 }

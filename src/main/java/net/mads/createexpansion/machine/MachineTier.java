@@ -3,10 +3,15 @@ package net.mads.createexpansion.machine;
 import java.util.List;
 
 public record MachineTier(String id, String displayName, int color) {
+    private static final float TNT_EXPLOSION_POWER = 4.0F;
+
     public enum Family {
+        NONE,
         ELECTRIC,
         STEAM
     }
+
+    public static final MachineTier NONE = new MachineTier("none", "", 0xFFFFFF);
 
     public static final MachineTier ULV = new MachineTier("ulv", "ULV", 0x6D6D6D);
     public static final MachineTier LV = new MachineTier("lv", "LV", 0x4E8FDC);
@@ -82,6 +87,10 @@ public record MachineTier(String id, String displayName, int color) {
     }
 
     public Family family() {
+        if (this == NONE) {
+            return Family.NONE;
+        }
+
         return isSteam()
                 ? Family.STEAM
                 : Family.ELECTRIC;
@@ -93,6 +102,18 @@ public record MachineTier(String id, String displayName, int color) {
 
     public boolean isElectric() {
         return ELECTRIC_TIERS.contains(this);
+    }
+
+    public MachineTier recipeTier() {
+        if (this == STEAM_COPPER) {
+            return ULV;
+        }
+
+        if (this == STEAM_BRONZE) {
+            return LV;
+        }
+
+        return this;
     }
 
     public int steamDurationMultiplier() {
@@ -125,15 +146,19 @@ public record MachineTier(String id, String displayName, int color) {
 
     public float steamExplosionPower() {
         if (this == STEAM_BRONZE) {
-            return 8.0F;
+            return TNT_EXPLOSION_POWER * 2.0F;
         }
 
-        return 4.0F;
+        return TNT_EXPLOSION_POWER;
     }
 
     public static List<MachineTier> expandSingleBlockTiers(
             MachineTier startTier
     ) {
+        if (startTier == NONE) {
+            return List.of(NONE);
+        }
+
         List<MachineTier> family = startTier.isSteam()
                 ? STEAM_SINGLEBLOCK_TIERS
                 : ELECTRIC_TIERS;

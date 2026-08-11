@@ -4,6 +4,10 @@
   "package": "net.mads.createexpansion.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "BlazeBurnerBlockEntityMixin",
+    "FluidNetworkMixin",
+    "PumpBlockEntityMixin",
+    "PumpFluidTransferBehaviourMixin"
   ],
   "minVersion": "0.8.5"
 }

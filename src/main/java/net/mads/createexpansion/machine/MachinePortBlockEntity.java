@@ -1,12 +1,20 @@
 package net.mads.createexpansion.machine;
 
-import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
+import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import net.mads.createexpansion.energy.CEEnergyContainer;
 import net.mads.createexpansion.energy.CEEnergyNetwork;
 import net.mads.createexpansion.energy.CEEnergyStorage;
+import net.mads.createexpansion.fluid.IndustrialFluid;
+import net.mads.createexpansion.fluid.IndustrialFluidLookup;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility;
+import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlockEntity;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPart;
+import net.mads.createexpansion.machine.control.MachineControlSchedule;
+import net.mads.createexpansion.machine.control.MachineControlScheduleHost;
+import net.mads.createexpansion.machine.control.MachineControlTarget;
+import net.mads.createexpansion.machine.control.MachineControlVariableStore;
 import net.mads.createexpansion.menu.MachinePortMenu;
+import net.mads.createexpansion.recipe.CERecipe;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,10 +44,12 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
 
-public class MachinePortBlockEntity extends KineticBlockEntity implements MultiblockPart, MenuProvider {
+public class MachinePortBlockEntity extends GeneratingKineticBlockEntity implements MultiblockPart, MenuProvider, MachineControlScheduleHost {
+    private static final int PH_HATCH_CAPACITY = 1000;
     private final MachineTier tier;
     private final boolean tieredPort;
     private final Set<MultiblockAbility> abilities;
@@ -50,9 +60,12 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
     private final long ceCapacity;
     private final CEEnergyStorage ceStorage;
     private final float kineticStressPerRpm;
+    private final EnumMap<Direction, MachineControlSchedule> machineControlSchedules = new EnumMap<>(Direction.class);
+    private final MachineControlVariableStore machineControlVariables = new MachineControlVariableStore();
+    private int machineControlOutputSignature = -1;
 
     private BlockPos controllerPos;
-    private ResourceLocation assembledOverlayTexture;
+    private ResourceLocation assembledOverlayModel;
     private DyeColor ioColor = DyeColor.GRAY;
     private int circuit;
     private boolean autoOutput;
@@ -62,6 +75,8 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
     private long lastNetworkInputCEt;
     private long lastNetworkInputVoltage;
     private long lastNetworkInputTick = -1;
+    private int generatedRpm;
+    private float lastGeneratedSpeed = Float.NaN;
 
     public MachinePortBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityRegistry.MACHINE_PORT.get(), pos, state);
@@ -100,12 +115,14 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         return stack.getItem() instanceof BucketItem
                 && !fluidTanks.isEmpty()
                 && (abilities.contains(MultiblockAbility.FLUID_INPUT)
+                || abilities.contains(MultiblockAbility.PH_INPUT)
                 || abilities.contains(MultiblockAbility.FLUID_OUTPUT)
                 || abilities.contains(MultiblockAbility.IO_INTERFACE));
     }
 
     public boolean allowsGuiFluidFill() {
         return abilities.contains(MultiblockAbility.FLUID_INPUT)
+                || abilities.contains(MultiblockAbility.PH_INPUT)
                 || abilities.contains(MultiblockAbility.IO_INTERFACE);
     }
 
@@ -124,6 +141,7 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         }
 
         boolean allowFill = abilities.contains(MultiblockAbility.FLUID_INPUT)
+                || abilities.contains(MultiblockAbility.PH_INPUT)
                 || abilities.contains(MultiblockAbility.IO_INTERFACE);
 
         boolean allowDrain = allowFill
@@ -215,17 +233,58 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         return Math.round(Math.abs(getSpeed()));
     }
 
-    @Nullable
-    public ResourceLocation assembledOverlayTexture() {
-        return assembledOverlayTexture;
+    public boolean hasKineticInputPower() {
+        return abilities.contains(MultiblockAbility.KINETIC_INPUT)
+                && Math.abs(getSpeed()) >= 1.0F
+                && isSpeedRequirementFulfilled();
     }
 
-    public void setAssembledOverlayTexture(@Nullable ResourceLocation assembledOverlayTexture) {
-        if (java.util.Objects.equals(this.assembledOverlayTexture, assembledOverlayTexture)) {
+    public int generatedRpm() {
+        return generatedRpm;
+    }
+
+    public void setGeneratedRpm(int rpm) {
+        int next = abilities.contains(MultiblockAbility.KINETIC_OUTPUT)
+                ? Math.max(0, Math.min(CERecipe.DEFAULT_MAX_RPM, rpm))
+                : 0;
+        if (generatedRpm != next) {
+            generatedRpm = next;
+            contentChanged();
+        }
+        refreshGeneratedRotation();
+    }
+
+    @Override
+    public float getGeneratedSpeed() {
+        if (!abilities.contains(MultiblockAbility.KINETIC_OUTPUT)
+                || generatedRpm <= 0) {
+            return 0.0F;
+        }
+
+        Direction output = getBlockState().getValue(MachinePortBlock.FACING);
+        return convertToDirection(generatedRpm, output);
+    }
+
+    @Nullable
+    public ResourceLocation assembledOverlayModel() {
+        return assembledOverlayModel;
+    }
+
+    public void setAssembledOverlayModel(@Nullable ResourceLocation assembledOverlayModel) {
+        if (java.util.Objects.equals(this.assembledOverlayModel, assembledOverlayModel)) {
             return;
         }
-        this.assembledOverlayTexture = assembledOverlayTexture;
+        this.assembledOverlayModel = assembledOverlayModel;
         contentChanged();
+    }
+
+    private static ResourceLocation migrateLegacyOverlayModel(ResourceLocation overlay) {
+        String legacyPrefix = "block/casings/casing/";
+        String path = overlay.getPath();
+        if (!path.startsWith(legacyPrefix)) {
+            return overlay;
+        }
+        return ResourceLocation.fromNamespaceAndPath(overlay.getNamespace(), "block/" + path.substring(legacyPrefix.length()));
     }
 
     public DyeColor ioColor() {
@@ -294,10 +353,26 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         if (level == null || level.isClientSide()) {
             return;
         }
+        if (abilities.contains(MultiblockAbility.KINETIC_OUTPUT)
+                && generatedRpm != 0
+                && !hasActiveKineticOutputController()) {
+            setGeneratedRpm(0);
+        }
+        refreshGeneratedRotation();
+        refreshMachineControlRedstoneOutputs();
         tickAutoOutput();
         if (ceStorage != null && abilities.contains(MultiblockAbility.ENERGY_OUTPUT)) {
             CEEnergyNetwork.outputToAdjacentWires(level, worldPosition, ceStorage);
         }
+    }
+
+    private boolean hasActiveKineticOutputController() {
+        if (level == null || controllerPos == null) {
+            return false;
+        }
+        return level.getBlockEntity(controllerPos) instanceof MultiblockControllerBlockEntity controller
+                && controller.isFormed()
+                && controller.usesKineticOutput();
     }
 
     public void toggleAutoOutput() {
@@ -376,6 +451,7 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
 
     @Override
     public void detachFromMultiblock() {
+        setGeneratedRpm(0);
         this.controllerPos = null;
         setChanged();
     }
@@ -383,6 +459,80 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
     @Override
     public BlockPos controllerPos() {
         return controllerPos;
+    }
+
+    @Nullable
+    public MultiblockControllerBlockEntity controller() {
+        if (level == null || controllerPos == null) {
+            return null;
+        }
+
+        return level.getBlockEntity(controllerPos) instanceof MultiblockControllerBlockEntity controller
+                ? controller
+                : null;
+    }
+
+    @Override
+    public EnumMap<Direction, MachineControlSchedule> machineControlSchedules() {
+        return machineControlSchedules;
+    }
+
+    @Override
+    public MachineControlVariableStore machineControlVariables() {
+        return machineControlVariables;
+    }
+
+    @Override
+    public boolean acceptsMachineControlSchedules() {
+        return abilities.contains(MultiblockAbility.REDSTONE);
+    }
+
+    @Override
+    public void machineControlSchedulesChanged() {
+        refreshMachineControlRedstoneOutputs();
+        MultiblockControllerBlockEntity controller = controller();
+        if (controller != null) controller.applyMachineControlSchedulesNow();
+        contentChanged();
+    }
+
+    public int machineControlSignal(Direction side) {
+        return side == null ? 0 : machineControlRedstoneOutput(side);
+    }
+
+    private void refreshMachineControlRedstoneOutputs() {
+        if (level == null || level.isClientSide()) return;
+        int signature = 0;
+        boolean variablesChanged = false;
+        for (Direction side : Direction.values()) {
+            signature |= (machineControlSignal(side) & 15) << (side.get3DDataValue() * 4);
+            MachineControlSchedule schedule = machineControlSchedule(side);
+            if (schedule != null) variablesChanged |= schedule.consumeRuntimeDirty();
+        }
+        if (variablesChanged) contentChanged();
+        if (signature == machineControlOutputSignature) return;
+        int previous = machineControlOutputSignature;
+        machineControlOutputSignature = signature;
+        for (Direction side : Direction.values()) {
+            int shift = side.get3DDataValue() * 4;
+            if (previous < 0 || ((previous >>> shift) & 15) != ((signature >>> shift) & 15)) {
+                level.updateNeighborsAt(worldPosition.relative(side), getBlockState().getBlock());
+            }
+        }
+        level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+    }
+
+    public long storedCE() {
+        return ceStorage == null ? 0L : ceStorage.stored();
+    }
+
+    public long capacityCE() {
+        return ceStorage == null ? 0L : ceCapacity;
+    }
+
+    @Nullable
+    @Override
+    public MachineControlTarget machineControlTarget() {
+        return controller();
     }
 
     @Override
@@ -405,6 +555,20 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         return super.calculateAddedStressCapacity();
     }
 
+    private void refreshGeneratedRotation() {
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+
+        float generatedSpeed = getGeneratedSpeed();
+        if (Float.compare(lastGeneratedSpeed, generatedSpeed) == 0) {
+            return;
+        }
+
+        lastGeneratedSpeed = generatedSpeed;
+        updateGeneratedRotation();
+    }
+
     @Override
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.write(tag, registries, clientPacket);
@@ -423,12 +587,13 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
             tag.putInt("ControllerY", controllerPos.getY());
             tag.putInt("ControllerZ", controllerPos.getZ());
         }
-        if (assembledOverlayTexture != null) {
-            tag.putString("AssembledOverlayTexture", assembledOverlayTexture.toString());
+        if (assembledOverlayModel != null) {
+            tag.putString("AssembledOverlayModel", assembledOverlayModel.toString());
         }
         tag.putInt("IoColor", ioColor.getId());
         tag.putInt("Circuit", circuit);
         tag.putBoolean("AutoOutput", autoOutput);
+        saveMachineControlSchedules(tag);
         if (ceStorage != null) {
             tag.putLong("CE", ceStorage.stored());
         }
@@ -456,15 +621,20 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
         } else {
             controllerPos = null;
         }
-        assembledOverlayTexture = tag.contains("AssembledOverlayTexture")
-                ? ResourceLocation.parse(tag.getString("AssembledOverlayTexture"))
-                : null;
+        if (tag.contains("AssembledOverlayModel")) {
+            assembledOverlayModel = ResourceLocation.parse(tag.getString("AssembledOverlayModel"));
+        } else if (tag.contains("AssembledOverlayTexture")) {
+            assembledOverlayModel = migrateLegacyOverlayModel(ResourceLocation.parse(tag.getString("AssembledOverlayTexture")));
+        } else {
+            assembledOverlayModel = null;
+        }
         ioColor = tag.contains("IoColor") ? DyeColor.byId(tag.getInt("IoColor")) : DyeColor.GRAY;
         if (!supportsIoColor()) {
             ioColor = DyeColor.GRAY;
         }
         circuit = Math.max(0, Math.min(32, tag.getInt("Circuit")));
         autoOutput = tag.getBoolean("AutoOutput");
+        loadMachineControlSchedules(tag);
         if (ceStorage != null) {
             ceStorage.setStored(tag.getLong("CE"));
         }
@@ -495,16 +665,28 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
 
     private List<FluidTank> createFluidTanks() {
         List<FluidTank> tanks = new ArrayList<>();
-        int capacity = MachineTierStats.fluidTankCapacity(tier);
+        boolean phInput = abilities.contains(MultiblockAbility.PH_INPUT);
+        int capacity = phInput ? PH_HATCH_CAPACITY : MachineTierStats.fluidTankCapacity(tier);
         int tankCount = 0;
         if (abilities.contains(MultiblockAbility.IO_INTERFACE)) {
             tankCount = MachineTierStats.ioInterfaceFluidTanks();
-        } else if (abilities.contains(MultiblockAbility.FLUID_INPUT) || abilities.contains(MultiblockAbility.FLUID_OUTPUT)) {
+        } else if (abilities.contains(MultiblockAbility.FLUID_INPUT)
+                || abilities.contains(MultiblockAbility.PH_INPUT)
+                || abilities.contains(MultiblockAbility.FLUID_OUTPUT)) {
             tankCount = 1;
         }
 
         for (int i = 0; i < tankCount; i++) {
             tanks.add(new FluidTank(capacity) {
+                @Override
+                public boolean isFluidValid(FluidStack stack) {
+                    if (!phInput) {
+                        return super.isFluidValid(stack);
+                    }
+                    IndustrialFluid fluid = IndustrialFluidLookup.find(stack);
+                    return fluid != null && fluid.hasPh();
+                }
+
                 @Override
                 protected void onContentsChanged() {
                     contentChanged();
@@ -575,6 +757,10 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
     }
 
     private void contentChanged() {
+        if (level != null && !level.isClientSide()) {
+            MultiblockControllerBlockEntity controller = controller();
+            if (controller != null) controller.markMachineControlInputsDirty();
+        }
         setChanged();
         if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
@@ -600,7 +786,7 @@ public class MachinePortBlockEntity extends KineticBlockEntity implements Multib
     }
 
     private IFluidHandler createFluidCapability() {
-        boolean allowFill = abilities.contains(MultiblockAbility.FLUID_INPUT) || abilities.contains(MultiblockAbility.IO_INTERFACE);
+        boolean allowFill = abilities.contains(MultiblockAbility.FLUID_INPUT) || abilities.contains(MultiblockAbility.PH_INPUT) || abilities.contains(MultiblockAbility.IO_INTERFACE);
         boolean allowDrain = abilities.contains(MultiblockAbility.FLUID_OUTPUT) || abilities.contains(MultiblockAbility.IO_INTERFACE);
         return new PortFluidHandler(fluidTanks, allowFill, allowDrain);
     }

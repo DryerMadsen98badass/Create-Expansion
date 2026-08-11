@@ -49,6 +49,7 @@ public class MaterialItemModelProvider extends ItemModelProvider {
         registerMaterialItemModels();
         registerFluidBucketModels();
         registerSimpleItemModels();
+        registerMachineControlScheduleModel();
     }
 
     private void registerMaterialItemModels() {
@@ -205,6 +206,18 @@ public class MaterialItemModelProvider extends ItemModelProvider {
                         DynamicFluidContainerModelBuilder::begin
                 )
                 .fluid(fluid);
+    }
+
+    private void registerMachineControlScheduleModel() {
+        singleTexture(
+                "machine_control_schedule",
+                ResourceLocation.withDefaultNamespace("item/generated"),
+                "layer0",
+                ResourceLocation.fromNamespaceAndPath(
+                        CreateExpansion.MOD_ID,
+                        "item/standalone/machine_controll_schedule"
+                )
+        );
     }
 
     private void registerSimpleItemModels() {

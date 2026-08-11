@@ -1,6 +1,7 @@
 package net.mads.createexpansion.data;
 
 import net.mads.createexpansion.CreateExpansion;
+import net.mads.createexpansion.block.DirectionalSimpleBlock;
 import net.mads.createexpansion.block.SimpleBlockDefinition;
 import net.mads.createexpansion.block.SimpleBlockVariant;
 import net.mads.createexpansion.block.SimpleBlocks;
@@ -9,6 +10,7 @@ import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialPart;
 import net.mads.createexpansion.material.MaterialTextures;
 import net.mads.createexpansion.registry.BlockRegistry;
+import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -21,6 +23,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.CompositeModelBuilder;
@@ -71,10 +74,17 @@ public class MaterialBlockStateProvider extends BlockStateProvider {
                             texture
                     );
 
-            simpleBlockWithItem(
-                    baseBlock,
-                    baseModel
-            );
+            if (definition.hasFaceTextures()) {
+                registerDirectionalSimpleBlock(
+                        baseBlock,
+                        baseModel
+                );
+            } else {
+                simpleBlockWithItem(
+                        baseBlock,
+                        baseModel
+                );
+            }
 
             for (SimpleBlockVariant variant
                     : definition.variants()) {
@@ -86,6 +96,36 @@ public class MaterialBlockStateProvider extends BlockStateProvider {
                 );
             }
         }
+    }
+
+    private void registerDirectionalSimpleBlock(
+            Block block,
+            ModelFile model
+    ) {
+        getVariantBuilder(block)
+                .forAllStates(state -> {
+                    Direction facing = state.getValue(
+                            DirectionalSimpleBlock.FACING
+                    );
+
+                    int rotationY = switch (facing) {
+                        case NORTH -> 0;
+                        case EAST -> 90;
+                        case SOUTH -> 180;
+                        case WEST -> 270;
+                        default -> throw new IllegalStateException(
+                                "Directional simple block has non-horizontal facing: "
+                                        + facing
+                        );
+                    };
+
+                    return ConfiguredModel.builder()
+                            .modelFile(model)
+                            .rotationY(rotationY)
+                            .build();
+                });
+
+        simpleBlockItem(block, model);
     }
 
     private void registerSimpleBlockVariant(
@@ -347,9 +387,7 @@ public class MaterialBlockStateProvider extends BlockStateProvider {
                 texture,
                 box(4, 0, 4, 12, 16, 12),
                 box(5, 0, 0, 11, 14, 4),
-                box(5, 0, 12, 11, 14, 16),
-                box(0, 0, 5, 4, 14, 11),
-                box(12, 0, 5, 16, 14, 11)
+                box(5, 0, 12, 11, 14, 16)
         );
 
         simpleBlockItem(
@@ -422,11 +460,7 @@ public class MaterialBlockStateProvider extends BlockStateProvider {
                 box(7, 6, 0, 9, 9, 6),
                 box(7, 12, 0, 9, 15, 6),
                 box(7, 6, 10, 9, 9, 16),
-                box(7, 12, 10, 9, 15, 16),
-                box(0, 6, 7, 6, 9, 9),
-                box(0, 12, 7, 6, 15, 9),
-                box(10, 6, 7, 16, 9, 9),
-                box(10, 12, 7, 16, 15, 9)
+                box(7, 12, 10, 9, 15, 16)
         );
 
         simpleBlockItem(
@@ -457,10 +491,10 @@ public class MaterialBlockStateProvider extends BlockStateProvider {
                 texture,
                 box(0, 5, 7, 2, 16, 9),
                 box(14, 5, 7, 16, 16, 9),
-                box(0, 6, 2, 2, 9, 7),
-                box(0, 12, 2, 2, 15, 7),
-                box(14, 6, 2, 16, 9, 7),
-                box(14, 12, 2, 16, 15, 7)
+                box(0, 6, 9, 2, 9, 14),
+                box(0, 12, 9, 2, 15, 14),
+                box(14, 6, 9, 16, 9, 14),
+                box(14, 12, 9, 16, 15, 14)
         );
 
         ModelFile gateWall = createTintedShapeModel(
@@ -479,10 +513,10 @@ public class MaterialBlockStateProvider extends BlockStateProvider {
                 texture,
                 box(0, 2, 7, 2, 13, 9),
                 box(14, 2, 7, 16, 13, 9),
-                box(0, 3, 2, 2, 6, 7),
-                box(0, 9, 2, 2, 12, 7),
-                box(14, 3, 2, 16, 6, 7),
-                box(14, 9, 2, 16, 12, 7)
+                box(0, 3, 9, 2, 6, 14),
+                box(0, 9, 9, 2, 12, 14),
+                box(14, 3, 9, 16, 6, 14),
+                box(14, 9, 9, 16, 12, 14)
         );
 
         fenceGateBlock(
@@ -626,34 +660,34 @@ public class MaterialBlockStateProvider extends BlockStateProvider {
                                 )
                         )
                 )
-                .texture("north", textures.north())
-                .texture("east", textures.east())
-                .texture("south", textures.south())
-                .texture("west", textures.west())
+                .texture("front", textures.front())
+                .texture("right", textures.right())
+                .texture("back", textures.back())
+                .texture("left", textures.left())
                 .texture("up", textures.top())
                 .texture("down", textures.bottom())
-                .texture("particle", textures.north());
+                .texture("particle", textures.front());
 
         model.element()
                 .from(0, 0, 0)
                 .to(16, 16, 16)
                 .face(net.minecraft.core.Direction.NORTH)
-                .texture("#north")
+                .texture("#front")
                 .cullface(net.minecraft.core.Direction.NORTH)
                 .tintindex(0)
                 .end()
                 .face(net.minecraft.core.Direction.EAST)
-                .texture("#east")
+                .texture("#right")
                 .cullface(net.minecraft.core.Direction.EAST)
                 .tintindex(0)
                 .end()
                 .face(net.minecraft.core.Direction.SOUTH)
-                .texture("#south")
+                .texture("#back")
                 .cullface(net.minecraft.core.Direction.SOUTH)
                 .tintindex(0)
                 .end()
                 .face(net.minecraft.core.Direction.WEST)
-                .texture("#west")
+                .texture("#left")
                 .cullface(net.minecraft.core.Direction.WEST)
                 .tintindex(0)
                 .end()
@@ -746,10 +780,10 @@ public class MaterialBlockStateProvider extends BlockStateProvider {
     }
 
     private record ResolvedFaceTextures(
-            ResourceLocation north,
-            ResourceLocation east,
-            ResourceLocation south,
-            ResourceLocation west,
+            ResourceLocation front,
+            ResourceLocation right,
+            ResourceLocation back,
+            ResourceLocation left,
             ResourceLocation top,
             ResourceLocation bottom
     ) {
@@ -771,10 +805,10 @@ public class MaterialBlockStateProvider extends BlockStateProvider {
                 definition.faceTextures();
 
         return new ResolvedFaceTextures(
-                resolveSimpleBlockTexture(definition.id(), textures.north()),
-                resolveSimpleBlockTexture(definition.id(), textures.east()),
-                resolveSimpleBlockTexture(definition.id(), textures.south()),
-                resolveSimpleBlockTexture(definition.id(), textures.west()),
+                resolveSimpleBlockTexture(definition.id(), textures.front()),
+                resolveSimpleBlockTexture(definition.id(), textures.right()),
+                resolveSimpleBlockTexture(definition.id(), textures.back()),
+                resolveSimpleBlockTexture(definition.id(), textures.left()),
                 resolveSimpleBlockTexture(definition.id(), textures.top()),
                 resolveSimpleBlockTexture(definition.id(), textures.bottom())
         );

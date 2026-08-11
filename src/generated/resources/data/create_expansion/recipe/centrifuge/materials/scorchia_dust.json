@@ -1,0 +1,32 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 800,
+  "item_inputs": [
+    {
+      "count": 4,
+      "item": "create_expansion:scorchia_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 2,
+        "id": "create_expansion:scoria_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:carbon_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:sulfur_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:centrifuge",
+  "tier": "ulv"
+}

@@ -1,0 +1,24 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 200,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "minecraft:dirt"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "minecraft:diamond"
+      }
+    }
+  ],
+  "ph_range": {
+    "max": 8.5,
+    "min": 8.0
+  },
+  "recipe_type": "create_expansion:autoclave",
+  "tier": "lv"
+}

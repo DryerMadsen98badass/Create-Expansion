@@ -25,6 +25,24 @@
           "id": "create_expansion:meitnerium_bearing"
         }
       ]
+    },
+    {
+      "type": "create:filling",
+      "ingredients": [
+        {
+          "item": "create_expansion:meitnerium_bearing"
+        },
+        {
+          "type": "neoforge:single",
+          "amount": 25,
+          "fluid": "create_expansion:aromatic_extract"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:meitnerium_bearing"
+        }
+      ]
     }
   ],
   "transitional_item": {

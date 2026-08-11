@@ -1,0 +1,15 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "minecraft:copper_block"
+  },
+  "inputs": [
+    {
+      "count": 32,
+      "item": "minecraft:brick"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:bricked_copper_casing"
+  }
+}

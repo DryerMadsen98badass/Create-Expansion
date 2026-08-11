@@ -15,13 +15,20 @@ public final class blast_furnace {
     private static final char b = 'b';
     private static final char i = 'i';
 
-    public static final MultiblockControllerDefinition CONTROLLER = MultiblockControllerDefinition.of(
-            "blast_furnace",
-            "Blast Furnace",
-            "create_expansion:block/casings/casing/firebricks",
-            "block/machines/overlay/blast_furnace/blast_furnace_off",
-            "block/machines/overlay/blast_furnace/blast_furnace_on"
-    );
+    public static final MultiblockControllerDefinition CONTROLLER = MultiblockControllerDefinition.machine()
+            .machineDefinition(MultiblockControllerDefinition.Option.id("blast_furnace"))
+            .machineDefinition(MultiblockControllerDefinition.Option.displayName("Blast Furnace"))
+            .machineDefinition(MultiblockControllerDefinition.Option.frontTexture("create_expansion:block/casings/casing/firebricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.backTexture("create_expansion:block/casings/casing/firebricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.leftTexture("create_expansion:block/casings/casing/firebricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.rightTexture("create_expansion:block/casings/casing/firebricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.topTexture("create_expansion:block/casings/casing/firebricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.bottomTexture("create_expansion:block/casings/casing/firebricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.frontOverlay(
+                    "block/machines/overlay/blast_furnace/blast_furnace_off",
+                    "block/machines/overlay/blast_furnace/blast_furnace_on"
+            ))
+            .build();
 
     public static final MultiblockDefinition DEFINITION = MultiblockDefinition.machine()
             .machineDefinition(Option.id("blast_furnace"))
@@ -36,7 +43,7 @@ public final class blast_furnace {
                     .layer( row(b, b, b), row(controller, i, a), row(a, i, a), row(a, i, a))
                     .layer( row(b, b, b), row(a, a, a),          row(a, a, a), row(a, a, a))
             ))
-            .machineDefinition(Option.where(a, block("create_expansion:firebricks").min(19).or(ability(needed)).overlay("create_expansion:block/casings/casing/firebricks")))
+            .machineDefinition(Option.where(a, block("create_expansion:firebricks").min(19).or(ability(needed)).overlay("create_expansion:block/firebricks")))
             .machineDefinition(Option.where(b, block("create_expansion:firebrick_firebox")))
             .machineDefinition(Option.where(i, air()))
             .build();

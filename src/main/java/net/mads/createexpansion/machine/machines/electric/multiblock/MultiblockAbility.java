@@ -4,6 +4,7 @@ public enum MultiblockAbility {
     ITEM_INPUT,
     ITEM_OUTPUT,
     FLUID_INPUT,
+    PH_INPUT,
     FLUID_OUTPUT,
     ENERGY_INPUT,
     ENERGY_OUTPUT,

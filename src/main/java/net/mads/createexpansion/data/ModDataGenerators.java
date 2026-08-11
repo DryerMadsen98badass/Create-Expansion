@@ -75,6 +75,12 @@ public class ModDataGenerators {
             );
 
             event.addProvider(
+                    new FluidTransportLootProvider(
+                            event.getGenerator().getPackOutput()
+                    )
+            );
+
+            event.addProvider(
                     new CoilLootProvider(
                             event.getGenerator().getPackOutput()
                     )
@@ -119,6 +125,12 @@ public class ModDataGenerators {
         }
 
         if (event.includeClient()) {
+            event.addProvider(
+                    new FluidTransportModelProvider(
+                            event.getGenerator().getPackOutput()
+                    )
+            );
+
             event.addProvider(
                     new ModLanguageProvider(
                             event.getGenerator().getPackOutput()

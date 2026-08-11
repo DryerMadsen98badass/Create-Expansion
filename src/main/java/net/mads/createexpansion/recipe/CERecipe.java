@@ -2,6 +2,8 @@ package net.mads.createexpansion.recipe;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.mads.createexpansion.CreateExpansion;
+import net.mads.createexpansion.machine.MachineDrive;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.MachineTierStats;
 import net.mads.createexpansion.machine.interaction.BlockInteraction;
@@ -30,87 +32,209 @@ import java.util.Optional;
 public record CERecipe(
         ResourceLocation recipeType,
         List<SizedIngredient> itemInputs,
+        List<CEChancedItemInput> chancedItemInputs,
         List<SizedFluidIngredient> fluidInputs,
+        List<CEChancedFluidInput> chancedFluidInputs,
         List<SizedIngredient> notConsumableItems,
         List<SizedFluidIngredient> notConsumableFluids,
         List<CEChancedItemOutput> itemOutputs,
         List<FluidStack> fluidOutputs,
+        List<CEChancedFluidOutput> chancedFluidOutputs,
+        Optional<ResourceLocation> treeSource,
         int duration,
-        int cet,
         Optional<Integer> circuit,
         Optional<String> tier,
-        Optional<String> kineticTier,
         Optional<Integer> minRpm,
         Optional<Integer> maxRpm,
+        Optional<Integer> outputRpm,
         Optional<Integer> requiredTemp,
+        Optional<PhRange> phRange,
         List<ResourceLocation> requiredLogic,
         List<ResourceLocation> optionalLogic,
         List<BlockInteraction> blockInteractions,
         List<MachineCondition> conditions,
-        List<MachineModifier> modifiers
+        List<MachineModifier> modifiers,
+        boolean furnaceFuel
 ) implements Recipe<CERecipeInput> {
     public static final int DEFAULT_MAX_RPM = 256;
 
     public static final MapCodec<CERecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("recipe_type").forGetter(CERecipe::recipeType),
-            SizedIngredient.FLAT_CODEC.listOf().optionalFieldOf("item_inputs", List.of()).forGetter(CERecipe::itemInputs),
-            SizedFluidIngredient.FLAT_CODEC.listOf().optionalFieldOf("fluid_inputs", List.of()).forGetter(CERecipe::fluidInputs),
-            SizedIngredient.FLAT_CODEC.listOf().optionalFieldOf("not_consumable_items", List.of()).forGetter(CERecipe::notConsumableItems),
-            SizedFluidIngredient.FLAT_CODEC.listOf().optionalFieldOf("not_consumable_fluids", List.of()).forGetter(CERecipe::notConsumableFluids),
+            InputFields.CODEC.forGetter(recipe -> new InputFields(
+                    recipe.itemInputs(),
+                    recipe.chancedItemInputs(),
+                    recipe.fluidInputs(),
+                    recipe.chancedFluidInputs(),
+                    recipe.notConsumableItems(),
+                    recipe.notConsumableFluids()
+            )),
             CEChancedItemOutput.CODEC.listOf().optionalFieldOf("item_outputs", List.of()).forGetter(CERecipe::itemOutputs),
             FluidStack.CODEC.listOf().optionalFieldOf("fluid_outputs", List.of()).forGetter(CERecipe::fluidOutputs),
+            CEChancedFluidOutput.CODEC.listOf().optionalFieldOf("chanced_fluid_outputs", List.of()).forGetter(CERecipe::chancedFluidOutputs),
             ExtraCodecs.POSITIVE_INT.fieldOf("duration").forGetter(CERecipe::duration),
-            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("cet").forGetter(recipe -> Math.abs(recipe.cet())),
-            CodecHelpers.ENERGY_DIRECTION.optionalFieldOf("energy_direction", EnergyDirection.CONSUME).forGetter(CERecipe::energyDirection),
             ExtraCodecs.intRange(1, 32).optionalFieldOf("circuit").forGetter(CERecipe::circuit),
             ExtraCodecs.NON_EMPTY_STRING.optionalFieldOf("tier").forGetter(CERecipe::tier),
-            ExtraCodecs.NON_EMPTY_STRING.optionalFieldOf("kinetic").forGetter(CERecipe::kineticTier),
-            RuntimeFields.CODEC.forGetter(recipe -> new RuntimeFields(recipe.minRpm(), recipe.maxRpm(), recipe.requiredTemp())),
+            LegacyPowerFields.CODEC.forGetter(recipe -> LegacyPowerFields.EMPTY),
+            RuntimeFields.CODEC.forGetter(recipe -> new RuntimeFields(
+                    recipe.treeSource(),
+                    recipe.minRpm(),
+                    recipe.maxRpm(),
+                    recipe.outputRpm(),
+                    recipe.requiredTemp(),
+                    recipe.phRange(),
+                    recipe.furnaceFuel()
+            )),
             LogicFields.CODEC.forGetter(recipe -> new LogicFields(recipe.requiredLogic(), recipe.optionalLogic())),
-            InteractionFields.CODEC.forGetter(recipe -> new InteractionFields(recipe.blockInteractions(), recipe.conditions(), recipe.modifiers()))
+            InteractionFields.CODEC.forGetter(recipe -> new InteractionFields(
+                    recipe.blockInteractions(),
+                    recipe.conditions(),
+                    recipe.modifiers()
+            ))
     ).apply(instance, CERecipe::fromCodec));
 
     public CERecipe {
         itemInputs = List.copyOf(itemInputs);
+        chancedItemInputs = List.copyOf(chancedItemInputs);
         fluidInputs = List.copyOf(fluidInputs);
+        chancedFluidInputs = List.copyOf(chancedFluidInputs);
         notConsumableItems = List.copyOf(notConsumableItems);
         notConsumableFluids = List.copyOf(notConsumableFluids);
         itemOutputs = List.copyOf(itemOutputs);
         fluidOutputs = List.copyOf(fluidOutputs);
+        chancedFluidOutputs = List.copyOf(chancedFluidOutputs);
+        treeSource = treeSource == null ? Optional.empty() : treeSource;
+        circuit = circuit == null ? Optional.empty() : circuit;
+        tier = tier == null ? Optional.empty() : tier;
+        minRpm = minRpm == null ? Optional.empty() : minRpm;
+        maxRpm = maxRpm == null ? Optional.empty() : maxRpm;
+        outputRpm = outputRpm == null ? Optional.empty() : outputRpm;
+        requiredTemp = requiredTemp == null ? Optional.empty() : requiredTemp;
+        phRange = phRange == null ? Optional.empty() : phRange;
         requiredLogic = List.copyOf(requiredLogic);
         optionalLogic = List.copyOf(optionalLogic);
         blockInteractions = List.copyOf(blockInteractions);
         conditions = List.copyOf(conditions);
         modifiers = List.copyOf(modifiers);
+        if (minRpm.isPresent() && maxRpm.isPresent() && maxRpm.get() < minRpm.get()) {
+            throw new IllegalArgumentException("Maximum RPM cannot be lower than minimum RPM");
+        }
+        if (outputRpm.isPresent()
+                && (outputRpm.get() < 1 || outputRpm.get() > DEFAULT_MAX_RPM)) {
+            throw new IllegalArgumentException(
+                    "Output RPM must be between 1 and " + DEFAULT_MAX_RPM
+            );
+        }
     }
 
     private static CERecipe fromCodec(
             ResourceLocation recipeType,
-            List<SizedIngredient> itemInputs,
-            List<SizedFluidIngredient> fluidInputs,
-            List<SizedIngredient> notConsumableItems,
-            List<SizedFluidIngredient> notConsumableFluids,
+            InputFields inputFields,
             List<CEChancedItemOutput> itemOutputs,
             List<FluidStack> fluidOutputs,
+            List<CEChancedFluidOutput> chancedFluidOutputs,
             int duration,
-            int cet,
-            EnergyDirection energyDirection,
             Optional<Integer> circuit,
             Optional<String> tier,
-            Optional<String> kineticTier,
+            LegacyPowerFields legacyPowerFields,
             RuntimeFields runtimeFields,
             LogicFields logicFields,
             InteractionFields interactionFields
     ) {
-        int signedCet = energyDirection == EnergyDirection.GENERATE ? -cet : cet;
-        return new CERecipe(recipeType, itemInputs, fluidInputs, notConsumableItems, notConsumableFluids, itemOutputs, fluidOutputs, duration, signedCet, circuit, tier, kineticTier, runtimeFields.minRpm(), runtimeFields.maxRpm(), runtimeFields.requiredTemp(), logicFields.requiredLogic(), logicFields.optionalLogic(), interactionFields.blockInteractions(), interactionFields.conditions(), interactionFields.modifiers());
+        return new CERecipe(
+                normalizeLegacyRecipeType(recipeType),
+                inputFields.itemInputs(),
+                inputFields.chancedItemInputs(),
+                inputFields.fluidInputs(),
+                inputFields.chancedFluidInputs(),
+                inputFields.notConsumableItems(),
+                inputFields.notConsumableFluids(),
+                itemOutputs,
+                fluidOutputs,
+                chancedFluidOutputs,
+                runtimeFields.treeSource(),
+                duration,
+                circuit,
+                resolvedTier(tier, legacyPowerFields),
+                runtimeFields.minRpm(),
+                runtimeFields.maxRpm(),
+                runtimeFields.outputRpm(),
+                runtimeFields.requiredTemp(),
+                runtimeFields.phRange(),
+                logicFields.requiredLogic(),
+                logicFields.optionalLogic(),
+                interactionFields.blockInteractions(),
+                interactionFields.conditions(),
+                interactionFields.modifiers(),
+                runtimeFields.furnaceFuel()
+        );
     }
 
-    private record RuntimeFields(Optional<Integer> minRpm, Optional<Integer> maxRpm, Optional<Integer> requiredTemp) {
+    private static ResourceLocation normalizeLegacyRecipeType(ResourceLocation recipeType) {
+        if (!CreateExpansion.MOD_ID.equals(recipeType.getNamespace())) {
+            return recipeType;
+        }
+        return switch (recipeType.getPath()) {
+            case "electric_centrifuge", "large_kinetic_centrifuge" -> CERecipeTypes.CENTRIFUGE.id();
+            default -> recipeType;
+        };
+    }
+
+    private record InputFields(
+            List<SizedIngredient> itemInputs,
+            List<CEChancedItemInput> chancedItemInputs,
+            List<SizedFluidIngredient> fluidInputs,
+            List<CEChancedFluidInput> chancedFluidInputs,
+            List<SizedIngredient> notConsumableItems,
+            List<SizedFluidIngredient> notConsumableFluids
+    ) {
+        private static final MapCodec<InputFields> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                SizedIngredient.FLAT_CODEC.listOf().optionalFieldOf("item_inputs", List.of()).forGetter(InputFields::itemInputs),
+                CEChancedItemInput.CODEC.listOf().optionalFieldOf("chanced_item_inputs", List.of()).forGetter(InputFields::chancedItemInputs),
+                SizedFluidIngredient.FLAT_CODEC.listOf().optionalFieldOf("fluid_inputs", List.of()).forGetter(InputFields::fluidInputs),
+                CEChancedFluidInput.CODEC.listOf().optionalFieldOf("chanced_fluid_inputs", List.of()).forGetter(InputFields::chancedFluidInputs),
+                SizedIngredient.FLAT_CODEC.listOf().optionalFieldOf("not_consumable_items", List.of()).forGetter(InputFields::notConsumableItems),
+                SizedFluidIngredient.FLAT_CODEC.listOf().optionalFieldOf("not_consumable_fluids", List.of()).forGetter(InputFields::notConsumableFluids)
+        ).apply(instance, InputFields::new));
+    }
+
+    /**
+     * Reads the old power-specific fields so existing generated data keeps its
+     * processing tier. New recipes never encode these fields.
+     */
+    private record LegacyPowerFields(int cet, Optional<String> kineticTier) {
+        private static final LegacyPowerFields EMPTY = new LegacyPowerFields(0, Optional.empty());
+        private static final MapCodec<LegacyPowerFields> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("cet", 0).forGetter(LegacyPowerFields::cet),
+                ExtraCodecs.NON_EMPTY_STRING.optionalFieldOf("kinetic").forGetter(LegacyPowerFields::kineticTier)
+        ).apply(instance, LegacyPowerFields::new));
+
+        private Optional<MachineTier> minimumTier() {
+            Optional<MachineTier> result = kineticTier.flatMap(CERecipe::tierById);
+            if (cet > 0) {
+                MachineTier energyTier = MachineTierStats.tierForCEt(cet);
+                result = result.map(tier -> MachineTierStats.max(tier, energyTier)).or(() -> Optional.of(energyTier));
+            }
+            return result;
+        }
+    }
+
+    private record RuntimeFields(
+            Optional<ResourceLocation> treeSource,
+            Optional<Integer> minRpm,
+            Optional<Integer> maxRpm,
+            Optional<Integer> outputRpm,
+            Optional<Integer> requiredTemp,
+            Optional<PhRange> phRange,
+            boolean furnaceFuel
+    ) {
         private static final MapCodec<RuntimeFields> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("min_rpm").forGetter(RuntimeFields::minRpm),
-                ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_rpm").forGetter(RuntimeFields::maxRpm),
-            ExtraCodecs.POSITIVE_INT.optionalFieldOf("temp").forGetter(RuntimeFields::requiredTemp)
+                ResourceLocation.CODEC.optionalFieldOf("tree_source").forGetter(RuntimeFields::treeSource),
+                ExtraCodecs.intRange(1, DEFAULT_MAX_RPM).optionalFieldOf("min_rpm").forGetter(RuntimeFields::minRpm),
+                ExtraCodecs.intRange(1, DEFAULT_MAX_RPM).optionalFieldOf("max_rpm").forGetter(RuntimeFields::maxRpm),
+                ExtraCodecs.intRange(1, DEFAULT_MAX_RPM).optionalFieldOf("output_rpm").forGetter(RuntimeFields::outputRpm),
+                ExtraCodecs.POSITIVE_INT.optionalFieldOf("temp").forGetter(RuntimeFields::requiredTemp),
+                PhRange.CODEC.optionalFieldOf("ph_range").forGetter(RuntimeFields::phRange),
+                com.mojang.serialization.Codec.BOOL.optionalFieldOf("furnace_fuel", false).forGetter(RuntimeFields::furnaceFuel)
         ).apply(instance, RuntimeFields::new));
     }
 
@@ -121,7 +245,11 @@ public record CERecipe(
         ).apply(instance, LogicFields::new));
     }
 
-    private record InteractionFields(List<BlockInteraction> blockInteractions, List<MachineCondition> conditions, List<MachineModifier> modifiers) {
+    private record InteractionFields(
+            List<BlockInteraction> blockInteractions,
+            List<MachineCondition> conditions,
+            List<MachineModifier> modifiers
+    ) {
         private static final MapCodec<InteractionFields> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 BlockInteraction.CODEC.listOf().optionalFieldOf("block_interactions", List.of()).forGetter(InteractionFields::blockInteractions),
                 MachineCondition.CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(InteractionFields::conditions),
@@ -129,39 +257,44 @@ public record CERecipe(
         ).apply(instance, InteractionFields::new));
     }
 
-    public boolean generatesEnergy() {
-        return cet < 0;
+    private static Optional<MachineTier> tierById(String id) {
+        return MachineTier.ALL.stream()
+                .filter(machineTier -> machineTier.id().equals(id))
+                .findFirst();
     }
 
-    public int absoluteCEt() {
-        return Math.abs(cet);
-    }
-
-    public EnergyDirection energyDirection() {
-        return generatesEnergy() ? EnergyDirection.GENERATE : EnergyDirection.CONSUME;
+    private static Optional<String> resolvedTier(
+            Optional<String> explicitTier,
+            LegacyPowerFields legacyPowerFields
+    ) {
+        Optional<MachineTier> explicit = explicitTier.flatMap(CERecipe::tierById);
+        Optional<MachineTier> legacy = legacyPowerFields.minimumTier();
+        if (explicit.isPresent() && legacy.isPresent()) {
+            return Optional.of(MachineTierStats.max(explicit.get(), legacy.get()).id());
+        }
+        if (explicit.isPresent()) {
+            return Optional.of(explicit.get().id());
+        }
+        if (legacy.isPresent()) {
+            return Optional.of(legacy.get().id());
+        }
+        return explicitTier;
     }
 
     public Optional<MachineTier> requiredTier() {
-        return tier.flatMap(id -> MachineTier.ALL.stream().filter(machineTier -> machineTier.id().equals(id)).findFirst());
-    }
-
-    public Optional<MachineTier> requiredKineticTier() {
-        return kineticTier.flatMap(id -> MachineTier.ALL.stream().filter(machineTier -> machineTier.id().equals(id)).findFirst());
-    }
-
-    public Optional<MachineTier> requiredEnergyTier() {
-        return cet == 0 ? Optional.empty() : Optional.of(MachineTierStats.tierForCEt(absoluteCEt()));
+        return tier.flatMap(CERecipe::tierById);
     }
 
     public Optional<MachineTier> minimumRuntimeTier() {
-        Optional<MachineTier> result = requiredTier();
-        result = maxOptionalTier(result, requiredKineticTier());
-        result = maxOptionalTier(result, requiredEnergyTier());
-        return result;
+        return requiredTier();
     }
 
     public Optional<Integer> effectiveMaxRpm() {
         return maxRpm;
+    }
+
+    public boolean usesRpm() {
+        return minRpm.isPresent() || maxRpm.isPresent();
     }
 
     public int baseRpm() {
@@ -174,31 +307,59 @@ public record CERecipe(
         return 64;
     }
 
+    public Optional<ItemStack> furnaceFuelStack(CERecipeInput input) {
+        if (!furnaceFuel) {
+            return Optional.empty();
+        }
+        return input.items().stream()
+                .filter(stack -> !stack.isEmpty() && stack.getBurnTime(RecipeType.SMELTING) > 0)
+                .findFirst()
+                .map(ItemStack::copy);
+    }
+
+    public int runtimeDuration(
+            MachineTier runtimeTier,
+            MachineDrive drive,
+            int rpm,
+            CERecipeInput input
+    ) {
+        int baseDuration = furnaceFuelStack(input)
+                .map(stack -> Math.max(1, stack.getBurnTime(RecipeType.SMELTING) / 10))
+                .orElse(duration);
+        return runtimeDuration(runtimeTier, drive, rpm, baseDuration);
+    }
+
+    public int runtimeDuration(MachineTier runtimeTier, MachineDrive drive, int rpm) {
+        return runtimeDuration(runtimeTier, drive, rpm, duration);
+    }
+
+    /** Compatibility overload that uses the drive supplied by the input. */
+    public int runtimeDuration(MachineTier runtimeTier, int rpm, CERecipeInput input) {
+        return runtimeDuration(runtimeTier, input.drive(), rpm, input);
+    }
+
+    /** Compatibility overload for non-kinetic displays and callers. */
     public int runtimeDuration(MachineTier runtimeTier, int rpm) {
-        int adjustedDuration = duration;
-        Optional<MachineTier> required = overclockRequirement();
+        return runtimeDuration(runtimeTier, MachineDrive.NONE, rpm, duration);
+    }
+
+    private int runtimeDuration(
+            MachineTier runtimeTier,
+            MachineDrive drive,
+            int rpm,
+            int baseDuration
+    ) {
+        int adjustedDuration = baseDuration;
+        Optional<MachineTier> required = requiredTier();
         if (required.isPresent() && MachineTierStats.isAtLeast(runtimeTier, required.get())) {
             int factor = MachineTierStats.tierOverclockFactor(required.get(), runtimeTier);
             adjustedDuration = Math.max(1, (adjustedDuration + factor - 1) / factor);
         }
-        return rpmAdjustedDuration(adjustedDuration, rpm);
+        return rpmAdjustedDuration(adjustedDuration, drive, rpm);
     }
 
-    public int runtimeCEt(MachineTier runtimeTier) {
-        if (cet == 0) {
-            return 0;
-        }
-        Optional<MachineTier> required = overclockRequirement();
-        if (required.isEmpty() || !MachineTierStats.isAtLeast(runtimeTier, required.get())) {
-            return absoluteCEt();
-        }
-        int multiplier = MachineTierStats.ceOverclockMultiplier(required.get(), runtimeTier);
-        long value = (long) absoluteCEt() * multiplier;
-        return (int) Math.min(Integer.MAX_VALUE, value);
-    }
-
-    private int rpmAdjustedDuration(int baseDuration, int rpm) {
-        if (!usesRpm()) {
+    private int rpmAdjustedDuration(int baseDuration, MachineDrive drive, int rpm) {
+        if (!drive.usesKinetic()) {
             return baseDuration;
         }
 
@@ -207,41 +368,37 @@ public record CERecipe(
         return Math.max(1, (int) Math.ceil(baseDuration / rpmFactor));
     }
 
-    private boolean usesRpm() {
-        return requiredKineticTier().isPresent() || minRpm.isPresent() || maxRpm.isPresent();
-    }
-
-    private Optional<MachineTier> overclockRequirement() {
-        Optional<MachineTier> result = requiredKineticTier();
-        result = maxOptionalTier(result, requiredEnergyTier());
-        result = maxOptionalTier(result, requiredTier());
-        return result;
-    }
-
-    private static Optional<MachineTier> maxOptionalTier(Optional<MachineTier> first, Optional<MachineTier> second) {
-        if (first.isEmpty()) {
-            return second;
-        }
-        if (second.isEmpty()) {
-            return first;
-        }
-        return Optional.of(MachineTierStats.max(first.get(), second.get()));
-    }
-
     @Override
     public boolean matches(CERecipeInput input, Level level) {
+        return matches(input, level, true);
+    }
+
+    /**
+     * Matches every recipe requirement except the live kinetic RPM window.
+     * Kinetic machines use this while selecting and consuming a recipe so the
+     * execution can be locked first and then wait for the requested RPM.
+     */
+    public boolean matchesIgnoringRpm(CERecipeInput input, Level level) {
+        return matches(input, level, false);
+    }
+
+    private boolean matches(CERecipeInput input, Level level, boolean checkRpm) {
         if (circuit.isPresent() && !circuit.equals(input.circuit())) {
             return false;
         }
-        if (minRpm.isPresent() && input.rpm() < minRpm.get()) {
-            return false;
+
+        if (checkRpm && input.usesKinetic()) {
+            if (input.rpm() < 1 || input.rpm() > DEFAULT_MAX_RPM) {
+                return false;
+            }
+            if (minRpm.isPresent() && input.rpm() < minRpm.get()) {
+                return false;
+            }
+            if (maxRpm.isPresent() && input.rpm() > maxRpm.get()) {
+                return false;
+            }
         }
-        if (maxRpm.isPresent() && input.rpm() > maxRpm.get()) {
-            return false;
-        }
-        if (usesRpm() && input.rpm() < 1) {
-            return false;
-        }
+
         if (requiredTemp.isPresent() && input.coilHeat() < requiredTemp.get()) {
             return false;
         }
@@ -249,24 +406,24 @@ public record CERecipe(
             return false;
         }
 
-        Optional<MachineTier> requiredTier = requiredTier();
-        if (requiredTier.isPresent() && (input.machineTier().isEmpty() || !MachineTierStats.isAtLeast(input.machineTier().get(), requiredTier.get()))) {
+        Optional<MachineTier> required = requiredTier();
+        Optional<MachineTier> actual = input.processingTier();
+        if (required.isPresent()) {
+            if (actual.isPresent()) {
+                if (!MachineTierStats.isAtLeast(actual.get(), required.get())) {
+                    return false;
+                }
+            } else if (input.drive() != MachineDrive.NONE) {
+                return false;
+            }
+        }
+
+        if (furnaceFuel && furnaceFuelStack(input).isEmpty()) {
             return false;
         }
 
-        Optional<MachineTier> requiredKineticTier = requiredKineticTier();
-        if (requiredKineticTier.isPresent() && (input.kineticTier().isEmpty() || !MachineTierStats.isAtLeast(input.kineticTier().get(), requiredKineticTier.get()))) {
-            return false;
-        }
-
-        Optional<MachineTier> requiredEnergyTier = requiredEnergyTier();
-        if (requiredEnergyTier.isPresent() && !generatesEnergy()
-                && (input.energyTier().isEmpty() || !MachineTierStats.isAtLeast(input.energyTier().get(), requiredEnergyTier.get()))) {
-            return false;
-        }
-
-        return matchesItems(input.items(), requirements(itemInputs, notConsumableItems))
-                && matchesFluids(input.fluids(), fluidRequirements(fluidInputs, notConsumableFluids));
+        return matchesItems(input.items(), requirements(itemInputs, chancedItemInputs, notConsumableItems))
+                && matchesFluids(input.fluids(), fluidRequirements(fluidInputs, chancedFluidInputs, notConsumableFluids));
     }
 
     @Override
@@ -294,6 +451,7 @@ public record CERecipe(
     public NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> ingredients = NonNullList.create();
         itemInputs.forEach(input -> ingredients.add(input.ingredient()));
+        chancedItemInputs.forEach(input -> ingredients.add(input.ingredient().ingredient()));
         notConsumableItems.forEach(input -> ingredients.add(input.ingredient()));
         return ingredients;
     }
@@ -313,22 +471,34 @@ public record CERecipe(
         return RecipeRegistry.MACHINE_RECIPE_TYPE.get();
     }
 
-    private static List<SizedIngredient> requirements(List<SizedIngredient> inputs, List<SizedIngredient> notConsumables) {
-        List<SizedIngredient> requirements = new ArrayList<>(inputs.size() + notConsumables.size());
+    private static List<SizedIngredient> requirements(
+            List<SizedIngredient> inputs,
+            List<CEChancedItemInput> chancedInputs,
+            List<SizedIngredient> notConsumables
+    ) {
+        List<SizedIngredient> requirements = new ArrayList<>(inputs.size() + chancedInputs.size() + notConsumables.size());
         requirements.addAll(inputs);
+        chancedInputs.forEach(input -> requirements.add(input.ingredient()));
         requirements.addAll(notConsumables);
         return requirements;
     }
 
-    private static List<SizedFluidIngredient> fluidRequirements(List<SizedFluidIngredient> inputs, List<SizedFluidIngredient> notConsumables) {
-        List<SizedFluidIngredient> requirements = new ArrayList<>(inputs.size() + notConsumables.size());
+    private static List<SizedFluidIngredient> fluidRequirements(
+            List<SizedFluidIngredient> inputs,
+            List<CEChancedFluidInput> chancedInputs,
+            List<SizedFluidIngredient> notConsumables
+    ) {
+        List<SizedFluidIngredient> requirements = new ArrayList<>(inputs.size() + chancedInputs.size() + notConsumables.size());
         requirements.addAll(inputs);
+        chancedInputs.forEach(input -> requirements.add(input.ingredient()));
         requirements.addAll(notConsumables);
         return requirements;
     }
 
     private static boolean matchesItems(List<ItemStack> availableStacks, List<SizedIngredient> requirements) {
-        List<ItemStack> remaining = availableStacks.stream().map(ItemStack::copy).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        List<ItemStack> remaining = availableStacks.stream()
+                .map(ItemStack::copy)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         for (SizedIngredient requirement : requirements) {
             int required = requirement.count();
             for (ItemStack stack : remaining) {
@@ -345,12 +515,13 @@ public record CERecipe(
                 return false;
             }
         }
-
         return true;
     }
 
     private static boolean matchesFluids(List<FluidStack> availableStacks, List<SizedFluidIngredient> requirements) {
-        List<FluidStack> remaining = availableStacks.stream().map(FluidStack::copy).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        List<FluidStack> remaining = availableStacks.stream()
+                .map(FluidStack::copy)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         for (SizedFluidIngredient requirement : requirements) {
             int required = requirement.amount();
             for (FluidStack stack : remaining) {
@@ -368,10 +539,5 @@ public record CERecipe(
             }
         }
         return true;
-    }
-
-    public enum EnergyDirection {
-        CONSUME,
-        GENERATE
     }
 }

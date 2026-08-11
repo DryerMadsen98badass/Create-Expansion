@@ -1,0 +1,25 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 6400,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "create_expansion:stainless_bronze_block"
+    },
+    {
+      "count": 64,
+      "item": "minecraft:brick"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:bricked_bronze_casing"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

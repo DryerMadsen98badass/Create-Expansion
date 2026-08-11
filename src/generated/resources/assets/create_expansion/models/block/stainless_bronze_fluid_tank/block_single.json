@@ -1,0 +1,438 @@
+{
+  "parent": "block/block",
+  "credit": "Made with Blockbench",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#1",
+          "uv": [
+            0,
+            12,
+            16,
+            16
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#1",
+          "uv": [
+            0,
+            12,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#1",
+          "uv": [
+            0,
+            12,
+            16,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#4",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#1",
+          "uv": [
+            0,
+            12,
+            16,
+            16
+          ]
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "name": "Lid",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          -23
+        ]
+      },
+      "to": [
+        16,
+        4,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#1",
+          "uv": [
+            0,
+            4,
+            16,
+            12
+          ]
+        },
+        "west": {
+          "cullface": "east",
+          "texture": "#1",
+          "uv": [
+            0,
+            4,
+            16,
+            12
+          ]
+        }
+      },
+      "from": [
+        15,
+        4,
+        0
+      ],
+      "name": "SideRight",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          12,
+          8
+        ]
+      },
+      "to": [
+        16,
+        12,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "south",
+          "texture": "#1",
+          "uv": [
+            0,
+            4,
+            16,
+            12
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#1",
+          "uv": [
+            0,
+            4,
+            16,
+            12
+          ]
+        }
+      },
+      "from": [
+        0,
+        4,
+        15
+      ],
+      "name": "SideRight",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          12,
+          8
+        ]
+      },
+      "to": [
+        16,
+        12,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "west",
+          "texture": "#1",
+          "uv": [
+            0,
+            4,
+            16,
+            12
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#1",
+          "uv": [
+            0,
+            4,
+            16,
+            12
+          ]
+        }
+      },
+      "from": [
+        0,
+        4,
+        0
+      ],
+      "name": "SideRight",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          12,
+          8
+        ]
+      },
+      "to": [
+        1,
+        12,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#4",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            16,
+            4
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            16,
+            4
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            16,
+            4
+          ]
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            16,
+            4
+          ]
+        }
+      },
+      "from": [
+        0,
+        12,
+        0
+      ],
+      "name": "Lid",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          -23
+        ]
+      },
+      "to": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "north",
+          "texture": "#1",
+          "uv": [
+            0,
+            4,
+            16,
+            12
+          ]
+        },
+        "south": {
+          "cullface": "north",
+          "texture": "#1",
+          "uv": [
+            0,
+            4,
+            16,
+            12
+          ]
+        }
+      },
+      "from": [
+        0,
+        4,
+        0
+      ],
+      "name": "SideRight",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          -23
+        ]
+      },
+      "to": [
+        16,
+        12,
+        1
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "children": [],
+      "color": 0,
+      "name": "tank",
+      "origin": [
+        8,
+        8,
+        -23
+      ]
+    },
+    {
+      "children": [
+        {
+          "children": [],
+          "color": 0,
+          "name": "tank",
+          "origin": [
+            8,
+            8,
+            -23
+          ]
+        }
+      ],
+      "color": 0,
+      "name": "block_middle",
+      "origin": [
+        8,
+        8,
+        8
+      ]
+    },
+    {
+      "children": [
+        {
+          "children": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "color": 0,
+          "name": "tank",
+          "origin": [
+            8,
+            8,
+            -23
+          ]
+        }
+      ],
+      "color": 0,
+      "name": "block_bottom",
+      "origin": [
+        8,
+        8,
+        8
+      ]
+    },
+    {
+      "children": [
+        {
+          "children": [
+            4,
+            5
+          ],
+          "color": 0,
+          "name": "tank",
+          "origin": [
+            8,
+            8,
+            -23
+          ]
+        }
+      ],
+      "color": 0,
+      "name": "block_top",
+      "origin": [
+        8,
+        8,
+        8
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout_mipped",
+  "textures": {
+    "0": "create_expansion:block/stainless_bronze_fluid_tank_top",
+    "1": "create_expansion:block/stainless_bronze_fluid_tank",
+    "4": "create_expansion:block/stainless_bronze_fluid_tank_inner",
+    "particle": "create_expansion:block/stainless_bronze_fluid_tank"
+  }
+}

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:molybdenite_netherrack_ore",
-    "create_expansion:molybdenite_deepslate_ore",
-    "create_expansion:molybdenite_andesite_ore",
-    "create_expansion:molybdenite_end_stone_ore",
     "create_expansion:molybdenite_diorite_ore",
-    "create_expansion:molybdenite_tuff_ore",
+    "create_expansion:molybdenite_granite_ore",
+    "create_expansion:molybdenite_netherrack_ore",
     "create_expansion:molybdenite_blackstone_ore",
     "create_expansion:molybdenite_ore",
-    "create_expansion:molybdenite_granite_ore"
+    "create_expansion:molybdenite_deepslate_ore",
+    "create_expansion:molybdenite_tuff_ore",
+    "create_expansion:molybdenite_andesite_ore",
+    "create_expansion:molybdenite_end_stone_ore"
   ]
 }

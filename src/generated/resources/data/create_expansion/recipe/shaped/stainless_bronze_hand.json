@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "create_expansion:stainless_bronze_plate"
+    },
+    "B": {
+      "item": "create_expansion:wrought_iron_ingot"
+    }
+  },
+  "pattern": [
+    " A ",
+    "AAA",
+    " B "
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_expansion:stainless_bronze_hand"
+  }
+}

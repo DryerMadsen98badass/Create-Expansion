@@ -1,0 +1,30 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 300,
+  "fluid_inputs": [
+    {
+      "amount": 100,
+      "fluid": "create_expansion:organic_binder"
+    }
+  ],
+  "item_inputs": [
+    {
+      "count": 2,
+      "item": "create_expansion:mineral_ash_dust"
+    },
+    {
+      "count": 2,
+      "item": "minecraft:bone_meal"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 3,
+        "id": "create_expansion:fertilizer_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:autoclave",
+  "tier": "ulv"
+}

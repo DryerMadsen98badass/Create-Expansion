@@ -1,0 +1,26 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 400,
+  "fluid_inputs": [
+    {
+      "amount": 250,
+      "fluid": "create_expansion:fermentation_mash"
+    }
+  ],
+  "fluid_outputs": [
+    {
+      "amount": 10,
+      "id": "create_expansion:ethanol"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 5,
+        "id": "create_expansion:wet_biomass"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:autoclave",
+  "tier": "ulv"
+}

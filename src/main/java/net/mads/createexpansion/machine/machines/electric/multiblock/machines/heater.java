@@ -18,14 +18,20 @@ public final class heater {
     private static final char d = 'd';
     private static final char c = 'c';
 
-    public static final MultiblockControllerDefinition CONTROLLER = MultiblockControllerDefinition.tinted(
-            "large_heater",
-            "Large Heater",
-            "block/casings/universal_textures/casing",
-            "block/machines/overlay/foundry/foundry_off",
-            "block/machines/overlay/foundry/foundry_on",
-            MachineTier.ULV.color()
-    );
+    public static final MultiblockControllerDefinition CONTROLLER = MultiblockControllerDefinition.machine()
+            .machineDefinition(MultiblockControllerDefinition.Option.id("large_heater"))
+            .machineDefinition(MultiblockControllerDefinition.Option.displayName("Large Heater"))
+            .machineDefinition(MultiblockControllerDefinition.Option.frontTexture("block/casings/universal_textures/casing").color(MachineTier.ULV.color()))
+            .machineDefinition(MultiblockControllerDefinition.Option.backTexture("block/casings/universal_textures/casing").color(MachineTier.ULV.color()))
+            .machineDefinition(MultiblockControllerDefinition.Option.leftTexture("block/casings/universal_textures/casing").color(MachineTier.ULV.color()))
+            .machineDefinition(MultiblockControllerDefinition.Option.rightTexture("block/casings/universal_textures/casing").color(MachineTier.ULV.color()))
+            .machineDefinition(MultiblockControllerDefinition.Option.topTexture("block/casings/universal_textures/casing").color(MachineTier.ULV.color()))
+            .machineDefinition(MultiblockControllerDefinition.Option.bottomTexture("block/casings/universal_textures/casing").color(MachineTier.ULV.color()))
+            .machineDefinition(MultiblockControllerDefinition.Option.frontOverlay(
+                    "block/machines/overlay/foundry/foundry_off",
+                    "block/machines/overlay/foundry/foundry_on"
+            ))
+            .build();
 
     public static final MultiblockDefinition DEFINITION = MultiblockDefinition.machine()
             .machineDefinition(Option.id("large_heater"))

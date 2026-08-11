@@ -9,8 +9,6 @@ public final class ElectrolyserRecipeType {
             .recipeTypeDefinition(Option.id("electrolyser"))
             .recipeTypeDefinition(Option.displayName("Electrolyser"))
             .recipeTypeDefinition(Option.maxIO(2, 9, 1, 3))
-            .recipeTypeDefinition(Option.kineticMode(RecipeTypeDefinition.KineticMode.NONE))
-            .recipeTypeDefinition(Option.energyMode(RecipeTypeDefinition.EnergyMode.CONSUMES))
             .recipeTypeDefinition(Option.progressBar(ProgressBar.EXTRACT))
             .build();
 

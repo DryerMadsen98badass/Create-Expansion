@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.block.ActiveBlockDefinition;
-import net.mads.createexpansion.block.ActiveBlocks;
+import net.mads.createexpansion.block.SimpleBlocks;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -29,7 +29,7 @@ public class FireboxLootProvider implements DataProvider {
                 .resolve("loot_table")
                 .resolve("blocks");
 
-        for (ActiveBlockDefinition definition : ActiveBlocks.ALL) {
+        for (ActiveBlockDefinition definition : SimpleBlocks.ACTIVE) {
             futures.add(DataProvider.saveStable(cache, lootTable(definition), data.resolve(definition.id() + ".json")));
         }
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));

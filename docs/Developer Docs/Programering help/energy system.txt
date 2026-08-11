@@ -156,6 +156,12 @@ Jade cable flow data
 - Over-voltage explosions use TNT explosion interaction so they destroy the machine or hatch and nearby blocks.
 - Cable block entity flow updates continue during the 20-tick averaging decay, then stop syncing once the displayed flow reaches zero.
 - Machine Jade shows readable active item/fluid inputs and outputs instead of a recipe ID, plus recipe progress and the energy buffer.
+- Active machine recipe IO uses GTCEu-style sections and rows: `Inputs`/`Outputs`, then an icon and
+  `x<amount>[display name]` for every stack. Fluids use their bucket icon but retain the fluid's
+  display name. Jade's automatic item and fluid storage lines are removed for CE singleblocks and
+  multiblock controllers. Existing resource usage, duration, status, energy buffer, and formed
+  displays remain below or alongside the shared recipe IO. Steam singleblocks receive an explicit
+  blue steam-buffer progress element at the bottom because the universal fluid entry is removed.
 - Machine Jade's server provider is registered once for BlockEntity.class and stores its payload under the provider UID, matching GTCEu's registration/data pattern.
 - Electric recipe Jade shows actual runtime consumption or production as amperage at the machine voltage plus total CE/t. For example, an 8 CE/t ULV recipe overclocked in LV displays 1.0A at LV (32 CE/t).
 - Cable Jade retains the most recent transferred voltage while its 20-tick amperage window is non-zero, preventing tick-order gaps from displaying Voltage: None during active flow.

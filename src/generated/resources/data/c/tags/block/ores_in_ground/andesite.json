@@ -104,11 +104,15 @@
     "create_expansion:moscovium_andesite_ore",
     "create_expansion:livermorium_andesite_ore",
     "create_expansion:electrum_andesite_ore",
+    "create_expansion:calcite_andesite_ore",
     "create_expansion:diamond_andesite_ore",
     "create_expansion:emerald_andesite_ore",
     "create_expansion:lapis_andesite_ore",
     "create_expansion:redstone_andesite_ore",
     "create_expansion:quartz_andesite_ore",
+    "create_expansion:topaz_andesite_ore",
+    "create_expansion:ruby_andesite_ore",
+    "create_expansion:sapphire_andesite_ore",
     "create_expansion:graphite_andesite_ore",
     "create_expansion:sodalite_andesite_ore",
     "create_expansion:lazurite_andesite_ore",
@@ -117,6 +121,7 @@
     "create_expansion:goethite_andesite_ore",
     "create_expansion:siderite_andesite_ore",
     "create_expansion:pyrite_andesite_ore",
+    "create_expansion:cinnabar_andesite_ore",
     "create_expansion:chalcopyrite_andesite_ore",
     "create_expansion:malachite_andesite_ore",
     "create_expansion:azurite_andesite_ore",
@@ -173,7 +178,6 @@
     "create_expansion:dolomite_andesite_ore",
     "create_expansion:coal_andesite_ore",
     "create_expansion:carnallite_andesite_ore",
-    "create_expansion:calcite_andesite_ore",
     "create_expansion:gypsum_andesite_ore",
     "create_expansion:fluorite_andesite_ore",
     "create_expansion:apatite_andesite_ore",
@@ -183,9 +187,6 @@
     "create_expansion:sylvite_andesite_ore",
     "create_expansion:orthoclase_andesite_ore",
     "create_expansion:bastnasite_andesite_ore",
-    "create_expansion:xenotime_andesite_ore",
-    "create_expansion:topaz_andesite_ore",
-    "create_expansion:ruby_andesite_ore",
-    "create_expansion:sapphire_andesite_ore"
+    "create_expansion:xenotime_andesite_ore"
   ]
 }

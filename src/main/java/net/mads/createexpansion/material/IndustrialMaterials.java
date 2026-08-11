@@ -40,7 +40,7 @@ public class IndustrialMaterials {
     public static final IndustrialMaterial ZINC = material("zinc", "Zinc", 0xC8C8B0)
             .element("Zn")
             .strength(3)
-            .meltingPoint(420)
+            .meltingPoint(800)
             .allMetals()
             .allMaterials()
             .smeltingSelf()
@@ -208,6 +208,308 @@ public class IndustrialMaterials {
     public static final IndustrialFluid WATER = fluid("water", "Water", 0x3F76E4)
             .contains(component(HYDROGEN, 2), component(OXYGEN, 1))
             .existing(FLUID, "minecraft:water")
+            .ph(7.0, 100)
+            .build();
+
+    public static final IndustrialFluid GLYCEROL = fluid("glycerol", "Glycerol", 0xD9D4B8)
+            .contains(component(CARBON, 3), component(HYDROGEN, 8), component(OXYGEN, 3))
+            .density(1260)
+            .viscosity(1400)
+            .build();
+
+    public static final IndustrialFluid SULFURIC_ACID = fluid("sulfuric_acid", "Sulfuric Acid", 0xE6E0A8)
+            .contains(component(HYDROGEN, 2), component(SULFUR, 1), component(OXYGEN, 4))
+            .temperature(300)
+            .density(1840)
+            .viscosity(26)
+            .ph(1.0, 2)
+            .build();
+
+    public static final IndustrialFluid OLEIC_ACID = fluid("oleic_acid", "Oleic Acid", 0xD8B64A)
+            .contains(component(CARBON, 18), component(HYDROGEN, 34), component(OXYGEN, 2))
+            .density(895)
+            .viscosity(30)
+            .ph(4.5, 10)
+            .build();
+
+    public static final IndustrialFluid LINOLEIC_ACID = fluid("linoleic_acid", "Linoleic Acid", 0xD6A93E)
+            .contains(component(CARBON, 18), component(HYDROGEN, 32), component(OXYGEN, 2))
+            .density(902)
+            .viscosity(25)
+            .ph(4.5, 10)
+            .build();
+
+    public static final IndustrialFluid LINOLENIC_ACID = fluid("linolenic_acid", "Linolenic Acid", 0xC99A34)
+            .contains(component(CARBON, 18), component(HYDROGEN, 30), component(OXYGEN, 2))
+            .density(914)
+            .viscosity(22)
+            .ph(4.5, 10)
+            .build();
+
+    public static final IndustrialFluid PALMITIC_ACID = fluid("palmitic_acid", "Palmitic Acid", 0xE0C77A)
+            .contains(component(CARBON, 16), component(HYDROGEN, 32), component(OXYGEN, 2))
+            .density(853)
+            .viscosity(45)
+            .ph(4.5, 8)
+            .build();
+
+    public static final IndustrialFluid STEARIC_ACID = fluid("stearic_acid", "Stearic Acid", 0xE5D49A)
+            .contains(component(CARBON, 18), component(HYDROGEN, 36), component(OXYGEN, 2))
+            .density(847)
+            .viscosity(50)
+            .ph(4.5, 8)
+            .build();
+
+    public static final IndustrialFluid PLANT_TRIGLYCERIDES = fluid("plant_triglycerides", "Plant Triglycerides", 0xC7A12B)
+            .contains(component(CARBON, 57), component(HYDROGEN, 104), component(OXYGEN, 6))
+            .density(915)
+            .viscosity(850)
+            .build();
+
+    public static final IndustrialMaterial PLANT_WAX = material("plant_wax", "Plant Wax", 0xD9C56E)
+            .contains(component(CARBON, 32), component(HYDROGEN, 64), component(OXYGEN, 2))
+            .parts(INGOT)
+            .existing(INGOT, "create_expansion:plant_wax")
+            .build();
+
+    public static final IndustrialMaterial PHOSPHOLIPIDS = material("phospholipids", "Phospholipids", 0xBFAE72)
+            .contains(component(CARBON, 40), component(HYDROGEN, 80), component(NITROGEN, 1), component(OXYGEN, 8), component(PHOSPHORUS, 1))
+            .build();
+
+    public static final IndustrialMaterial PHYTOSTEROLS = material("phytosterols", "Phytosterols", 0xC8B66A)
+            .contains(component(CARBON, 29), component(HYDROGEN, 50), component(OXYGEN, 1))
+            .build();
+
+    public static final IndustrialMaterial TOCOPHEROL = material("tocopherol", "Tocopherol", 0xD8B84D)
+            .contains(component(CARBON, 29), component(HYDROGEN, 50), component(OXYGEN, 2))
+            .build();
+
+    public static final IndustrialMaterial CHLOROPHYLL = material("chlorophyll", "Chlorophyll", 0x3F7F2A)
+            .contains(component(CARBON, 55), component(HYDROGEN, 72), component(MAGNESIUM, 1), component(NITROGEN, 4), component(OXYGEN, 5))
+            .build();
+
+    public static final IndustrialMaterial GLUCOSE = material("glucose", "Glucose", 0xE8D7A8)
+            .contains(component(CARBON, 6), component(HYDROGEN, 12), component(OXYGEN, 6))
+            .build();
+
+    public static final IndustrialMaterial FRUCTOSE = material("fructose", "Fructose", 0xE5CF95)
+            .contains(component(CARBON, 6), component(HYDROGEN, 12), component(OXYGEN, 6))
+            .build();
+
+    public static final IndustrialMaterial SUCROSE = material("sucrose", "Sucrose", 0xEEE3C8)
+            .contains(component(CARBON, 12), component(HYDROGEN, 22), component(OXYGEN, 11))
+            .build();
+
+    public static final IndustrialMaterial CELLULOSE = material("cellulose", "Cellulose", 0xD8C8A0)
+            .contains(component(CARBON, 6), component(HYDROGEN, 10), component(OXYGEN, 5))
+            .build();
+
+    public static final IndustrialMaterial HEMICELLULOSE = material("hemicellulose", "Hemicellulose", 0xC8B88C)
+            .contains(component(CARBON, 5), component(HYDROGEN, 8), component(OXYGEN, 4))
+            .build();
+
+    public static final IndustrialMaterial LIGNIN = material("lignin", "Lignin", 0x5E3D25)
+            .contains(component(CARBON, 9), component(HYDROGEN, 10), component(OXYGEN, 3))
+            .build();
+
+    public static final IndustrialMaterial TANNIN = material("tannin", "Tannin", 0x6C3F25)
+            .contains(component(CARBON, 76), component(HYDROGEN, 52), component(OXYGEN, 46))
+            .build();
+
+    public static final IndustrialMaterial PLANT_RESIN = material("plant_resin", "Plant Resin", 0xA66A2C)
+            .contains(component(CARBON, 20), component(HYDROGEN, 30), component(OXYGEN, 2))
+            .build();
+
+    public static final IndustrialFluid TERPENES = fluid("terpenes", "Terpenes", 0xC68B38)
+            .contains(component(CARBON, 10), component(HYDROGEN, 16))
+            .density(860)
+            .viscosity(2)
+            .build();
+
+    public static final IndustrialMaterial ORGANIC_ACIDS = material("organic_acids", "Organic Acids", 0xC8B08A)
+            .contains(component(CARBON, 2), component(HYDROGEN, 4), component(OXYGEN, 2))
+            .build();
+
+    public static final IndustrialMaterial STARCH = material("starch", "Starch", 0xE5DCC0)
+            .contains(component(CARBON, 6), component(HYDROGEN, 10), component(OXYGEN, 5))
+            .build();
+
+    public static final IndustrialMaterial PLANT_PROTEIN = material("plant_protein", "Plant Protein", 0xA88A56)
+            .contains(component(CARBON, 5), component(HYDROGEN, 9), component(NITROGEN, 1), component(OXYGEN, 2))
+            .build();
+
+    public static final IndustrialMaterial YEAST_BIOMASS = material("yeast_biomass", "Yeast Biomass", 0xB28C5A)
+            .contains(component(CARBON, 5), component(HYDROGEN, 8), component(NITROGEN, 1), component(OXYGEN, 2), component(PHOSPHORUS, 1))
+            .build();
+
+    public static final IndustrialMaterial ARABINOGALACTAN = material("arabinogalactan", "Arabinogalactan", 0xD6B77A)
+            .contains(component(CARBON, 5), component(HYDROGEN, 8), component(OXYGEN, 4))
+            .build();
+
+    public static final IndustrialFluid BENZALDEHYDE = fluid("benzaldehyde", "Benzaldehyde", 0xC99A67)
+            .contains(component(CARBON, 7), component(HYDROGEN, 6), component(OXYGEN, 1))
+            .density(1044)
+            .viscosity(2)
+            .build();
+
+    public static final IndustrialMaterial ROSIN_ACIDS = material("rosin_acids", "Rosin Acids", 0xB9732D)
+            .contains(component(CARBON, 20), component(HYDROGEN, 30), component(OXYGEN, 2))
+            .build();
+
+    public static final IndustrialFluid FATTY_ACID_ETHYL_ESTER = fluid("fatty_acid_ethyl_ester", "Fatty Acid Ethyl Ester", 0xC9A33A)
+            .contains(component(CARBON, 20), component(HYDROGEN, 38), component(OXYGEN, 2))
+            .density(870)
+            .viscosity(5)
+            .build();
+
+    public static final IndustrialFluid METHANE = gas("methane", "Methane", 0xD8F2FF)
+            .contains(component(CARBON, 1), component(HYDROGEN, 4))
+            .build();
+
+    public static final IndustrialFluid ETHANE = gas("ethane", "Ethane", 0xCBE8F5)
+            .contains(component(CARBON, 2), component(HYDROGEN, 6))
+            .build();
+
+    public static final IndustrialFluid PROPANE = gas("propane", "Propane", 0xBDDDEB)
+            .contains(component(CARBON, 3), component(HYDROGEN, 8))
+            .build();
+
+    public static final IndustrialFluid BUTANE = gas("butane", "Butane", 0xAFCFDB)
+            .contains(component(CARBON, 4), component(HYDROGEN, 10))
+            .build();
+
+    public static final IndustrialFluid PENTANE = fluid("pentane", "Pentane", 0xE8DFC0)
+            .contains(component(CARBON, 5), component(HYDROGEN, 12))
+            .density(626)
+            .viscosity(1)
+            .build();
+
+    public static final IndustrialFluid HEXANE = fluid("hexane", "Hexane", 0xE2D6AE)
+            .contains(component(CARBON, 6), component(HYDROGEN, 14))
+            .density(659)
+            .viscosity(1)
+            .build();
+
+    public static final IndustrialFluid HEPTANE = fluid("heptane", "Heptane", 0xD9CC9B)
+            .contains(component(CARBON, 7), component(HYDROGEN, 16))
+            .density(684)
+            .viscosity(1)
+            .build();
+
+    public static final IndustrialFluid OCTANE = fluid("octane", "Octane", 0xD1C188)
+            .contains(component(CARBON, 8), component(HYDROGEN, 18))
+            .density(703)
+            .viscosity(1)
+            .build();
+
+    public static final IndustrialFluid DECANE = fluid("decane", "Decane", 0xC7B477)
+            .contains(component(CARBON, 10), component(HYDROGEN, 22))
+            .density(730)
+            .viscosity(2)
+            .build();
+
+    public static final IndustrialFluid DODECANE = fluid("dodecane", "Dodecane", 0xBDA867)
+            .contains(component(CARBON, 12), component(HYDROGEN, 26))
+            .density(750)
+            .viscosity(2)
+            .build();
+
+    public static final IndustrialFluid CETANE = fluid("cetane", "Cetane", 0xB39B58)
+            .contains(component(CARBON, 16), component(HYDROGEN, 34))
+            .density(773)
+            .viscosity(4)
+            .build();
+
+    public static final IndustrialFluid BENZENE = fluid("benzene", "Benzene", 0xD9CBA3)
+            .contains(component(CARBON, 6), component(HYDROGEN, 6))
+            .density(876)
+            .viscosity(1)
+            .build();
+
+    public static final IndustrialFluid TOLUENE = fluid("toluene", "Toluene", 0xCDBB91)
+            .contains(component(CARBON, 7), component(HYDROGEN, 8))
+            .density(867)
+            .viscosity(1)
+            .build();
+
+    public static final IndustrialFluid XYLENE = fluid("xylene", "Xylene", 0xC2AD80)
+            .contains(component(CARBON, 8), component(HYDROGEN, 10))
+            .density(864)
+            .viscosity(1)
+            .build();
+
+    public static final IndustrialMaterial NAPHTHALENE = material("naphthalene", "Naphthalene", 0xB8A77D)
+            .contains(component(CARBON, 10), component(HYDROGEN, 8))
+            .build();
+
+    public static final IndustrialMaterial HEAVY_HYDROCARBONS = material("heavy_hydrocarbons", "Heavy Hydrocarbons", 0x3A2F24)
+            .contains(component(CARBON, 30), component(HYDROGEN, 62))
+            .build();
+
+    public static final IndustrialMaterial AROMATIC_HYDROCARBONS = material("aromatic_hydrocarbons", "Aromatic Hydrocarbons", 0x574531)
+            .contains(component(CARBON, 10), component(HYDROGEN, 8))
+            .build();
+
+    public static final IndustrialMaterial SULFUR_COMPOUNDS = material("sulfur_compounds", "Sulfur Compounds", 0x6E6228)
+            .contains(component(CARBON, 4), component(HYDROGEN, 4), component(SULFUR, 1))
+            .build();
+
+    public static final IndustrialMaterial PETROLEUM_WAX = material("petroleum_wax", "Petroleum Wax", 0xD8D0B8)
+            .contains(component(CARBON, 25), component(HYDROGEN, 52))
+            .build();
+
+    public static final IndustrialMaterial ASPHALTENES = material("asphaltenes", "Asphaltenes", 0x17120F)
+            .contains(component(CARBON, 40), component(HYDROGEN, 36), component(NITROGEN, 1), component(OXYGEN, 2), component(SULFUR, 1))
+            .build();
+
+    public static final IndustrialMaterial PETROLEUM_RESINS = material("petroleum_resins", "Petroleum Resins", 0x3A2B22)
+            .contains(component(CARBON, 30), component(HYDROGEN, 40), component(OXYGEN, 1), component(SULFUR, 1))
+            .build();
+
+    public static final IndustrialFluid REFINERY_GAS = gas("refinery_gas", "Refinery Gas", 0xCFE8EE)
+            .contains(component(METHANE, 4), component(ETHANE, 3), component(PROPANE, 2), component(BUTANE, 1))
+            .build();
+
+    public static final IndustrialFluid NAPHTHA = fluid("naphtha", "Naphtha", 0xD9C36A)
+            .contains(component(PENTANE, 2), component(HEXANE, 3), component(HEPTANE, 3), component(OCTANE, 2))
+            .density(720)
+            .viscosity(1)
+            .build();
+
+    public static final IndustrialFluid GASOLINE = fluid("gasoline", "Gasoline", 0xE0C85E)
+            .contains(component(HEXANE, 1), component(HEPTANE, 2), component(OCTANE, 4), component(TOLUENE, 2), component(XYLENE, 1))
+            .density(745)
+            .viscosity(1)
+            .build();
+
+    public static final IndustrialFluid KEROSENE = fluid("kerosene", "Kerosene", 0xC9B24F)
+            .contains(component(DECANE, 3), component(DODECANE, 4), component(CETANE, 1), component(NAPHTHALENE, 1))
+            .density(810)
+            .viscosity(2)
+            .build();
+
+    public static final IndustrialFluid DIESEL = fluid("diesel", "Diesel", 0xA98E35)
+            .contains(component(DODECANE, 3), component(CETANE, 5), component(NAPHTHALENE, 1))
+            .density(835)
+            .viscosity(4)
+            .build();
+
+    public static final IndustrialFluid HEAVY_FUEL_OIL = fluid("heavy_fuel_oil", "Heavy Fuel Oil", 0x33251D)
+            .contains(component(HEAVY_HYDROCARBONS, 8), component(NAPHTHALENE, 1), component(SULFUR_COMPOUNDS, 1))
+            .density(980)
+            .viscosity(3500)
+            .build();
+
+    public static final IndustrialFluid LUBRICATING_OIL = fluid("lubricating_oil", "Lubricating Oil", 0x5A4826)
+            .contains(component(HEAVY_HYDROCARBONS, 8), component(PETROLEUM_WAX, 1), component(AROMATIC_HYDROCARBONS, 1))
+            .density(880)
+            .viscosity(2200)
+            .build();
+
+    public static final IndustrialFluid BITUMEN = fluid("bitumen", "Bitumen", 0x17120F)
+            .contains(component(ASPHALTENES, 5), component(PETROLEUM_RESINS, 3), component(HEAVY_HYDROCARBONS, 2))
+            .density(1030)
+            .viscosity(12000)
             .build();
 
     public static final IndustrialFluid CRUDE_OIL = fluid("crude_oil", "Crude Oil", 0x19130D)
@@ -215,6 +517,7 @@ public class IndustrialMaterials {
             .build();
 
     public static final IndustrialFluid ORGANIC_BINDER = fluid("organic_binder", "Organic Binder", 0x6B4526)
+            .contains(component(PLANT_RESIN, 5), component(PLANT_WAX, 2), component(CELLULOSE, 2), component(WATER, 1))
             .temperature(320)
             .density(1120)
             .viscosity(3000)
@@ -231,30 +534,21 @@ public class IndustrialMaterials {
             .temperature(300)
             .density(2400)
             .viscosity(6000)
+            .ph(12.5, 1)
             .build();
 
     public static final IndustrialFluid CREOSOTE_OIL = fluid("creosote_oil", "Creosote Oil", 0x2B1A0E)
+            .contains(component(BENZENE, 2), component(TOLUENE, 2), component(XYLENE, 2), component(NAPHTHALENE, 3), component(WATER, 1))
             .temperature(350)
             .density(1100)
             .viscosity(1500)
             .build();
 
     public static final IndustrialFluid PLANT_OIL = fluid("plant_oil", "Plant Oil", 0xC9A227)
+            .contains(component(PLANT_TRIGLYCERIDES, 92), component(PLANT_WAX, 2), component(PHOSPHOLIPIDS, 2), component(PHYTOSTEROLS, 1), component(TOCOPHEROL, 1), component(CHLOROPHYLL, 1), component(WATER, 1))
             .temperature(300)
             .density(920)
             .viscosity(900)
-            .build();
-
-    public static final IndustrialFluid BIOFUEL = fluid("biofuel", "Biofuel", 0xB58A20)
-            .temperature(300)
-            .density(880)
-            .viscosity(650)
-            .build();
-
-    public static final IndustrialFluid BIOLUBRICANT = fluid("biolubricant", "Biolubricant", 0xA88A2A)
-            .temperature(300)
-            .density(900)
-            .viscosity(1800)
             .build();
 
     public static final IndustrialFluid ETHANOL = fluid("ethanol", "Ethanol", 0xE8E1B0)
@@ -264,34 +558,50 @@ public class IndustrialMaterials {
             .viscosity(1)
             .build();
 
+    public static final IndustrialFluid BIOFUEL = fluid("biofuel", "Biofuel", 0xB58A20)
+            .contains(component(FATTY_ACID_ETHYL_ESTER, 94), component(ETHANOL, 3), component(GLYCEROL, 2), component(WATER, 1))
+            .temperature(300)
+            .density(880)
+            .viscosity(650)
+            .build();
+
+    public static final IndustrialFluid BIOLUBRICANT = fluid("biolubricant", "Biolubricant", 0xA88A2A)
+            .contains(component(PLANT_TRIGLYCERIDES, 8), component(PLANT_WAX, 1), component(OLEIC_ACID, 1))
+            .temperature(300)
+            .density(900)
+            .viscosity(1800)
+            .build();
+
     public static final IndustrialFluid FERMENTATION_MASH = fluid("fermentation_mash", "Fermentation Mash", 0x8C6A32)
+            .contains(component(WATER, 6), component(GLUCOSE, 1), component(STARCH, 1), component(CELLULOSE, 1), component(PLANT_PROTEIN, 1))
             .temperature(300)
             .density(1050)
             .viscosity(700)
+            .ph(5.5, 10)
             .build();
 
     public static final IndustrialFluid FERMENTED_MASH = fluid("fermented_mash", "Fermented Mash", 0x6E4F2A)
+            .contains(component(WATER, 6), component(ETHANOL, 1), component(GLUCOSE, 1), component(CELLULOSE, 1), component(YEAST_BIOMASS, 1))
             .temperature(305)
             .density(1030)
             .viscosity(550)
+            .ph(4.2, 10)
             .build();
 
-    public static final IndustrialFluid INDUSTRIAL_RESIN = fluid("industrial_resin", "Industrial Resin", 0x7A4A1F)
-            .temperature(320)
-            .density(1080)
-            .viscosity(2400)
-            .build();
 
-    public static final IndustrialFluid RAW_RESIN = fluid("raw_resin", "Raw Resin", 0x8A5A24)
-            .temperature(300)
-            .density(1050)
-            .viscosity(3200)
-            .build();
+
+
 
     public static final IndustrialMaterial BRONZE = material("bronze", "Bronze", 0xCD7F32)
             .alloyOf(component(COPPER, 3), component(TIN, 1))
             .strength(2)
             .allMaterials()
+            .build();
+
+    public static final IndustrialMaterial STAINLESS_BRONZE = material("stainless_bronze", "Stainless Bronze", 0xCD7F32)
+            .alloyOf(component(COPPER, 3), component(TIN, 1))
+            .strength(2)
+            .parts(INGOT, NUGGET, BLOCK, PLATE, DOUBLE_PLATE, FOIL, ROD, LONG_ROD, BOLT, SCREW, WIRE, FINE_WIRE, RING, SMALL_RING, LARGE_RING, GEAR, SMALL_GEAR, LARGE_GEAR, BEARING_BALL, BEARING, SPRING, COIL, ROTOR, TOOL_HEAD_BUZZ_SAW, FRAME, DENSE_PLATE, HEAT_EXCHANGER_PLATE)
             .build();
 
     public static final IndustrialMaterial BRASS = material("brass", "Brass", 0xD6A84F)
@@ -478,6 +788,9 @@ public class IndustrialMaterials {
     public static final IndustrialMaterial SKUTTERUDITE = oreMineral("skutterudite", "Skutterudite", 0x55505A)
             .contains(component(COBALT, 1), component(NICKEL, 1), component(ARSENIC, 3))
             .build();
+    public static final IndustrialMaterial CINNABAR = oreMineral("cinnabar", "Cinnabar", 0xB3262E)
+            .contains(component(MERCURY, 2), component(SULFUR, 2), component(REDSTONE, 1))
+            .build();
     public static final IndustrialMaterial ERYTHRITE = oreMineral("erythrite", "Erythrite", 0xC44A86)
             .contains(component(COBALT, 3), component(ARSENIC, 2), component(OXYGEN, 16), component(HYDROGEN, 16))
             .smelting(COBALT)
@@ -605,8 +918,8 @@ public class IndustrialMaterials {
             .build();
     public static final IndustrialMaterial CALCITE = oreMineral("calcite", "Calcite", 0xE5E0D0)
             .contains(component(CALCIUM, 1), component(CARBON, 1), component(OXYGEN, 3))
-            .existing(STONES, "create:calcite")
-            .stone()
+            .existing(STONES, "minecraft:calcite")
+            .electrolyser(MachineTier.LV)
             .build();
     public static final IndustrialMaterial GYPSUM = oreMineral("gypsum", "Gypsum", 0xE8E8E0)
             .contains(component(CALCIUM, 1), component(SULFUR, 1), component(OXYGEN, 6), component(HYDROGEN, 4))
@@ -666,32 +979,47 @@ public class IndustrialMaterials {
     public static final IndustrialMaterial ANDESITE = material("andesite", "Andesite", 0xB8B8B8)
             .contains(component(CALCIUM, 1), component(ALUMINUM, 2), component(SILICON, 2), component(OXYGEN, 8))
             .parts(DUST)
-            .stone()
+            .electrolyser(MachineTier.LV)
+            .existing(STONES, "minecraft:andesite")
             .build();
     public static final IndustrialMaterial STONE = material("stone", "Stone", 0xB8B8B8)
             .parts(DUST)
             .existing(STONES, "minecraft:stone")
-            .stone()
             .build();
     public static final IndustrialMaterial TUFF = material("tuff", "Tuff", 0xB8B8B8)
             .contains(component(GOLD, 1), component(ZINC, 1), component(IRON, 1), component(COPPER, 1))
             .parts(DUST)
-            .stone()
+            .centrifuge(MachineTier.ULV)
+            .existing(STONES, "minecraft:tuff")
             .build();
     public static final IndustrialMaterial FELDSPAR = material("feldspar", "Feldspar", 0xD8C4B0)
             .contains(component(POTASSIUM, 1), component(ALUMINUM, 1), component(SILICON, 3), component(OXYGEN, 8))
             .parts(DUST)
+            .electrolyser(MachineTier.LV)
             .build();
     public static final IndustrialMaterial MICA = material("mica", "Mica", 0x3A3128)
             .contains(component(POTASSIUM, 1), component(ALUMINUM, 3), component(SILICON, 3), component(OXYGEN, 12), component(HYDROGEN, 2))
             .parts(DUST)
+            .electrolyser(MachineTier.LV)
             .build();
     public static final IndustrialMaterial GRANITE = material("granite", "Granite", 0xA77D73)
             .contains(component(QUARTZ, 3), component(FELDSPAR, 5), component(MICA, 1))
             .parts(DUST)
-            .stone()
+            .centrifuge(MachineTier.ULV)
+            .existing(STONES, "minecraft:granite")
+            .build();
+    public static final IndustrialMaterial MINERAL_ASH = material("mineral_ash", "Mineral Ash", 0x8A8878)
+            .contains(component(CALCIUM, 3), component(SILICON, 2), component(POTASSIUM, 2), component(MAGNESIUM, 1), component(IRON, 1), component(OXYGEN, 9))
+            .parts(DUST)
+            .build();
+    public static final IndustrialMaterial WOOD = material("wood", "Wood", 0xab7a43)
+            .contains(component(CELLULOSE, 5), component(HEMICELLULOSE, 2), component(LIGNIN, 2), component(WATER, 1))
+            .strength(1)
+            .parts(SCREW, BOLT, LONG_ROD, DUST, FRAME, SMALL_GEAR, SMALL_DUST, TINY_DUST, GEAR, PLATE)
+            .existing(ROD, "minecraft:stick")
             .build();
     public static final IndustrialMaterial BIO_CHAR = material("bio_char", "Bio Char", 0x1F1A14)
+            .contains(component(CARBON, 9), component(MINERAL_ASH, 1))
             .parts(DUST)
             .furnaceFuel(1)
             .build();
@@ -706,60 +1034,69 @@ public class IndustrialMaterials {
             .allMaterials()
             .existing(INGOT, "create:andesite_alloy")
             .existing(BLOCK, "create:andesite_alloy_block")
-            .centrifuge(MachineTier.ULV, 1)
             .build();
     public static final IndustrialMaterial AMPHIBOLE = material("amphibole", "Amphibole", 0x2E332D)
             .contains(component(CALCIUM, 2), component(MAGNESIUM, 4), component(IRON, 1), component(ALUMINUM, 1), component(SILICON, 7), component(OXYGEN, 22), component(HYDROGEN, 2))
             .parts(DUST)
+            .electrolyser(MachineTier.LV)
             .build();
     public static final IndustrialMaterial DEEPSLATE = material("deepslate", "Deepslate", 0x4A4A4F)
             .contains(component(FELDSPAR, 3), component(AMPHIBOLE, 2), component(IRON, 1), component(MAGNESIUM, 1))
             .parts(DUST)
-            .stone()
+            .centrifuge(MachineTier.ULV)
+            .existing(STONES, "minecraft:deepslate")
             .build();
     public static final IndustrialMaterial DIORITE = material("diorite", "Diorite", 0xC8C8C2)
             .contains(component(FELDSPAR, 5), component(AMPHIBOLE, 3), component(QUARTZ, 1))
             .parts(DUST)
-            .stone()
+            .centrifuge(MachineTier.ULV)
+            .existing(STONES, "minecraft:diorite")
             .build();
     public static final IndustrialMaterial ASURINE = material("asurine", "Asurine", 0x587E9C)
             .contains(component(FELDSPAR, 3), component(AMPHIBOLE, 1), component(COPPER, 1), component(ZINC, 1))
             .parts(DUST)
             .existing(STONES, "create:asurine")
+            .centrifuge(MachineTier.ULV)
             .build();
     public static final IndustrialMaterial CRIMSITE = material("crimsite", "Crimsite", 0x8F4A3A)
             .contains(component(FELDSPAR, 3), component(AMPHIBOLE, 1), component(IRON, 2))
             .parts(DUST)
+            .centrifuge(MachineTier.ULV)
             .existing(STONES, "create:crimsite")
             .build();
     public static final IndustrialMaterial LIMESTONE = material("limestone", "Limestone", 0xC8C4A8)
             .contains(component(CALCIUM, 1), component(CARBON, 1), component(OXYGEN, 3))
             .parts(DUST)
+            .electrolyser(MachineTier.LV)
             .existing(STONES, "create:limestone")
             .build();
     public static final IndustrialMaterial OCHRUM = material("ochrum", "Ochrum", 0xC99A42)
             .contains(component(FELDSPAR, 2), component(QUARTZ, 1), component(IRON, 1), component(GOLD, 1))
             .parts(DUST)
+            .centrifuge(MachineTier.ULV)
             .existing(STONES, "create:ochrum")
             .build();
     public static final IndustrialMaterial SCORIA = material("scoria", "Scoria", 0x3A2E2A)
             .contains(component(AMPHIBOLE, 2), component(SILICON, 2), component(OXYGEN, 6), component(IRON, 1), component(MAGNESIUM, 1))
             .parts(DUST)
+            .electrolyser(MachineTier.LV)
             .existing(STONES, "create:scoria")
             .build();
     public static final IndustrialMaterial IRON_ANDESITE_COMPOUND = material("iron_andesite_compound", "Iron Andesite Compound", 0xB8B8B8)
             .contains(component(ANDESITE, 8), component(IRON, 1))
             .parts(DUST)
-            .centrifuge(MachineTier.ULV)
+            .centrifuge(MachineTier.ULV, 1)
             .build();
     public static final IndustrialMaterial SCORCHIA = material("scorchia", "Scorchia", 0x2B2724)
             .contains(component(SCORIA, 2), component(CARBON, 1), component(SULFUR, 1))
             .parts(DUST)
+            .centrifuge(MachineTier.ULV)
             .existing(STONES, "create:scorchia")
             .build();
     public static final IndustrialMaterial NETHERRACK = material("netherrack", "Netherrack", 0x706037)
             .contains(component(QUARTZ, 1), component(CARBON, 5), component(SULFUR, 2), component(GOLD, 1))
             .parts(DUST)
+            .centrifuge(MachineTier.ULV)
             .existing(STONES, "minecraft:netherrack")
             .existing(DUST, "create:cinder_flour")
             .existingRecipe(DUST)
@@ -781,6 +1118,7 @@ public class IndustrialMaterials {
     public static final IndustrialMaterial VERIDIUM = material("veridium", "Veridium", 0x4E8A63)
             .contains(component(FELDSPAR, 3), component(AMPHIBOLE, 1), component(COPPER, 2))
             .parts(DUST)
+            .centrifuge(MachineTier.ULV)
             .existing(STONES, "create:veridium")
             .build();
     public static final IndustrialMaterial WROUGHT_IRON = material("wrought_iron", "Wrought Iron", 0x878787)
@@ -790,6 +1128,7 @@ public class IndustrialMaterials {
             .allMaterials()
             .build();
     public static final IndustrialMaterial FERTILIZER = material("fertilizer", "Fertilizer", 0x6F7F3A)
+            .contains(component(NITROGEN, 3), component(PHOSPHORUS, 2), component(POTASSIUM, 2), component(OXYGEN, 8), component(HYDROGEN, 4))
             .parts(DUST)
             .build();
     public static final IndustrialMaterial STEEL = material("steel", "Steel", 0x626262)
@@ -798,275 +1137,244 @@ public class IndustrialMaterials {
             .meltingPoint(800)
             .allMaterials()
             .build();
-    public static final IndustrialMaterial MINERAL_ASH = material("mineral_ash", "Mineral Ash", 0x8A8878)
-            .parts(DUST)
+    public static final IndustrialMaterial BONE = material("bone", "Bone", 0xE3D8B8)
+            .contains(component(CALCIUM, 10), component(PHOSPHORUS, 6), component(OXYGEN, 26), component(HYDROGEN, 2))
+            .parts(GEM, DUST)
+            .existing(GEM, "minecraft:bone")
+            .existing(DUST, "minecraft:bone_meal")
+            .build();
+
+    public static final IndustrialFluid LIQUID_FERTILIZER = fluid("liquid_fertilizer", "Liquid Fertilizer", 0x718A36)
+            .contains(component(WATER, 1), component(FERTILIZER, 4))
+            .temperature(300)
+            .density(1050)
+            .viscosity(1100)
+            .ph(6.5, 20)
             .build();
     public static final IndustrialMaterial TREATED_WOOD = material("treated_wood", "Treated Wood", 0x673d0d)
+            .contains(component(WOOD, 8), component(CREOSOTE_OIL, 2))
             .strength(1)
             .parts(SCREW, BOLT, ROD, LONG_ROD, DUST, FRAME, SMALL_GEAR, SMALL_DUST, TINY_DUST, GEAR, PLATE)
             .build();
-    public static final IndustrialMaterial WOOD = material("wood", "Wood", 0xab7a43)
-            .strength(1)
-            .parts(SCREW, BOLT, LONG_ROD, DUST, FRAME, SMALL_GEAR, SMALL_DUST, TINY_DUST, GEAR, PLATE)
-            .existing(ROD, "minecraft:stick")
+    public static final IndustrialMaterial NATURAL_RUBBER = material("natural_rubber", "Natural Rubber", 0x2B2B24)
+            .contains(component(CARBON, 5), component(HYDROGEN, 8))
+            .parts(INGOT, PLATE)
+            .temperature(550)
+            .build();
+
+    public static final IndustrialFluid JUNGLE_SAP = fluid("jungle_sap", "Jungle Sap", 0xB8833A)
+            .contains(component(WATER, 7), component(NATURAL_RUBBER, 1), component(SUCROSE, 1), component(PLANT_RESIN, 1))
+            .temperature(300)
+            .density(1050)
+            .viscosity(1700)
+            .ph(5.5, 10)
+            .build();
+    public static final IndustrialFluid LATEX = fluid("latex", "Latex", 0xE8E2C8)
+            .contains(component(WATER, 6), component(NATURAL_RUBBER, 3), component(PLANT_PROTEIN, 1))
+            .temperature(300)
+            .density(980)
+            .viscosity(2200)
+            .ph(6.8, 5)
+            .build();
+    public static final IndustrialFluid OAK_SAP = fluid("oak_sap", "Oak Sap", 0xB97834)
+            .contains(component(WATER, 7), component(SUCROSE, 1), component(GLUCOSE, 1), component(TANNIN, 1))
+            .temperature(300)
+            .density(1060)
+            .viscosity(1900)
+            .ph(5.5, 10)
+            .build();
+    public static final IndustrialFluid TANNIN_EXTRACT = fluid("tannin_extract", "Tannin Extract", 0x6B3F22)
+            .contains(component(WATER, 6), component(TANNIN, 3), component(ORGANIC_ACIDS, 1))
+            .temperature(300)
+            .density(1080)
+            .viscosity(1400)
+            .ph(4.0, 8)
+            .build();
+    public static final IndustrialFluid DARK_OAK_SAP = fluid("dark_oak_sap", "Dark Oak Sap", 0x5A321F)
+            .contains(component(WATER, 6), component(SUCROSE, 1), component(TANNIN, 2), component(PLANT_RESIN, 1))
+            .temperature(300)
+            .density(1080)
+            .viscosity(2200)
+            .ph(4.5, 8)
+            .build();
+    public static final IndustrialFluid WOOD_TAR = fluid("wood_tar", "Wood Tar", 0x2A1A14)
+            .contains(component(CREOSOTE_OIL, 4), component(HEAVY_HYDROCARBONS, 3), component(AROMATIC_HYDROCARBONS, 2), component(WATER, 1))
+            .temperature(320)
+            .density(1180)
+            .viscosity(4200)
+            .build();
+    public static final IndustrialFluid SPRUCE_SAP = fluid("spruce_sap", "Spruce Sap", 0xA66A32)
+            .contains(component(WATER, 6), component(SUCROSE, 1), component(PLANT_RESIN, 2), component(TERPENES, 1))
+            .temperature(300)
+            .density(1040)
+            .viscosity(1800)
+            .ph(5.0, 8)
+            .build();
+    public static final IndustrialFluid PINE_RESIN = fluid("pine_resin", "Pine Resin", 0xB87932)
+            .contains(component(ROSIN_ACIDS, 6), component(TERPENES, 3), component(PLANT_WAX, 1))
+            .temperature(300)
+            .density(1100)
+            .viscosity(3600)
+            .build();
+    public static final IndustrialFluid BIRCH_SAP = fluid("birch_sap", "Birch Sap", 0xD6B978)
+            .contains(component(WATER, 7), component(GLUCOSE, 1), component(FRUCTOSE, 1), component(SUCROSE, 1))
+            .temperature(300)
+            .density(1030)
+            .viscosity(1200)
+            .ph(5.5, 12)
+            .build();
+    public static final IndustrialFluid BIRCH_SYRUP = fluid("birch_syrup", "Birch Syrup", 0xC88A4A)
+            .contains(component(SUCROSE, 4), component(GLUCOSE, 2), component(FRUCTOSE, 2), component(WATER, 2))
+            .temperature(300)
+            .density(1120)
+            .viscosity(2600)
+            .ph(5.2, 5)
+            .build();
+    public static final IndustrialFluid ACACIA_SAP = fluid("acacia_sap", "Acacia Sap", 0xC98A45)
+            .contains(component(WATER, 7), component(SUCROSE, 1), component(ARABINOGALACTAN, 1), component(ORGANIC_ACIDS, 1))
+            .temperature(300)
+            .density(1040)
+            .viscosity(1500)
+            .ph(5.0, 10)
+            .build();
+    public static final IndustrialFluid GUM_ARABIC = fluid("gum_arabic", "Gum Arabic", 0xD6A45B)
+            .contains(component(ARABINOGALACTAN, 8), component(WATER, 2))
+            .temperature(300)
+            .density(1160)
+            .viscosity(3400)
+            .ph(4.5, 4)
+            .build();
+    public static final IndustrialFluid CHERRY_SAP = fluid("cherry_sap", "Cherry Sap", 0xD98A72)
+            .contains(component(WATER, 6), component(GLUCOSE, 1), component(FRUCTOSE, 1), component(SUCROSE, 1), component(ORGANIC_ACIDS, 1))
+            .temperature(300)
+            .density(1040)
+            .viscosity(1400)
+            .ph(4.0, 10)
+            .build();
+    public static final IndustrialFluid AROMATIC_EXTRACT = fluid("aromatic_extract", "Aromatic Extract", 0xB85F78)
+            .contains(component(BENZALDEHYDE, 5), component(TERPENES, 2), component(ORGANIC_ACIDS, 1), component(WATER, 2))
+            .temperature(300)
+            .density(1010)
+            .viscosity(900)
+            .ph(4.0, 12)
+            .build();
+    public static final IndustrialFluid MANGROVE_SAP = fluid("mangrove_sap", "Mangrove Sap", 0x6E4A32)
+            .contains(component(WATER, 6), component(SUCROSE, 1), component(TANNIN, 2), component(SODIUM, 1), component(CHLORINE, 1))
+            .temperature(300)
+            .density(1090)
+            .viscosity(2100)
+            .ph(5.5, 8)
+            .build();
+    public static final IndustrialFluid MANGROVE_TANNIN = fluid("mangrove_tannin", "Mangrove Tannin", 0x4A2E22)
+            .contains(component(TANNIN, 7), component(WATER, 2), component(ORGANIC_ACIDS, 1))
+            .temperature(300)
+            .density(1140)
+            .viscosity(2400)
+            .ph(3.5, 6)
+            .build();
+
+    public static final IndustrialFluid GLUE = fluid("glue", "Glue", 0xC79A4A)
+            .contains(component(GUM_ARABIC, 4), component(STARCH, 3), component(WATER, 2), component(ORGANIC_BINDER, 1))
+            .temperature(320)
+            .density(1150)
+            .viscosity(5200)
+            .ph(6.0, 2)
+            .build();
+
+    public static final IndustrialMaterial RUBBER = material("rubber", "Rubber", 0x1F1F1F)
+            .contains(component(NATURAL_RUBBER, 9), component(SULFUR, 1))
+            .parts(INGOT, PLATE, MOLTEN_FLUID)
+            .temperature(850)
+            .build();
+
+    public static final IndustrialFluid RUBBER_SOLUTION = fluid("rubber_solution", "Rubber Solution", 0x1F1F1F)
+            .contains(component(NATURAL_RUBBER, 9), component(SULFUR, 1))
+            .temperature(315)
+            .density(1040)
+            .viscosity(4200)
+            .ph(6.0, 10)
+            .build();
+
+    public static final IndustrialFluid CORROSION_RESISTANT_SOLUTION = fluid("corrosion_resistant_solution", "Corrosion Resistant Solution", 0x4A3A24)
+            .contains(component(WATER, 7), component(PHOSPHORUS, 1), component(OXYGEN, 1), component(ORGANIC_BINDER, 1))
+            .temperature(320)
+            .density(1120)
+            .viscosity(2600)
+            .ph(2.5, 5)
+            .build();
+
+    public static final IndustrialFluid CREOSOTE_FUEL = fluid("creosote_fuel", "Creosote Fuel", 0x3A2418)
+            .contains(component(CREOSOTE_OIL, 7), component(NAPHTHA, 2), component(ETHANOL, 1))
+            .temperature(340)
+            .density(980)
+            .viscosity(1800)
             .build();
 
 
     public static final List<IndustrialMaterial> ELEMENTS = List.of(
-            HYDROGEN,
-            HELIUM,
-            LITHIUM,
-            BERYLLIUM,
-            BORON,
-            CARBON,
-            NITROGEN,
-            OXYGEN,
-            FLUORINE,
-            NEON,
-            SODIUM,
-            MAGNESIUM,
-            ALUMINUM,
-            SILICON,
-            PHOSPHORUS,
-            SULFUR,
-            CHLORINE,
-            ARGON,
-            POTASSIUM,
-            CALCIUM,
-            SCANDIUM,
-            TITANIUM,
-            VANADIUM,
-            CHROMIUM,
-            MANGANESE,
-            IRON,
-            COBALT,
-            NICKEL,
-            COPPER,
-            ZINC,
-            GALLIUM,
-            GERMANIUM,
-            ARSENIC,
-            SELENIUM,
-            BROMINE,
-            KRYPTON,
-            RUBIDIUM,
-            STRONTIUM,
-            YTTRIUM,
-            ZIRCONIUM,
-            NIOBIUM,
-            MOLYBDENUM,
-            TECHNETIUM,
-            RUTHENIUM,
-            RHODIUM,
-            PALLADIUM,
-            SILVER,
-            CADMIUM,
-            INDIUM,
-            TIN,
-            ANTIMONY,
-            TELLURIUM,
-            IODINE,
-            XENON,
-            CESIUM,
-            BARIUM,
-            LANTHANUM,
-            CERIUM,
-            PRASEODYMIUM,
-            NEODYMIUM,
-            PROMETHIUM,
-            SAMARIUM,
-            EUROPIUM,
-            GADOLINIUM,
-            TERBIUM,
-            DYSPROSIUM,
-            HOLMIUM,
-            ERBIUM,
-            THULIUM,
-            YTTERBIUM,
-            LUTETIUM,
-            HAFNIUM,
-            TANTALUM,
-            TUNGSTEN,
-            RHENIUM,
-            OSMIUM,
-            IRIDIUM,
-            PLATINUM,
-            GOLD,
-            MERCURY,
-            THALLIUM,
-            LEAD,
-            BISMUTH,
-            POLONIUM,
-            ASTATINE,
-            RADON,
-            FRANCIUM,
-            RADIUM,
-            ACTINIUM,
-            THORIUM,
-            PROTACTINIUM,
-            URANIUM,
-            NEPTUNIUM,
-            PLUTONIUM,
-            AMERICIUM,
-            CURIUM,
-            BERKELIUM,
-            CALIFORNIUM,
-            EINSTEINIUM,
-            FERMIUM,
-            MENDELEVIUM,
-            NOBELIUM,
-            LAWRENCIUM,
-            RUTHERFORDIUM,
-            DUBNIUM,
-            SEABORGIUM,
-            BOHRIUM,
-            HASSIUM,
-            MEITNERIUM,
-            DARMSTADTIUM,
-            ROENTGENIUM,
-            COPERNICIUM,
-            NIHONIUM,
-            FLEROVIUM,
-            MOSCOVIUM,
-            LIVERMORIUM,
-            TENNESSINE,
-            OGANESSON
+            HYDROGEN, HELIUM, LITHIUM, BERYLLIUM, BORON,
+            CARBON, NITROGEN, OXYGEN, FLUORINE, NEON, SODIUM, MAGNESIUM, ALUMINUM,
+            SILICON, PHOSPHORUS, SULFUR, CHLORINE, ARGON, POTASSIUM, CALCIUM, SCANDIUM, TITANIUM,
+            VANADIUM, CHROMIUM, MANGANESE, IRON, COBALT, NICKEL, COPPER, ZINC,
+            GALLIUM, GERMANIUM, ARSENIC, SELENIUM, BROMINE, KRYPTON, RUBIDIUM, STRONTIUM,
+            YTTRIUM, ZIRCONIUM, NIOBIUM, MOLYBDENUM, TECHNETIUM, RUTHENIUM,
+            RHODIUM, PALLADIUM, SILVER, CADMIUM, INDIUM, TIN, ANTIMONY,
+            TELLURIUM, IODINE, XENON, CESIUM, BARIUM, LANTHANUM, CERIUM,
+            PRASEODYMIUM, NEODYMIUM, PROMETHIUM, SAMARIUM, EUROPIUM, GADOLINIUM, TERBIUM,
+            DYSPROSIUM, HOLMIUM, ERBIUM, THULIUM, YTTERBIUM, LUTETIUM,
+            HAFNIUM, TANTALUM, TUNGSTEN, RHENIUM, OSMIUM, IRIDIUM, PLATINUM,
+            GOLD, MERCURY, THALLIUM, LEAD, BISMUTH, POLONIUM, ASTATINE,
+            RADON, FRANCIUM, RADIUM, ACTINIUM, THORIUM, PROTACTINIUM, URANIUM,
+            NEPTUNIUM, PLUTONIUM, AMERICIUM, CURIUM, BERKELIUM, CALIFORNIUM, EINSTEINIUM,
+            FERMIUM, MENDELEVIUM, NOBELIUM, LAWRENCIUM, RUTHERFORDIUM, DUBNIUM, SEABORGIUM,
+            BOHRIUM, HASSIUM, MEITNERIUM, DARMSTADTIUM, ROENTGENIUM, COPERNICIUM,
+            NIHONIUM, FLEROVIUM, MOSCOVIUM, LIVERMORIUM, TENNESSINE, OGANESSON
     );
 
     public static final List<IndustrialFluid> FLUIDS = List.of(
-            WATER,
-            CRUDE_OIL,
-            STEAM,
-            CONCRETE,
-            CREOSOTE_OIL,
-            PLANT_OIL,
-            BIOFUEL,
-            ETHANOL,
-            FERMENTATION_MASH,
-            FERMENTED_MASH,
-            BIOLUBRICANT,
-            INDUSTRIAL_RESIN,
-            RAW_RESIN,
-            ORGANIC_BINDER
+            WATER, SULFURIC_ACID, GLYCEROL, OLEIC_ACID, LINOLEIC_ACID, LINOLENIC_ACID, PALMITIC_ACID, STEARIC_ACID,
+            PLANT_TRIGLYCERIDES, TERPENES, BENZALDEHYDE, FATTY_ACID_ETHYL_ESTER,
+            METHANE, ETHANE, PROPANE, BUTANE, PENTANE, HEXANE, HEPTANE, OCTANE, DECANE, DODECANE, CETANE,
+            BENZENE, TOLUENE, XYLENE, REFINERY_GAS, NAPHTHA, GASOLINE, KEROSENE, DIESEL,
+            HEAVY_FUEL_OIL, LUBRICATING_OIL, BITUMEN, CRUDE_OIL, STEAM, CONCRETE, CREOSOTE_OIL,
+            PLANT_OIL, BIOFUEL, ETHANOL, FERMENTATION_MASH, FERMENTED_MASH, BIOLUBRICANT,
+            ORGANIC_BINDER, JUNGLE_SAP, LATEX, OAK_SAP,
+            TANNIN_EXTRACT, DARK_OAK_SAP, WOOD_TAR, SPRUCE_SAP, PINE_RESIN,
+            BIRCH_SAP, BIRCH_SYRUP, ACACIA_SAP, GUM_ARABIC, CHERRY_SAP, AROMATIC_EXTRACT,
+            MANGROVE_SAP, MANGROVE_TANNIN, GLUE, CORROSION_RESISTANT_SOLUTION,
+            CREOSOTE_FUEL, LIQUID_FERTILIZER, RUBBER_SOLUTION
     );
 
     public static final List<IndustrialMaterial> MATERIALS = List.of(
-                    BRONZE,
-                    MINERAL_ASH,
-                    FERTILIZER,
-                    NETHER_BRICK,
-                    NETHERRACK,
-                    CLAY,
-                    DEEPSLATE,
-                    ASURINE,
-                    CRIMSITE,
-                    LIMESTONE,
-                    OCHRUM,
-                    SCORIA,
-                    SCORCHIA,
-                    VERIDIUM,
-                    DIORITE,
-                    AMPHIBOLE,
-                    FELDSPAR,
-                    MICA,
-                    GRANITE,
-                    BIO_CHAR,
-                    STONE,
-                    STEEL,
-                    WROUGHT_IRON,
-                    BRASS,
-                    ELECTRUM,
-                    ANDESITE_ALLOY,
-                    DIAMOND,
-                    EMERALD,
-                    LAPIS,
-                    REDSTONE,
-                    QUARTZ,
-                    GRAPHITE,
-                    SODALITE,
-                    LAZURITE,
-                    HEMATITE,
-                    MAGNETITE,
-                    GOETHITE,
-                    SIDERITE,
-                    PYRITE,
-                    CHALCOPYRITE,
-                    MALACHITE,
-                    AZURITE,
-                    CUPRITE,
-                    CHALCOCITE,
-                    CASSITERITE,
-                    STANNITE,
-                    SPHALERITE,
-                    SMITHSONITE,
-                    ZINCITE,
-                    GALENA,
-                    CERUSSITE,
-                    ANGLESITE,
-                    BAUXITE,
-                    GIBBSITE,
-                    BOEHMITE,
-                    CORUNDUM,
-                    PENTLANDITE,
-                    MILLERITE,
-                    GARNIERITE,
-                    COBALTITE,
-                    SKUTTERUDITE,
-                    ERYTHRITE,
-                    PYROLUSITE,
-                    RHODOCHROSITE,
-                    MANGANITE,
-                    CHROMITE,
-                    ILMENITE,
-                    RUTILE,
-                    ANATASE,
-                    ACANTHITE,
-                    CHLORARGYRITE,
-                    PROUSTITE,
-                    NATIVE_GOLD,
-                    CALAVERITE,
-                    WOLFRAMITE,
-                    SCHEELITE,
-                    MOLYBDENITE,
-                    WULFENITE,
-                    NATIVE_PLATINUM,
-                    SPERRYLITE,
-                    COOPERITE,
-                    BRAGGITE,
-                    STIBIOPALLADINITE,
-                    URANINITE,
-                    PITCHBLENDE,
-                    CARNOTITE,
-                    MONAZITE,
-                    THORITE,
-                    ACTIVATED_CARBON,
-                    SPODUMENE,
-                    LEPIDOLITE,
-                    PETALITE,
-                    MAGNESITE,
-                    DOLOMITE,
-                    COAL,
-                    CARNALLITE,
-                    CALCITE,
-                    GYPSUM,
-                    FLUORITE,
-                    APATITE,
-                    HALITE,
-                    TRONA,
-                    NATRON,
-                    SYLVITE,
-                    ORTHOCLASE,
-                    BASTNASITE,
-                    XENOTIME,
-                    TOPAZ,
-                    RUBY,
-                    SAPPHIRE,
-                    ANDESITE,
-                    TUFF,
-                    TREATED_WOOD,
-                    IRON_ANDESITE_COMPOUND,
-                    WOOD
-            );
+            BRONZE, STAINLESS_BRONZE, BRASS, ELECTRUM, STEEL, WROUGHT_IRON, ANDESITE_ALLOY,
+            PLANT_WAX, PHOSPHOLIPIDS, PHYTOSTEROLS, TOCOPHEROL, CHLOROPHYLL, GLUCOSE, FRUCTOSE, SUCROSE,
+            CELLULOSE, HEMICELLULOSE, LIGNIN, TANNIN, PLANT_RESIN, ORGANIC_ACIDS, STARCH, PLANT_PROTEIN,
+            YEAST_BIOMASS, ARABINOGALACTAN, ROSIN_ACIDS, NAPHTHALENE, HEAVY_HYDROCARBONS,
+            AROMATIC_HYDROCARBONS, SULFUR_COMPOUNDS, PETROLEUM_WAX, ASPHALTENES, PETROLEUM_RESINS,
+            MINERAL_ASH, FERTILIZER, BIO_CHAR, ACTIVATED_CARBON, TREATED_WOOD, WOOD,
+            NATURAL_RUBBER, RUBBER, CLAY, NETHER_BRICK, IRON_ANDESITE_COMPOUND,
+
+            STONE, ANDESITE, GRANITE, DIORITE, DEEPSLATE, TUFF, NETHERRACK,
+            CALCITE, LIMESTONE, ASURINE, CRIMSITE, OCHRUM, SCORIA, SCORCHIA, VERIDIUM,
+            AMPHIBOLE, FELDSPAR, MICA,
+
+            DIAMOND, EMERALD, LAPIS, REDSTONE, QUARTZ, TOPAZ, RUBY, SAPPHIRE,
+            GRAPHITE, SODALITE, LAZURITE,
+
+            HEMATITE, MAGNETITE, GOETHITE, SIDERITE, PYRITE, CINNABAR,
+            CHALCOPYRITE, MALACHITE, AZURITE, CUPRITE, CHALCOCITE,
+            CASSITERITE, STANNITE, SPHALERITE, SMITHSONITE, ZINCITE,
+            GALENA, CERUSSITE, ANGLESITE, BAUXITE, GIBBSITE, BOEHMITE, CORUNDUM,
+            PENTLANDITE, MILLERITE, GARNIERITE, COBALTITE, SKUTTERUDITE, ERYTHRITE,
+            PYROLUSITE, RHODOCHROSITE, MANGANITE, CHROMITE, ILMENITE, RUTILE, ANATASE,
+            ACANTHITE, CHLORARGYRITE, PROUSTITE, NATIVE_GOLD, CALAVERITE,
+            WOLFRAMITE, SCHEELITE, MOLYBDENITE, WULFENITE,
+            NATIVE_PLATINUM, SPERRYLITE, COOPERITE, BRAGGITE, STIBIOPALLADINITE,
+            URANINITE, PITCHBLENDE, CARNOTITE, MONAZITE, THORITE,
+            SPODUMENE, LEPIDOLITE, PETALITE, MAGNESITE, DOLOMITE, COAL,
+            CARNALLITE, GYPSUM, FLUORITE, APATITE, HALITE, TRONA, NATRON,
+            SYLVITE, ORTHOCLASE, BASTNASITE, XENOTIME, BONE
+    );
 
     /**
      * Compatibility list used by existing code that needs every IndustrialMaterial.
@@ -1155,6 +1463,8 @@ public class IndustrialMaterials {
         private int density;
         private int viscosity;
         private int lightLevel;
+        private Integer phHundredths;
+        private int phDrainPerTickMb;
         private ResourceLocation existingFluid;
 
         private FluidBuilder(String id, String displayName, int color, IndustrialFluid.Kind kind) {
@@ -1191,14 +1501,26 @@ public class IndustrialMaterials {
         }
 
         public FluidBuilder lightLevel(int lightLevel) {
-            if (lightLevel < 0 || lightLevel > 15) throw new IllegalArgumentException("Fluid light level must be between 0 and 15");
+            if (lightLevel < 0 || lightLevel > 15) throw new IllegalArgumentException("Industrial fluid light level must be between 0 and 15");
             this.lightLevel = lightLevel;
+            return this;
+        }
+
+        public FluidBuilder ph(double ph, int mbPerTick) {
+            this.phHundredths = net.mads.createexpansion.recipe.PhRange.toHundredths(ph);
+            if (phHundredths < 0 || phHundredths > 1400) {
+                throw new IllegalArgumentException("Industrial fluid pH must be between 0 and 14");
+            }
+            if (mbPerTick <= 0) {
+                throw new IllegalArgumentException("Industrial fluid pH drain rate must be greater than 0 mB/t");
+            }
+            this.phDrainPerTickMb = mbPerTick;
             return this;
         }
 
         public IndustrialFluid build() {
             return new IndustrialFluid(id, displayName, color, kind, temperature, density, viscosity,
-                    lightLevel, List.copyOf(components), Optional.ofNullable(existingFluid));
+                    lightLevel, Optional.ofNullable(phHundredths), phDrainPerTickMb, List.copyOf(components), Optional.ofNullable(existingFluid));
         }
     }
 
@@ -1228,6 +1550,7 @@ public class IndustrialMaterials {
         private MachineTier centrifugeTier;
         private int centrifugeInputCount;
         private MachineTier electrolyserTier;
+        private int electrolyserInputCount;
         private IndustrialMaterial smeltingResult;
         private boolean smeltingSelf;
 
@@ -1459,10 +1782,6 @@ public class IndustrialMaterials {
         }
 
 
-        private MaterialBuilder stone() {
-            addExistingStoneSource("stone", "minecraft:" + id);
-            return this;
-        }
 
         private MaterialBuilder existing(IndustrialMaterial stoneMaterial, String blockId) {
             addExistingStoneSource(stoneMaterial.id(), blockId);
@@ -1558,12 +1877,24 @@ public class IndustrialMaterials {
         }
 
         private MaterialBuilder electrolyser(MachineTier tier) {
+            return electrolyser(tier, 0);
+        }
+
+        private MaterialBuilder electrolyser(MachineTier tier, int inputCount) {
+            if (inputCount < 0) {
+                throw new IllegalArgumentException("Electrolyser input count cannot be negative");
+            }
             this.electrolyserTier = tier;
+            this.electrolyserInputCount = inputCount;
             return this;
         }
 
         private MaterialBuilder electrolyzer(MachineTier tier) {
             return electrolyser(tier);
+        }
+
+        private MaterialBuilder electrolyzer(MachineTier tier, int inputCount) {
+            return electrolyser(tier, inputCount);
         }
 
         private MaterialBuilder smelting(IndustrialMaterial result) {
@@ -1646,6 +1977,7 @@ public class IndustrialMaterials {
                     Optional.ofNullable(centrifugeTier),
                     centrifugeInputCount,
                     Optional.ofNullable(electrolyserTier),
+                    electrolyserInputCount,
                     Optional.ofNullable(smeltingResult),
                     smeltingSelf
             );
@@ -1697,6 +2029,7 @@ public class IndustrialMaterials {
                                         Optional.empty(),
                                         0,
                                         Optional.empty(),
+                                        0,
                                         Optional.empty(),
                                         false
                                 ),

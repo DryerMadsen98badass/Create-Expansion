@@ -25,19 +25,31 @@ public final class ClientIndustrialFluidTooltip {
 
     @SubscribeEvent
     public static void addFluidTooltip(ItemTooltipEvent event) {
-        Player player = event.getEntity();
-        if (player == null || !GogglesItem.isWearingGoggles(player)) {
-            return;
-        }
-
         IndustrialFluid fluid = MaterialLookup.findIndustrialFluid(event.getItemStack());
         if (fluid == null) {
             return;
         }
 
-        addLines(event.getToolTip(), fluid);
+        addPhLine(event.getToolTip(), fluid);
+        Player player = event.getEntity();
+        if (player != null && GogglesItem.isWearingGoggles(player)) {
+            addLines(event.getToolTip(), fluid);
+        }
     }
 
+
+    private static void addPhLine(List<Component> tooltip, IndustrialFluid fluid) {
+        if (!fluid.hasPh()) {
+            return;
+        }
+        double ph = fluid.ph();
+        String classification = ph < 7.0D ? "Acidic" : ph > 7.0D ? "Basic" : "Neutral";
+        ChatFormatting formatting = ph < 7.0D
+                ? ChatFormatting.RED
+                : ph > 7.0D ? ChatFormatting.AQUA : ChatFormatting.GREEN;
+        tooltip.add(Component.literal(String.format(java.util.Locale.ROOT, "pH: %.2f (%s)", ph, classification))
+                .withStyle(formatting));
+    }
     public static void addLines(List<Component> tooltip, IndustrialFluid fluid) {
         MutableComponent formula = formulaComponent(fluid, false);
         if (formula != null) {

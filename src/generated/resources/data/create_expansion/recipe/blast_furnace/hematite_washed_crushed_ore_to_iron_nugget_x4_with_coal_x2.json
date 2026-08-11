@@ -1,6 +1,5 @@
 {
   "type": "create_expansion:machine",
-  "cet": 0,
   "duration": 400,
   "item_inputs": [
     {

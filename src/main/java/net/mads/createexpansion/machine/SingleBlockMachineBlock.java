@@ -1,11 +1,15 @@
 package net.mads.createexpansion.machine;
 
 import com.mojang.serialization.MapCodec;
+import com.simibubi.create.content.kinetics.base.KineticBlock;
 import net.mads.createexpansion.energy.CEEnergyNetwork;
+import net.mads.createexpansion.machine.interaction.BlockInteraction;
+import net.mads.createexpansion.menu.MachineControlScheduleMenu;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
@@ -18,15 +22,19 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -39,9 +47,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.extensions.IPlayerExtension;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.List;
 
-public class SingleBlockMachineBlock extends HorizontalDirectionalBlock implements EntityBlock {
+public class SingleBlockMachineBlock extends KineticBlock implements EntityBlock {
     public static final MapCodec<SingleBlockMachineBlock> CODEC =
             simpleCodec(properties -> new SingleBlockMachineBlock(properties, null));
 
@@ -81,12 +90,73 @@ public class SingleBlockMachineBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+    protected MapCodec<? extends KineticBlock> codec() {
         return CODEC;
     }
 
     public SingleBlockMachineInstance instance() {
         return instance;
+    }
+
+    @Override
+    public boolean hasShaftTowards(
+            LevelReader level,
+            BlockPos pos,
+            BlockState state,
+            Direction face
+    ) {
+        return instance != null
+                && instance.definition().usesKinetic()
+                && face == kineticDirection(state);
+    }
+
+    @Override
+    public Axis getRotationAxis(BlockState state) {
+        Direction kineticDirection = kineticDirection(state);
+        return kineticDirection == null
+                ? state.getValue(FACING).getAxis()
+                : kineticDirection.getAxis();
+    }
+
+    @Nullable
+    public Direction kineticDirection(BlockState state) {
+        if (instance == null || instance.definition().kineticSide() == null) {
+            return null;
+        }
+
+        Direction facing = state.getValue(FACING);
+        return switch (instance.definition().kineticSide()) {
+            case FRONT -> facing;
+            case BACK -> facing.getOpposite();
+            case LEFT -> facing.getCounterClockWise();
+            case RIGHT -> facing.getClockWise();
+            case TOP -> Direction.UP;
+            case BOTTOM -> Direction.DOWN;
+        };
+    }
+
+    /** Backwards-compatible name for existing input-only call sites. */
+    @Nullable
+    public Direction kineticInputDirection(BlockState state) {
+        return instance != null && instance.definition().usesKineticInput()
+                ? kineticDirection(state)
+                : null;
+    }
+
+    @Override
+    protected boolean areStatesKineticallyEquivalent(
+            BlockState oldState,
+            BlockState newState
+    ) {
+        if (oldState.getBlock() != newState.getBlock()) {
+            return false;
+        }
+
+        if (instance == null || !instance.definition().usesKinetic()) {
+            return true;
+        }
+
+        return kineticDirection(oldState) == kineticDirection(newState);
     }
 
     @Override
@@ -112,13 +182,85 @@ public class SingleBlockMachineBlock extends HorizontalDirectionalBlock implemen
             return;
         }
 
-        if (instance.definition().resource() == SingleBlockMachineResource.STEAM
-                && instance.definition().resourceMode() == SingleBlockMachineResourceMode.CONSUMES) {
-            tooltip.add(Component.literal("Steam: " + instance.steamUsage() + " mB/t")
-                    .withStyle(ChatFormatting.AQUA));
-            tooltip.add(Component.literal("Processes at " + instance.tier().steamDurationMultiplier() + "x recipe duration")
+        for (String text : instance.definition().tooltips()) {
+            tooltip.add(Component.literal(text)
                     .withStyle(ChatFormatting.GRAY));
         }
+
+        if (instance.definition().resource() == SingleBlockMachineResource.STEAM) {
+            String label = instance.definition().resourceMode() == SingleBlockMachineResourceMode.PRODUCES
+                    ? "Steam Output: "
+                    : "Steam Usage: ";
+            tooltip.add(Component.literal(label + instance.steamUsage() + " mB/t")
+                    .withStyle(ChatFormatting.AQUA));
+        }
+
+        if (instance.definition().resource() == SingleBlockMachineResource.ENERGY) {
+            String label = instance.definition().resourceMode() == SingleBlockMachineResourceMode.PRODUCES
+                    ? "Energy Output: "
+                    : "Energy Usage: ";
+            tooltip.add(Component.literal(label + instance.energyUsage() + " CE/t")
+                    .withStyle(ChatFormatting.AQUA));
+        }
+
+        if (instance.definition().usesKineticInput()) {
+            tooltip.add(Component.literal(
+                            "Kinetic Input: " + formatNumber(instance.kineticSuPerRpm()) + " SU/RPM"
+                    )
+                    .withStyle(ChatFormatting.RED));
+            instance.definition().minRpm().ifPresent(rpm -> tooltip.add(
+                    Component.literal("Minimum Speed: " + rpm + " RPM")
+                            .withStyle(ChatFormatting.GRAY)
+            ));
+            instance.definition().maxRpm().ifPresent(rpm -> tooltip.add(
+                    Component.literal("Maximum Speed: " + rpm + " RPM")
+                            .withStyle(ChatFormatting.GRAY)
+            ));
+        } else if (instance.definition().usesKineticOutput()) {
+            tooltip.add(Component.literal(
+                            "Kinetic Output: " + formatNumber(instance.kineticSuPerRpm()) + " SU/RPM"
+                    )
+                    .withStyle(ChatFormatting.GREEN));
+            instance.definition().outputRpm().ifPresent(rpm -> tooltip.add(
+                    Component.literal("Output Speed: " + rpm + " RPM")
+                            .withStyle(ChatFormatting.GRAY)
+            ));
+        }
+
+        for (net.mads.createexpansion.machine.interaction.MachineArea area : instance.definition().areas()) {
+            net.mads.createexpansion.machine.interaction.MachineArea.Dimensions dimensions =
+                    area.dimensions(instance.tier(), instance.definition().startTier());
+            tooltip.add(Component.literal("Operating Area: " + dimensions.tooltipText())
+                    .withStyle(ChatFormatting.GRAY));
+        }
+
+        instance.definition().blockInteractions().stream()
+                .filter(interaction -> interaction.type() == BlockInteraction.Type.SPRINKLER)
+                .findFirst()
+                .ifPresent(interaction -> {
+                    int tierSteps = Math.max(0, MachineTierStats.tierIndex(instance.tier().recipeTier())
+                            - MachineTierStats.tierIndex(instance.definition().startTier().recipeTier()));
+                    int actions = interaction.actionsPerInterval();
+                    for (int i = 0; i < tierSteps; i++) actions *= interaction.actionMultiplierPerTier();
+                    tooltip.add(Component.literal("Growth Interval: " + interaction.interval() + " ticks")
+                            .withStyle(ChatFormatting.GRAY));
+                    tooltip.add(Component.literal("Growth Attempts: " + actions)
+                            .withStyle(ChatFormatting.GRAY));
+                });
+
+        boolean extractsFromTrees = instance.definition().blockInteractions().stream()
+                .anyMatch(interaction -> interaction.type() == BlockInteraction.Type.TREE_EXTRACT);
+
+        if (extractsFromTrees) {
+            tooltip.add(Component.literal("Must be placed next to the bottom log of a naturally grown tree.")
+                    .withStyle(ChatFormatting.GRAY));
+        }
+    }
+
+    private static String formatNumber(double value) {
+        return BigDecimal.valueOf(value)
+                .stripTrailingZeros()
+                .toPlainString();
     }
 
     @Override
@@ -133,19 +275,31 @@ public class SingleBlockMachineBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(
+                FACING,
+                rotation.rotate(state.getValue(FACING))
+        );
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(
+                mirror.getRotation(state.getValue(FACING))
+        );
+    }
+
+    @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level level,
             BlockState state,
             BlockEntityType<T> type
     ) {
-        if (level.isClientSide()) {
-            return null;
-        }
-
         return type == BlockEntityRegistry.SINGLE_BLOCK_MACHINE.get()
                 ? (tickerLevel, pos, tickerState, blockEntity) ->
-                ((SingleBlockMachineBlockEntity) blockEntity).serverTick()
+                ((SingleBlockMachineBlockEntity) blockEntity).tick()
                 : null;
     }
 
@@ -157,7 +311,7 @@ public class SingleBlockMachineBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
-    protected void onPlace(
+    public void onPlace(
             BlockState state,
             Level level,
             BlockPos pos,
@@ -171,7 +325,7 @@ public class SingleBlockMachineBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
-    protected void onRemove(
+    public void onRemove(
             BlockState state,
             Level level,
             BlockPos pos,
@@ -184,6 +338,36 @@ public class SingleBlockMachineBlock extends HorizontalDirectionalBlock implemen
             CEEnergyNetwork.invalidate(level);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
+    public InteractionResult onWrenched(BlockState state, UseOnContext context) {
+        if (openMachineControlSchedule(context)) {
+            return InteractionResult.SUCCESS;
+        }
+        return super.onWrenched(state, context);
+    }
+
+    @Override
+    public InteractionResult onSneakWrenched(BlockState state, UseOnContext context) {
+        if (openMachineControlSchedule(context)) {
+            return InteractionResult.SUCCESS;
+        }
+        return super.onSneakWrenched(state, context);
+    }
+
+    private boolean openMachineControlSchedule(UseOnContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        if (!(level.getBlockEntity(pos) instanceof SingleBlockMachineBlockEntity machine)
+                || !machine.hasMachineControlSchedule(context.getClickedFace())) {
+            return false;
+        }
+
+        if (!level.isClientSide() && context.getPlayer() != null) {
+            MachineControlScheduleMenu.open(context.getPlayer(), machine, context.getClickedFace());
+        }
+        return true;
     }
 
     @Override
@@ -251,9 +435,22 @@ public class SingleBlockMachineBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
+    public boolean isSignalSource(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return level.getBlockEntity(pos) instanceof SingleBlockMachineBlockEntity machine
+                ? machine.machineControlSignal(direction.getOpposite())
+                : 0;
+    }
+
+    @Override
     protected void createBlockStateDefinition(
             StateDefinition.Builder<Block, BlockState> builder
     ) {
+        super.createBlockStateDefinition(builder);
         builder.add(
                 FACING,
                 ACTIVE,

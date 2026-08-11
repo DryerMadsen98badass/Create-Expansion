@@ -1,0 +1,265 @@
+{
+  "parent": "create:block/block",
+  "credit": "Made with Blockbench",
+  "display": {
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "fixed": {
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "ground": {
+      "scale": [
+        0.25,
+        0.25,
+        0.25
+      ],
+      "translation": [
+        0,
+        3,
+        0
+      ]
+    },
+    "gui": {
+      "rotation": [
+        30,
+        135,
+        0
+      ],
+      "scale": [
+        0.625,
+        0.625,
+        0.625
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "scale": [
+        0.375,
+        0.375,
+        0.375
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "scale": [
+        0.375,
+        0.375,
+        0.375
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ]
+    }
+  },
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#4",
+          "uv": [
+            0,
+            0,
+            6,
+            6
+          ]
+        },
+        "east": {
+          "rotation": 270,
+          "texture": "#4",
+          "uv": [
+            8,
+            0,
+            6.5,
+            6
+          ]
+        },
+        "north": {
+          "rotation": 270,
+          "texture": "#4",
+          "uv": [
+            8,
+            0,
+            6.5,
+            6
+          ]
+        },
+        "south": {
+          "rotation": 270,
+          "texture": "#4",
+          "uv": [
+            8,
+            0,
+            6.5,
+            6
+          ]
+        },
+        "up": {
+          "rotation": 180,
+          "texture": "#4",
+          "uv": [
+            0,
+            0,
+            6,
+            6
+          ]
+        },
+        "west": {
+          "rotation": 270,
+          "texture": "#4",
+          "uv": [
+            8,
+            0,
+            6.5,
+            6
+          ]
+        }
+      },
+      "from": [
+        2,
+        13,
+        2
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "z",
+        "origin": [
+          8,
+          14.5,
+          8
+        ]
+      },
+      "to": [
+        14,
+        16,
+        14
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#4",
+          "uv": [
+            0,
+            0,
+            6,
+            6
+          ]
+        },
+        "east": {
+          "rotation": 270,
+          "texture": "#4",
+          "uv": [
+            8,
+            0,
+            6.5,
+            6
+          ]
+        },
+        "north": {
+          "rotation": 270,
+          "texture": "#4",
+          "uv": [
+            8,
+            0,
+            6.5,
+            6
+          ]
+        },
+        "south": {
+          "rotation": 270,
+          "texture": "#4",
+          "uv": [
+            8,
+            0,
+            6.5,
+            6
+          ]
+        },
+        "up": {
+          "rotation": 180,
+          "texture": "#4",
+          "uv": [
+            0,
+            0,
+            6,
+            6
+          ]
+        },
+        "west": {
+          "rotation": 270,
+          "texture": "#4",
+          "uv": [
+            8,
+            0,
+            6.5,
+            6
+          ]
+        }
+      },
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "z",
+        "origin": [
+          8,
+          1.5,
+          8
+        ]
+      },
+      "to": [
+        14,
+        3,
+        14
+      ]
+    }
+  ],
+  "textures": {
+    "4": "create_expansion:block/stainless_bronze_pump",
+    "particle": "create_expansion:block/stainless_bronze_pump"
+  }
+}

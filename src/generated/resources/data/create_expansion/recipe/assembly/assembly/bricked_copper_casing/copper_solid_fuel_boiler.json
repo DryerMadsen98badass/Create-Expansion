@@ -1,0 +1,27 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create_expansion:bricked_copper_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:fluid_tank"
+    },
+    {
+      "count": 1,
+      "item": "minecraft:furnace"
+    },
+    {
+      "count": 4,
+      "item": "create:copper_sheet"
+    },
+    {
+      "count": 20,
+      "item": "create_expansion:wrought_iron_screw"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:copper_solid_fuel_boiler"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create_expansion:stainless_bronze_large_ring"
+  },
+  "loops": 8,
+  "results": [
+    {
+      "id": "create_expansion:stainless_bronze_bearing"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "create_expansion:stainless_bronze_bearing"
+        },
+        {
+          "item": "create_expansion:stainless_bronze_bearing_ball"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:stainless_bronze_bearing"
+        }
+      ]
+    },
+    {
+      "type": "create:filling",
+      "ingredients": [
+        {
+          "item": "create_expansion:stainless_bronze_bearing"
+        },
+        {
+          "type": "neoforge:single",
+          "amount": 25,
+          "fluid": "create_expansion:aromatic_extract"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:stainless_bronze_bearing"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "create_expansion:stainless_bronze_bearing"
+  }
+}

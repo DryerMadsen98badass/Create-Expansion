@@ -2,6 +2,7 @@ package net.mads.createexpansion.menu;
 
 import net.mads.createexpansion.machine.runtime.CERecipeLogic;
 import net.mads.createexpansion.machine.runtime.CERecipeLogicMachine;
+import net.mads.createexpansion.machine.control.MachineControlTarget;
 import net.minecraft.world.inventory.ContainerData;
 
 import java.util.function.BooleanSupplier;
@@ -13,7 +14,8 @@ public final class CERecipeMenuData implements ContainerData {
     public static final int DURATION = 3;
     public static final int PARALLEL = 4;
     public static final int RESOURCE_PER_TICK = 5;
-    public static final int COUNT = 6;
+    public static final int ENABLED = 6;
+    public static final int COUNT = 7;
 
     private final CERecipeLogicMachine machine;
     private final BooleanSupplier formed;
@@ -28,13 +30,18 @@ public final class CERecipeMenuData implements ContainerData {
         CERecipeLogic logic = machine.recipeLogic();
         return switch (index) {
             case FORMED -> formed.getAsBoolean() ? 1 : 0;
-            case PROCESSING -> logic.isProcessing() ? 1 : 0;
+            case PROCESSING -> isMachineEnabled() && logic.isProcessing() ? 1 : 0;
             case PROGRESS -> logic.progress();
             case DURATION -> logic.duration();
             case PARALLEL -> logic.parallel();
-            case RESOURCE_PER_TICK -> logic.resourcePerTick();
+            case RESOURCE_PER_TICK -> isMachineEnabled() ? logic.resourcePerTick() : 0;
+            case ENABLED -> isMachineEnabled() ? 1 : 0;
             default -> 0;
         };
+    }
+
+    private boolean isMachineEnabled() {
+        return !(machine instanceof MachineControlTarget target) || target.isMachineEnabled();
     }
 
     @Override

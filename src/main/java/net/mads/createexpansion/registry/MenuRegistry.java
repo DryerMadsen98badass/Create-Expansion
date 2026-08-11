@@ -3,6 +3,7 @@ package net.mads.createexpansion.registry;
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.menu.FoundryControllerMenu;
 import net.mads.createexpansion.menu.MachinePortMenu;
+import net.mads.createexpansion.menu.MachineControlScheduleMenu;
 import net.mads.createexpansion.menu.MultiblockControllerMenu;
 import net.mads.createexpansion.menu.SingleBlockMachineMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,6 +27,10 @@ public class MenuRegistry {
 
     public static final DeferredHolder<MenuType<?>, MenuType<SingleBlockMachineMenu>> SINGLE_BLOCK_MACHINE =
             MENUS.register("single_block_machine", () -> IMenuTypeExtension.create(SingleBlockMachineMenu::new));
+
+
+    public static final DeferredHolder<MenuType<?>, MenuType<MachineControlScheduleMenu>> MACHINE_CONTROL_SCHEDULE =
+            MENUS.register("machine_control_schedule", () -> IMenuTypeExtension.create(MachineControlScheduleMenu::new));
 
     public static void register(IEventBus modEventBus) {
         MENUS.register(modEventBus);

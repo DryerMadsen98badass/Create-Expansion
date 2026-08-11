@@ -60,8 +60,30 @@ again.
 Definitions are validated against every attached recipe type's maximum IO. GUI item/fluid slots
 use the CE slot textures and fluid slots render the real fluid texture.
 
+Sided automation uses machine-relative `MachineSide` values, not north/south. Import `FRONT`,
+`BACK`, `LEFT`, `RIGHT`, `TOP`, and `BOTTOM` from `SingleBlockDefinition.MachineSide`. Every option
+accepts multiple sides:
+
+```java
+.machineDefinition(Option.noItemInput(TOP, BOTTOM, LEFT))
+.machineDefinition(Option.noItemOutput(FRONT, RIGHT))
+.machineDefinition(Option.noFluidInput(BACK, BOTTOM))
+.machineDefinition(Option.noFluidOutput(TOP, LEFT, RIGHT))
+```
+
+Horizontal sides rotate with machine facing. The four options independently block insert, extract,
+fill, and drain, so a side can remain input-only or output-only. Repeated calls accumulate sides;
+unlisted sides remain allowed.
+
 Steam machine top faces are reserved for the muffler. A blocked vent can only explode while the
-machine is actively processing. Electric machines do not render the muffler.
+machine is actively processing. Steam singleblocks expose no item or fluid capability on the top
+face. Non-steam singleblocks expose their normal fluid capability on top, so recipe fluids can be
+inserted there. Their item capability can also use the top unless a sided option blocks it. Electric
+machines do not render the muffler.
+
+Minecraft TNT uses explosion power `4.0F`. A blocked copper steam machine explodes with one TNT of
+power (`4.0F`), while bronze explodes with two TNT-equivalents (`8.0F`). Keep these values expressed
+through `MachineTier.steamExplosionPower()` rather than adding tier checks to the block entity.
 
 Progress bars
 -------------

@@ -12,10 +12,12 @@ public final class SplashingRecipes {
     }
 
     public static void build(List<CompletableFuture<?>> futures, CachedOutput output, PackOutput.PathProvider recipes) {
-        CreateRecipeBuilder.splashing(futures, output, recipes, "splashing/test/red_sand_to_sand")
-                .inputItem("minecraft:red_sand")
-                .outputItem("minecraft:sand")
-                .duration(100)
+        CreateRecipeBuilder.splashing(futures, output, recipes, "splashing/tempered_glass")
+                .inputItem("create_expansion:hot_tempered_glass", 1)
+                .outputItem("create_expansion:tempered_glass", 1)
+                .duration(1200)
                 .save();
+
+
     }
 }

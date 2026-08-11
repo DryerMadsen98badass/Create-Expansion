@@ -9,8 +9,6 @@ public final class BlastFurnaceRecipeType {
             .recipeTypeDefinition(Option.id("blast_furnace"))
             .recipeTypeDefinition(Option.displayName("Blast Furnace"))
             .recipeTypeDefinition(Option.maxIO(3, 2, 0, 0))
-            .recipeTypeDefinition(Option.kineticMode(RecipeTypeDefinition.KineticMode.NONE))
-            .recipeTypeDefinition(Option.energyMode(RecipeTypeDefinition.EnergyMode.NONE))
             .recipeTypeDefinition(Option.progressBar(ProgressBar.ARROW_BRONZE))
             .build();
 

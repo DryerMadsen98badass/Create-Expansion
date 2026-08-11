@@ -1,0 +1,32 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 1000,
+  "fluid_outputs": [
+    {
+      "amount": 3000,
+      "id": "create_expansion:oxygen"
+    }
+  ],
+  "item_inputs": [
+    {
+      "count": 5,
+      "item": "create_expansion:limestone_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:calcium_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:carbon_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:electrolyser",
+  "tier": "lv"
+}

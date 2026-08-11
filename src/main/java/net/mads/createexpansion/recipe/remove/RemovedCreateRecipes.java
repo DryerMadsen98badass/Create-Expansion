@@ -137,7 +137,18 @@ public final class RemovedCreateRecipes {
             recipe("minecraft:flint_and_steel"),
             recipe("minecraft:brick"),
             recipe("create:crafting/materials/rose_quartz"),
-            recipe("create:sandpaper_polishing/rose_quartz")
+            recipe("create:sandpaper_polishing/rose_quartz"),
+            recipe("create:crafting/kinetics/belt_connector"),
+            recipe("create:crafting/kinetics/super_glue"),
+            recipe("minecraft:charcoal"),
+            recipe("create:filling/blaze_cake"),
+            recipe("create:splashing/gravel"),
+            recipe("create:crushing/diorite"),
+            recipe("create:crushing/diorite_recycling"),
+            recipe("create:splashing/soul_sand"),
+            recipe("minecraft:andesite"),
+            recipe("minecraft:diorite"),
+            recipe("minecraft:granite")
     );
 
     private static ResourceLocation recipe(String id) {

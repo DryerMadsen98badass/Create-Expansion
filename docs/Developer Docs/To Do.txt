@@ -1,6 +1,49 @@
 Current verification
 ====================
 
+- 2026-08-01: Added JEI slot tooltips for CE chanced item inputs and chanced item outputs. The
+  tooltip shows effective chance for the selected JEI tier and, when tier bonus is used, also shows
+  base chance plus per-tier change.
+
+- 2026-08-01: Changed machine and machine-port GUI fluid slots to accept both left-click and
+  right-click for bucket/container fluid transfer. Left-click is the intended GTCEu-style workflow;
+  right-click remains accepted for compatibility with the earlier implementation.
+
+- 2026-08-01: Fixed fired bucket GUI fluid-slot interaction so draining an output hatch or other
+  GUI tank with `fired_bucket` now returns the matching fired filled bucket, and draining fired
+  filled buckets into GUI tanks returns `fired_bucket` instead of `minecraft:bucket`. Fired bucket
+  item capabilities now use `FiredFluidBucketWrapper`, which delegates normal bucket behavior to
+  NeoForge and converts the resulting container through the fired bucket map.
+
+- 2026-08-01: Extended GTCEu-style GUI fluid-slot interaction for singleblock machines and machine
+  ports. `FluidSlotClickHandler` now tries the carried cursor stack first, then the player's main
+  hand and offhand, so right-clicking a GUI fluid slot with an empty bucket/container in the
+  selected hotbar slot can drain machine/output-hatch fluids instead of requiring the container to
+  be picked up on the cursor.
+
+- 2026-08-01: Fixed vanilla bucket GUI fluid-slot interaction by explicitly registering
+  `minecraft:bucket`, `minecraft:water_bucket`, and `minecraft:lava_bucket` with NeoForge's
+  `FluidBucketWrapper` in `FluidRegistry.registerCapabilities`. Do not rely on vanilla buckets
+  having an item fluid capability unless this project registers it.
+
+- 2026-08-01: Hardened GUI fluid-slot bucket interaction further by adding a direct `BucketItem`
+  fallback in `FluidSlotClickHandler`. If `stack.getCapability(Capabilities.FluidHandler.ITEM)`
+  returns null for a bucket on the cursor or in-hand, the handler now constructs
+  `FluidBucketWrapper` or `FiredFluidBucketWrapper` directly for the one-item container copy.
+
+- 2026-08-01: Extended CE recipe chanced IO so tier bonus may be positive or negative and now also
+  works for `RecipeDefinition.Option.chancedOutput(item, count, chance, tierBonus)`. Final chances
+  clamp to `0..10000`, so `chancedInput(..., 2000, -1000)` becomes non-consumable two tiers above
+  baseline while still being required for recipe matching.
+
+- 2026-08-01: Added CE recipe chanced item inputs through
+  `RecipeDefinition.Option.chancedInput(item, count, chance)` and
+  `RecipeDefinition.Option.chancedInput(item, count, chance, tierBonus)`. Chanced inputs are still
+  required for recipe matching but only consume when the roll succeeds. The tier bonus adds chance
+  per runtime tier above the recipe baseline and is capped at 10000. Runtime consumption is wired
+  for singleblock machines and CE multiblocks, including multiblock parallel rolls, and recipe
+  lookup/JEI/active displays now include chanced inputs.
+
 - 2026-07-29: Added GTCEu-style right-click fluid slot interaction for singleblock machine GUIs
   and machine port GUIs. Fluid slots are still visual slots, but right-clicking a highlighted slot
   sends a menu button to the server and `FluidSlotClickHandler` moves one carried fluid container
@@ -828,3 +871,43 @@ ENERGY/Jade verification:
 - Add explicit custom machine UI providers only when a machine cannot use the shared automatic layout.
 - Verify mirrored input ordering for partial and full rows in both machine GUI and JEI.
 - Verify over-voltage creates a destructive TNT-style explosion for singleblocks and energy hatches.
+2026-08-01 Jade recipe IO and singleblock fluid alignment
+---------------------------------------------------------
+- Reworked CE singleblock and multiblock Jade recipe IO into GTCEu-style `Inputs` and `Outputs`
+  sections. Every item/fluid stack now has its own icon plus `x<amount>[display name]` row; fluids
+  use their bucket icon while the text names the fluid itself. CE machine tooltips remove Jade's
+  automatic inventory/tank contents. Existing resource use, duration, status, energy/steam buffer,
+  and multiblock formed/time displays are retained after the shared recipe IO.
+- Corrected singleblock GUI fluid rendering by moving the 16x16 fluid texture from `frame + 2` to
+  `frame + 1`. Slot frames, overlays, hover bounds, and click positions were not changed.
+- Jade's universal item/fluid storage rows are now removed in a tooltip-collected callback, after
+  Jade has appended all providers. This prevents recipe ingredients such as redstone and quartz
+  from appearing a second time below the CE recipe IO. Removed the multiblock `Time: ... ticks`
+  duplicate; the shared fancy duration progress element remains.
+- Singleblock/multiblock Jade now also removes the universal item/fluid server-data compounds in a
+  before-tooltip-collect callback. This blocks Jade's chest-style contents renderer before it can
+  create rows for machine inventories or steam/input/output tanks; only CE's explicit recipe IO and
+  resource/buffer elements remain.
+- Registered empty Jade item/fluid storage extensions directly for `SingleBlockMachineBlock` and
+  `MultiblockControllerBlock`. These more-specific providers override Jade's universal `Block`
+  storage extensions, so chest-style machine inventory/tank groups are no longer generated or sent.
+- CE machine Jade now enforces the final tooltip contents in the tooltip-collected callback: clear
+  everything, restore only Jade's object/mod names, then append CE formed state and CE machine info.
+  Standard item, steam, fluid, and third-party storage components cannot survive this final rebuild.
+- 2026-08-01: Fixed sided singleblock fluid automation: non-steam machines now expose their fluid
+  capability on the top face, allowing recipe-fluid input from above. Steam singleblocks still
+  block top item/fluid capabilities because the face is reserved for the vent. Documented blocked
+  vent explosion strength explicitly as one TNT (`4.0F`) for copper and two TNT-equivalents
+  (`8.0F`) for bronze; `MachineTier` now expresses these values through a named TNT power constant.
+- 2026-08-01: Added machine-relative sided IO restrictions to `SingleBlockDefinition.Option`:
+  `noItemInput`, `noItemOutput`, `noFluidInput`, and `noFluidOutput`. Each accepts multiple
+  `MachineSide` values (`FRONT`, `BACK`, `LEFT`, `RIGHT`, `TOP`, `BOTTOM`) and independently blocks
+  insert/extract/fill/drain. Horizontal sides rotate with machine facing; steam machines retain the
+  unconditional top vent restriction.
+- 2026-08-01: Verify bronze fluid transport in-game: normal Create pump/pipe should move
+  `512 mB/t` at `256 RPM`, bronze pump through only bronze pipes should move `2048 mB/t` at
+  `256 RPM`, and bronze pump connected through any normal/copper pipe should fall back to
+  copper-tier speed. Also verify bronze fluid tank renders correctly, exposes fluid capability to
+  Create pipes, and stores `32000 mB` per tank block. Re-check after the 2026-08-01 renderer/resource
+  pass that bronze pipe in-world color matches item color, pipe connections render as full pipes,
+  bronze pump shows the rotating stone cog, and tank windows are transparent instead of black.

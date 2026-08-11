@@ -319,6 +319,7 @@ public class MultiblockJeiRecipe {
             case ITEM_INPUT -> "Input";
             case ITEM_OUTPUT -> "Output";
             case FLUID_INPUT -> "Fluid In";
+            case PH_INPUT -> "pH In";
             case FLUID_OUTPUT -> "Fluid Out";
             case ENERGY_INPUT -> "Energy In";
             case ENERGY_OUTPUT -> "Energy Out";

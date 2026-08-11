@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:niobium_netherrack_ore",
-    "create_expansion:niobium_deepslate_ore",
-    "create_expansion:niobium_andesite_ore",
-    "create_expansion:niobium_end_stone_ore",
     "create_expansion:niobium_diorite_ore",
-    "create_expansion:niobium_tuff_ore",
+    "create_expansion:niobium_granite_ore",
+    "create_expansion:niobium_netherrack_ore",
     "create_expansion:niobium_blackstone_ore",
     "create_expansion:niobium_ore",
-    "create_expansion:niobium_granite_ore"
+    "create_expansion:niobium_deepslate_ore",
+    "create_expansion:niobium_tuff_ore",
+    "create_expansion:niobium_andesite_ore",
+    "create_expansion:niobium_end_stone_ore"
   ]
 }

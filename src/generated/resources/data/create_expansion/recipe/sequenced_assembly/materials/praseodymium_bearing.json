@@ -25,6 +25,24 @@
           "id": "create_expansion:praseodymium_bearing"
         }
       ]
+    },
+    {
+      "type": "create:filling",
+      "ingredients": [
+        {
+          "item": "create_expansion:praseodymium_bearing"
+        },
+        {
+          "type": "neoforge:single",
+          "amount": 25,
+          "fluid": "create_expansion:aromatic_extract"
+        }
+      ],
+      "results": [
+        {
+          "id": "create_expansion:praseodymium_bearing"
+        }
+      ]
     }
   ],
   "transitional_item": {

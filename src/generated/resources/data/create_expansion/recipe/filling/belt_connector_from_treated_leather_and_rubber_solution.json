@@ -1,0 +1,18 @@
+{
+  "type": "create:filling",
+  "ingredients": [
+    {
+      "item": "create_expansion:treated_leather"
+    },
+    {
+      "type": "neoforge:single",
+      "amount": 576,
+      "fluid": "create_expansion:rubber_solution"
+    }
+  ],
+  "results": [
+    {
+      "id": "create:belt_connector"
+    }
+  ]
+}

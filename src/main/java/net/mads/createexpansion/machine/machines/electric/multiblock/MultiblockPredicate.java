@@ -25,8 +25,13 @@ public interface MultiblockPredicate {
         return net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.or(this, other);
     }
 
-    default MultiblockPredicate overlay(String texture) {
-        return net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.overlay(this, texture);
+    /**
+     * Uses a block model as the formed overlay for matching machine ports.
+     * Example: create_expansion:block/bronze_machine_casing loads
+     * assets/create_expansion/models/block/bronze_machine_casing.json.
+     */
+    default MultiblockPredicate overlay(String model) {
+        return net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.overlay(this, model);
     }
 
     default MultiblockPredicate min(int minimum) {
@@ -35,6 +40,29 @@ public interface MultiblockPredicate {
 
     default MultiblockPredicate max(int maximum) {
         return net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.max(this, maximum);
+    }
+
+    default MultiblockPredicate onlyTier(MachineTier tier) {
+        return net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.onlyTier(this, tier);
+    }
+
+    default MultiblockPredicate Tier(MachineTier tier) {
+        return net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.tierUpTo(this, tier);
+    }
+
+    /** Marks this ITEM_INPUT predicate as one ordered sequenced input position. */
+    default MultiblockPredicate sequentialInput(int index) {
+        return net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPredicates.sequentialInput(this, index);
+    }
+
+    /** Returns the ordered sequenced-input index, or 0 when this predicate is not sequenced. */
+    default int sequentialInputIndex() {
+        return 0;
+    }
+
+    /** Returns whether this predicate permits a build candidate of the supplied machine tier. */
+    default boolean allowsBuildTier(MachineTier tier) {
+        return true;
     }
 
     record CountRequirement(String key, ResourceLocation blockId, int min, int max) {
@@ -47,7 +75,7 @@ public interface MultiblockPredicate {
         }
     }
 
-    record Match(boolean matches, MachineTier tier, Set<MultiblockAbility> abilities, Map<String, Integer> counts, ResourceLocation overlayTexture) {
+    record Match(boolean matches, MachineTier tier, Set<MultiblockAbility> abilities, Map<String, Integer> counts, ResourceLocation overlayModel) {
         public static Match failed() {
             return new Match(false, null, Set.of(), Map.of(), null);
         }
@@ -68,8 +96,8 @@ public interface MultiblockPredicate {
             return new Match(true, tier, abilities, Map.of(key, 1), null);
         }
 
-        public Match withOverlay(ResourceLocation overlayTexture) {
-            return matches ? new Match(true, tier, abilities, counts, overlayTexture) : this;
+        public Match withOverlay(ResourceLocation overlayModel) {
+            return matches ? new Match(true, tier, abilities, counts, overlayModel) : this;
         }
     }
 }

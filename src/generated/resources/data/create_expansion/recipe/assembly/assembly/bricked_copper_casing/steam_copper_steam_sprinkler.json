@@ -1,0 +1,35 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create_expansion:bricked_copper_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:fluid_tank"
+    },
+    {
+      "count": 1,
+      "item": "create:copper_valve_handle"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:copper_bearing"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:copper_rotor"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:copper_spring"
+    },
+    {
+      "count": 10,
+      "item": "create_expansion:copper_screw"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:steam_copper_steam_sprinkler"
+  }
+}

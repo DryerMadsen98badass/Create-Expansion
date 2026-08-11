@@ -37,10 +37,7 @@ public final class CERecipeLogic {
                 setStatus(CERecipeStatus.WAITING_FOR_OUTPUT);
                 return;
             }
-            host.completeRecipe(execution);
-            clearExecution();
-            searchCooldown = 0;
-            host.onRecipeLogicChanged(true);
+            finishRecipeAndSearchAgain();
             return;
         }
 
@@ -50,12 +47,22 @@ public final class CERecipeLogic {
             host.onRecipeLogicChanged(true);
             return;
         }
+        if (tickResult == CERecipeTickResult.WAIT_FOR_PH) {
+            setStatus(CERecipeStatus.WAITING_FOR_PH);
+            return;
+        }
+        if (tickResult == CERecipeTickResult.WAIT_FOR_RPM) {
+            setStatus(CERecipeStatus.WAITING_FOR_RPM);
+            return;
+        }
         if (tickResult == CERecipeTickResult.PAUSE) {
             setStatus(CERecipeStatus.WAITING_FOR_RESOURCE);
             return;
         }
         if (tickResult == CERecipeTickResult.WAIT_FOR_RESOURCE) {
-            progress = 0;
+            if (host.resetDurationWhenResourceMissing()) {
+                progress = 0;
+            }
             setStatus(CERecipeStatus.WAITING_FOR_RESOURCE);
             return;
         }
@@ -66,15 +73,36 @@ public final class CERecipeLogic {
                 setStatus(CERecipeStatus.WAITING_FOR_OUTPUT);
                 return;
             }
-            host.completeRecipe(execution);
-            clearExecution();
-            searchCooldown = 0;
-            host.onRecipeLogicChanged(true);
+            finishRecipeAndSearchAgain();
             return;
         }
 
         setStatus(CERecipeStatus.WORKING);
         host.onRecipeLogicChanged(false);
+    }
+
+
+    private void finishRecipeAndSearchAgain() {
+        if (!host.completeRecipe(execution)) {
+            setStatus(CERecipeStatus.WAITING_FOR_OUTPUT);
+            host.onRecipeLogicChanged(false);
+            return;
+        }
+        execution = null;
+        progress = 0;
+        searchCooldown = 0;
+
+        var prepared = host.findAndConsumeRecipeInputs();
+        if (prepared.isPresent()) {
+            execution = prepared.get();
+            status = CERecipeStatus.WORKING;
+            host.onRecipeLogicChanged(false);
+            return;
+        }
+
+        status = CERecipeStatus.IDLE;
+        searchCooldown = IDLE_SEARCH_INTERVAL;
+        host.onRecipeLogicChanged(true);
     }
 
     private boolean tickRecipeSearch() {
@@ -135,13 +163,15 @@ public final class CERecipeLogic {
         return execution != null;
     }
 
+    /** Current zero-based progress of the active recipe. */
+    public int progress() {
+        return progress;
+    }
+
     private static boolean isActiveStatus(CERecipeStatus status) {
         return status == CERecipeStatus.WORKING;
     }
 
-    public int progress() {
-        return progress;
-    }
 
     public int duration() {
         return execution == null ? 0 : execution.duration();

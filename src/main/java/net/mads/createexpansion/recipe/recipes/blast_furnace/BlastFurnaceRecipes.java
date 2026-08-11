@@ -11,9 +11,10 @@ public final class BlastFurnaceRecipes {
 
     private static final List<Fuel> FUELS = List.of(
             new Fuel("minecraft:coal", 200),
-            new Fuel("create_expansion:coal_coke", 400),
+            new Fuel("create_expansion:coal_coke", 800),
             new Fuel("create_expansion:bio_char_dust", 50),
-            new Fuel("minecraft:charcoal", 100)
+            new Fuel("minecraft:charcoal", 100),
+            new Fuel("create_expansion:biomass_briquette", 400)
     );
 
     private static final List<BlastRecipe> RECIPES = List.of(
@@ -29,11 +30,12 @@ public final class BlastFurnaceRecipes {
             new BlastRecipe("create_expansion:andesite_dust", 8, "create_expansion:sphalerite_dust", 2, "create:andesite_alloy", 1, 2400),
             new BlastRecipe("create_expansion:andesite_dust", 8, "create_expansion:smithsonite_dust", 5, "create:andesite_alloy", 1, 2400),
             new BlastRecipe("create_expansion:andesite_dust", 8, "create_expansion:zincite_dust", 2, "create:andesite_alloy", 1, 2400),
+            new BlastRecipe("create_expansion:andesite_dust", 8, "create_expansion:iron_dust", 1, "create:andesite_alloy", 1, 600),
             new BlastRecipe("create:cinder_flour", 1, "minecraft:nether_brick", 1, 600),
             new BlastRecipe("minecraft:clay_ball", 1, "minecraft:brick", 1, 600),
             new BlastRecipe("create_expansion:seared_dust", 1, "create_expansion:seared_brick", 1, 600),
-            new BlastRecipe("minecraft:clay_ball", 12, "create_expansion:andesite_dust", 1, "create_expansion:firebrick", 1, 600),
-            new BlastRecipe("minecraft:clay_ball", 6, "create_expansion:tuff_dust",1, "create_expansion:silica_brick", 1, 600)
+            new BlastRecipe("create_expansion:clay_dust", 12, "create_expansion:andesite_dust", 1, "create_expansion:firebrick", 1, 600),
+            new BlastRecipe("create_expansion:clay_dust", 6, "create_expansion:tuff_dust",1, "create_expansion:silica_brick", 1, 600)
     );
 
     private BlastFurnaceRecipes() {
@@ -52,7 +54,7 @@ public final class BlastFurnaceRecipes {
                 }
 
                 RecipeDefinition builder = RecipeDefinition.recipe()
-                        .recipeDefinition(RecipeDefinition.Option.id(recipeId(recipe, fuel, fuelAmount)))
+                        .recipeDefinition(RecipeDefinition.Option.id("blast_furnace/" + recipeId(recipe, fuel, fuelAmount)))
                         .recipeDefinition(RecipeDefinition.Option.recipeType(CERecipeTypes.BLAST_FURNACE))
                         .recipeDefinition(RecipeDefinition.Option.inputItem(
                                 recipe.inputA(),

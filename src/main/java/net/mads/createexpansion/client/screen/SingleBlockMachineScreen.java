@@ -23,6 +23,10 @@ import java.util.List;
 public class SingleBlockMachineScreen extends AbstractContainerScreen<SingleBlockMachineMenu> {
     private static final int TEXT = 0xFF404040;
     private static final int FLUID_SLOT_SIZE = 18;
+    private static final int CIRCUIT_BUTTON_WIDTH = 38;
+    private static final int CIRCUIT_BUTTON_HEIGHT = 16;
+    private static final int POWER_BUTTON_WIDTH = 38;
+    private static final int POWER_BUTTON_HEIGHT = 16;
 
     public SingleBlockMachineScreen(
             SingleBlockMachineMenu menu,
@@ -48,6 +52,8 @@ public class SingleBlockMachineScreen extends AbstractContainerScreen<SingleBloc
         renderBackground(graphics, mouseX, mouseY, partialTick);
         super.render(graphics, mouseX, mouseY, partialTick);
         renderFluidTooltip(graphics, mouseX, mouseY);
+        renderCircuitTooltip(graphics, mouseX, mouseY);
+        renderPowerTooltip(graphics, mouseX, mouseY);
         renderTooltip(graphics, mouseX, mouseY);
     }
 
@@ -75,11 +81,31 @@ public class SingleBlockMachineScreen extends AbstractContainerScreen<SingleBloc
         drawFluidSlots(graphics);
         drawHoveredFluidSlot(graphics, mouseX, mouseY);
         drawProgress(graphics, x, y);
+        drawCircuitButton(graphics, mouseX, mouseY);
+        drawPowerButton(graphics, mouseX, mouseY);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 1 && minecraft != null && minecraft.gameMode != null) {
+        if ((button == 0 || button == 1) && minecraft != null && minecraft.gameMode != null) {
+            if (inside((int) mouseX, (int) mouseY, powerButtonX(), powerButtonY(), POWER_BUTTON_WIDTH, POWER_BUTTON_HEIGHT)) {
+                minecraft.gameMode.handleInventoryButtonClick(
+                        menu.containerId,
+                        SingleBlockMachineMenu.BUTTON_TOGGLE_MACHINE
+                );
+                return true;
+            }
+
+            if (inside((int) mouseX, (int) mouseY, circuitButtonX(), circuitButtonY(), CIRCUIT_BUTTON_WIDTH, CIRCUIT_BUTTON_HEIGHT)) {
+                int buttonId = hasShiftDown()
+                        ? SingleBlockMachineMenu.BUTTON_CIRCUIT_RESET
+                        : button == 0
+                        ? SingleBlockMachineMenu.BUTTON_CIRCUIT_INCREMENT
+                        : SingleBlockMachineMenu.BUTTON_CIRCUIT_DECREMENT;
+                minecraft.gameMode.handleInventoryButtonClick(menu.containerId, buttonId);
+                return true;
+            }
+
             HoveredFluid hovered = hoveredFluid((int) mouseX, (int) mouseY);
             if (hovered != null) {
                 minecraft.gameMode.handleInventoryButtonClick(menu.containerId, hovered.buttonId());
@@ -93,6 +119,91 @@ public class SingleBlockMachineScreen extends AbstractContainerScreen<SingleBloc
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         graphics.drawString(font, title, titleLabelX, titleLabelY, TEXT, false);
         graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, TEXT, false);
+    }
+
+
+    private void drawPowerButton(GuiGraphics graphics, int mouseX, int mouseY) {
+        int x = powerButtonX();
+        int y = powerButtonY();
+        boolean enabled = menu.machineEnabled();
+        boolean hovered = inside(mouseX, mouseY, x, y, POWER_BUTTON_WIDTH, POWER_BUTTON_HEIGHT);
+        int outer = hovered ? 0xFFFFFFFF : 0xFFC6C6C6;
+        int inner = enabled ? 0xFF3F8A52 : 0xFF8A4141;
+
+        graphics.fill(x, y, x + POWER_BUTTON_WIDTH, y + POWER_BUTTON_HEIGHT, outer);
+        graphics.fill(x + 1, y + 1, x + POWER_BUTTON_WIDTH - 1, y + POWER_BUTTON_HEIGHT - 1, 0xFF373737);
+        graphics.fill(x + 2, y + 2, x + POWER_BUTTON_WIDTH - 2, y + POWER_BUTTON_HEIGHT - 2, inner);
+        graphics.drawCenteredString(
+                font,
+                enabled ? "ON" : "OFF",
+                x + POWER_BUTTON_WIDTH / 2,
+                y + 4,
+                0xFFFFFFFF
+        );
+    }
+
+    private void renderPowerTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (!inside(mouseX, mouseY, powerButtonX(), powerButtonY(), POWER_BUTTON_WIDTH, POWER_BUTTON_HEIGHT)) {
+            return;
+        }
+
+        graphics.renderComponentTooltip(
+                font,
+                List.of(
+                        Component.literal(menu.machineEnabled() ? "Machine enabled" : "Machine disabled"),
+                        Component.literal("Click to toggle").withStyle(ChatFormatting.GRAY)
+                ),
+                mouseX,
+                mouseY
+        );
+    }
+
+    private int powerButtonX() {
+        return leftPos + imageWidth - POWER_BUTTON_WIDTH - 8;
+    }
+
+    private int powerButtonY() {
+        return topPos + menu.playerInventoryY() - 28;
+    }
+
+    private void drawCircuitButton(GuiGraphics graphics, int mouseX, int mouseY) {
+        int x = circuitButtonX();
+        int y = circuitButtonY();
+        boolean hovered = inside(mouseX, mouseY, x, y, CIRCUIT_BUTTON_WIDTH, CIRCUIT_BUTTON_HEIGHT);
+        int outer = hovered ? 0xFFFFFFFF : 0xFFC6C6C6;
+        int inner = hovered ? 0xFF8F8F8F : 0xFF707070;
+
+        graphics.fill(x, y, x + CIRCUIT_BUTTON_WIDTH, y + CIRCUIT_BUTTON_HEIGHT, outer);
+        graphics.fill(x + 1, y + 1, x + CIRCUIT_BUTTON_WIDTH - 1, y + CIRCUIT_BUTTON_HEIGHT - 1, 0xFF373737);
+        graphics.fill(x + 2, y + 2, x + CIRCUIT_BUTTON_WIDTH - 2, y + CIRCUIT_BUTTON_HEIGHT - 2, inner);
+
+        String label = "C " + (menu.blockEntity() == null ? 0 : menu.blockEntity().circuit());
+        graphics.drawCenteredString(font, label, x + CIRCUIT_BUTTON_WIDTH / 2, y + 4, 0xFFFFFFFF);
+    }
+
+    private void renderCircuitTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (!inside(mouseX, mouseY, circuitButtonX(), circuitButtonY(), CIRCUIT_BUTTON_WIDTH, CIRCUIT_BUTTON_HEIGHT)) {
+            return;
+        }
+        graphics.renderComponentTooltip(
+                font,
+                List.of(
+                        Component.literal("Circuit " + (menu.blockEntity() == null ? 0 : menu.blockEntity().circuit())),
+                        Component.literal("Left-click: next").withStyle(ChatFormatting.GRAY),
+                        Component.literal("Right-click: previous").withStyle(ChatFormatting.GRAY),
+                        Component.literal("Shift-click: reset").withStyle(ChatFormatting.GRAY)
+                ),
+                mouseX,
+                mouseY
+        );
+    }
+
+    private int circuitButtonX() {
+        return leftPos + 8;
+    }
+
+    private int circuitButtonY() {
+        return topPos + menu.playerInventoryY() - 28;
     }
 
     private void drawProgress(GuiGraphics graphics, int x, int y) {
@@ -135,7 +246,7 @@ public class SingleBlockMachineScreen extends AbstractContainerScreen<SingleBloc
     private void drawFluidSlot(GuiGraphics graphics, int x, int y, FluidStack stack) {
         CEMachineGuiTextures.drawFluidSlot(graphics, x, y);
         if (!stack.isEmpty()) {
-            drawFluidLayer(graphics, stack, x + 2, y + 2, 16, 16);
+            drawFluidLayer(graphics, stack, x + 1, y + 1, 16, 16);
         }
     }
 

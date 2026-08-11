@@ -1,0 +1,38 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 1000,
+  "item_inputs": [
+    {
+      "count": 5,
+      "item": "create_expansion:ochrum_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 2,
+        "id": "create_expansion:feldspar_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:quartz_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:iron_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:gold_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:centrifuge",
+  "tier": "ulv"
+}

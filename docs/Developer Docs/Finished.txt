@@ -1,6 +1,15 @@
 2026-07-06
 ==========
 
+- 2026-08-01: Added custom Create Blaze Burner fuel recipes under
+  `recipe/recipes/blazeburnerrecipes` with the recipe type
+  `create_expansion:blaze_burner_fuel`. Recipes accept exactly one custom item input or fluid input,
+  and can set heated time, superheated time, or both. When both are set, the burner runs
+  superheated first and then heated for the configured follow-up time. Blaze Burners now expose a
+  4000 mB fluid buffer for recipe fluids while keeping Create's normal furnace-fuel item behavior.
+  JEI has a Blaze Burner Fuel category that shows only these custom recipes, with the Create Blaze
+  Burner as catalyst. See `Programering help/recipes/blaze burner fuel recipes.txt`.
+
 - 2026-07-22: Added IndustrialMaterials stone crushing sources. Materials can now call
   `.stone()` for the default `minecraft:<material_id>` block,
   `.existing(STONE, "namespace:block")` for an existing input block, or
@@ -169,3 +178,13 @@
 - Added the Firebrick Firebox block with off/on textures from `textures/block/casings/firebox`, generated blockstate/block/item models, loot table, creative tab and lang entries, and multiblock active-state syncing so formed fireboxes turn on while their controller processes.
 - Extended `CreateRecipeBuilder` with counted item inputs plus emptying, haunting, item application, sandpaper polishing, and splashing factories, then refactored the Create recipe example classes to the fluent `.inputItem(...).outputItem(...).chance(...).duration(...).save()` style.
 - Added simple `test/...` recipes for Spring Coiling Machine, Hydraulic Press, Kinetic Lathe, Rolling Mill, and Wire Drawer through their existing material recipe providers.
+- Added bronze fluid transport blocks: `bronze_fluid_pipe`, `bronze_mechanical_pump`, and
+  `bronze_fluid_tank`. Create fluid transfer is scaled to 4x for normal/copper networks
+  (`512 mB/t` at `256 RPM`) and 16x for fully bronze networks (`2048 mB/t` at `256 RPM`).
+  Bronze tank capacity is `32000 mB`. Blocks have block items, creative tab entries,
+  translations, loot tables, Create-derived recolored models/textures, and Create compatibility
+  mixins for pipe/pump/tank recognition.
+- Follow-up bronze transport rendering pass: pump uses a local `BronzeMechanicalPumpRenderer` with
+  a bronze pump cog partial, pipe blockstate now renders Create-style core plus per-side connection
+  models, bronze pipe/pump/tank textures were regenerated from Create source textures with a browner
+  bronze palette, and bronze tank models explicitly use `minecraft:cutout_mipped` render type.

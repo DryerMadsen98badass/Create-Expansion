@@ -59,22 +59,22 @@ public final class SimpleBlockDefinition {
     public SimpleBlockDefinition(
             String id,
             String displayName,
-            String northTexture,
-            String eastTexture,
-            String southTexture,
-            String westTexture,
+            String frontTexture,
+            String backTexture,
+            String leftTexture,
+            String rightTexture,
             String topTexture,
             String bottomTexture
     ) {
         this(
                 id,
                 displayName,
-                northTexture,
+                frontTexture,
                 new FaceTextures(
-                        northTexture,
-                        eastTexture,
-                        southTexture,
-                        westTexture,
+                        frontTexture,
+                        backTexture,
+                        leftTexture,
+                        rightTexture,
                         topTexture,
                         bottomTexture
                 ),
@@ -516,10 +516,10 @@ public final class SimpleBlockDefinition {
             return;
         }
 
-        validateTexture(id, faceTextures.north());
-        validateTexture(id, faceTextures.east());
-        validateTexture(id, faceTextures.south());
-        validateTexture(id, faceTextures.west());
+        validateTexture(id, faceTextures.front());
+        validateTexture(id, faceTextures.back());
+        validateTexture(id, faceTextures.left());
+        validateTexture(id, faceTextures.right());
         validateTexture(id, faceTextures.top());
         validateTexture(id, faceTextures.bottom());
     }
@@ -566,10 +566,10 @@ public final class SimpleBlockDefinition {
     }
 
     public record FaceTextures(
-            String north,
-            String east,
-            String south,
-            String west,
+            String front,
+            String back,
+            String left,
+            String right,
             String top,
             String bottom
     ) {

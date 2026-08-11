@@ -1,0 +1,18 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 100,
+  "fluid_inputs": [
+    {
+      "amount": 250,
+      "fluid": "create_expansion:birch_sap"
+    }
+  ],
+  "fluid_outputs": [
+    {
+      "amount": 150,
+      "id": "create_expansion:birch_syrup"
+    }
+  ],
+  "recipe_type": "create_expansion:distillery",
+  "tier": "lv"
+}

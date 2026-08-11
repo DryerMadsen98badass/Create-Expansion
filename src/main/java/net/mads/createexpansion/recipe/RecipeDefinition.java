@@ -2,13 +2,13 @@ package net.mads.createexpansion.recipe;
 
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.machine.MachineTier;
-import net.mads.createexpansion.machine.MachineTierStats;
 import net.mads.createexpansion.machine.interaction.BlockInteraction;
 import net.mads.createexpansion.machine.interaction.MachineCondition;
 import net.mads.createexpansion.machine.interaction.MachineModifier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -17,6 +17,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 import java.util.ArrayList;
@@ -33,24 +34,29 @@ public final class RecipeDefinition {
     private RecipeTypeDefinition type;
     private String id;
     private final List<SizedIngredient> itemInputs = new ArrayList<>();
+    private final List<CEChancedItemInput> chancedItemInputs = new ArrayList<>();
     private final List<SizedFluidIngredient> fluidInputs = new ArrayList<>();
+    private final List<CEChancedFluidInput> chancedFluidInputs = new ArrayList<>();
     private final List<SizedIngredient> notConsumableItems = new ArrayList<>();
     private final List<SizedFluidIngredient> notConsumableFluids = new ArrayList<>();
     private final List<CEChancedItemOutput> itemOutputs = new ArrayList<>();
     private final List<FluidStack> fluidOutputs = new ArrayList<>();
+    private final List<CEChancedFluidOutput> chancedFluidOutputs = new ArrayList<>();
+    private Optional<ResourceLocation> treeSource = Optional.empty();
     private int duration = 100;
-    private int cet;
     private Optional<Integer> circuit = Optional.empty();
     private Optional<String> tier = Optional.empty();
-    private Optional<String> kineticTier = Optional.empty();
     private Optional<Integer> minRpm = Optional.empty();
     private Optional<Integer> maxRpm = Optional.empty();
+    private Optional<Integer> outputRpm = Optional.empty();
     private Optional<Integer> requiredTemp = Optional.empty();
+    private Optional<PhRange> phRange = Optional.empty();
     private final List<ResourceLocation> requiredLogic = new ArrayList<>();
     private final List<ResourceLocation> optionalLogic = new ArrayList<>();
     private final List<BlockInteraction> blockInteractions = new ArrayList<>();
     private final List<MachineCondition> conditions = new ArrayList<>();
     private final List<MachineModifier> modifiers = new ArrayList<>();
+    private boolean furnaceFuel;
 
     private RecipeDefinition() {
     }
@@ -96,9 +102,78 @@ public final class RecipeDefinition {
             return definition -> definition.itemInputs.add(SizedIngredient.of(itemTag(tagId), count));
         }
 
+        /** Adds an item input that must be present, but is only consumed when the chance succeeds. */
+        static Option chancedInput(String itemId, int count, int chance) {
+            return chancedInput(itemId, count, chance, 0);
+        }
+
+        /**
+         * Adds an item input that must be present, but is only consumed when the chance succeeds.
+         * Tier bonus is added once per runtime tier above the recipe baseline.
+         */
+        static Option chancedInput(String itemId, int count, int chance, int tierBonus) {
+            return definition -> definition.chancedItemInputs.add(new CEChancedItemInput(
+                    SizedIngredient.of(item(itemId), count),
+                    chance,
+                    tierBonus
+            ));
+        }
+
+        /** Adds an item input that must be present, but is only consumed when the chance succeeds. */
+        static Option chancedInput(ItemLike item, int count, int chance) {
+            return chancedInput(item, count, chance, 0);
+        }
+
+        /**
+         * Adds an item input that must be present, but is only consumed when the chance succeeds.
+         * Tier bonus is added once per runtime tier above the recipe baseline.
+         */
+        static Option chancedInput(ItemLike item, int count, int chance, int tierBonus) {
+            return definition -> definition.chancedItemInputs.add(new CEChancedItemInput(
+                    SizedIngredient.of(item, count),
+                    chance,
+                    tierBonus
+            ));
+        }
+
         /** Adds a consumed fluid input measured in millibuckets. */
         static Option inputFluid(String fluidId, int amount) {
             return definition -> definition.fluidInputs.add(SizedFluidIngredient.of(fluid(fluidId), amount));
+        }
+
+        /** Adds a consumed fluid-tag input measured in millibuckets. */
+        static Option inputFluidTag(String tagId, int amount) {
+            return definition -> definition.fluidInputs.add(sizedFluidTag(tagId, amount));
+        }
+
+        static Option chancedInputTag(String tagId, int count, int chance) {
+            return chancedInputTag(tagId, count, chance, 0);
+        }
+
+        static Option chancedInputTag(String tagId, int count, int chance, int tierBonus) {
+            return definition -> definition.chancedItemInputs.add(new CEChancedItemInput(
+                    SizedIngredient.of(itemTag(tagId), count), chance, tierBonus
+            ));
+        }
+
+        static Option chancedFluidInput(String fluidId, int amount, int chance) {
+            return chancedFluidInput(fluidId, amount, chance, 0);
+        }
+
+        static Option chancedFluidInput(String fluidId, int amount, int chance, int tierBonus) {
+            return definition -> definition.chancedFluidInputs.add(new CEChancedFluidInput(
+                    SizedFluidIngredient.of(fluid(fluidId), amount), chance, tierBonus
+            ));
+        }
+
+        static Option chancedFluidInputTag(String tagId, int amount, int chance) {
+            return chancedFluidInputTag(tagId, amount, chance, 0);
+        }
+
+        static Option chancedFluidInputTag(String tagId, int amount, int chance, int tierBonus) {
+            return definition -> definition.chancedFluidInputs.add(new CEChancedFluidInput(
+                    sizedFluidTag(tagId, amount), chance, tierBonus
+            ));
         }
 
         /** Adds an item requirement that must remain present and is not consumed. */
@@ -111,11 +186,17 @@ public final class RecipeDefinition {
             return definition -> definition.notConsumableItems.add(SizedIngredient.of(item, count));
         }
 
+        static Option notConsumableInputItemTag(String tagId, int count) {
+            return definition -> definition.notConsumableItems.add(SizedIngredient.of(itemTag(tagId), count));
+        }
+
         /** Adds a fluid requirement that must remain present and is not consumed. */
         static Option notConsumableFluid(String fluidId, int amount) {
-            return definition -> definition.notConsumableFluids.add(
-                    SizedFluidIngredient.of(fluid(fluidId), amount)
-            );
+            return definition -> definition.notConsumableFluids.add(SizedFluidIngredient.of(fluid(fluidId), amount));
+        }
+
+        static Option notConsumableFluidTag(String tagId, int amount) {
+            return definition -> definition.notConsumableFluids.add(sizedFluidTag(tagId, amount));
         }
 
         /** Adds an item output with a guaranteed result. */
@@ -138,9 +219,17 @@ public final class RecipeDefinition {
          * Adds a chanced item output. Chance uses the CE scale where
          * {@link CEChancedItemOutput#MAX_CHANCE} is guaranteed.
          */
-        static Option chancedOutput(String itemId, int count, int chance) {
+        static Option chancedOutputItem(String itemId, int count, int chance) {
+            return chancedOutputItem(itemId, count, chance, 0);
+        }
+
+        /**
+         * Adds a chanced item output. Tier bonus is added once per runtime tier
+         * above the recipe baseline and may be negative.
+         */
+        static Option chancedOutputItem(String itemId, int count, int chance, int tierBonus) {
             return definition -> definition.itemOutputs.add(
-                    new CEChancedItemOutput(new ItemStack(item(itemId), count), chance)
+                    new CEChancedItemOutput(new ItemStack(item(itemId), count), chance, tierBonus)
             );
         }
 
@@ -149,29 +238,36 @@ public final class RecipeDefinition {
             return definition -> definition.fluidOutputs.add(new FluidStack(fluid(fluidId), amount));
         }
 
+        static Option chancedFluidOutput(String fluidId, int amount, int chance) {
+            return chancedFluidOutput(fluidId, amount, chance, 0);
+        }
+
+        static Option chancedFluidOutput(String fluidId, int amount, int chance, int tierBonus) {
+            return definition -> definition.chancedFluidOutputs.add(new CEChancedFluidOutput(
+                    new FluidStack(fluid(fluidId), amount), chance, tierBonus
+            ));
+        }
+
+        /** Defines the naturally grown tree log represented by this recipe. */
+        static Option treeSource(String blockId) {
+            return definition -> definition.treeSource = Optional.of(resourceId(blockId));
+        }
+
+        /**
+         * Generates one normal recipe for every registered furnace fuel.
+         *
+         * <p>The generated recipe consumes one fuel item and uses one second of
+         * boiler duration for every item the fuel can smelt in a normal furnace.
+         * Since one furnace smelt takes 200 ticks and one boiler second is
+         * 20 ticks, the generated duration is {@code burnTime / 10}.</p>
+         */
+        static Option furnaceFuel() {
+            return definition -> definition.furnaceFuel = true;
+        }
+
         /** Defines the base processing duration in ticks. */
         static Option duration(int duration) {
             return definition -> definition.duration = duration;
-        }
-
-        /** Defines CE consumed per tick before tier runtime scaling. */
-        static Option CEt(int cet) {
-            return definition -> definition.cet = Math.abs(cet);
-        }
-
-        /** Defines CE consumed per tick from the selected voltage tier. */
-        static Option CEt(MachineTier tier) {
-            return CEt((int) Math.min(Integer.MAX_VALUE, Math.max(1L, MachineTierStats.ceTier(tier) / 2L)));
-        }
-
-        /** Defines CE generated per tick before tier runtime scaling. */
-        static Option generateCEt(int cet) {
-            return definition -> definition.cet = -Math.abs(cet);
-        }
-
-        /** Defines CE generated per tick from the selected voltage tier. */
-        static Option generateCEt(MachineTier tier) {
-            return generateCEt((int) Math.min(Integer.MAX_VALUE, Math.max(1L, MachineTierStats.ceTier(tier) / 2L)));
         }
 
         /** Requires an integrated circuit configuration from 1 through 32. */
@@ -187,11 +283,6 @@ public final class RecipeDefinition {
             return definition -> definition.tier = Optional.of(Objects.requireNonNull(tier).id());
         }
 
-        /** Defines the minimum kinetic tier allowed to run the recipe. */
-        static Option kinetic(MachineTier tier) {
-            return definition -> definition.kineticTier = Optional.of(Objects.requireNonNull(tier).id());
-        }
-
         /** Defines the minimum accepted rotational speed. */
         static Option minRpm(int rpm) {
             return definition -> definition.minRpm = Optional.of(rpm);
@@ -202,12 +293,9 @@ public final class RecipeDefinition {
             return definition -> definition.maxRpm = Optional.of(rpm);
         }
 
-        /** Defines the inclusive rotational speed range accepted by the recipe. */
-        static Option rpmRange(int minRpm, int maxRpm) {
-            return definition -> {
-                definition.minRpm = Optional.of(minRpm);
-                definition.maxRpm = Optional.of(maxRpm);
-            };
+        /** Defines the rotational speed produced while this recipe is active. */
+        static Option outputRpm(int rpm) {
+            return definition -> definition.outputRpm = Optional.of(rpm);
         }
 
         /** Defines the minimum machine or coil temperature required by the recipe. */
@@ -216,6 +304,12 @@ public final class RecipeDefinition {
                 throw new IllegalArgumentException("Temperature requirement must be positive");
             }
             return definition -> definition.requiredTemp = Optional.of(requiredTemperature);
+        }
+
+        /** Defines the inclusive pH range required while the recipe is selected and processing. */
+        static Option phRange(double minimum, double maximum) {
+            PhRange range = PhRange.of(minimum, maximum);
+            return definition -> definition.phRange = Optional.of(range);
         }
 
         /** Adds a custom logic requirement that must be available. */
@@ -259,24 +353,29 @@ public final class RecipeDefinition {
         return new CERecipe(
                 type.id(),
                 itemInputs,
+                chancedItemInputs,
                 fluidInputs,
+                chancedFluidInputs,
                 notConsumableItems,
                 notConsumableFluids,
                 itemOutputs,
                 fluidOutputs,
+                chancedFluidOutputs,
+                treeSource,
                 duration,
-                cet,
                 circuit,
                 tier,
-                kineticTier,
                 minRpm,
                 maxRpm,
+                outputRpm,
                 requiredTemp,
+                phRange,
                 requiredLogic,
                 optionalLogic,
                 blockInteractions,
                 conditions,
-                modifiers
+                modifiers,
+                furnaceFuel
         );
     }
 
@@ -291,27 +390,53 @@ public final class RecipeDefinition {
 
     private void validate() {
         validateIdentity();
+
         if (duration <= 0) {
             throw new IllegalStateException("Recipe " + id + " must have a positive duration");
         }
-        if (itemInputs.size() > type.maxItemInputs()) {
+        if (furnaceFuel && (!itemInputs.isEmpty() || !chancedItemInputs.isEmpty())) {
+            throw new IllegalStateException("Recipe " + id + " cannot combine Option.furnaceFuel() with normal item inputs");
+        }
+        if (furnaceFuel && treeSource.isPresent()) {
+            throw new IllegalStateException("Recipe " + id + " cannot combine Option.furnaceFuel() with treeSource");
+        }
+        if (furnaceFuel && type.maxItemInputs() < 1) {
+            throw new IllegalStateException("Recipe type " + type.id() + " does not have an item input slot for furnace fuel");
+        }
+        if (treeSource.isPresent() && (!itemInputs.isEmpty() || !chancedItemInputs.isEmpty())) {
+            throw new IllegalStateException("Recipe " + id + " cannot use both treeSource and item inputs");
+        }
+        if (itemInputs.size() + chancedItemInputs.size() + notConsumableItems.size() > type.maxItemInputs()) {
             throw new IllegalStateException("Recipe " + id + " has too many item inputs for " + type.id());
         }
+
+        validateCommonRecipeRules();
+    }
+
+    private void validateCommonRecipeRules() {
         if (itemOutputs.size() > type.maxItemOutputs()) {
             throw new IllegalStateException("Recipe " + id + " has too many item outputs for " + type.id());
         }
-        if (fluidInputs.size() > type.maxFluidInputs()) {
+        if (fluidInputs.size() + chancedFluidInputs.size() + notConsumableFluids.size() > type.maxFluidInputs()) {
             throw new IllegalStateException("Recipe " + id + " has too many fluid inputs for " + type.id());
         }
-        if (fluidOutputs.size() > type.maxFluidOutputs()) {
+        if (fluidOutputs.size() + chancedFluidOutputs.size() > type.maxFluidOutputs()) {
             throw new IllegalStateException("Recipe " + id + " has too many fluid outputs for " + type.id());
         }
-        if (!type.acceptsRpm() && (minRpm.isPresent() || maxRpm.isPresent() || kineticTier.isPresent())) {
-            throw new IllegalStateException("Recipe " + id + " uses RPM but " + type.id() + " does not allow RPM");
+        if (minRpm.isPresent() && (minRpm.get() < 1 || minRpm.get() > CERecipe.DEFAULT_MAX_RPM)) {
+            throw new IllegalStateException("Recipe " + id + " has min RPM outside 1-" + CERecipe.DEFAULT_MAX_RPM);
         }
-        validateEnergyMode();
+        if (maxRpm.isPresent() && (maxRpm.get() < 1 || maxRpm.get() > CERecipe.DEFAULT_MAX_RPM)) {
+            throw new IllegalStateException("Recipe " + id + " has max RPM outside 1-" + CERecipe.DEFAULT_MAX_RPM);
+        }
         if (maxRpm.isPresent() && minRpm.isPresent() && maxRpm.get() < minRpm.get()) {
             throw new IllegalStateException("Recipe " + id + " has max RPM lower than min RPM");
+        }
+        if (outputRpm.isPresent()
+                && (outputRpm.get() < 1 || outputRpm.get() > CERecipe.DEFAULT_MAX_RPM)) {
+            throw new IllegalStateException(
+                    "Recipe " + id + " has output RPM outside 1-" + CERecipe.DEFAULT_MAX_RPM
+            );
         }
         validateLogic(requiredLogic);
         validateLogic(optionalLogic);
@@ -336,22 +461,6 @@ public final class RecipeDefinition {
         }
     }
 
-    private void validateEnergyMode() {
-        if (cet == 0) {
-            return;
-        }
-        RecipeTypeDefinition.EnergyMode energyMode = type.energyMode();
-        if (energyMode == RecipeTypeDefinition.EnergyMode.NONE) {
-            throw new IllegalStateException("Recipe " + id + " uses CE but " + type.id() + " does not allow energy");
-        }
-        if (cet > 0 && energyMode == RecipeTypeDefinition.EnergyMode.GENERATES) {
-            throw new IllegalStateException("Recipe " + id + " consumes CE but " + type.id() + " only generates energy");
-        }
-        if (cet < 0 && energyMode == RecipeTypeDefinition.EnergyMode.CONSUMES) {
-            throw new IllegalStateException("Recipe " + id + " generates CE but " + type.id() + " only consumes energy");
-        }
-    }
-
     private static ResourceLocation resourceId(String id) {
         return id.contains(":")
                 ? ResourceLocation.parse(id)
@@ -368,5 +477,12 @@ public final class RecipeDefinition {
 
     private static TagKey<Item> itemTag(String tagId) {
         return ItemTags.create(resourceId(tagId));
+    }
+
+    private static SizedFluidIngredient sizedFluidTag(String tagId, int amount) {
+        return new SizedFluidIngredient(
+                FluidIngredient.tag(FluidTags.create(resourceId(tagId))),
+                amount
+        );
     }
 }

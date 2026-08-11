@@ -1,0 +1,28 @@
+{
+  "type": "create_expansion:centrifuging",
+  "ingredients": [
+    {
+      "count": 7,
+      "item": "create_expansion:deepslate_dust"
+    }
+  ],
+  "max_rpm": 256,
+  "min_rpm": 16,
+  "processing_time": 1400,
+  "results": [
+    {
+      "count": 3,
+      "id": "create_expansion:feldspar_dust"
+    },
+    {
+      "count": 2,
+      "id": "create_expansion:amphibole_dust"
+    },
+    {
+      "id": "create_expansion:iron_dust"
+    },
+    {
+      "id": "create_expansion:magnesium_dust"
+    }
+  ]
+}

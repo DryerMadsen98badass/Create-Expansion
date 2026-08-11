@@ -1,0 +1,26 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 400,
+  "fluid_inputs": [
+    {
+      "amount": 576,
+      "fluid": "create_expansion:molten_iron"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create:propeller"
+      }
+    }
+  ],
+  "not_consumable_items": [
+    {
+      "count": 1,
+      "tag": "create_expansion:cold_molds/rotor"
+    }
+  ],
+  "recipe_type": "create_expansion:fluid_solidifier",
+  "tier": "lv"
+}

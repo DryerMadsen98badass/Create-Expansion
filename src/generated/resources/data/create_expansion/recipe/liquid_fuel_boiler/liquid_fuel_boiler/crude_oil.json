@@ -1,0 +1,11 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 22,
+  "fluid_inputs": [
+    {
+      "amount": 1,
+      "fluid": "create_expansion:crude_oil"
+    }
+  ],
+  "recipe_type": "create_expansion:liquid_fuel_boiler"
+}

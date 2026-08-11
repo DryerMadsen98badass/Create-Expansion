@@ -12,6 +12,8 @@ import net.mads.createexpansion.registry.RecipeRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.Containers;
@@ -31,6 +33,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +44,7 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
     private final ItemStackHandler inputInv;
     private final ItemStackHandler outputInv;
     private final FluidTank inputTank;
-    private final FluidTank outputTank;
+    private final List<FluidTank> outputTanks;
     private final IItemHandler itemCapability;
     private final IFluidHandler fluidCapability;
     private int timer;
@@ -53,7 +56,7 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
         this.inputInv = createInventory(1);
         this.outputInv = createInventory(9);
         this.inputTank = createTank();
-        this.outputTank = createTank();
+        this.outputTanks = List.of(createTank(), createTank());
         this.itemCapability = new CentrifugeInventoryHandler();
         this.fluidCapability = new CentrifugeFluidHandler();
     }
@@ -191,7 +194,11 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
         tag.put("InputInventory", inputInv.serializeNBT(registries));
         tag.put("OutputInventory", outputInv.serializeNBT(registries));
         tag.put("InputTank", inputTank.writeToNBT(registries, new CompoundTag()));
-        tag.put("OutputTank", outputTank.writeToNBT(registries, new CompoundTag()));
+        ListTag outputTankTags = new ListTag();
+        for (FluidTank outputTank : outputTanks) {
+            outputTankTags.add(outputTank.writeToNBT(registries, new CompoundTag()));
+        }
+        tag.put("OutputTanks", outputTankTags);
         super.write(tag, registries, clientPacket);
     }
 
@@ -208,8 +215,14 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
         if (tag.contains("InputTank")) {
             inputTank.readFromNBT(registries, tag.getCompound("InputTank"));
         }
-        if (tag.contains("OutputTank")) {
-            outputTank.readFromNBT(registries, tag.getCompound("OutputTank"));
+        outputTanks.forEach(tank -> tank.setFluid(FluidStack.EMPTY));
+        if (tag.contains("OutputTanks", Tag.TAG_LIST)) {
+            ListTag outputTankTags = tag.getList("OutputTanks", Tag.TAG_COMPOUND);
+            for (int i = 0; i < Math.min(outputTanks.size(), outputTankTags.size()); i++) {
+                outputTanks.get(i).readFromNBT(registries, outputTankTags.getCompound(i));
+            }
+        } else if (tag.contains("OutputTank")) {
+            outputTanks.getFirst().readFromNBT(registries, tag.getCompound("OutputTank"));
         }
         super.read(tag, registries, clientPacket);
     }
@@ -238,7 +251,7 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
             outputInv.setStackInSlot(slot, ItemStack.EMPTY);
         }
         inputTank.setFluid(FluidStack.EMPTY);
-        outputTank.setFluid(FluidStack.EMPTY);
+        outputTanks.forEach(tank -> tank.setFluid(FluidStack.EMPTY));
     }
 
     private void process() {
@@ -277,7 +290,7 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
         lastRecipe.rollItemResults(level.random)
                 .forEach(stack -> ItemHandlerHelper.insertItemStacked(outputInv, stack, false));
         for (FluidStack stack : lastRecipe.fluidResults()) {
-            outputTank.fill(stack, FluidAction.EXECUTE);
+            fillOutputTanks(outputTanks, stack, FluidAction.EXECUTE);
         }
 
         timer = 0;
@@ -306,28 +319,46 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
     }
 
     private boolean canFitFluidResults(CentrifugingRecipe recipe) {
-        FluidStack simulated = outputTank.getFluid().copy();
-        int capacity = outputTank.getCapacity();
+        List<FluidTank> simulated = new ArrayList<>();
+        for (FluidTank tank : outputTanks) {
+            FluidTank copy = new FluidTank(tank.getCapacity());
+            copy.setFluid(tank.getFluid().copy());
+            simulated.add(copy);
+        }
         for (FluidStack output : recipe.fluidResults()) {
-            if (output.isEmpty()) {
-                continue;
-            }
-            if (simulated.isEmpty()) {
-                simulated = output.copy();
-                if (simulated.getAmount() > capacity) {
-                    return false;
-                }
-                continue;
-            }
-            if (!FluidStack.isSameFluidSameComponents(simulated, output)) {
-                return false;
-            }
-            simulated.grow(output.getAmount());
-            if (simulated.getAmount() > capacity) {
+            if (fillOutputTanks(simulated, output, FluidAction.EXECUTE) < output.getAmount()) {
                 return false;
             }
         }
         return true;
+    }
+
+    private static int fillOutputTanks(List<FluidTank> tanks, FluidStack output, FluidAction action) {
+        if (output.isEmpty()) {
+            return 0;
+        }
+
+        int filled = 0;
+        for (FluidTank tank : tanks) {
+            if (tank.getFluid().isEmpty()
+                    || !FluidStack.isSameFluidSameComponents(tank.getFluid(), output)) {
+                continue;
+            }
+            filled += tank.fill(output.copyWithAmount(output.getAmount() - filled), action);
+            if (filled >= output.getAmount()) {
+                return filled;
+            }
+        }
+        for (FluidTank tank : tanks) {
+            if (!tank.getFluid().isEmpty()) {
+                continue;
+            }
+            filled += tank.fill(output.copyWithAmount(output.getAmount() - filled), action);
+            if (filled >= output.getAmount()) {
+                return filled;
+            }
+        }
+        return filled;
     }
 
     private boolean canAcceptItem(ItemStack stack) {
@@ -427,17 +458,29 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
     private class CentrifugeFluidHandler implements IFluidHandler {
         @Override
         public int getTanks() {
-            return 2;
+            return 1 + outputTanks.size();
         }
 
         @Override
         public FluidStack getFluidInTank(int tank) {
-            return tank == 0 ? inputTank.getFluid() : outputTank.getFluid();
+            if (tank == 0) {
+                return inputTank.getFluid();
+            }
+            int outputIndex = tank - 1;
+            return outputIndex >= 0 && outputIndex < outputTanks.size()
+                    ? outputTanks.get(outputIndex).getFluid()
+                    : FluidStack.EMPTY;
         }
 
         @Override
         public int getTankCapacity(int tank) {
-            return tank == 0 ? inputTank.getCapacity() : outputTank.getCapacity();
+            if (tank == 0) {
+                return inputTank.getCapacity();
+            }
+            int outputIndex = tank - 1;
+            return outputIndex >= 0 && outputIndex < outputTanks.size()
+                    ? outputTanks.get(outputIndex).getCapacity()
+                    : 0;
         }
 
         @Override
@@ -458,7 +501,25 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
             if (isSpinning() || resource.isEmpty()) {
                 return FluidStack.EMPTY;
             }
-            return outputTank.drain(resource, action);
+
+            FluidStack drained = resource.copyWithAmount(0);
+            int remaining = resource.getAmount();
+            for (FluidTank tank : outputTanks) {
+                FluidStack part = tank.drain(resource.copyWithAmount(remaining), action);
+                if (part.isEmpty()) {
+                    continue;
+                }
+                if (drained.isEmpty()) {
+                    drained = part.copy();
+                } else {
+                    drained.grow(part.getAmount());
+                }
+                remaining -= part.getAmount();
+                if (remaining <= 0) {
+                    break;
+                }
+            }
+            return drained;
         }
 
         @Override
@@ -466,7 +527,13 @@ public class KineticCentrifugeBlockEntity extends KineticBlockEntity implements 
             if (isSpinning() || maxDrain <= 0) {
                 return FluidStack.EMPTY;
             }
-            return outputTank.drain(maxDrain, action);
+
+            for (FluidTank tank : outputTanks) {
+                if (!tank.getFluid().isEmpty()) {
+                    return drain(tank.getFluid().copyWithAmount(maxDrain), action);
+                }
+            }
+            return FluidStack.EMPTY;
         }
     }
 }

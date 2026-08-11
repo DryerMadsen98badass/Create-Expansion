@@ -1,0 +1,14 @@
+{
+  "type": "create_expansion:hydraulic_pressing",
+  "blows": 3,
+  "ingredients": [
+    {
+      "item": "create_expansion:rubber_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:rubber_plate"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "create_expansion:stainless_bronze_plate"
+    },
+    "B": {
+      "item": "create_expansion:stainless_bronze_ingot"
+    }
+  },
+  "pattern": [
+    "ABA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_expansion:stainless_bronze_fluid_pipe"
+  }
+}

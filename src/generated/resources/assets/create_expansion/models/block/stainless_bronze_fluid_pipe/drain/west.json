@@ -1,0 +1,159 @@
+{
+  "credit": "Made with Blockbench",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#0",
+          "uv": [
+            9,
+            16,
+            10.5,
+            11
+          ]
+        },
+        "east": {
+          "texture": "#0",
+          "uv": [
+            16,
+            11,
+            11,
+            16
+          ]
+        },
+        "north": {
+          "texture": "#0",
+          "uv": [
+            10.5,
+            16,
+            9,
+            11
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            9,
+            11,
+            10.5,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#0",
+          "uv": [
+            9,
+            11,
+            10.5,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            16,
+            11,
+            11,
+            16
+          ]
+        }
+      },
+      "from": [
+        -1.1,
+        2.95,
+        2.95
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          8
+        ]
+      },
+      "to": [
+        2,
+        13.05,
+        13.05
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#0",
+          "uv": [
+            13.5,
+            8,
+            12,
+            11
+          ]
+        },
+        "north": {
+          "rotation": 180,
+          "texture": "#0",
+          "uv": [
+            13.5,
+            8,
+            12,
+            11
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            13.5,
+            8,
+            12,
+            11
+          ]
+        },
+        "up": {
+          "texture": "#0",
+          "uv": [
+            13.5,
+            8,
+            12,
+            11
+          ]
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            16,
+            8,
+            13,
+            11
+          ]
+        }
+      },
+      "from": [
+        -3.95,
+        4.95,
+        4.95
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          8
+        ]
+      },
+      "to": [
+        -0.95,
+        11.05,
+        11.05
+      ]
+    }
+  ],
+  "texture_size": [
+    32,
+    32
+  ],
+  "textures": {
+    "0": "create_expansion:block/stainless_bronze_pipes",
+    "particle": "create_expansion:block/stainless_bronze_pipes"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "minecraft:stripped_acacia_wood"
+  },
+  "inputs": [
+    {
+      "count": 4,
+      "item": "minecraft:copper_ingot"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:treated_wood_gear"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:treated_wood_screw"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:treated_wood_small_gear"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:treated_wood_screw"
+    },
+    {
+      "count": 4,
+      "item": "minecraft:copper_ingot"
+    }
+  ],
+  "result": {
+    "id": "create:copper_casing"
+  }
+}

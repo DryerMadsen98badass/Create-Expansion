@@ -1,0 +1,23 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create:andesite_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:fluid_tank"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:andesite_alloy_bolt"
+    },
+    {
+      "count": 4,
+      "item": "create_expansion:wood_screw"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:tree_extractor"
+  }
+}

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:wolframite_netherrack_ore",
-    "create_expansion:wolframite_deepslate_ore",
-    "create_expansion:wolframite_andesite_ore",
-    "create_expansion:wolframite_end_stone_ore",
     "create_expansion:wolframite_diorite_ore",
-    "create_expansion:wolframite_tuff_ore",
+    "create_expansion:wolframite_granite_ore",
+    "create_expansion:wolframite_netherrack_ore",
     "create_expansion:wolframite_blackstone_ore",
     "create_expansion:wolframite_ore",
-    "create_expansion:wolframite_granite_ore"
+    "create_expansion:wolframite_deepslate_ore",
+    "create_expansion:wolframite_tuff_ore",
+    "create_expansion:wolframite_andesite_ore",
+    "create_expansion:wolframite_end_stone_ore"
   ]
 }

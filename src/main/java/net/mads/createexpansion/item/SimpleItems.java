@@ -33,12 +33,14 @@ public final class SimpleItems {
             item("biomass_briquette", "Biomass Briquette").furnaceFuel(12),
             item("biomass", "Biomass"),
             item("wet_biomass", "Wet Biomass"),
-            item("biofuel_catalyst", "Biofuel Catalyst").durability(64),
             item("plant_wax", "Plant Wax"),
             item("plant_fiber", "Plant Fiber"),
+            item("empty_glue", "Empty Glue"),
+            item("stainless_bronze_hand", "Stainless Bronze Hand"),
 
             itemColor("seared_dust", "Seared Dust", "item/material_sets/dull/dust", 0x3b3b3b),
-            itemColor("seared_brick", "Seared Brick", "item/material_sets/dull/ingot_hot", 0x3b3b3b)
+            itemColor("seared_brick", "Seared Brick", "item/material_sets/dull/ingot_hot", 0x3b3b3b),
+            itemColor("treated_leather", "Treated Leather", "item/standalone/materials/leather", 0x5b0000)
     );
 
     private SimpleItems() {

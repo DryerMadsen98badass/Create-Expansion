@@ -14,17 +14,25 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.mads.createexpansion.client.gui.CEMachineGuiTextures;
 import net.mads.createexpansion.gui.MachineGuiLayout;
+import net.mads.createexpansion.machine.MachineDrive;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.MachineTierStats;
+import net.mads.createexpansion.recipe.CEChancedItemInput;
+import net.mads.createexpansion.recipe.CEChancedFluidInput;
+import net.mads.createexpansion.recipe.CEChancedFluidOutput;
 import net.mads.createexpansion.recipe.CEChancedItemOutput;
 import net.mads.createexpansion.recipe.CERecipe;
+import net.mads.createexpansion.recipe.PhRange;
 import net.mads.createexpansion.recipe.RecipeTypeDefinition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
@@ -35,8 +43,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-public class CERecipeCategory implements IRecipeCategory<CERecipe> {
+public class CERecipeCategory implements IRecipeCategory<RecipeHolder<CERecipe>> {
     private static final int MIN_WIDTH = 176;
     private static final int TOP = 22;
     private static final int LEFT_X = 8;
@@ -49,12 +58,12 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
     private static final int TIER_BUTTON_WIDTH = 39;
     private static final int TIER_BUTTON_HEIGHT = 13;
     private final RecipeTypeDefinition recipeType;
-    private final RecipeType<CERecipe> jeiRecipeType;
+    private final RecipeType<RecipeHolder<CERecipe>> jeiRecipeType;
     private final IDrawable icon;
     private final MachineGuiLayout layout;
     private final Map<CERecipe, Integer> selectedTierIndexes = new HashMap<>();
 
-    public CERecipeCategory(RecipeTypeDefinition recipeType, RecipeType<CERecipe> jeiRecipeType, IGuiHelper guiHelper, ItemStack icon) {
+    public CERecipeCategory(RecipeTypeDefinition recipeType, RecipeType<RecipeHolder<CERecipe>> jeiRecipeType, IGuiHelper guiHelper, ItemStack icon) {
         this.recipeType = recipeType;
         this.jeiRecipeType = jeiRecipeType;
         this.icon = guiHelper.createDrawableItemStack(icon);
@@ -68,7 +77,7 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
     }
 
     @Override
-    public RecipeType<CERecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<CERecipe>> getRecipeType() {
         return jeiRecipeType;
     }
 
@@ -99,30 +108,33 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, CERecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<CERecipe> holder, IFocusGroup focuses) {
+        CERecipe recipe = holder.value();
         List<SizedIngredient> itemInputs = itemInputs(recipe);
         List<SizedFluidIngredient> fluidInputs = fluidInputs(recipe);
         List<CEChancedItemOutput> itemOutputs = recipe.itemOutputs();
-        List<FluidStack> fluidOutputs = recipe.fluidOutputs();
+        List<CEChancedFluidOutput> fluidOutputs = fluidOutputs(recipe);
 
         int itemInputSlots = itemInputSlotCount(itemInputs);
         int fluidInputSlots = fluidInputSlotCount(fluidInputs);
         int itemOutputSlots = itemOutputSlotCount(itemOutputs);
         int fluidOutputSlots = fluidOutputSlotCount(fluidOutputs);
 
-        addItemInputs(builder, itemInputSlots, itemInputs);
-        addFluidInputs(builder, itemInputSlots, fluidInputSlots, fluidInputs);
-        addItemOutputs(builder, itemOutputSlots, itemOutputs);
-        addFluidOutputs(builder, itemOutputSlots, fluidOutputSlots, fluidOutputs);
+        addItemInputs(builder, itemInputSlots, itemInputs, recipe);
+        addFluidInputs(builder, itemInputSlots, fluidInputSlots, fluidInputs, recipe);
+        addItemOutputs(builder, itemOutputSlots, itemOutputs, recipe);
+        addFluidOutputs(builder, itemOutputSlots, fluidOutputSlots, fluidOutputs, recipe);
     }
 
     @Override
-    public void createRecipeExtras(IRecipeExtrasBuilder builder, CERecipe recipe, IFocusGroup focuses) {
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, RecipeHolder<CERecipe> holder, IFocusGroup focuses) {
+        CERecipe recipe = holder.value();
         builder.addGuiEventListener(new TierButtonListener(this, recipe));
     }
 
     @Override
-    public void draw(CERecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(RecipeHolder<CERecipe> holder, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        CERecipe recipe = holder.value();
         var font = Minecraft.getInstance().font;
         int height = getHeight();
         MachineTier selectedTier = selectedTier(recipe);
@@ -134,7 +146,7 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
         List<SizedIngredient> itemInputs = itemInputs(recipe);
         List<SizedFluidIngredient> fluidInputs = fluidInputs(recipe);
         List<CEChancedItemOutput> itemOutputs = recipe.itemOutputs();
-        List<FluidStack> fluidOutputs = recipe.fluidOutputs();
+        List<CEChancedFluidOutput> fluidOutputs = fluidOutputs(recipe);
 
         int itemInputSlots = itemInputSlotCount(itemInputs);
         int fluidInputSlots = fluidInputSlotCount(fluidInputs);
@@ -142,8 +154,9 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
         int fluidOutputSlots = fluidOutputSlotCount(fluidOutputs);
 
         drawSlots(guiGraphics, itemInputSlots, fluidInputSlots, itemOutputSlots, fluidOutputSlots);
+        drawBaseBlockInput(guiGraphics, font, itemInputSlots);
         int contentHeight = layout.contentHeight();
-        int runtimeDuration = Math.max(1, recipe.runtimeDuration(selectedTier, recipe.baseRpm()));
+        int runtimeDuration = Math.max(1, recipe.runtimeDuration(selectedTier, MachineDrive.NONE, 0));
         long cycle = runtimeDuration * 50L;
         float progress = (System.currentTimeMillis() % cycle) / (float) cycle;
         drawProgressBar(guiGraphics, progress);
@@ -151,7 +164,8 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
     }
 
     @Override
-    public void getTooltip(ITooltipBuilder tooltip, CERecipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+    public void getTooltip(ITooltipBuilder tooltip, RecipeHolder<CERecipe> holder, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+        CERecipe recipe = holder.value();
         int infoY = layout.machineTop() + layout.contentHeight() + 12;
         MachineTier selectedTier = selectedTier(recipe);
 
@@ -164,22 +178,50 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
 
         if (mouseX >= 8 && mouseX <= getWidth() - 8 && mouseY >= infoY && mouseY <= getHeight() - 6) {
             tooltip.add(Component.literal("Duration: " + durationText(recipe, selectedTier) + " ticks"));
-            if (recipe.cet() != 0) {
-                tooltip.add(Component.literal((recipe.generatesEnergy() ? "Generates: " : "Consumes: ") + recipe.runtimeCEt(selectedTier) + " CE/t"));
-            }
             recipe.minRpm().ifPresent(min -> tooltip.add(Component.literal("Minimum RPM: " + min)));
             recipe.effectiveMaxRpm().ifPresent(max -> tooltip.add(Component.literal("Maximum RPM: " + max)));
             recipe.circuit().ifPresent(circuit -> tooltip.add(Component.literal("Circuit: " + circuit)));
             recipe.minimumRuntimeTier().ifPresent(tier -> tooltip.add(Component.literal("Required Tier: " + tier.displayName() + "+")));
+            recipe.phRange().ifPresent(range -> tooltip.add(Component.literal(
+                    "Required pH: " + PhRange.formatHundredths(range.minHundredths())
+                            + "-" + PhRange.formatHundredths(range.maxHundredths())
+            )));
         }
     }
 
-    private void addItemInputs(IRecipeLayoutBuilder builder, int slotCount, List<SizedIngredient> inputs) {
+    private void addItemInputs(IRecipeLayoutBuilder builder, int slotCount, List<SizedIngredient> inputs, CERecipe recipe) {
+        boolean hasTreeSource = recipe.treeSource().isPresent();
+        int chancedInputStart = (hasTreeSource ? 1 : 0) + recipe.itemInputs().size();
         for (int i = 0; i < slotCount; i++) {
             IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, layout.inputItemX(i), layout.inputItemY(i));
 
             if (i < inputs.size()) {
                 slot.addItemStacks(stacksWithCount(inputs.get(i)));
+            }
+
+            if (i == recipeType.baseBlockItemInputIndex()) {
+                slot.addTooltipCallback((slotView, tooltip) -> tooltip.add(Component.literal("Base Block")));
+            }
+
+            if (hasTreeSource && i == 0) {
+                slot.addTooltipCallback((slotView, tooltip) -> {
+                    tooltip.add(Component.literal("Represents a naturally grown tree."));
+                    tooltip.add(Component.literal("This log is not inserted into the machine."));
+                });
+            }
+
+            int chancedIndex = i - chancedInputStart;
+            if (chancedIndex >= 0 && chancedIndex < recipe.chancedItemInputs().size()) {
+                CEChancedItemInput input = recipe.chancedItemInputs().get(chancedIndex);
+                slot.addTooltipCallback((slotView, tooltip) -> addChanceTooltip(
+                        tooltip,
+                        "Consume Chance",
+                        input.chance(),
+                        input.tierBonus(),
+                        input.effectiveChance(Optional.of(selectedTier(recipe)), recipe.requiredTier())
+                ));
+            } else if (i >= chancedInputStart + recipe.chancedItemInputs().size() && i < inputs.size()) {
+                slot.addTooltipCallback((slotView, tooltip) -> tooltip.add(Component.literal("Not consumed")));
             }
         }
     }
@@ -196,29 +238,72 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
                 .toList();
     }
 
-    private void addFluidInputs(IRecipeLayoutBuilder builder, int itemInputCount, int slotCount, List<SizedFluidIngredient> inputs) {
+    private void addFluidInputs(IRecipeLayoutBuilder builder, int itemInputCount, int slotCount, List<SizedFluidIngredient> inputs, CERecipe recipe) {
+        int chancedStart = recipe.fluidInputs().size();
+        int notConsumableStart = chancedStart + recipe.chancedFluidInputs().size();
         for (int i = 0; i < slotCount; i++) {
             IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, layout.inputFluidX(i), layout.inputFluidY(i));
-            if (i < inputs.size()) {
-                addFluidIngredient(slot, inputs.get(i));
+            if (i < inputs.size()) addFluidIngredient(slot, inputs.get(i));
+            if (i >= chancedStart && i < notConsumableStart) {
+                CEChancedFluidInput input = recipe.chancedFluidInputs().get(i - chancedStart);
+                slot.addTooltipCallback((view, tooltip) -> addChanceTooltip(tooltip, "Consume Chance", input.chance(), input.tierBonus(), input.effectiveChance(Optional.of(selectedTier(recipe)), recipe.requiredTier())));
+            } else if (i >= notConsumableStart && i < inputs.size()) {
+                slot.addTooltipCallback((view, tooltip) -> tooltip.add(Component.literal("Not consumed")));
             }
         }
     }
 
-    private void addItemOutputs(IRecipeLayoutBuilder builder, int slotCount, List<CEChancedItemOutput> outputs) {
+    private void addItemOutputs(IRecipeLayoutBuilder builder, int slotCount, List<CEChancedItemOutput> outputs, CERecipe recipe) {
         for (int i = 0; i < slotCount; i++) {
             IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, layout.outputItemX(i), layout.outputItemY(i));
             if (i < outputs.size()) {
-                slot.addItemStack(outputs.get(i).stack());
+                CEChancedItemOutput output = outputs.get(i);
+                slot.addItemStack(output.stack());
+                if (!output.guaranteed() || output.tierBonus() != 0) {
+                    slot.addTooltipCallback((slotView, tooltip) -> addChanceTooltip(
+                            tooltip,
+                            "Output Chance",
+                            output.chance(),
+                            output.tierBonus(),
+                            output.effectiveChance(Optional.of(selectedTier(recipe)), recipe.requiredTier())
+                    ));
+                }
             }
         }
     }
 
-    private void addFluidOutputs(IRecipeLayoutBuilder builder, int itemOutputCount, int slotCount, List<FluidStack> outputs) {
+    private static void addChanceTooltip(
+            List<Component> tooltip,
+            String label,
+            int baseChance,
+            int tierBonus,
+            int effectiveChance
+    ) {
+        tooltip.add(Component.literal(label + ": " + chanceText(effectiveChance)));
+        if (tierBonus != 0) {
+            String sign = tierBonus > 0 ? "+" : "";
+            tooltip.add(Component.literal("Base: " + chanceText(baseChance) + ", Tier: " + sign + chanceText(tierBonus) + " each"));
+        }
+    }
+
+    private static String chanceText(int chance) {
+        int absolute = Math.abs(chance);
+        String sign = chance < 0 ? "-" : "";
+        if (absolute % 100 == 0) {
+            return sign + (absolute / 100) + "%";
+        }
+        return sign + String.format(java.util.Locale.ROOT, "%.2f", absolute / 100.0F) + "%";
+    }
+
+    private void addFluidOutputs(IRecipeLayoutBuilder builder, int itemOutputCount, int slotCount, List<CEChancedFluidOutput> outputs, CERecipe recipe) {
         for (int i = 0; i < slotCount; i++) {
             IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, layout.outputFluidX(i), layout.outputFluidY(i));
             if (i < outputs.size()) {
-                addFluidStack(slot, outputs.get(i));
+                CEChancedFluidOutput output = outputs.get(i);
+                addFluidStack(slot, output.stack());
+                if (output.chance() < CEChancedFluidOutput.MAX_CHANCE || output.tierBonus() != 0) {
+                    slot.addTooltipCallback((view, tooltip) -> addChanceTooltip(tooltip, "Output Chance", output.chance(), output.tierBonus(), output.effectiveChance(Optional.of(selectedTier(recipe)), recipe.requiredTier())));
+                }
             }
         }
     }
@@ -274,6 +359,30 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
         }
     }
 
+
+    private void drawBaseBlockInput(GuiGraphics graphics, net.minecraft.client.gui.Font font, int itemInputSlots) {
+        int index = recipeType.baseBlockItemInputIndex();
+        if (index < 0 || index >= itemInputSlots) {
+            return;
+        }
+
+        int contentX = layout.inputItemX(index);
+        int contentY = layout.inputItemY(index);
+        int frameX = contentX - 1;
+        int frameY = contentY - 1;
+        int highlight = 0xFF42B94D;
+
+        graphics.fill(frameX - 1, frameY - 1, frameX + SLOT + 1, frameY, highlight);
+        graphics.fill(frameX - 1, frameY + SLOT, frameX + SLOT + 1, frameY + SLOT + 1, highlight);
+        graphics.fill(frameX - 1, frameY, frameX, frameY + SLOT, highlight);
+        graphics.fill(frameX + SLOT, frameY, frameX + SLOT + 1, frameY + SLOT, highlight);
+
+        String label = "Base Block";
+        int labelX = contentX + 8 - font.width(label) / 2;
+        int labelY = Math.max(3, frameY - 10);
+        graphics.drawString(font, label, labelX, labelY, highlight, false);
+    }
+
     private void drawProgressBar(GuiGraphics guiGraphics, float progress) {
         CEMachineGuiTextures.drawProgressBar(
                 guiGraphics,
@@ -287,17 +396,15 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
     private void drawInfo(GuiGraphics guiGraphics, net.minecraft.client.gui.Font font, CERecipe recipe, MachineTier selectedTier, int startY) {
         List<String> lines = new ArrayList<>();
         lines.add("Duration: " + durationText(recipe, selectedTier) + " t");
-        if (recipe.cet() != 0) {
-            lines.add((recipe.generatesEnergy() ? "Generation: " : "Energy: ") + recipe.runtimeCEt(selectedTier) + " CE/t");
-        }
         if (recipe.minRpm().isPresent() || recipe.maxRpm().isPresent()) {
             lines.add("RPM: " + rpmText(recipe));
         }
         recipe.circuit().ifPresent(circuit -> lines.add("Circuit: " + circuit));
-        recipe.requiredKineticTier().ifPresent(tier -> lines.add("Kinetic: " + tier.displayName() + "+"));
-        if (recipe.requiredKineticTier().isEmpty()) {
-            recipe.minimumRuntimeTier().ifPresent(tier -> lines.add("Tier: " + tier.displayName() + "+"));
-        }
+        recipe.minimumRuntimeTier().ifPresent(tier -> lines.add("Tier: " + tier.displayName() + "+"));
+        recipe.phRange().ifPresent(range -> lines.add(
+                "pH: " + PhRange.formatHundredths(range.minHundredths())
+                        + "-" + PhRange.formatHundredths(range.maxHundredths())
+        ));
 
         for (int i = 0; i < lines.size(); i++) {
             int y = startY + i * INFO_ROW_HEIGHT;
@@ -306,13 +413,7 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
     }
 
     private static String durationText(CERecipe recipe, MachineTier selectedTier) {
-        int slowRpm = recipe.minRpm().orElse(1);
-        int slow = recipe.runtimeDuration(selectedTier, slowRpm);
-        int base = recipe.runtimeDuration(selectedTier, recipe.baseRpm());
-        int fast = recipe.effectiveMaxRpm()
-                .map(max -> recipe.runtimeDuration(selectedTier, max))
-                .orElse(base);
-        return fast == slow ? Integer.toString(slow) : fast + "-" + slow;
+        return Integer.toString(recipe.runtimeDuration(selectedTier, MachineDrive.NONE, 0));
     }
 
     private static String rpmText(CERecipe recipe) {
@@ -368,15 +469,31 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
     }
 
     private static List<SizedIngredient> itemInputs(CERecipe recipe) {
-        List<SizedIngredient> inputs = new ArrayList<>(recipe.itemInputs());
+        List<SizedIngredient> inputs = new ArrayList<>();
+
+        recipe.treeSource()
+                .map(BuiltInRegistries.BLOCK::get)
+                .filter(block -> block != Blocks.AIR)
+                .ifPresent(block -> inputs.add(SizedIngredient.of(block, 1)));
+
+        inputs.addAll(recipe.itemInputs());
+        recipe.chancedItemInputs().forEach(input -> inputs.add(input.ingredient()));
         inputs.addAll(recipe.notConsumableItems());
         return inputs;
     }
 
     private static List<SizedFluidIngredient> fluidInputs(CERecipe recipe) {
         List<SizedFluidIngredient> inputs = new ArrayList<>(recipe.fluidInputs());
+        recipe.chancedFluidInputs().forEach(input -> inputs.add(input.ingredient()));
         inputs.addAll(recipe.notConsumableFluids());
         return inputs;
+    }
+
+    private static List<CEChancedFluidOutput> fluidOutputs(CERecipe recipe) {
+        List<CEChancedFluidOutput> outputs = new ArrayList<>();
+        recipe.fluidOutputs().forEach(stack -> outputs.add(new CEChancedFluidOutput(stack, CEChancedFluidOutput.MAX_CHANCE, 0)));
+        outputs.addAll(recipe.chancedFluidOutputs());
+        return outputs;
     }
 
     private int itemInputSlotCount() {
@@ -407,7 +524,7 @@ public class CERecipeCategory implements IRecipeCategory<CERecipe> {
         return recipeType.maxFluidOutputs();
     }
 
-    private int fluidOutputSlotCount(List<FluidStack> outputs) {
+    private int fluidOutputSlotCount(List<CEChancedFluidOutput> outputs) {
         return Math.max(fluidOutputSlotCount(), outputs.size());
     }
 

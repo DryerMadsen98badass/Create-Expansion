@@ -1,0 +1,62 @@
+Bronze fluid transport
+======================
+
+Implemented blocks:
+- `create_expansion:bronze_fluid_pipe`
+- `create_expansion:bronze_mechanical_pump`
+- `create_expansion:bronze_fluid_tank`
+
+Core classes:
+- `net.mads.createexpansion.transport.BronzeFluidPipeBlock`
+- `net.mads.createexpansion.transport.BronzeMechanicalPumpBlock`
+- `net.mads.createexpansion.transport.BronzeFluidTankBlock`
+- Matching block entities live in the same package.
+- `BronzeTransportBlocks` is the shared tier helper used by mixins.
+
+Rates:
+- Create base code computes roughly `transferSpeed = pressure / 2`.
+- `FluidNetworkMixin` multiplies normal/copper transfer speed by `4`.
+- Fully bronze networks multiply transfer speed by `16`.
+- At `256 RPM`, normal/copper tier is `512 mB/t`.
+- At `256 RPM`, bronze-only tier is `2048 mB/t`.
+
+Bronze-only rule:
+- The bronze multiplier applies only when the network discovered from the active flow start is made
+  of bronze transport blocks.
+- If the bronze route touches normal/copper Create pipe/pump/tank blocks, it falls back to the
+  copper-tier multiplier.
+
+Tank:
+- `BronzeFluidTankBlockEntity#createInventory()` returns a `SmartFluidTank` with `32000 mB`.
+- `BronzeFluidTankBlockEntity#getTankSize()` and `setTankSize()` are overridden so Create
+  multiblock tank capacity, goggles/tooltip storage size, and controller resizing use `32000 mB`
+  per tank block instead of Create's config default.
+- The block exposes fluid capability through `BlockEntityRegistry.registerCapabilities`.
+
+Create compatibility:
+- `FluidPipeBlockMixin` makes Create treat bronze pipe as a pipe.
+- `PumpBlockMixin` makes Create treat bronze pump as a pump.
+- `FluidTankBlockMixin` makes Create treat bronze tank as a tank.
+- `FluidNetworkMixin` applies the copper/bronze transfer multipliers.
+- Client renderer setup registers `BronzeMechanicalPumpRenderer` for the bronze pump block entity.
+  It is a local copy of Create's pump renderer behavior, but points at
+  `CreateExpansionPartialModels.BRONZE_MECHANICAL_PUMP_COG` so the rotating cog is rendered for the
+  custom block entity instead of relying on Create's hardcoded pump partial.
+
+Resources:
+- Models and blockstates are copied from Create and retargeted to `create_expansion` bronze assets.
+- `bronze_fluid_pipe.json` uses Create-style multipart pieces: axis core plus one connection model
+  per open pipe side. This avoids the old state table where many connected states could render only
+  the center piece.
+- `bronze_pump.png`, `bronze_pipes*.png`, and `bronze_fluid_tank*.png` are regenerated from Create's
+  source textures with a darker brown bronze palette rather than the earlier red tint.
+- `bronze_pipes_connected.png` is required by the copied Create core pipe models. If it is missing,
+  in-world pipe cores render incorrectly even when the item texture looks fine.
+- Bronze tank block models explicitly set `render_type` to `minecraft:cutout_mipped`; without this,
+  tank windows can render as opaque/black even when the PNG alpha is correct.
+- Remaining in-game visual verification: pipe rim/casing attachment model behavior, pump cog
+  rotation under Flywheel, tank 2x2/3x3 connected sides/top/bottom, and item/world color matching.
+- Loot tables are hand-authored in `src/main/resources/data/create_expansion/loot_table/blocks`.
+
+Recipes:
+- No recipes are generated for these blocks. Add recipes separately when desired.

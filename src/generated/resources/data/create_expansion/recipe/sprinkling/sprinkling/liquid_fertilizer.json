@@ -1,0 +1,11 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 60,
+  "fluid_inputs": [
+    {
+      "amount": 50,
+      "fluid": "create_expansion:liquid_fertilizer"
+    }
+  ],
+  "recipe_type": "create_expansion:sprinkling"
+}

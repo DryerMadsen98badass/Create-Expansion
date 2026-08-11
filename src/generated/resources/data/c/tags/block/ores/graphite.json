@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:graphite_netherrack_ore",
-    "create_expansion:graphite_deepslate_ore",
-    "create_expansion:graphite_andesite_ore",
-    "create_expansion:graphite_end_stone_ore",
     "create_expansion:graphite_diorite_ore",
-    "create_expansion:graphite_tuff_ore",
+    "create_expansion:graphite_granite_ore",
+    "create_expansion:graphite_netherrack_ore",
     "create_expansion:graphite_blackstone_ore",
     "create_expansion:graphite_ore",
-    "create_expansion:graphite_granite_ore"
+    "create_expansion:graphite_deepslate_ore",
+    "create_expansion:graphite_tuff_ore",
+    "create_expansion:graphite_andesite_ore",
+    "create_expansion:graphite_end_stone_ore"
   ]
 }

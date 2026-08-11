@@ -1,0 +1,37 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 500,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "create:brass_casing"
+    },
+    {
+      "count": 1,
+      "item": "create:cogwheel"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 1,
+      "item": "create:electron_tube"
+    },
+    {
+      "count": 1,
+      "item": "create:crafter_slot_cover"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create:mechanical_crafter"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

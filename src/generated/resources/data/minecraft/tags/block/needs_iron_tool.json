@@ -2,6 +2,21 @@
   "values": [
     "create_expansion:firebricks",
     "create_expansion:silica_bricks",
+    "create_expansion:brass_machine_casing",
+    "create_expansion:sturdy_brass_casing",
+    "create_expansion:sealed_brass_casing",
+    "create_expansion:brass_gearbox_casing",
+    "create_expansion:brass_pipe_casing",
+    "create_expansion:brass_sifting_mesh",
+    "create_expansion:ebonite_lined_brass_casing",
+    "create_expansion:ebonite_lined_brass_pipe_casing",
+    "create_expansion:riveted_steel_casing",
+    "create_expansion:heat_resistant_steel_casing",
+    "create_expansion:bronze_machine_casing",
+    "create_expansion:reinforced_bronze_casing",
+    "create_expansion:pressure_sealed_bronze_casing",
+    "create_expansion:pressure_sealed_bronze_pipe_casing",
+    "create_expansion:heat_resistant_bronze_casing",
     "create_expansion:bricked_copper_casing",
     "create_expansion:bricked_bronze_casing",
     "create_expansion:firebrick_firebox",
@@ -18,6 +33,14 @@
     "create_expansion:steam_copper_steam_compressor",
     "create_expansion:steam_bronze_steam_compressor",
     "create_expansion:steam_copper_steam_distillery",
-    "create_expansion:steam_bronze_steam_distillery"
+    "create_expansion:steam_bronze_steam_distillery",
+    "create_expansion:steam_copper_steam_sprinkler",
+    "create_expansion:steam_bronze_steam_sprinkler",
+    "create_expansion:copper_solid_fuel_boiler",
+    "create_expansion:copper_solar_boiler",
+    "create_expansion:bronze_solid_fuel_boiler",
+    "create_expansion:bronze_solar_boiler",
+    "create_expansion:bronze_liquid_fuel_boiler",
+    "create_expansion:copper_liquid_fuel_boiler"
   ]
 }

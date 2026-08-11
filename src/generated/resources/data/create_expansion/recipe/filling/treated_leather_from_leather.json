@@ -1,0 +1,18 @@
+{
+  "type": "create:filling",
+  "ingredients": [
+    {
+      "item": "minecraft:leather"
+    },
+    {
+      "type": "neoforge:single",
+      "amount": 10,
+      "fluid": "create_expansion:tannin_extract"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:treated_leather"
+    }
+  ]
+}

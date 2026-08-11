@@ -1,0 +1,38 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 800,
+  "item_inputs": [
+    {
+      "count": 4,
+      "item": "create_expansion:tuff_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:gold_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:zinc_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:iron_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:copper_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:centrifuge",
+  "tier": "ulv"
+}

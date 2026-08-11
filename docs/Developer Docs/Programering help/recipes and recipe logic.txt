@@ -10,6 +10,7 @@ See:
 - recipes\turning recipes.txt
 - recipes\machine recipes.txt
 - recipes\adding recipe types.txt
+- recipes\blaze burner fuel recipes.txt
 - block interactions and conditions.txt
 
 Datagen entry point:

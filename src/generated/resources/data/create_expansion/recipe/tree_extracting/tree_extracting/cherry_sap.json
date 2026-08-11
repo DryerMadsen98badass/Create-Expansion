@@ -1,0 +1,12 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 200,
+  "fluid_outputs": [
+    {
+      "amount": 50,
+      "id": "create_expansion:cherry_sap"
+    }
+  ],
+  "recipe_type": "create_expansion:tree_extracting",
+  "tree_source": "minecraft:cherry_log"
+}

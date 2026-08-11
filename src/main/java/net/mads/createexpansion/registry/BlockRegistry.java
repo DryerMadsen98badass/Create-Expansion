@@ -2,10 +2,10 @@ package net.mads.createexpansion.registry;
 
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.block.ActiveBlockDefinition;
-import net.mads.createexpansion.block.ActiveBlocks;
+import net.mads.createexpansion.block.SimpleBlocks;
+import net.mads.createexpansion.block.DirectionalSimpleBlock;
 import net.mads.createexpansion.block.SimpleBlockDefinition;
 import net.mads.createexpansion.block.SimpleBlockVariant;
-import net.mads.createexpansion.block.SimpleBlocks;
 import net.mads.createexpansion.energy.CreativeEnergyBlock;
 import net.mads.createexpansion.energy.EnergyWireBlock;
 import net.mads.createexpansion.energy.WireThickness;
@@ -49,6 +49,7 @@ import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialBlock;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.transport.FluidTransportRegistrations;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ButtonBlock;
@@ -181,7 +182,7 @@ public final class BlockRegistry {
             FireboxBlock
             > FIREBRICK_FIREBOX =
             registerActiveBlock(
-                    ActiveBlocks.ALL.getFirst()
+                    SimpleBlocks.ACTIVE.getFirst()
             );
 
     public static final DeferredHolder<
@@ -317,6 +318,7 @@ public final class BlockRegistry {
             );
 
     static {
+        FluidTransportRegistrations.registerBlocks(BLOCKS);
         registerMultiblockControllers();
         registerSingleBlockMachines();
         registerCoils();
@@ -374,11 +376,7 @@ public final class BlockRegistry {
         DeferredHolder<Block, FireboxBlock> block =
                 BLOCKS.register(
                         definition.id(),
-                        () -> new FireboxBlock(
-                                activeBlockProperties(
-                                        definition
-                                )
-                        )
+                        () -> new FireboxBlock(activeBlockProperties(definition), definition)
                 );
 
         ACTIVE_BLOCKS.put(
@@ -411,7 +409,7 @@ public final class BlockRegistry {
 
     private static void registerActiveBlocks() {
         for (ActiveBlockDefinition definition
-                : ActiveBlocks.ALL) {
+                : SimpleBlocks.ACTIVE) {
 
             if (ACTIVE_BLOCKS.containsKey(
                     definition.id()
@@ -616,11 +614,7 @@ public final class BlockRegistry {
             DeferredHolder<Block, Block> baseBlock =
                     BLOCKS.register(
                             definition.id(),
-                            () -> new Block(
-                                    simpleBlockProperties(
-                                            definition
-                                    )
-                            )
+                            () -> createSimpleBlock(definition)
                     );
 
             SIMPLE_BLOCKS.put(
@@ -652,6 +646,19 @@ public final class BlockRegistry {
                     variants
             );
         }
+    }
+
+    private static Block createSimpleBlock(
+            SimpleBlockDefinition definition
+    ) {
+        BlockBehaviour.Properties properties =
+                simpleBlockProperties(definition);
+
+        if (definition.hasFaceTextures()) {
+            return new DirectionalSimpleBlock(properties);
+        }
+
+        return new Block(properties);
     }
 
     private static BlockBehaviour.Properties simpleBlockProperties(

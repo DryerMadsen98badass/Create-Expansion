@@ -1,0 +1,20 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "type": "neoforge:single",
+      "amount": 250,
+      "fluid": "minecraft:water"
+    },
+    {
+      "item": "create_expansion:fertilizer_dust"
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "amount": 250,
+      "id": "create_expansion:liquid_fertilizer"
+    }
+  ]
+}

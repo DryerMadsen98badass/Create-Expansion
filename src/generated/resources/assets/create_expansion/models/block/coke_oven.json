@@ -5,27 +5,27 @@
       "faces": {
         "down": {
           "cullface": "down",
-          "texture": "#casing"
+          "texture": "#bottom_base"
         },
         "east": {
           "cullface": "east",
-          "texture": "#casing"
+          "texture": "#right_base"
         },
         "north": {
           "cullface": "north",
-          "texture": "#casing"
+          "texture": "#front_base"
         },
         "south": {
           "cullface": "south",
-          "texture": "#casing"
+          "texture": "#back_base"
         },
         "up": {
           "cullface": "up",
-          "texture": "#casing"
+          "texture": "#top_base"
         },
         "west": {
           "cullface": "west",
-          "texture": "#casing"
+          "texture": "#left_base"
         }
       },
       "from": [
@@ -42,25 +42,30 @@
     {
       "faces": {
         "north": {
-          "texture": "#front"
+          "texture": "#front_overlay"
         }
       },
       "from": [
         0.0,
         0.0,
-        -0.02
+        -0.01
       ],
       "to": [
         16.0,
         16.0,
-        -0.01
+        0.0
       ]
     }
   ],
   "render_type": "minecraft:cutout",
   "textures": {
-    "casing": "create_expansion:block/casings/casing/silica_bricks",
-    "front": "create_expansion:block/machines/overlay/coke_oven/coke_oven_off",
-    "particle": "create_expansion:block/casings/casing/silica_bricks"
+    "back_base": "create_expansion:block/casings/casing/silica_bricks",
+    "bottom_base": "create_expansion:block/casings/casing/silica_bricks",
+    "front_base": "create_expansion:block/casings/casing/silica_bricks",
+    "front_overlay": "create_expansion:block/machines/overlay/coke_oven/coke_oven_off",
+    "left_base": "create_expansion:block/casings/casing/silica_bricks",
+    "particle": "create_expansion:block/casings/casing/silica_bricks",
+    "right_base": "create_expansion:block/casings/casing/silica_bricks",
+    "top_base": "create_expansion:block/casings/casing/silica_bricks"
   }
 }

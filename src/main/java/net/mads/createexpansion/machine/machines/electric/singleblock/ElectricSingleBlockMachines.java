@@ -14,7 +14,7 @@ public final class ElectricSingleBlockMachines {
                     .machineDefinition(SingleBlockDefinition.Option.tier(MachineTier.LV))
                     .machineDefinition(SingleBlockDefinition.Option.recipeType(CERecipeTypes.TEST_ELECTRIC_MACHINE))
                     .machineDefinition(SingleBlockDefinition.Option.slots(1, 1, 0, 0))
-                    .machineDefinition(SingleBlockDefinition.Option.CEt(8))
+                    .machineDefinition(SingleBlockDefinition.Option.energyUsage(8))
                     .machineDefinition(SingleBlockDefinition.Option.progressBar(ProgressBar.ARROW))
                     .machineDefinition(SingleBlockDefinition.Option.overlay(
                             "block/machines/ino/energy_output_hatch"

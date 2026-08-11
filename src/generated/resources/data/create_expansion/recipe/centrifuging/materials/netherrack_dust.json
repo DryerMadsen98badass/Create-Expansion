@@ -1,0 +1,28 @@
+{
+  "type": "create_expansion:centrifuging",
+  "ingredients": [
+    {
+      "count": 9,
+      "item": "create:cinder_flour"
+    }
+  ],
+  "max_rpm": 256,
+  "min_rpm": 16,
+  "processing_time": 1800,
+  "results": [
+    {
+      "id": "create_expansion:quartz_dust"
+    },
+    {
+      "count": 5,
+      "id": "create_expansion:carbon_dust"
+    },
+    {
+      "count": 2,
+      "id": "create_expansion:sulfur_dust"
+    },
+    {
+      "id": "create_expansion:gold_dust"
+    }
+  ]
+}

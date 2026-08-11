@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:actinium_netherrack_ore",
-    "create_expansion:actinium_deepslate_ore",
-    "create_expansion:actinium_andesite_ore",
-    "create_expansion:actinium_end_stone_ore",
     "create_expansion:actinium_diorite_ore",
-    "create_expansion:actinium_tuff_ore",
+    "create_expansion:actinium_granite_ore",
+    "create_expansion:actinium_netherrack_ore",
     "create_expansion:actinium_blackstone_ore",
     "create_expansion:actinium_ore",
-    "create_expansion:actinium_granite_ore"
+    "create_expansion:actinium_deepslate_ore",
+    "create_expansion:actinium_tuff_ore",
+    "create_expansion:actinium_andesite_ore",
+    "create_expansion:actinium_end_stone_ore"
   ]
 }

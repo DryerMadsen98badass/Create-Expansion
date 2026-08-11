@@ -2,18 +2,27 @@
   "type": "create_expansion:sifting",
   "ingredients": [
     {
-      "item": "minecraft:gravel"
+      "item": "create_expansion:stone_dust"
     }
   ],
   "min_rpm": 16,
-  "processing_time": 100,
+  "processing_time": 200,
   "results": [
     {
+      "chance": 0.15,
       "id": "minecraft:flint"
     },
     {
-      "chance": 0.25,
+      "chance": 0.05,
       "id": "minecraft:iron_nugget"
+    },
+    {
+      "chance": 0.05,
+      "id": "create_expansion:tin_nugget"
+    },
+    {
+      "chance": 0.05,
+      "id": "create:copper_nugget"
     }
   ]
 }

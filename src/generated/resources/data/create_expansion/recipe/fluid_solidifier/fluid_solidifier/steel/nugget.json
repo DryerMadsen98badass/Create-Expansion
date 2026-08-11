@@ -1,0 +1,26 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 12,
+  "fluid_inputs": [
+    {
+      "amount": 16,
+      "fluid": "create_expansion:molten_steel"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:steel_nugget"
+      }
+    }
+  ],
+  "not_consumable_items": [
+    {
+      "count": 1,
+      "tag": "create_expansion:cold_molds/nugget"
+    }
+  ],
+  "recipe_type": "create_expansion:fluid_solidifier",
+  "tier": "lv"
+}

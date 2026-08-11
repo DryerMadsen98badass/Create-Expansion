@@ -1,10 +1,9 @@
 package net.mads.createexpansion.data;
 
 import net.mads.createexpansion.CreateExpansion;
-import net.mads.createexpansion.block.ActiveBlocks;
+import net.mads.createexpansion.block.SimpleBlocks;
 import net.mads.createexpansion.block.SimpleBlockDefinition;
 import net.mads.createexpansion.block.SimpleBlockVariant;
-import net.mads.createexpansion.block.SimpleBlocks;
 import net.mads.createexpansion.energy.EnergyWireBlock;
 import net.mads.createexpansion.energy.WireThickness;
 import net.mads.createexpansion.item.SimpleItems;
@@ -26,6 +25,7 @@ import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialPart;
 import net.mads.createexpansion.registry.FluidRegistry;
+import net.mads.createexpansion.transport.FluidTransportTier;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -56,10 +56,15 @@ public class ModLanguageProvider extends LanguageProvider {
                 "Create Expansion: Materials"
         );
 
+        add(itemKey("machine_control_schedule"), "Machine Control Schedule");
+        add("gui.create_expansion.machine_control_schedule", "Machine Control Schedule");
+
         addSimpleItems();
         addFiredBuckets();
         addSimpleBlocks();
         addActiveBlocks();
+        addFluidTransport();
+        addJadeConfigTranslations();
 
         KineticSifterRegistration.addTranslations(this::add);
         KineticCentrifugeRegistration.addTranslations(this::add);
@@ -107,7 +112,7 @@ public class ModLanguageProvider extends LanguageProvider {
     }
 
     private void addActiveBlocks() {
-        ActiveBlocks.ALL.forEach(definition ->
+        SimpleBlocks.ACTIVE.forEach(definition ->
                 add(
                         blockKey(definition.id()),
                         definition.displayName()
@@ -126,6 +131,23 @@ public class ModLanguageProvider extends LanguageProvider {
                     "Fired " + fluid.definition().bucketDisplayName()
             );
         }
+    }
+
+    private void addFluidTransport() {
+        for (FluidTransportTier tier : FluidTransportTier.all()) {
+            add(blockKey(tier.pipeId()), tier.pipeDisplayName());
+            add(blockKey(tier.glassPipeId()), tier.glassPipeDisplayName());
+            add(blockKey(tier.pumpId()), tier.pumpDisplayName());
+            add(blockKey(tier.tankId()), tier.tankDisplayName());
+        }
+    }
+
+    private void addJadeConfigTranslations() {
+        add("config.jade.plugin_create_expansion.ce_energy_storage", "CE Energy Storage");
+        add("config.jade.plugin_create_expansion.assembly_block", "Assembly Block");
+        add("config.jade.plugin_create_expansion.machine_info", "Machine Information");
+        add("config.jade.plugin_create_expansion.multiblock_status", "Multiblock Status");
+        add("config.jade.plugin_create_expansion.ce_wire", "CE Wire");
     }
 
     private void addCoils() {

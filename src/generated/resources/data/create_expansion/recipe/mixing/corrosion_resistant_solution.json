@@ -1,0 +1,22 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "type": "neoforge:single",
+      "amount": 100,
+      "fluid": "create_expansion:pine_resin"
+    },
+    {
+      "type": "neoforge:single",
+      "amount": 100,
+      "fluid": "create_expansion:mangrove_tannin"
+    }
+  ],
+  "processing_time": 600,
+  "results": [
+    {
+      "amount": 200,
+      "id": "create_expansion:corrosion_resistant_solution"
+    }
+  ]
+}

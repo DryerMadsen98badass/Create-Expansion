@@ -1,7 +1,9 @@
 package net.mads.createexpansion.registry;
 
 import net.mads.createexpansion.CreateExpansion;
+import net.mads.createexpansion.fluid.FiredFluidBucketWrapper;
 import net.mads.createexpansion.fluid.IndustrialFluid;
+import net.mads.createexpansion.fluid.IndustrialFluidLookup;
 import net.mads.createexpansion.fluid.IndustrialFluids;
 import net.mads.createexpansion.fluid.MaterialFluidType;
 import net.mads.createexpansion.fluid.NonPlaceableBucketItem;
@@ -69,7 +71,7 @@ public final class FluidRegistry {
         for (IndustrialMaterial material : IndustrialMaterials.ALL) {
             if (material.has(MaterialPart.MOLTEN_FLUID)
                     && !material.hasExistingPart(MaterialPart.MOLTEN_FLUID)) {
-                IndustrialFluid fluid = materialFluid(material);
+                IndustrialFluid fluid = IndustrialFluidLookup.materialFluid(material);
                 MATERIAL_FLUIDS.put(fluid.registryName(), registerFluid(fluid));
             }
         }
@@ -96,18 +98,36 @@ public final class FluidRegistry {
         event.registerItem(
                 Capabilities.FluidHandler.ITEM,
                 (stack, context) -> new FluidBucketWrapper(stack),
+                Items.BUCKET
+        );
+
+        event.registerItem(
+                Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new FluidBucketWrapper(stack),
+                Items.WATER_BUCKET
+        );
+
+        event.registerItem(
+                Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new FluidBucketWrapper(stack),
+                Items.LAVA_BUCKET
+        );
+
+        event.registerItem(
+                Capabilities.FluidHandler.ITEM,
+                (stack, context) -> new FiredFluidBucketWrapper(stack),
                 ItemRegistry.FIRED_BUCKET.get()
         );
 
         event.registerItem(
                 Capabilities.FluidHandler.ITEM,
-                (stack, context) -> new FluidBucketWrapper(stack),
+                (stack, context) -> new FiredFluidBucketWrapper(stack),
                 FIRED_WATER_BUCKET.get()
         );
 
         event.registerItem(
                 Capabilities.FluidHandler.ITEM,
-                (stack, context) -> new FluidBucketWrapper(stack),
+                (stack, context) -> new FiredFluidBucketWrapper(stack),
                 FIRED_LAVA_BUCKET.get()
         );
 
@@ -120,7 +140,7 @@ public final class FluidRegistry {
 
             event.registerItem(
                     Capabilities.FluidHandler.ITEM,
-                    (stack, context) -> new FluidBucketWrapper(stack),
+                    (stack, context) -> new FiredFluidBucketWrapper(stack),
                     fluid.firedBucket().get()
             );
         }
@@ -225,50 +245,6 @@ public final class FluidRegistry {
     private static boolean isVanillaFluid(IndustrialFluid fluid) {
         return fluid.registryName().equals("water")
                 || fluid.registryName().equals("lava");
-    }
-
-    private static IndustrialFluid materialFluid(IndustrialMaterial material) {
-        if (isGasAtRoomTemperature(material)) {
-            return IndustrialFluids
-                    .gas(material.id(), material.displayName(), material.color())
-                    .temperature(300)
-                    .build();
-        }
-
-        if (material.meltingPoint() <= 20) {
-            return IndustrialFluids
-                    .fluid(material.id(), material.displayName(), material.color())
-                    .temperature(300)
-                    .build();
-        }
-
-        return IndustrialFluids
-                .molten(
-                        material.id(),
-                        material.displayName(),
-                        material.color(),
-                        material.meltingPoint()
-                )
-                .build();
-    }
-
-    private static boolean isGasAtRoomTemperature(IndustrialMaterial material) {
-        return switch (material.id()) {
-            case "hydrogen",
-                 "helium",
-                 "nitrogen",
-                 "oxygen",
-                 "fluorine",
-                 "neon",
-                 "chlorine",
-                 "argon",
-                 "krypton",
-                 "xenon",
-                 "radon",
-                 "oganesson" -> true;
-
-            default -> false;
-        };
     }
 
     public static void buildFiredBucketMaps() {

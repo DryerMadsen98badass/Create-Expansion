@@ -182,14 +182,14 @@
     "create_expansion:livermorium_cast_bearing_mold",
     "create_expansion:bronze_cast_bearing_mold",
     "create_expansion:bronze_hot_cast_bearing_mold",
-    "create_expansion:steel_cast_bearing_mold",
-    "create_expansion:steel_hot_cast_bearing_mold",
-    "create_expansion:wrought_iron_cast_bearing_mold",
-    "create_expansion:wrought_iron_hot_cast_bearing_mold",
     "create_expansion:brass_cast_bearing_mold",
     "create_expansion:brass_hot_cast_bearing_mold",
     "create_expansion:electrum_hot_cast_bearing_mold",
     "create_expansion:electrum_cast_bearing_mold",
+    "create_expansion:steel_cast_bearing_mold",
+    "create_expansion:steel_hot_cast_bearing_mold",
+    "create_expansion:wrought_iron_cast_bearing_mold",
+    "create_expansion:wrought_iron_hot_cast_bearing_mold",
     "create_expansion:andesite_alloy_cast_bearing_mold",
     "create_expansion:andesite_alloy_hot_cast_bearing_mold"
   ]

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:tantalum_netherrack_ore",
-    "create_expansion:tantalum_deepslate_ore",
-    "create_expansion:tantalum_andesite_ore",
-    "create_expansion:tantalum_end_stone_ore",
     "create_expansion:tantalum_diorite_ore",
-    "create_expansion:tantalum_tuff_ore",
+    "create_expansion:tantalum_granite_ore",
+    "create_expansion:tantalum_netherrack_ore",
     "create_expansion:tantalum_blackstone_ore",
     "create_expansion:tantalum_ore",
-    "create_expansion:tantalum_granite_ore"
+    "create_expansion:tantalum_deepslate_ore",
+    "create_expansion:tantalum_tuff_ore",
+    "create_expansion:tantalum_andesite_ore",
+    "create_expansion:tantalum_end_stone_ore"
   ]
 }

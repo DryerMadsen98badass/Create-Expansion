@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:nobelium_netherrack_ore",
-    "create_expansion:nobelium_deepslate_ore",
-    "create_expansion:nobelium_andesite_ore",
-    "create_expansion:nobelium_end_stone_ore",
     "create_expansion:nobelium_diorite_ore",
-    "create_expansion:nobelium_tuff_ore",
+    "create_expansion:nobelium_granite_ore",
+    "create_expansion:nobelium_netherrack_ore",
     "create_expansion:nobelium_blackstone_ore",
     "create_expansion:nobelium_ore",
-    "create_expansion:nobelium_granite_ore"
+    "create_expansion:nobelium_deepslate_ore",
+    "create_expansion:nobelium_tuff_ore",
+    "create_expansion:nobelium_andesite_ore",
+    "create_expansion:nobelium_end_stone_ore"
   ]
 }

@@ -1,0 +1,37 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "create_expansion:stainless_bronze_ingot"
+    },
+    {
+      "item": "create_expansion:stainless_bronze_ingot"
+    },
+    {
+      "item": "create_expansion:stainless_bronze_ingot"
+    },
+    {
+      "item": "create_expansion:stainless_bronze_ingot"
+    },
+    {
+      "item": "create_expansion:stainless_bronze_ingot"
+    },
+    {
+      "item": "create_expansion:stainless_bronze_ingot"
+    },
+    {
+      "item": "create_expansion:stainless_bronze_ingot"
+    },
+    {
+      "item": "create_expansion:stainless_bronze_ingot"
+    },
+    {
+      "item": "create_expansion:stainless_bronze_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:stainless_bronze_block"
+    }
+  ]
+}

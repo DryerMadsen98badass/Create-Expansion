@@ -1,0 +1,28 @@
+{
+  "type": "create_expansion:machine",
+  "circuit": 2,
+  "duration": 50,
+  "fluid_inputs": [
+    {
+      "amount": 250,
+      "fluid": "create_expansion:fermented_mash"
+    }
+  ],
+  "fluid_outputs": [
+    {
+      "amount": 10,
+      "id": "create_expansion:plant_oil"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 1000,
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:wet_biomass"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:distillery",
+  "tier": "lv"
+}

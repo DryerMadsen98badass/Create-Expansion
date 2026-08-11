@@ -1,0 +1,17 @@
+{
+  "type": "create:deploying",
+  "ingredients": [
+    {
+      "item": "create_expansion:16x_ulv_wire"
+    },
+    {
+      "count": 16,
+      "item": "create_expansion:rubber_plate"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:insulated_16x_ulv_wire"
+    }
+  ]
+}

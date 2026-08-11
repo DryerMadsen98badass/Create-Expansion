@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:cerussite_netherrack_ore",
-    "create_expansion:cerussite_deepslate_ore",
-    "create_expansion:cerussite_andesite_ore",
-    "create_expansion:cerussite_end_stone_ore",
     "create_expansion:cerussite_diorite_ore",
-    "create_expansion:cerussite_tuff_ore",
+    "create_expansion:cerussite_granite_ore",
+    "create_expansion:cerussite_netherrack_ore",
     "create_expansion:cerussite_blackstone_ore",
     "create_expansion:cerussite_ore",
-    "create_expansion:cerussite_granite_ore"
+    "create_expansion:cerussite_deepslate_ore",
+    "create_expansion:cerussite_tuff_ore",
+    "create_expansion:cerussite_andesite_ore",
+    "create_expansion:cerussite_end_stone_ore"
   ]
 }

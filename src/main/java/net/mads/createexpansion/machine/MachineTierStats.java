@@ -2,6 +2,7 @@ package net.mads.createexpansion.machine;
 
 public final class MachineTierStats {
     private static final int[] ITEM_SLOTS = {1, 4, 9, 16, 25, 36, 49, 64, 81, 100};
+    private static final long[] CE_VOLTAGES = {8L, 32L, 256L, 1_024L, 4_096L, 16_384L};
     private static final int MAX_FLUID_CAPACITY = 1_024_000;
     private static final int MAX_IO_ITEM_SLOTS = 49;
     private static final float MAX_KINETIC_STRESS_PER_RPM = 16_384.0F;
@@ -58,11 +59,53 @@ public final class MachineTierStats {
     }
 
     public static long ceTier(MachineTier tier) {
-        long ce = 8L;
-        for (int i = 0; i < tierIndex(tier); i++) {
-            ce = saturatedMultiply(ce, 4L);
+        int index = Math.min(tierIndex(tier), CE_VOLTAGES.length - 1);
+        return CE_VOLTAGES[index];
+    }
+
+    /**
+     * Scales a machine's ULV base usage by four for every concrete machine tier.
+     */
+    public static int machineEnergyUsage(int baseUsage, MachineTier tier) {
+        if (baseUsage <= 0) {
+            return 0;
         }
-        return ce;
+
+        long usage = baseUsage;
+        for (int i = 0; i < tierIndex(tier.recipeTier()); i++) {
+            usage = Math.min(Integer.MAX_VALUE, usage * 4L);
+        }
+        return (int) usage;
+    }
+
+    /**
+     * Scales a kinetic machine's SU/RPM from its first generated tier.
+     * Every real tier step multiplies the value by four, including tier gaps
+     * created with {@code onlyTier(...)}.
+     */
+    public static double machineKineticSuPerRpm(
+            double startSu,
+            MachineTier startTier,
+            MachineTier actualTier
+    ) {
+        if (!Double.isFinite(startSu) || startSu <= 0.0D) {
+            return 0.0D;
+        }
+
+        int steps = Math.max(
+                0,
+                tierIndex(actualTier.recipeTier())
+                        - tierIndex(startTier.recipeTier())
+        );
+
+        double su = startSu;
+        for (int i = 0; i < steps; i++) {
+            if (su > Double.MAX_VALUE / 4.0D) {
+                return Double.MAX_VALUE;
+            }
+            su *= 4.0D;
+        }
+        return su;
     }
 
     public static int ceBaseAmps(MachineTier tier) {

@@ -116,6 +116,7 @@ public final class CERecipeLookup {
     private static Set<LookupKey> recipeItemKeys(CERecipe recipe) {
         LinkedHashSet<LookupKey> keys = new LinkedHashSet<>();
         recipe.itemInputs().forEach(input -> addIngredientKeys(keys, input.ingredient().getItems()));
+        recipe.chancedItemInputs().forEach(input -> addIngredientKeys(keys, input.ingredient().ingredient().getItems()));
         recipe.notConsumableItems().forEach(input -> addIngredientKeys(keys, input.ingredient().getItems()));
         return keys;
     }

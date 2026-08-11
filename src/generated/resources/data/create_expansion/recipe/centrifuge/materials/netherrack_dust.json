@@ -1,0 +1,38 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 1800,
+  "item_inputs": [
+    {
+      "count": 9,
+      "item": "create:cinder_flour"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:quartz_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 5,
+        "id": "create_expansion:carbon_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 2,
+        "id": "create_expansion:sulfur_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:gold_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:centrifuge",
+  "tier": "ulv"
+}

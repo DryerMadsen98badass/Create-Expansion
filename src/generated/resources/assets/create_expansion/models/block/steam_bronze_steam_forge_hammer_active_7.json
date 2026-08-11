@@ -5,27 +5,27 @@
       "faces": {
         "down": {
           "cullface": "down",
-          "texture": "#bottom"
+          "texture": "#bottom_base"
         },
         "east": {
           "cullface": "east",
-          "texture": "#side"
+          "texture": "#right_base"
         },
         "north": {
           "cullface": "north",
-          "texture": "#side"
+          "texture": "#front_base"
         },
         "south": {
           "cullface": "south",
-          "texture": "#side"
+          "texture": "#back_base"
         },
         "up": {
           "cullface": "up",
-          "texture": "#top"
+          "texture": "#top_base"
         },
         "west": {
           "cullface": "west",
-          "texture": "#side"
+          "texture": "#left_base"
         }
       },
       "from": [
@@ -43,7 +43,7 @@
       "faces": {
         "north": {
           "cullface": "north",
-          "texture": "#front"
+          "texture": "#front_overlay"
         }
       },
       "from": [
@@ -66,23 +66,26 @@
       },
       "from": [
         0,
-        16,
+        16.02,
         0
       ],
       "to": [
         16,
-        16.01,
+        16.03,
         16
       ]
     }
   ],
   "render_type": "minecraft:cutout",
   "textures": {
-    "bottom": "create_expansion:block/casings/casing/bricked_bronze_casing_bottom",
-    "front": "create_expansion:block/machines/overlay/forge_hammer/overlay_front_active_3",
+    "back_base": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "bottom_base": "create_expansion:block/casings/casing/bricked_bronze_casing_bottom",
+    "front_base": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "front_overlay": "create_expansion:block/machines/overlay/forge_hammer/overlay_front_active_3",
+    "left_base": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
     "muffler": "create_expansion:block/machines/ino/muffler",
     "particle": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
-    "side": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
-    "top": "create_expansion:block/casings/casing/bricked_bronze_casing_top"
+    "right_base": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "top_base": "create_expansion:block/casings/casing/bricked_bronze_casing_top"
   }
 }

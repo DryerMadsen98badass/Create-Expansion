@@ -5,11 +5,15 @@ public record SingleBlockMachineInstance(
         MachineTier tier
 ) {
     public String registryName() {
-        return tier.id() + "_" + definition.id();
+        return tier == MachineTier.NONE
+                ? definition.id()
+                : tier.id() + "_" + definition.id();
     }
 
     public String displayName() {
-        return tier.displayName() + " " + definition.displayName();
+        return tier == MachineTier.NONE
+                ? definition.displayName()
+                : tier.displayName() + " " + definition.displayName();
     }
 
     public int steamCapacity() {
@@ -18,5 +22,17 @@ public record SingleBlockMachineInstance(
 
     public int steamUsage() {
         return definition.steamUsage() * tier.steamUsageMultiplier();
+    }
+
+    public int energyUsage() {
+        return MachineTierStats.machineEnergyUsage(definition.energyUsage(), tier.recipeTier());
+    }
+
+    public double kineticSuPerRpm() {
+        return MachineTierStats.machineKineticSuPerRpm(
+                definition.startSu(),
+                definition.startTier(),
+                tier
+        );
     }
 }

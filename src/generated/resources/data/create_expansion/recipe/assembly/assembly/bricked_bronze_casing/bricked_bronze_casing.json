@@ -1,0 +1,15 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create_expansion:stainless_bronze_block"
+  },
+  "inputs": [
+    {
+      "count": 64,
+      "item": "minecraft:brick"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:bricked_bronze_casing"
+  }
+}

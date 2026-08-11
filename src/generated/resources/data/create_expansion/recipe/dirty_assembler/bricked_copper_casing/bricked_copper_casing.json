@@ -1,0 +1,25 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 3200,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "minecraft:copper_block"
+    },
+    {
+      "count": 32,
+      "item": "minecraft:brick"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:bricked_copper_casing"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

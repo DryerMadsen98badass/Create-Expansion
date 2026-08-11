@@ -1,0 +1,33 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 600,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "create:fluid_pipe"
+    },
+    {
+      "count": 1,
+      "item": "create:copper_sheet"
+    },
+    {
+      "count": 4,
+      "item": "create_expansion:copper_screw"
+    },
+    {
+      "count": 1,
+      "item": "create:electron_tube"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create:smart_fluid_pipe"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

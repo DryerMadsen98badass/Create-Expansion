@@ -1,0 +1,23 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create_expansion:bricked_copper_casing"
+  },
+  "inputs": [
+    {
+      "count": 2,
+      "item": "create:fluid_tank"
+    },
+    {
+      "count": 4,
+      "item": "create:copper_sheet"
+    },
+    {
+      "count": 16,
+      "item": "create_expansion:wrought_iron_screw"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:copper_liquid_fuel_boiler"
+  }
+}

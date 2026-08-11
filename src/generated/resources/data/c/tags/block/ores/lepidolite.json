@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:lepidolite_netherrack_ore",
-    "create_expansion:lepidolite_deepslate_ore",
-    "create_expansion:lepidolite_andesite_ore",
-    "create_expansion:lepidolite_end_stone_ore",
     "create_expansion:lepidolite_diorite_ore",
-    "create_expansion:lepidolite_tuff_ore",
+    "create_expansion:lepidolite_granite_ore",
+    "create_expansion:lepidolite_netherrack_ore",
     "create_expansion:lepidolite_blackstone_ore",
     "create_expansion:lepidolite_ore",
-    "create_expansion:lepidolite_granite_ore"
+    "create_expansion:lepidolite_deepslate_ore",
+    "create_expansion:lepidolite_tuff_ore",
+    "create_expansion:lepidolite_andesite_ore",
+    "create_expansion:lepidolite_end_stone_ore"
   ]
 }

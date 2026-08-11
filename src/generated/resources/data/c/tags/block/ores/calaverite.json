@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:calaverite_netherrack_ore",
-    "create_expansion:calaverite_deepslate_ore",
-    "create_expansion:calaverite_andesite_ore",
-    "create_expansion:calaverite_end_stone_ore",
     "create_expansion:calaverite_diorite_ore",
-    "create_expansion:calaverite_tuff_ore",
+    "create_expansion:calaverite_granite_ore",
+    "create_expansion:calaverite_netherrack_ore",
     "create_expansion:calaverite_blackstone_ore",
     "create_expansion:calaverite_ore",
-    "create_expansion:calaverite_granite_ore"
+    "create_expansion:calaverite_deepslate_ore",
+    "create_expansion:calaverite_tuff_ore",
+    "create_expansion:calaverite_andesite_ore",
+    "create_expansion:calaverite_end_stone_ore"
   ]
 }

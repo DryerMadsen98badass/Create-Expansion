@@ -1,0 +1,18 @@
+{
+  "type": "create:filling",
+  "ingredients": [
+    {
+      "item": "create_expansion:bronze_ingot"
+    },
+    {
+      "type": "neoforge:single",
+      "amount": 10,
+      "fluid": "create_expansion:corrosion_resistant_solution"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:stainless_bronze_ingot"
+    }
+  ]
+}

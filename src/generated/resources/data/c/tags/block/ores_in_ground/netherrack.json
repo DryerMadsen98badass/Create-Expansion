@@ -104,6 +104,7 @@
     "create_expansion:moscovium_netherrack_ore",
     "create_expansion:livermorium_netherrack_ore",
     "create_expansion:electrum_netherrack_ore",
+    "create_expansion:calcite_netherrack_ore",
     "create_expansion:diamond_netherrack_ore",
     "create_expansion:emerald_netherrack_ore",
     "create_expansion:lapis_netherrack_ore",
@@ -112,6 +113,9 @@
       "id": "minecraft:nether_quartz_ore",
       "required": false
     },
+    "create_expansion:topaz_netherrack_ore",
+    "create_expansion:ruby_netherrack_ore",
+    "create_expansion:sapphire_netherrack_ore",
     "create_expansion:graphite_netherrack_ore",
     "create_expansion:sodalite_netherrack_ore",
     "create_expansion:lazurite_netherrack_ore",
@@ -120,6 +124,7 @@
     "create_expansion:goethite_netherrack_ore",
     "create_expansion:siderite_netherrack_ore",
     "create_expansion:pyrite_netherrack_ore",
+    "create_expansion:cinnabar_netherrack_ore",
     "create_expansion:chalcopyrite_netherrack_ore",
     "create_expansion:malachite_netherrack_ore",
     "create_expansion:azurite_netherrack_ore",
@@ -176,7 +181,6 @@
     "create_expansion:dolomite_netherrack_ore",
     "create_expansion:coal_netherrack_ore",
     "create_expansion:carnallite_netherrack_ore",
-    "create_expansion:calcite_netherrack_ore",
     "create_expansion:gypsum_netherrack_ore",
     "create_expansion:fluorite_netherrack_ore",
     "create_expansion:apatite_netherrack_ore",
@@ -186,9 +190,6 @@
     "create_expansion:sylvite_netherrack_ore",
     "create_expansion:orthoclase_netherrack_ore",
     "create_expansion:bastnasite_netherrack_ore",
-    "create_expansion:xenotime_netherrack_ore",
-    "create_expansion:topaz_netherrack_ore",
-    "create_expansion:ruby_netherrack_ore",
-    "create_expansion:sapphire_netherrack_ore"
+    "create_expansion:xenotime_netherrack_ore"
   ]
 }

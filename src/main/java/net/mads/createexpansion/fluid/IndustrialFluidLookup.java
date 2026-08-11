@@ -1,7 +1,9 @@
 package net.mads.createexpansion.fluid;
 
 import net.mads.createexpansion.CreateExpansion;
+import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
+import net.mads.createexpansion.material.MaterialPart;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -27,6 +29,42 @@ public final class IndustrialFluidLookup {
                 CreateExpansion.MOD_ID,
                 definition.registryName()
         );
+    }
+
+    public static ResourceLocation fluidId(IndustrialMaterial material) {
+        if (!material.has(MaterialPart.MOLTEN_FLUID)) {
+            throw new IllegalArgumentException("Material does not define a fluid part: " + material.id());
+        }
+        if (material.hasExistingPart(MaterialPart.MOLTEN_FLUID)) {
+            return material.existingPart(MaterialPart.MOLTEN_FLUID);
+        }
+        return fluidId(materialFluid(material));
+    }
+
+    public static IndustrialFluid materialFluid(IndustrialMaterial material) {
+        if (!material.has(MaterialPart.MOLTEN_FLUID)) {
+            throw new IllegalArgumentException("Material does not define a fluid part: " + material.id());
+        }
+        if (isGasAtRoomTemperature(material)) {
+            return IndustrialFluids
+                    .gas(material.id(), material.displayName(), material.color())
+                    .temperature(300)
+                    .build();
+        }
+        if (material.meltingPoint() <= 20) {
+            return IndustrialFluids
+                    .fluid(material.id(), material.displayName(), material.color())
+                    .temperature(300)
+                    .build();
+        }
+        return IndustrialFluids
+                .molten(
+                        material.id(),
+                        material.displayName(),
+                        material.color(),
+                        material.meltingPoint()
+                )
+                .build();
     }
 
     public static Fluid fluid(IndustrialFluid definition) {
@@ -56,5 +94,23 @@ public final class IndustrialFluidLookup {
         }
         Optional<FluidStack> contained = FluidUtil.getFluidContained(stack);
         return contained.map(IndustrialFluidLookup::find).orElse(null);
+    }
+
+    private static boolean isGasAtRoomTemperature(IndustrialMaterial material) {
+        return switch (material.id()) {
+            case "hydrogen",
+                 "helium",
+                 "nitrogen",
+                 "oxygen",
+                 "fluorine",
+                 "neon",
+                 "chlorine",
+                 "argon",
+                 "krypton",
+                 "xenon",
+                 "radon",
+                 "oganesson" -> true;
+            default -> false;
+        };
     }
 }

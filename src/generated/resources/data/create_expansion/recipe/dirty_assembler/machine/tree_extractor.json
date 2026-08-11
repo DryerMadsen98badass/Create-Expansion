@@ -1,0 +1,33 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 600,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "create:andesite_casing"
+    },
+    {
+      "count": 1,
+      "item": "create:fluid_tank"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:andesite_alloy_bolt"
+    },
+    {
+      "count": 4,
+      "item": "create_expansion:wood_screw"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:tree_extractor"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:dubnium_netherrack_ore",
-    "create_expansion:dubnium_deepslate_ore",
-    "create_expansion:dubnium_andesite_ore",
-    "create_expansion:dubnium_end_stone_ore",
     "create_expansion:dubnium_diorite_ore",
-    "create_expansion:dubnium_tuff_ore",
+    "create_expansion:dubnium_granite_ore",
+    "create_expansion:dubnium_netherrack_ore",
     "create_expansion:dubnium_blackstone_ore",
     "create_expansion:dubnium_ore",
-    "create_expansion:dubnium_granite_ore"
+    "create_expansion:dubnium_deepslate_ore",
+    "create_expansion:dubnium_tuff_ore",
+    "create_expansion:dubnium_andesite_ore",
+    "create_expansion:dubnium_end_stone_ore"
   ]
 }

@@ -10,17 +10,17 @@
         },
         "east": {
           "cullface": "east",
-          "texture": "#east",
+          "texture": "#right",
           "tintindex": 0
         },
         "north": {
           "cullface": "north",
-          "texture": "#north",
+          "texture": "#front",
           "tintindex": 0
         },
         "south": {
           "cullface": "south",
-          "texture": "#south",
+          "texture": "#back",
           "tintindex": 0
         },
         "up": {
@@ -30,7 +30,7 @@
         },
         "west": {
           "cullface": "west",
-          "texture": "#west",
+          "texture": "#left",
           "tintindex": 0
         }
       },
@@ -47,12 +47,12 @@
     }
   ],
   "textures": {
+    "back": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
     "down": "create_expansion:block/casings/casing/bricked_bronze_casing_bottom",
-    "east": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
-    "north": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "front": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "left": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
     "particle": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
-    "south": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
-    "up": "create_expansion:block/casings/casing/bricked_bronze_casing_top",
-    "west": "create_expansion:block/casings/casing/bricked_bronze_casing_side"
+    "right": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "up": "create_expansion:block/casings/casing/bricked_bronze_casing_top"
   }
 }

@@ -1,0 +1,25 @@
+{
+  "type": "create_expansion:centrifuging",
+  "ingredients": [
+    {
+      "count": 9,
+      "item": "create_expansion:diorite_dust"
+    }
+  ],
+  "max_rpm": 256,
+  "min_rpm": 16,
+  "processing_time": 1800,
+  "results": [
+    {
+      "count": 5,
+      "id": "create_expansion:feldspar_dust"
+    },
+    {
+      "count": 3,
+      "id": "create_expansion:amphibole_dust"
+    },
+    {
+      "id": "create_expansion:quartz_dust"
+    }
+  ]
+}

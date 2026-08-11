@@ -1,0 +1,18 @@
+{
+  "type": "create:filling",
+  "ingredients": [
+    {
+      "item": "minecraft:birch_planks"
+    },
+    {
+      "type": "neoforge:single",
+      "amount": 10,
+      "fluid": "create_expansion:wood_tar"
+    }
+  ],
+  "results": [
+    {
+      "id": "create_expansion:treated_wood"
+    }
+  ]
+}

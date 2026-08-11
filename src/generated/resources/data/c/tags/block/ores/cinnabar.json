@@ -1,0 +1,13 @@
+{
+  "values": [
+    "create_expansion:cinnabar_diorite_ore",
+    "create_expansion:cinnabar_granite_ore",
+    "create_expansion:cinnabar_netherrack_ore",
+    "create_expansion:cinnabar_blackstone_ore",
+    "create_expansion:cinnabar_ore",
+    "create_expansion:cinnabar_deepslate_ore",
+    "create_expansion:cinnabar_tuff_ore",
+    "create_expansion:cinnabar_andesite_ore",
+    "create_expansion:cinnabar_end_stone_ore"
+  ]
+}

@@ -4,15 +4,20 @@ import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.foundation.block.IBE;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility;
+import net.mads.createexpansion.menu.MachineControlScheduleMenu;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -29,6 +34,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.extensions.IPlayerExtension;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 public class MachinePortBlock extends DirectionalKineticBlock implements IBE<MachinePortBlockEntity> {
@@ -112,6 +119,31 @@ public class MachinePortBlock extends DirectionalKineticBlock implements IBE<Mac
     }
 
     @Override
+    public void appendHoverText(
+            ItemStack stack,
+            Item.TooltipContext context,
+            List<Component> tooltip,
+            TooltipFlag flag
+    ) {
+        super.appendHoverText(stack, context, tooltip, flag);
+        if (abilities().contains(MultiblockAbility.KINETIC_INPUT)) {
+            tooltip.add(Component.literal(
+                    "Kinetic Input: " + formatNumber(MachineTierStats.kineticStressPerRpm(effectiveTier())) + " SU/RPM"
+            ).withStyle(ChatFormatting.RED));
+        } else if (abilities().contains(MultiblockAbility.KINETIC_OUTPUT)) {
+            tooltip.add(Component.literal(
+                    "Kinetic Output: " + formatNumber(MachineTierStats.kineticStressPerRpm(effectiveTier())) + " SU/RPM"
+            ).withStyle(ChatFormatting.GREEN));
+        }
+    }
+
+    private static String formatNumber(double value) {
+        return BigDecimal.valueOf(value)
+                .stripTrailingZeros()
+                .toPlainString();
+    }
+
+    @Override
     protected MapCodec<? extends DirectionalKineticBlock> codec() {
         return CODEC;
     }
@@ -134,8 +166,33 @@ public class MachinePortBlock extends DirectionalKineticBlock implements IBE<Mac
     }
 
     @Override
+    public InteractionResult onWrenched(BlockState state, UseOnContext context) {
+        if (openMachineControlSchedule(context)) {
+            return InteractionResult.SUCCESS;
+        }
+        return super.onWrenched(state, context);
+    }
+
+    @Override
     public InteractionResult onSneakWrenched(BlockState state, UseOnContext context) {
+        if (openMachineControlSchedule(context)) {
+            return InteractionResult.SUCCESS;
+        }
         return WrenchPickupHelper.pickup(this, state, context);
+    }
+
+    private boolean openMachineControlSchedule(UseOnContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        if (!(level.getBlockEntity(pos) instanceof MachinePortBlockEntity port)
+                || !port.hasMachineControlSchedule(context.getClickedFace())) {
+            return false;
+        }
+
+        if (!level.isClientSide() && context.getPlayer() != null) {
+            MachineControlScheduleMenu.open(context.getPlayer(), port, context.getClickedFace());
+        }
+        return true;
     }
 
     @Override
@@ -172,6 +229,18 @@ public class MachinePortBlock extends DirectionalKineticBlock implements IBE<Mac
             ((IPlayerExtension) player).openMenu(port, pos);
         }
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public boolean isSignalSource(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return level.getBlockEntity(pos) instanceof MachinePortBlockEntity machine
+                ? machine.machineControlSignal(direction.getOpposite())
+                : 0;
     }
 
     @Override

@@ -1,0 +1,29 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 300,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "create:shaft"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:wood_small_gear"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create:cogwheel"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

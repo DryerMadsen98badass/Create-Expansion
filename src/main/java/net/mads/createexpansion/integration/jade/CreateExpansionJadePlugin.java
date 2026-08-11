@@ -8,6 +8,7 @@ import net.mads.createexpansion.energy.EnergyWireBlock;
 import net.mads.createexpansion.energy.EnergyWireBlockEntity;
 import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
+import net.mads.createexpansion.machine.KineticRpmError;
 import net.mads.createexpansion.machine.MachineTierStats;
 import net.mads.createexpansion.machine.SingleBlockMachineBlock;
 import net.mads.createexpansion.machine.SingleBlockMachineBlockEntity;
@@ -16,16 +17,20 @@ import net.mads.createexpansion.machine.runtime.CERecipeLogic;
 import net.mads.createexpansion.machine.runtime.CERecipeLogicMachine;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlockEntity;
+import net.mads.createexpansion.recipe.PhRange;
 import net.mads.createexpansion.recipe.recipes.assembly.AssemblyRecipe;
 import net.mads.createexpansion.recipe.recipes.assembly.AssemblyWorldProgress;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,17 +38,25 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import snownee.jade.api.BlockAccessor;
+import snownee.jade.api.Accessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.IServerDataProvider;
+import snownee.jade.api.JadeIds;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.WailaPlugin;
 import snownee.jade.api.config.IPluginConfig;
+import snownee.jade.api.config.IWailaConfig;
 import snownee.jade.api.ui.BoxStyle;
+import snownee.jade.api.ui.IElement;
 import snownee.jade.api.ui.IElementHelper;
+import snownee.jade.api.view.IServerExtensionProvider;
+import snownee.jade.api.view.ViewGroup;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Locale;
 
 @WailaPlugin(CreateExpansion.MOD_ID)
@@ -51,24 +64,94 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
         registration.registerBlockDataProvider(EnergyStorageProvider.INSTANCE, MachinePortBlockEntity.class);
+        registration.registerBlockDataProvider(KineticPortProvider.INSTANCE, MachinePortBlockEntity.class);
         registration.registerBlockDataProvider(EnergyStorageProvider.INSTANCE, CreativeEnergyBlockEntity.class);
         registration.registerBlockDataProvider(MachineInfoProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(WireProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(AssemblyBlockProvider.INSTANCE, Block.class);
+        registration.registerItemStorage(EmptyItemStorageProvider.INSTANCE, SingleBlockMachineBlock.class);
+        registration.registerItemStorage(EmptyItemStorageProvider.INSTANCE, MultiblockControllerBlock.class);
+        registration.registerFluidStorage(EmptyFluidStorageProvider.INSTANCE, SingleBlockMachineBlock.class);
+        registration.registerFluidStorage(EmptyFluidStorageProvider.INSTANCE, MultiblockControllerBlock.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
-        registration.addConfig(MultiblockStatusProvider.UID, true);
-        registration.addConfig(EnergyStorageProvider.UID, true);
-        registration.addConfig(MachineInfoProvider.UID, true);
-        registration.addConfig(WireProvider.UID, true);
-        registration.addConfig(AssemblyBlockProvider.UID, true);
-        registration.registerBlockComponent(MultiblockStatusProvider.INSTANCE, MultiblockControllerBlock.class);
         registration.registerBlockComponent(EnergyStorageProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(KineticPortProvider.INSTANCE, MachinePortBlock.class);
         registration.registerBlockComponent(MachineInfoProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(WireProvider.INSTANCE, EnergyWireBlock.class);
         registration.registerBlockComponent(AssemblyBlockProvider.INSTANCE, Block.class);
+        registration.addBeforeTooltipCollectCallback((theme, accessor) -> {
+            if (accessor instanceof BlockAccessor blockAccessor
+                    && (blockAccessor.getBlock() instanceof SingleBlockMachineBlock
+                    || blockAccessor.getBlock() instanceof MultiblockControllerBlock)) {
+                accessor.getServerData().remove(JadeIds.UNIVERSAL_ITEM_STORAGE.toString());
+                accessor.getServerData().remove(JadeIds.UNIVERSAL_FLUID_STORAGE.toString());
+            }
+            return true;
+        });
+        registration.addTooltipCollectedCallback((box, accessor) -> {
+            if (accessor instanceof BlockAccessor blockAccessor
+                    && (blockAccessor.getBlock() instanceof SingleBlockMachineBlock
+                    || blockAccessor.getBlock() instanceof MultiblockControllerBlock)) {
+                ITooltip tooltip = box.getTooltip();
+                List<IElement> objectName = List.copyOf(tooltip.get(JadeIds.CORE_OBJECT_NAME));
+                List<IElement> modName = List.copyOf(tooltip.get(JadeIds.CORE_MOD_NAME));
+                tooltip.clear();
+                if (!objectName.isEmpty()) {
+                    tooltip.add(objectName);
+                }
+
+                IPluginConfig config = IWailaConfig.get().getPlugin();
+                if (blockAccessor.getBlock() instanceof MultiblockControllerBlock) {
+                    MultiblockStatusProvider.INSTANCE.appendTooltip(tooltip, blockAccessor, config);
+                }
+                MachineInfoProvider.INSTANCE.appendTooltip(tooltip, blockAccessor, config);
+
+                if (!modName.isEmpty()) {
+                    tooltip.add(modName);
+                }
+            }
+        });
+    }
+
+    private enum EmptyItemStorageProvider implements IServerExtensionProvider<ItemStack> {
+        INSTANCE;
+
+        private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(
+                CreateExpansion.MOD_ID,
+                "hidden_machine_item_storage"
+        );
+
+        @Override
+        public List<ViewGroup<ItemStack>> getGroups(Accessor<?> accessor) {
+            return List.of();
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return UID;
+        }
+    }
+
+    private enum EmptyFluidStorageProvider implements IServerExtensionProvider<CompoundTag> {
+        INSTANCE;
+
+        private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(
+                CreateExpansion.MOD_ID,
+                "hidden_machine_fluid_storage"
+        );
+
+        @Override
+        public List<ViewGroup<CompoundTag>> getGroups(Accessor<?> accessor) {
+            return List.of();
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return UID;
+        }
     }
 
     private enum EnergyStorageProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
@@ -152,6 +235,73 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
         }
     }
 
+    private enum KineticPortProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+        INSTANCE;
+
+        private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(
+                CreateExpansion.MOD_ID,
+                "kinetic_port"
+        );
+
+        @Override
+        public void appendTooltip(
+                ITooltip tooltip,
+                BlockAccessor accessor,
+                IPluginConfig config
+        ) {
+            CompoundTag data = accessor.getServerData().getCompound(UID.toString());
+            String mode = data.getString("Mode");
+            if ("INPUT".equals(mode)) {
+                tooltip.add(Component.literal(
+                        "Kinetic Input: " + formatNumber(data.getDouble("SuPerRpm")) + " SU/RPM"
+                ).withStyle(ChatFormatting.RED));
+                tooltip.add(Component.literal(
+                        "Speed: " + data.getInt("Rpm") + " RPM"
+                ).withStyle(ChatFormatting.GRAY));
+            } else if ("OUTPUT".equals(mode)) {
+                tooltip.add(Component.literal(
+                        "Kinetic Output: " + formatNumber(data.getDouble("SuPerRpm")) + " SU/RPM"
+                ).withStyle(ChatFormatting.GREEN));
+                tooltip.add(Component.literal(
+                        "Output Speed: " + data.getInt("Rpm") + " RPM"
+                ).withStyle(ChatFormatting.GRAY));
+            }
+        }
+
+        @Override
+        public void appendServerData(CompoundTag root, BlockAccessor accessor) {
+            if (!(accessor.getBlockEntity() instanceof MachinePortBlockEntity port)
+                    || !(accessor.getBlock() instanceof MachinePortBlock block)
+                    || !block.isKineticPort()) {
+                return;
+            }
+
+            CompoundTag data = root.getCompound(UID.toString());
+            if (block.abilities().contains(
+                    net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockAbility.KINETIC_INPUT
+            )) {
+                data.putString("Mode", "INPUT");
+                data.putInt("Rpm", port.kineticRpm());
+            } else {
+                data.putString("Mode", "OUTPUT");
+                data.putInt("Rpm", port.generatedRpm());
+            }
+            data.putDouble("SuPerRpm", port.kineticStressPerRpm());
+            root.put(UID.toString(), data);
+        }
+
+        private static String formatNumber(double value) {
+            return BigDecimal.valueOf(value)
+                    .stripTrailingZeros()
+                    .toPlainString();
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return UID;
+        }
+    }
+
     private enum MachineInfoProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
         INSTANCE;
 
@@ -168,14 +318,10 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
                 writeMachineData(data, machine);
             }
 
-            String input = data.getString("MachineInput");
-            if (!input.isBlank()) {
-                tooltip.add(Component.literal("Input: " + input).withStyle(ChatFormatting.AQUA));
-            }
-            String output = data.getString("MachineOutput");
-            if (!output.isBlank()) {
-                tooltip.add(Component.literal("Output: " + output).withStyle(ChatFormatting.GOLD));
-            }
+            tooltip.remove(JadeIds.UNIVERSAL_ITEM_STORAGE);
+            tooltip.remove(JadeIds.UNIVERSAL_FLUID_STORAGE);
+            appendRecipeIo(tooltip, data, "Inputs", "MachineItemInputs", "MachineFluidInputs", ChatFormatting.AQUA);
+            appendRecipeIo(tooltip, data, "Outputs", "MachineItemOutputs", "MachineFluidOutputs", ChatFormatting.GOLD);
 
             int resourcePerTick = data.getInt("MachineResourcePerTick");
             long voltage = data.getLong("MachineEnergyVoltage");
@@ -187,6 +333,34 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
                         (resourcePerTick > 0 ? "Steam Consumption: " : "Steam Production: ")
                                 + Math.abs(resourcePerTick) + " mB/t"
                 ).withStyle(resourcePerTick > 0 ? ChatFormatting.RED : ChatFormatting.GREEN));
+            }
+
+            appendKineticTooltip(tooltip, data);
+
+            if (data.contains("MachinePhHundredths")) {
+                tooltip.add(Component.literal("pH: " + PhRange.formatHundredths(data.getInt("MachinePhHundredths")))
+                        .withStyle(ChatFormatting.AQUA));
+                tooltip.add(Component.literal("Neutralizing: 0.01/s").withStyle(ChatFormatting.GRAY));
+            }
+
+            if (data.contains("MachineSafePhMin") && data.contains("MachineSafePhMax")) {
+                tooltip.add(Component.literal(
+                        "Safe pH: " + PhRange.formatHundredths(data.getInt("MachineSafePhMin"))
+                                + " - " + PhRange.formatHundredths(data.getInt("MachineSafePhMax"))
+                ).withStyle(ChatFormatting.AQUA));
+            }
+
+            if (data.contains("MachineMaxDurability")) {
+                tooltip.add(Component.literal(
+                        "Durability: " + formatHundredths(data.getLong("MachineDurabilityHundredths"))
+                                + " / " + data.getInt("MachineMaxDurability")
+                ).withStyle(ChatFormatting.GRAY));
+                int corrosion = data.getInt("MachineCorrosionHundredthsPerTick");
+                if (corrosion > 0) {
+                    tooltip.add(Component.literal(
+                            "Corrosion: -" + formatHundredths(corrosion) + "/tick"
+                    ).withStyle(ChatFormatting.RED));
+                }
             }
 
             int total = data.getInt("MachineProgressTotal");
@@ -203,7 +377,12 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
             }
 
             String status = data.getString("MachineStatus");
-            if (!status.isBlank() && !"IDLE".equals(status) && !"WORKING".equals(status)) {
+            boolean kineticError = data.contains("MachineKineticError")
+                    && !"NONE".equals(data.getString("MachineKineticError"));
+            if (!status.isBlank()
+                    && !"IDLE".equals(status)
+                    && !"WORKING".equals(status)
+                    && !(kineticError && "WAITING_FOR_RESOURCE".equals(status))) {
                 tooltip.add(Component.literal(formatStatus(status)).withStyle(ChatFormatting.RED));
             }
 
@@ -213,6 +392,18 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
                 energyData.putLong("Stored", data.getLong("MachineEnergyStored"));
                 energyData.putLong("Capacity", energyCapacity);
                 EnergyStorageProvider.appendEnergyTooltip(tooltip, energyData, 0xFFFFFFFF);
+            }
+
+            int steamCapacity = data.getInt("MachineSteamCapacity");
+            if (steamCapacity > 0) {
+                int stored = Math.min(steamCapacity, Math.max(0, data.getInt("MachineSteamStored")));
+                tooltip.add(IElementHelper.get().progress(
+                        stored / (float) steamCapacity,
+                        Component.literal("Steam: " + stored + " / " + steamCapacity + " mB"),
+                        IElementHelper.get().progressStyle().color(0xFF4DA6D8, 0xFF28769F).textColor(0xFFFFFFFF),
+                        BoxStyle.getNestedBox(),
+                        true
+                ));
             }
         }
 
@@ -233,13 +424,21 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
             data.putInt("MachineProgress", logic.progress());
             data.putInt("MachineProgressTotal", logic.duration());
             data.putInt("MachineResourcePerTick", logic.resourcePerTick());
-            data.putString("MachineInput", execution == null
-                    ? ""
-                    : join(formatItems(execution.itemInputs()), formatFluids(execution.fluidInputs())));
-            data.putString("MachineOutput", execution == null
-                    ? ""
-                    : join(formatItems(execution.itemOutputs()), formatFluids(execution.fluidOutputs())));
+            writeItems(data, "MachineItemInputs", execution == null ? List.of() : execution.itemInputs());
+            writeFluids(data, "MachineFluidInputs", execution == null ? List.of() : execution.fluidInputs());
+            writeItems(data, "MachineItemOutputs", execution == null ? List.of() : execution.itemOutputs());
+            writeFluids(data, "MachineFluidOutputs", execution == null ? List.of() : execution.fluidOutputs());
             data.putString("MachineStatus", logic.status().name());
+            writeKineticData(data, machine);
+
+            if (!(machine instanceof MultiblockControllerBlockEntity)) {
+                data.remove("MachinePhHundredths");
+                data.remove("MachineSafePhMin");
+                data.remove("MachineSafePhMax");
+                data.remove("MachineDurabilityHundredths");
+                data.remove("MachineMaxDurability");
+                data.remove("MachineCorrosionHundredthsPerTick");
+            }
 
             if (machine instanceof SingleBlockMachineBlockEntity singleBlock
                     && singleBlock.energyCapacity() > 0) {
@@ -249,62 +448,253 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
                 data.putString("MachineEnergyTier", energy.tier().displayName());
                 data.putLong("MachineEnergyVoltage", energy.voltage());
                 data.putLong("MachineEnergyInputAmps", energy.maxInputAmps());
+                data.remove("MachineSteamStored");
+                data.remove("MachineSteamCapacity");
+            } else if (machine instanceof SingleBlockMachineBlockEntity singleBlock
+                    && singleBlock.steamCapacity() > 0) {
+                data.putInt("MachineSteamStored", singleBlock.steamStored());
+                data.putInt("MachineSteamCapacity", singleBlock.steamCapacity());
+                data.remove("MachineEnergyStored");
+                data.remove("MachineEnergyCapacity");
+                data.remove("MachineEnergyTier");
+                data.remove("MachineEnergyVoltage");
+                data.remove("MachineEnergyInputAmps");
+            } else if (machine instanceof MultiblockControllerBlockEntity controller) {
+                data.putLong("MachineEnergyVoltage", 1L);
+                if (controller.getLevel() == null || !controller.getLevel().isClientSide()) {
+                    if (controller.hasPhHatch()) {
+                        data.putInt("MachinePhHundredths", controller.machinePhHundredths());
+                    } else {
+                        data.remove("MachinePhHundredths");
+                    }
+                    controller.safePhRange().ifPresentOrElse(range -> {
+                        data.putInt("MachineSafePhMin", range.minHundredths());
+                        data.putInt("MachineSafePhMax", range.maxHundredths());
+                    }, () -> {
+                        data.remove("MachineSafePhMin");
+                        data.remove("MachineSafePhMax");
+                    });
+                    if (controller.hasMachineDurability()) {
+                        data.putLong("MachineDurabilityHundredths", controller.machineDurabilityHundredths());
+                        data.putInt("MachineMaxDurability", controller.maxMachineDurability());
+                        data.putInt("MachineCorrosionHundredthsPerTick", controller.corrosionDamageHundredthsPerTick());
+                    } else {
+                        data.remove("MachineDurabilityHundredths");
+                        data.remove("MachineMaxDurability");
+                        data.remove("MachineCorrosionHundredthsPerTick");
+                    }
+                }
+                data.remove("MachineEnergyStored");
+                data.remove("MachineEnergyCapacity");
+                data.remove("MachineEnergyTier");
+                data.remove("MachineEnergyInputAmps");
+                data.remove("MachineSteamStored");
+                data.remove("MachineSteamCapacity");
             } else {
                 data.remove("MachineEnergyStored");
                 data.remove("MachineEnergyCapacity");
                 data.remove("MachineEnergyTier");
                 data.remove("MachineEnergyVoltage");
                 data.remove("MachineEnergyInputAmps");
+                data.remove("MachineSteamStored");
+                data.remove("MachineSteamCapacity");
             }
+        }
+
+        private static void appendKineticTooltip(
+                ITooltip tooltip,
+                CompoundTag data
+        ) {
+            String mode = data.getString("MachineKineticMode");
+            if ("INPUT".equals(mode)) {
+                if (data.contains("MachineKineticSuPerRpm")) {
+                    tooltip.add(Component.literal(
+                            "Kinetic Input: "
+                                    + formatNumber(data.getDouble("MachineKineticSuPerRpm"))
+                                    + " SU/RPM"
+                    ).withStyle(ChatFormatting.RED));
+                }
+                tooltip.add(Component.literal(
+                        "Speed: " + data.getInt("MachineKineticRpm") + " RPM"
+                ).withStyle(ChatFormatting.GRAY));
+                if (data.contains("MachineKineticMinRpm")) {
+                    tooltip.add(Component.literal(
+                            "Minimum Speed: " + data.getInt("MachineKineticMinRpm") + " RPM"
+                    ).withStyle(ChatFormatting.GRAY));
+                }
+                if (data.contains("MachineKineticMaxRpm")) {
+                    tooltip.add(Component.literal(
+                            "Maximum Speed: " + data.getInt("MachineKineticMaxRpm") + " RPM"
+                    ).withStyle(ChatFormatting.GRAY));
+                }
+
+                String error = data.getString("MachineKineticError");
+                if (KineticRpmError.INSUFFICIENT.name().equals(error)) {
+                    tooltip.add(Component.literal("Insufficient RPM").withStyle(ChatFormatting.RED));
+                } else if (KineticRpmError.TOO_AGGRESSIVE.name().equals(error)) {
+                    tooltip.add(Component.literal("Too Aggressive RPM").withStyle(ChatFormatting.RED));
+                }
+            } else if ("OUTPUT".equals(mode)) {
+                if (data.contains("MachineKineticSuPerRpm")) {
+                    tooltip.add(Component.literal(
+                            "Kinetic Output: "
+                                    + formatNumber(data.getDouble("MachineKineticSuPerRpm"))
+                                    + " SU/RPM"
+                    ).withStyle(ChatFormatting.GREEN));
+                }
+                tooltip.add(Component.literal(
+                        "Output Speed: " + data.getInt("MachineKineticRpm") + " RPM"
+                ).withStyle(ChatFormatting.GRAY));
+            }
+        }
+
+        private static void writeKineticData(
+                CompoundTag data,
+                CERecipeLogicMachine machine
+        ) {
+            clearKineticData(data);
+
+            if (machine instanceof SingleBlockMachineBlockEntity singleBlock
+                    && singleBlock.getBlockState().getBlock() instanceof SingleBlockMachineBlock block
+                    && block.instance() != null) {
+                if (block.instance().definition().usesKineticInput()) {
+                    data.putString("MachineKineticMode", "INPUT");
+                    data.putDouble("MachineKineticSuPerRpm", singleBlock.kineticSuPerRpm());
+                    data.putInt("MachineKineticRpm", singleBlock.kineticRpm());
+                    singleBlock.kineticMinimumRpm().ifPresent(value ->
+                            data.putInt("MachineKineticMinRpm", value));
+                    singleBlock.kineticMaximumRpm().ifPresent(value ->
+                            data.putInt("MachineKineticMaxRpm", value));
+                    data.putString("MachineKineticError", singleBlock.kineticRpmError().name());
+                } else if (block.instance().definition().usesKineticOutput()) {
+                    data.putString("MachineKineticMode", "OUTPUT");
+                    data.putDouble("MachineKineticSuPerRpm", singleBlock.kineticSuPerRpm());
+                    data.putInt("MachineKineticRpm", singleBlock.kineticOutputRpm());
+                }
+                return;
+            }
+
+            if (machine instanceof MultiblockControllerBlockEntity controller
+                    && controller.isFormed()) {
+                if (controller.usesKineticInput()) {
+                    data.putString("MachineKineticMode", "INPUT");
+                    data.putInt("MachineKineticRpm", controller.kineticInputRpm());
+                    controller.kineticMinimumRpm().ifPresent(value ->
+                            data.putInt("MachineKineticMinRpm", value));
+                    controller.kineticMaximumRpm().ifPresent(value ->
+                            data.putInt("MachineKineticMaxRpm", value));
+                    data.putString("MachineKineticError", controller.kineticRpmError().name());
+                } else if (controller.usesKineticOutput()) {
+                    data.putString("MachineKineticMode", "OUTPUT");
+                    data.putInt("MachineKineticRpm", controller.kineticOutputRpm());
+                }
+            }
+        }
+
+        private static void clearKineticData(CompoundTag data) {
+            data.remove("MachineKineticMode");
+            data.remove("MachineKineticSuPerRpm");
+            data.remove("MachineKineticRpm");
+            data.remove("MachineKineticMinRpm");
+            data.remove("MachineKineticMaxRpm");
+            data.remove("MachineKineticError");
+        }
+
+        private static String formatNumber(double value) {
+            return BigDecimal.valueOf(value)
+                    .stripTrailingZeros()
+                    .toPlainString();
+        }
+
+        private static String formatHundredths(long value) {
+            return BigDecimal.valueOf(value, 2)
+                    .stripTrailingZeros()
+                    .toPlainString();
         }
 
         private static String formatStatus(String status) {
             return switch (status) {
                 case "WAITING_FOR_RESOURCE" -> "Waiting for power or steam";
                 case "WAITING_FOR_OUTPUT" -> "Output full";
+                case "WAITING_FOR_PH" -> "Waiting for correct pH";
+                case "WAITING_FOR_RPM" -> "Waiting for correct RPM";
                 case "MACHINE_INVALID" -> "Machine invalid";
                 default -> status;
             };
         }
 
-        private static String formatItems(java.util.List<ItemStack> stacks) {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < Math.min(3, stacks.size()); i++) {
-                if (!builder.isEmpty()) {
-                    builder.append(", ");
+        private static void appendRecipeIo(
+                ITooltip tooltip,
+                CompoundTag data,
+                String heading,
+                String itemKey,
+                String fluidKey,
+                ChatFormatting color
+        ) {
+            ListTag items = data.getList(itemKey, Tag.TAG_COMPOUND);
+            ListTag fluids = data.getList(fluidKey, Tag.TAG_COMPOUND);
+            if (items.isEmpty() && fluids.isEmpty()) {
+                return;
+            }
+
+            tooltip.add(Component.literal(heading).withStyle(color));
+            for (Tag entry : items) {
+                CompoundTag stackData = (CompoundTag) entry;
+                ResourceLocation id = ResourceLocation.tryParse(stackData.getString("Id"));
+                if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
+                    continue;
                 }
-                ItemStack stack = stacks.get(i);
-                builder.append(stack.getCount()).append("x ").append(stack.getHoverName().getString());
+                ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(id));
+                int amount = Math.max(1, stackData.getInt("Amount"));
+                tooltip.add(List.of(
+                        IElementHelper.get().smallItem(stack),
+                        IElementHelper.get().text(Component.literal("x" + amount + "[" + stack.getHoverName().getString() + "]"))
+                ));
             }
-            if (stacks.size() > 3) {
-                builder.append(", +").append(stacks.size() - 3);
+            for (Tag entry : fluids) {
+                CompoundTag fluidData = (CompoundTag) entry;
+                ResourceLocation id = ResourceLocation.tryParse(fluidData.getString("Id"));
+                if (id == null || !BuiltInRegistries.FLUID.containsKey(id)) {
+                    continue;
+                }
+                FluidStack fluid = new FluidStack(BuiltInRegistries.FLUID.get(id), Math.max(1, fluidData.getInt("Amount")));
+                ItemStack icon = new ItemStack(fluid.getFluid().getBucket());
+                if (icon.isEmpty() || icon.is(Items.AIR)) {
+                    icon = new ItemStack(Items.BUCKET);
+                }
+                tooltip.add(List.of(
+                        IElementHelper.get().smallItem(icon),
+                        IElementHelper.get().text(Component.literal("x" + fluid.getAmount() + "[" + fluid.getHoverName().getString() + "]"))
+                ));
             }
-            return builder.toString();
         }
 
-        private static String formatFluids(java.util.List<FluidStack> stacks) {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < Math.min(3, stacks.size()); i++) {
-                if (!builder.isEmpty()) {
-                    builder.append(", ");
+        private static void writeItems(CompoundTag data, String key, List<ItemStack> stacks) {
+            ListTag list = new ListTag();
+            for (ItemStack stack : stacks) {
+                if (stack.isEmpty()) {
+                    continue;
                 }
-                FluidStack stack = stacks.get(i);
-                builder.append(stack.getAmount()).append("mB ").append(stack.getHoverName().getString());
+                CompoundTag entry = new CompoundTag();
+                entry.putString("Id", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+                entry.putInt("Amount", stack.getCount());
+                list.add(entry);
             }
-            if (stacks.size() > 3) {
-                builder.append(", +").append(stacks.size() - 3);
-            }
-            return builder.toString();
+            data.put(key, list);
         }
 
-        private static String join(String first, String second) {
-            if (first.isBlank()) {
-                return second;
+        private static void writeFluids(CompoundTag data, String key, List<FluidStack> stacks) {
+            ListTag list = new ListTag();
+            for (FluidStack stack : stacks) {
+                if (stack.isEmpty()) {
+                    continue;
+                }
+                CompoundTag entry = new CompoundTag();
+                entry.putString("Id", BuiltInRegistries.FLUID.getKey(stack.getFluid()).toString());
+                entry.putInt("Amount", stack.getAmount());
+                list.add(entry);
             }
-            if (second.isBlank()) {
-                return first;
-            }
-            return first + ", " + second;
+            data.put(key, list);
         }
 
         private static String voltageName(long voltage) {
@@ -403,21 +793,6 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
 
             tooltip.add(Component.literal(formed ? "Formed" : "Unformed")
                     .withStyle(formed ? ChatFormatting.GREEN : ChatFormatting.RED));
-
-            if (!(accessor.getBlockEntity() instanceof MultiblockControllerBlockEntity controller) || !controller.isProcessing()) {
-                return;
-            }
-
-            int remaining = controller.recipeRemaining();
-            tooltip.add(Component.literal("Time: " + remaining + " ticks").withStyle(ChatFormatting.GRAY));
-            if (!controller.activeItemInputs().isEmpty() || !controller.activeFluidInputs().isEmpty()) {
-                tooltip.add(Component.literal("Input: " + join(formatItems(controller.activeItemInputs()), formatFluids(controller.activeFluidInputs())))
-                        .withStyle(ChatFormatting.AQUA));
-            }
-            if (!controller.activeItemOutputs().isEmpty() || !controller.activeFluidOutputs().isEmpty()) {
-                tooltip.add(Component.literal("Output: " + join(formatItems(controller.activeItemOutputs()), formatFluids(controller.activeFluidOutputs())))
-                        .withStyle(ChatFormatting.GOLD));
-            }
         }
 
         @Override
@@ -425,45 +800,6 @@ public class CreateExpansionJadePlugin implements IWailaPlugin {
             return UID;
         }
 
-        private static String formatItems(java.util.List<ItemStack> stacks) {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < Math.min(3, stacks.size()); i++) {
-                if (!builder.isEmpty()) {
-                    builder.append(", ");
-                }
-                ItemStack stack = stacks.get(i);
-                builder.append(stack.getCount()).append("x ").append(stack.getHoverName().getString());
-            }
-            if (stacks.size() > 3) {
-                builder.append(", +").append(stacks.size() - 3);
-            }
-            return builder.toString();
-        }
-
-        private static String formatFluids(java.util.List<FluidStack> stacks) {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < Math.min(3, stacks.size()); i++) {
-                if (!builder.isEmpty()) {
-                    builder.append(", ");
-                }
-                FluidStack stack = stacks.get(i);
-                builder.append(stack.getAmount()).append("mB ").append(stack.getHoverName().getString());
-            }
-            if (stacks.size() > 3) {
-                builder.append(", +").append(stacks.size() - 3);
-            }
-            return builder.toString();
-        }
-
-        private static String join(String first, String second) {
-            if (first.isBlank()) {
-                return second;
-            }
-            if (second.isBlank()) {
-                return first;
-            }
-            return first + ", " + second;
-        }
     }
 
     private enum AssemblyBlockProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {

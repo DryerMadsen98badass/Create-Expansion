@@ -12,11 +12,54 @@ public final class CuttingRecipes {
     }
 
     public static void build(List<CompletableFuture<?>> futures, CachedOutput output, PackOutput.PathProvider recipes) {
-       //  CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/materials/plate_to_long_rod")
-       //          .inputItem("create_expansion:wood_plate")
-       //          .outputItem("create_expansion:wood_long_rod")
-       //          .duration(100)
-       //          .save();
+
+        CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/materials/wood_long_rod_to_wood_rod")
+                .inputItem("create_expansion:wood_long_rod")
+                .outputItem("minecraft:stick", 2)
+                .duration(100)
+                .save();
+
+        CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/materials/stick_to_wood_screw")
+                .inputItem("minecraft:stick")
+                .outputItem("create_expansion:wood_screw", 2)
+                .duration(100)
+                .save();
+
+        CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/materials/wood_plate_to_wood_gear")
+                .inputItem("create_expansion:wood_plate")
+                .outputItem("create_expansion:wood_gear")
+                .duration(100)
+                .save();
+
+        CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/materials/wood_plate_to_wood_small_gear")
+                .inputItem("create_expansion:wood_plate")
+                .outputItem("create_expansion:wood_small_gear")
+                .duration(100)
+                .save();
+
+        CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/materials/treated_wood_plate_to_treated_wood_small_gear")
+                .inputItem("create_expansion:treated_wood_plate")
+                .outputItem("create_expansion:treated_wood_small_gear")
+                .duration(100)
+                .save();
+
+        CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/materials/treated_wood_plate_to_treated_wood_small_gear")
+                .inputItem("create_expansion:treated_wood_plate")
+                .outputItem("create_expansion:treated_wood_gear")
+                .duration(100)
+                .save();
+
+        CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/materials/treated_wood_plate_to_treated_wood_screw")
+                .inputItem("create_expansion:treated_wood_rod")
+                .outputItem("create_expansion:treated_wood_screw")
+                .duration(100)
+                .save();
+
+        CreateRecipeBuilder.cutting(futures, output, recipes, "cutting/materials/treated_wood_long_rod_to_treated_wood_rod")
+                .inputItem("create_expansion:treated_wood_long_rod")
+                .outputItem("create_expansion:treated_wood_rod")
+                .duration(100)
+                .save();
 
         terracotta(futures, output, recipes, "white", "terracotta_screw");
         terracotta(futures, output, recipes, "orange", "terracotta_nugget");

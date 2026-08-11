@@ -1,0 +1,15 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create_expansion:stainless_bronze_fluid_pipe"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:cogwheel"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:stainless_bronze_mechanical_pump"
+  }
+}

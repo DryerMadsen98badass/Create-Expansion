@@ -11,7 +11,15 @@ public interface CERecipeLogicHost {
 
     boolean canCompleteRecipe(CERecipeExecution execution);
 
-    void completeRecipe(CERecipeExecution execution);
+    boolean completeRecipe(CERecipeExecution execution);
+
+    /**
+     * Whether WAIT_FOR_RESOURCE should reset the active recipe progress.
+     * The default keeps the existing behavior for all current hosts.
+     */
+    default boolean resetDurationWhenResourceMissing() {
+        return true;
+    }
 
     void onRecipeLogicChanged(boolean activeChanged);
 }

@@ -16,13 +16,20 @@ public class coke_oven {
     private static final char b = 'b';
     private static final char i = 'i';
 
-    public static final MultiblockControllerDefinition CONTROLLER = MultiblockControllerDefinition.of(
-            "coke_oven",
-            "Coke Oven",
-            "create_expansion:block/casings/casing/silica_bricks",
-            "block/machines/overlay/coke_oven/coke_oven_off",
-            "block/machines/overlay/coke_oven/coke_oven_on"
-    );
+    public static final MultiblockControllerDefinition CONTROLLER = MultiblockControllerDefinition.machine()
+            .machineDefinition(MultiblockControllerDefinition.Option.id("coke_oven"))
+            .machineDefinition(MultiblockControllerDefinition.Option.displayName("Coke Oven"))
+            .machineDefinition(MultiblockControllerDefinition.Option.frontTexture("create_expansion:block/casings/casing/silica_bricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.backTexture("create_expansion:block/casings/casing/silica_bricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.leftTexture("create_expansion:block/casings/casing/silica_bricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.rightTexture("create_expansion:block/casings/casing/silica_bricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.topTexture("create_expansion:block/casings/casing/silica_bricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.bottomTexture("create_expansion:block/casings/casing/silica_bricks"))
+            .machineDefinition(MultiblockControllerDefinition.Option.frontOverlay(
+                    "block/machines/overlay/coke_oven/coke_oven_off",
+                    "block/machines/overlay/coke_oven/coke_oven_on"
+            ))
+            .build();
 
     public static final MultiblockDefinition DEFINITION = MultiblockDefinition.machine()
             .machineDefinition(Option.id("coke_oven"))
@@ -39,7 +46,7 @@ public class coke_oven {
                     .layer( row(a, a, a), row(controller, i, a), row(a, a, a))
                     .layer( row(a, a, a), row(a, a, a),          row(a, a, a))
             ))
-            .machineDefinition(Option.where(a, block("create_expansion:silica_bricks").min(22).or(ability(needed)).overlay("create_expansion:block/casings/casing/silica_bricks")))
+            .machineDefinition(Option.where(a, block("create_expansion:silica_bricks").min(22).or(ability(needed)).overlay("create_expansion:block/silica_bricks")))
             .machineDefinition(Option.where(i, air()))
             .build();
 }

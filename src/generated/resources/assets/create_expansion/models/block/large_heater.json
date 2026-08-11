@@ -5,33 +5,33 @@
       "faces": {
         "down": {
           "cullface": "down",
-          "texture": "#casing",
-          "tintindex": 0
+          "texture": "#bottom_base",
+          "tintindex": 5
         },
         "east": {
           "cullface": "east",
-          "texture": "#casing",
-          "tintindex": 0
+          "texture": "#right_base",
+          "tintindex": 3
         },
         "north": {
           "cullface": "north",
-          "texture": "#casing",
+          "texture": "#front_base",
           "tintindex": 0
         },
         "south": {
           "cullface": "south",
-          "texture": "#casing",
-          "tintindex": 0
+          "texture": "#back_base",
+          "tintindex": 1
         },
         "up": {
           "cullface": "up",
-          "texture": "#casing",
-          "tintindex": 0
+          "texture": "#top_base",
+          "tintindex": 4
         },
         "west": {
           "cullface": "west",
-          "texture": "#casing",
-          "tintindex": 0
+          "texture": "#left_base",
+          "tintindex": 2
         }
       },
       "from": [
@@ -48,25 +48,30 @@
     {
       "faces": {
         "north": {
-          "texture": "#front"
+          "texture": "#front_overlay"
         }
       },
       "from": [
         0.0,
         0.0,
-        -0.02
+        -0.01
       ],
       "to": [
         16.0,
         16.0,
-        -0.01
+        0.0
       ]
     }
   ],
   "render_type": "minecraft:cutout",
   "textures": {
-    "casing": "create_expansion:block/casings/universal_textures/casing",
-    "front": "create_expansion:block/machines/overlay/foundry/foundry_off",
-    "particle": "create_expansion:block/casings/universal_textures/casing"
+    "back_base": "create_expansion:block/casings/universal_textures/casing",
+    "bottom_base": "create_expansion:block/casings/universal_textures/casing",
+    "front_base": "create_expansion:block/casings/universal_textures/casing",
+    "front_overlay": "create_expansion:block/machines/overlay/foundry/foundry_off",
+    "left_base": "create_expansion:block/casings/universal_textures/casing",
+    "particle": "create_expansion:block/casings/universal_textures/casing",
+    "right_base": "create_expansion:block/casings/universal_textures/casing",
+    "top_base": "create_expansion:block/casings/universal_textures/casing"
   }
 }

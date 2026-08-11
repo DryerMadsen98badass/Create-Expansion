@@ -104,11 +104,15 @@
     "create_expansion:moscovium_diorite_ore",
     "create_expansion:livermorium_diorite_ore",
     "create_expansion:electrum_diorite_ore",
+    "create_expansion:calcite_diorite_ore",
     "create_expansion:diamond_diorite_ore",
     "create_expansion:emerald_diorite_ore",
     "create_expansion:lapis_diorite_ore",
     "create_expansion:redstone_diorite_ore",
     "create_expansion:quartz_diorite_ore",
+    "create_expansion:topaz_diorite_ore",
+    "create_expansion:ruby_diorite_ore",
+    "create_expansion:sapphire_diorite_ore",
     "create_expansion:graphite_diorite_ore",
     "create_expansion:sodalite_diorite_ore",
     "create_expansion:lazurite_diorite_ore",
@@ -117,6 +121,7 @@
     "create_expansion:goethite_diorite_ore",
     "create_expansion:siderite_diorite_ore",
     "create_expansion:pyrite_diorite_ore",
+    "create_expansion:cinnabar_diorite_ore",
     "create_expansion:chalcopyrite_diorite_ore",
     "create_expansion:malachite_diorite_ore",
     "create_expansion:azurite_diorite_ore",
@@ -173,7 +178,6 @@
     "create_expansion:dolomite_diorite_ore",
     "create_expansion:coal_diorite_ore",
     "create_expansion:carnallite_diorite_ore",
-    "create_expansion:calcite_diorite_ore",
     "create_expansion:gypsum_diorite_ore",
     "create_expansion:fluorite_diorite_ore",
     "create_expansion:apatite_diorite_ore",
@@ -183,9 +187,6 @@
     "create_expansion:sylvite_diorite_ore",
     "create_expansion:orthoclase_diorite_ore",
     "create_expansion:bastnasite_diorite_ore",
-    "create_expansion:xenotime_diorite_ore",
-    "create_expansion:topaz_diorite_ore",
-    "create_expansion:ruby_diorite_ore",
-    "create_expansion:sapphire_diorite_ore"
+    "create_expansion:xenotime_diorite_ore"
   ]
 }

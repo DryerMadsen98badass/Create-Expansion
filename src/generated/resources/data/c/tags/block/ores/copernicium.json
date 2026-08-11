@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:copernicium_netherrack_ore",
-    "create_expansion:copernicium_deepslate_ore",
-    "create_expansion:copernicium_andesite_ore",
-    "create_expansion:copernicium_end_stone_ore",
     "create_expansion:copernicium_diorite_ore",
-    "create_expansion:copernicium_tuff_ore",
+    "create_expansion:copernicium_granite_ore",
+    "create_expansion:copernicium_netherrack_ore",
     "create_expansion:copernicium_blackstone_ore",
     "create_expansion:copernicium_ore",
-    "create_expansion:copernicium_granite_ore"
+    "create_expansion:copernicium_deepslate_ore",
+    "create_expansion:copernicium_tuff_ore",
+    "create_expansion:copernicium_andesite_ore",
+    "create_expansion:copernicium_end_stone_ore"
   ]
 }

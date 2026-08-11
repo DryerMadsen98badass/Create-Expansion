@@ -44,12 +44,14 @@ public class MachinePortModelProvider implements DataProvider {
         futures.add(DataProvider.saveStable(cache, kineticBoxModel(), blockModels.resolve(KINETIC_MODEL_NAME + ".json")));
 
         for (MultiblockControllerDefinition controller : MultiblockDefinitions.controllers()) {
-            String offModel = controllerModelName(controller, false);
-            String onModel = controllerModelName(controller, true);
-            futures.add(DataProvider.saveStable(cache, controllerModel(controller, false), blockModels.resolve(offModel + ".json")));
-            futures.add(DataProvider.saveStable(cache, controllerModel(controller, true), blockModels.resolve(onModel + ".json")));
+            String idleModel = controllerModelName(controller, false, 0);
+            futures.add(DataProvider.saveStable(cache, controllerModel(controller, false, 0), blockModels.resolve(idleModel + ".json")));
+            for (int frame = 0; frame <= 9; frame++) {
+                String activeModel = controllerModelName(controller, true, frame);
+                futures.add(DataProvider.saveStable(cache, controllerModel(controller, true, frame), blockModels.resolve(activeModel + ".json")));
+            }
             futures.add(DataProvider.saveStable(cache, controllerBlockstate(controller), blockstates.resolve(controller.registryName() + ".json")));
-            futures.add(DataProvider.saveStable(cache, itemModel(offModel), itemModels.resolve(controller.registryName() + ".json")));
+            futures.add(DataProvider.saveStable(cache, itemModel(idleModel), itemModels.resolve(controller.registryName() + ".json")));
         }
 
         for (MachinePortType portType : MachinePortType.ALL) {
@@ -134,22 +136,203 @@ public class MachinePortModelProvider implements DataProvider {
         return json;
     }
 
-    private static JsonObject controllerModel(MultiblockControllerDefinition controller, boolean active) {
+    private static JsonObject controllerModel(MultiblockControllerDefinition controller, boolean active, int frame) {
+        String customModel = controller.model();
+        if (customModel != null && hasControllerOverlay(controller)) {
+            return compositeControllerModel(controller, customModel, active, frame);
+        }
+
         JsonObject json = new JsonObject();
-        json.addProperty("parent", "minecraft:block/block");
+        json.addProperty("parent", customModel == null ? "minecraft:block/block" : textureReference(customModel));
         json.addProperty("render_type", "minecraft:cutout");
 
         JsonObject textures = new JsonObject();
-        textures.addProperty("casing", textureReference(controller.casingTexture()));
-        textures.addProperty("front", textureReference(active ? controller.onOverlayTexture() : controller.offOverlayTexture()));
-        textures.addProperty("particle", textureReference(controller.casingTexture()));
+        addControllerBaseTextures(textures, controller);
+        addControllerOverlayTextures(textures, controller, active, frame);
+        textures.addProperty("particle", textureReference(controller.sideTexture(MultiblockControllerDefinition.Side.FRONT)));
         json.add("textures", textures);
 
-        JsonArray elements = new JsonArray();
-        elements.add(staticCasingElement(controller.tinted(), true));
-        elements.add(staticFrontOverlayElement());
-        json.add("elements", elements);
+        if (customModel == null) {
+            JsonArray elements = new JsonArray();
+            elements.add(controllerCasingElement(controller));
+            addControllerSideOverlays(elements, controller);
+            json.add("elements", elements);
+        }
         return json;
+    }
+
+    private static JsonObject compositeControllerModel(
+            MultiblockControllerDefinition controller,
+            String customModel,
+            boolean active,
+            int frame
+    ) {
+        JsonObject json = new JsonObject();
+        json.addProperty("parent", "minecraft:block/block");
+        json.addProperty("loader", "neoforge:composite");
+
+        JsonObject textures = new JsonObject();
+        textures.addProperty("particle", textureReference(controller.sideTexture(MultiblockControllerDefinition.Side.FRONT)));
+        json.add("textures", textures);
+
+        JsonObject children = new JsonObject();
+
+        JsonObject base = new JsonObject();
+        base.addProperty("parent", textureReference(customModel));
+        children.add("base", base);
+
+        JsonObject overlay = new JsonObject();
+        overlay.addProperty("parent", "minecraft:block/block");
+        overlay.addProperty("render_type", "minecraft:cutout");
+        JsonObject overlayTextures = new JsonObject();
+        addControllerOverlayTextures(overlayTextures, controller, active, frame);
+        overlay.add("textures", overlayTextures);
+        JsonArray overlayElements = new JsonArray();
+        addControllerSideOverlays(overlayElements, controller);
+        overlay.add("elements", overlayElements);
+        children.add("overlay", overlay);
+
+        json.add("children", children);
+
+        JsonArray itemRenderOrder = new JsonArray();
+        itemRenderOrder.add("base");
+        itemRenderOrder.add("overlay");
+        json.add("item_render_order", itemRenderOrder);
+        return json;
+    }
+
+    private static boolean hasControllerOverlay(MultiblockControllerDefinition controller) {
+        for (MultiblockControllerDefinition.Side side : MultiblockControllerDefinition.Side.values()) {
+            if (controller.hasOverlay(side)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void addControllerBaseTextures(JsonObject textures, MultiblockControllerDefinition controller) {
+        textures.addProperty("front_base", textureReference(controller.sideTexture(MultiblockControllerDefinition.Side.FRONT)));
+        textures.addProperty("back_base", textureReference(controller.sideTexture(MultiblockControllerDefinition.Side.BACK)));
+        textures.addProperty("left_base", textureReference(controller.sideTexture(MultiblockControllerDefinition.Side.LEFT)));
+        textures.addProperty("right_base", textureReference(controller.sideTexture(MultiblockControllerDefinition.Side.RIGHT)));
+        textures.addProperty("top_base", textureReference(controller.sideTexture(MultiblockControllerDefinition.Side.TOP)));
+        textures.addProperty("bottom_base", textureReference(controller.sideTexture(MultiblockControllerDefinition.Side.BOTTOM)));
+    }
+
+    private static void addControllerOverlayTextures(
+            JsonObject textures,
+            MultiblockControllerDefinition controller,
+            boolean active,
+            int frame
+    ) {
+        for (MultiblockControllerDefinition.Side side : MultiblockControllerDefinition.Side.values()) {
+            if (controller.hasOverlay(side)) {
+                textures.addProperty(controllerOverlayTextureKey(side), textureReference(controllerOverlay(controller, side, active, frame)));
+            }
+        }
+    }
+
+    private static String controllerOverlay(
+            MultiblockControllerDefinition controller,
+            MultiblockControllerDefinition.Side side,
+            boolean active,
+            int frame
+    ) {
+        String idleOverlay = controller.idleOverlay(side);
+        if (idleOverlay == null) {
+            throw new IllegalStateException("Missing overlay for " + side + " on " + controller.registryName());
+        }
+        List<String> activeOverlays = controller.activeOverlays(side);
+        if (!active || activeOverlays.isEmpty()) {
+            return idleOverlay;
+        }
+        return activeOverlays.get(Math.floorMod(frame, activeOverlays.size()));
+    }
+
+    private static JsonObject controllerCasingElement(MultiblockControllerDefinition controller) {
+        JsonObject element = element(0, 0, 0, 16, 16, 16);
+        JsonObject faces = new JsonObject();
+        addControllerFace(faces, "north", "#front_base", "north", controller, MultiblockControllerDefinition.Side.FRONT);
+        addControllerFace(faces, "south", "#back_base", "south", controller, MultiblockControllerDefinition.Side.BACK);
+        addControllerFace(faces, "west", "#left_base", "west", controller, MultiblockControllerDefinition.Side.LEFT);
+        addControllerFace(faces, "east", "#right_base", "east", controller, MultiblockControllerDefinition.Side.RIGHT);
+        addControllerFace(faces, "up", "#top_base", "up", controller, MultiblockControllerDefinition.Side.TOP);
+        addControllerFace(faces, "down", "#bottom_base", "down", controller, MultiblockControllerDefinition.Side.BOTTOM);
+        element.add("faces", faces);
+        return element;
+    }
+
+    private static void addControllerFace(
+            JsonObject faces,
+            String direction,
+            String texture,
+            String cullface,
+            MultiblockControllerDefinition controller,
+            MultiblockControllerDefinition.Side side
+    ) {
+        JsonObject face = new JsonObject();
+        face.addProperty("texture", texture);
+        face.addProperty("cullface", cullface);
+        if (controller.hasSideTextureColor(side)) {
+            face.addProperty("tintindex", side.tintIndex());
+        }
+        faces.add(direction, face);
+    }
+
+    private static void addControllerSideOverlays(JsonArray elements, MultiblockControllerDefinition controller) {
+        for (MultiblockControllerDefinition.Side side : MultiblockControllerDefinition.Side.values()) {
+            if (controller.hasOverlay(side)) {
+                elements.add(controllerSideOverlay(side));
+            }
+        }
+    }
+
+    private static JsonObject controllerSideOverlay(MultiblockControllerDefinition.Side side) {
+        JsonObject element;
+        JsonObject faces = new JsonObject();
+        String texture = "#" + controllerOverlayTextureKey(side);
+
+        switch (side) {
+            case FRONT -> {
+                element = element(0, 0, -0.01D, 16, 16, 0);
+                addUntintedFace(faces, "north", texture);
+            }
+            case BACK -> {
+                element = element(0, 0, 16, 16, 16, 16.01D);
+                addUntintedFace(faces, "south", texture);
+            }
+            case LEFT -> {
+                element = element(-0.01D, 0, 0, 0, 16, 16);
+                addUntintedFace(faces, "west", texture);
+            }
+            case RIGHT -> {
+                element = element(16, 0, 0, 16.01D, 16, 16);
+                addUntintedFace(faces, "east", texture);
+            }
+            case TOP -> {
+                element = element(0, 16, 0, 16, 16.01D, 16);
+                addUntintedFace(faces, "up", texture);
+            }
+            case BOTTOM -> {
+                element = element(0, -0.01D, 0, 16, 0, 16);
+                addUntintedFace(faces, "down", texture);
+            }
+            default -> throw new IllegalStateException("Unknown controller side " + side);
+        }
+
+        element.add("faces", faces);
+        return element;
+    }
+
+    private static String controllerOverlayTextureKey(MultiblockControllerDefinition.Side side) {
+        return switch (side) {
+            case FRONT -> "front_overlay";
+            case BACK -> "back_overlay";
+            case LEFT -> "left_overlay";
+            case RIGHT -> "right_overlay";
+            case TOP -> "top_overlay";
+            case BOTTOM -> "bottom_overlay";
+        };
     }
 
     private static JsonObject casingElement() {
@@ -477,29 +660,51 @@ public class MachinePortModelProvider implements DataProvider {
 
     private static JsonObject controllerBlockstate(MultiblockControllerDefinition controller) {
         JsonObject variants = new JsonObject();
-        addControllerVariants(variants, controller, false, false);
-        addControllerVariants(variants, controller, true, false);
-        addControllerVariants(variants, controller, false, true);
-        addControllerVariants(variants, controller, true, true);
+        for (boolean formed : new boolean[]{false, true}) {
+            for (boolean active : new boolean[]{false, true}) {
+                for (int frame = 0; frame <= 9; frame++) {
+                    addControllerVariants(variants, controller, formed, active, frame);
+                }
+            }
+        }
 
         JsonObject json = new JsonObject();
         json.add("variants", variants);
         return json;
     }
 
-    private static void addControllerVariants(JsonObject variants, MultiblockControllerDefinition controller, boolean formed, boolean active) {
-        addControllerVariant(variants, controller, formed, active, "north", 0);
-        addControllerVariant(variants, controller, formed, active, "east", 90);
-        addControllerVariant(variants, controller, formed, active, "south", 180);
-        addControllerVariant(variants, controller, formed, active, "west", 270);
+    private static void addControllerVariants(
+            JsonObject variants,
+            MultiblockControllerDefinition controller,
+            boolean formed,
+            boolean active,
+            int frame
+    ) {
+        addControllerVariant(variants, controller, formed, active, frame, "north", 0);
+        addControllerVariant(variants, controller, formed, active, frame, "east", 90);
+        addControllerVariant(variants, controller, formed, active, frame, "south", 180);
+        addControllerVariant(variants, controller, formed, active, frame, "west", 270);
     }
 
-    private static void addControllerVariant(JsonObject variants, MultiblockControllerDefinition controller, boolean formed, boolean active, String facing, int yRotation) {
-        variants.add("facing=" + facing + ",formed=" + formed + ",active=" + active, variant(controllerModelName(controller, formed && active), yRotation));
+    private static void addControllerVariant(
+            JsonObject variants,
+            MultiblockControllerDefinition controller,
+            boolean formed,
+            boolean active,
+            int frame,
+            String facing,
+            int yRotation
+    ) {
+        boolean renderActive = formed && active;
+        String key = "facing=" + facing + ",formed=" + formed + ",active=" + active + ",overlay_frame=" + frame;
+        variants.add(key, variant(controllerModelName(controller, renderActive, frame), yRotation));
     }
 
-    private static String controllerModelName(MultiblockControllerDefinition controller, boolean active) {
-        return active ? controller.registryName() + "_formed" : controller.registryName();
+    private static String controllerModelName(MultiblockControllerDefinition controller, boolean active, int frame) {
+        if (!active) {
+            return controller.registryName();
+        }
+        return frame == 0 ? controller.registryName() + "_formed" : controller.registryName() + "_formed_" + frame;
     }
 
     private static JsonObject variant(String modelName, int yRotation) {

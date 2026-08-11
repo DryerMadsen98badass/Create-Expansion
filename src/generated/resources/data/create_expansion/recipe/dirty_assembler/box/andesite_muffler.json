@@ -1,0 +1,37 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 1200,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "create:andesite_casing"
+    },
+    {
+      "count": 2,
+      "item": "minecraft:iron_bars"
+    },
+    {
+      "count": 8,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:wood_gear"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:wood_small_gear"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:andesite_muffler"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

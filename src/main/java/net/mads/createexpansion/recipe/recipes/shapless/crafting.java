@@ -19,7 +19,6 @@ public class crafting {
     }
 
     public static void build(RecipeOutput output) {
-        // Test recipe: 2 epler -> 1 gyllent eple (bare eksempel/mal)
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("create_expansion:iron_andesite_compound_dust"))
                 .requires(item("create_expansion:iron_dust"), 1)
                 .requires(item("create_expansion:andesite_dust"), 8)
@@ -61,6 +60,12 @@ public class crafting {
                 .requires(item("minecraft:flint"))
                 .unlockedBy("always_unlocked", alwaysTrue())
                 .save(output, CreateExpansion.MOD_ID + ":shapeless/flint_and_steel");
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("create_expansion:empty_glue"))
+                .requires(item("create:iron_sheet"))
+                .requires(item("minecraft:iron_nugget"))
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shapeless/empty_glue");
 
     }
 

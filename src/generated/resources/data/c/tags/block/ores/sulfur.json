@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:sulfur_netherrack_ore",
-    "create_expansion:sulfur_deepslate_ore",
-    "create_expansion:sulfur_andesite_ore",
-    "create_expansion:sulfur_end_stone_ore",
     "create_expansion:sulfur_diorite_ore",
-    "create_expansion:sulfur_tuff_ore",
+    "create_expansion:sulfur_granite_ore",
+    "create_expansion:sulfur_netherrack_ore",
     "create_expansion:sulfur_blackstone_ore",
     "create_expansion:sulfur_ore",
-    "create_expansion:sulfur_granite_ore"
+    "create_expansion:sulfur_deepslate_ore",
+    "create_expansion:sulfur_tuff_ore",
+    "create_expansion:sulfur_andesite_ore",
+    "create_expansion:sulfur_end_stone_ore"
   ]
 }

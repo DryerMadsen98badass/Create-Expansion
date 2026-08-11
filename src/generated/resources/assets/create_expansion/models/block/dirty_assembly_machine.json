@@ -1,0 +1,42 @@
+{
+  "parent": "minecraft:block/block",
+  "children": {
+    "base": {
+      "parent": "create_expansion:block/brass_machine_casing"
+    },
+    "overlay": {
+      "parent": "minecraft:block/block",
+      "elements": [
+        {
+          "faces": {
+            "north": {
+              "texture": "#front_overlay"
+            }
+          },
+          "from": [
+            0.0,
+            0.0,
+            -0.01
+          ],
+          "to": [
+            16.0,
+            16.0,
+            0.0
+          ]
+        }
+      ],
+      "render_type": "minecraft:cutout",
+      "textures": {
+        "front_overlay": "create_expansion:block/machines/overlay/induction_chamber/overlay_front"
+      }
+    }
+  },
+  "item_render_order": [
+    "base",
+    "overlay"
+  ],
+  "loader": "neoforge:composite",
+  "textures": {
+    "particle": "create_expansion:block/machines/ino/casing"
+  }
+}

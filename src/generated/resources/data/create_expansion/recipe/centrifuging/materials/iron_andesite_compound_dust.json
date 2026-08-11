@@ -2,7 +2,7 @@
   "type": "create_expansion:centrifuging",
   "ingredients": [
     {
-      "count": 9,
+      "count": 1,
       "item": "create_expansion:iron_andesite_compound_dust"
     }
   ],
@@ -11,11 +11,11 @@
   "processing_time": 1800,
   "results": [
     {
-      "id": "create_expansion:iron_dust"
-    },
-    {
       "count": 8,
       "id": "create_expansion:andesite_dust"
+    },
+    {
+      "id": "create_expansion:iron_dust"
     }
   ]
 }

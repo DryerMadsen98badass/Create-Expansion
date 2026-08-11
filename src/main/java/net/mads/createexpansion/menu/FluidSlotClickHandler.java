@@ -1,13 +1,18 @@
 package net.mads.createexpansion.menu;
 
+import net.mads.createexpansion.fluid.FiredFluidBucketWrapper;
+import net.mads.createexpansion.registry.FluidRegistry;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 final class FluidSlotClickHandler {
     private FluidSlotClickHandler() {
@@ -15,26 +20,90 @@ final class FluidSlotClickHandler {
 
     static boolean interact(AbstractContainerMenu menu, Player player, FluidTank tank, boolean allowFill, boolean allowDrain) {
         ItemStack carried = menu.getCarried();
-        if (carried.isEmpty()) {
+        if (!carried.isEmpty()) {
+            return interactWithStack(
+                    stack -> menu.setCarried(stack),
+                    menu,
+                    player,
+                    carried,
+                    tank,
+                    allowFill,
+                    allowDrain
+            );
+        }
+
+        if (interactWithHand(menu, player, InteractionHand.MAIN_HAND, tank, allowFill, allowDrain)) {
+            return true;
+        }
+        return interactWithHand(menu, player, InteractionHand.OFF_HAND, tank, allowFill, allowDrain);
+    }
+
+    private static boolean interactWithHand(
+            AbstractContainerMenu menu,
+            Player player,
+            InteractionHand hand,
+            FluidTank tank,
+            boolean allowFill,
+            boolean allowDrain
+    ) {
+        ItemStack held = player.getItemInHand(hand);
+        if (held.isEmpty()) {
             return false;
         }
 
-        ItemStack singleContainer = carried.copyWithCount(1);
-        IFluidHandlerItem handler = singleContainer.getCapability(Capabilities.FluidHandler.ITEM);
+        return interactWithStack(
+                stack -> player.setItemInHand(hand, stack),
+                menu,
+                player,
+                held,
+                tank,
+                allowFill,
+                allowDrain
+        );
+    }
+
+    private static boolean interactWithStack(
+            java.util.function.Consumer<ItemStack> replacementSetter,
+            AbstractContainerMenu menu,
+            Player player,
+            ItemStack containerStack,
+            FluidTank tank,
+            boolean allowFill,
+            boolean allowDrain
+    ) {
+        ItemStack singleContainer = containerStack.copyWithCount(1);
+        IFluidHandlerItem handler = fluidHandler(singleContainer);
         if (handler == null) {
             return false;
         }
 
-        if (allowFill && fillTankFromContainer(menu, player, carried, handler, tank)) {
+        if (allowFill && fillTankFromContainer(replacementSetter, player, containerStack, handler, tank)) {
             return true;
         }
-        return allowDrain && fillContainerFromTank(menu, player, carried, handler, tank);
+        return allowDrain && fillContainerFromTank(replacementSetter, player, containerStack, handler, tank);
+    }
+
+    private static IFluidHandlerItem fluidHandler(ItemStack singleContainer) {
+        IFluidHandlerItem handler = singleContainer.getCapability(Capabilities.FluidHandler.ITEM);
+        if (handler != null) {
+            return handler;
+        }
+
+        if (!(singleContainer.getItem() instanceof BucketItem)) {
+            return null;
+        }
+
+        FluidRegistry.buildFiredBucketMaps();
+        if (FluidRegistry.NORMAL_BUCKET_BY_FIRED_BUCKET.containsKey(singleContainer.getItem())) {
+            return new FiredFluidBucketWrapper(singleContainer);
+        }
+        return new FluidBucketWrapper(singleContainer);
     }
 
     private static boolean fillTankFromContainer(
-            AbstractContainerMenu menu,
+            java.util.function.Consumer<ItemStack> replacementSetter,
             Player player,
-            ItemStack carried,
+            ItemStack containerStack,
             IFluidHandlerItem handler,
             FluidTank tank
     ) {
@@ -58,14 +127,14 @@ final class FluidSlotClickHandler {
             return false;
         }
 
-        replaceOneCarried(menu, player, carried, handler.getContainer());
+        replaceOneContainer(replacementSetter, player, containerStack, handler.getContainer());
         return true;
     }
 
     private static boolean fillContainerFromTank(
-            AbstractContainerMenu menu,
+            java.util.function.Consumer<ItemStack> replacementSetter,
             Player player,
-            ItemStack carried,
+            ItemStack containerStack,
             IFluidHandlerItem handler,
             FluidTank tank
     ) {
@@ -90,23 +159,23 @@ final class FluidSlotClickHandler {
             return false;
         }
 
-        replaceOneCarried(menu, player, carried, handler.getContainer());
+        replaceOneContainer(replacementSetter, player, containerStack, handler.getContainer());
         return true;
     }
 
-    private static void replaceOneCarried(
-            AbstractContainerMenu menu,
+    private static void replaceOneContainer(
+            java.util.function.Consumer<ItemStack> replacementSetter,
             Player player,
-            ItemStack carried,
+            ItemStack containerStack,
             ItemStack replacement
     ) {
-        if (carried.getCount() == 1) {
-            menu.setCarried(replacement);
+        if (containerStack.getCount() == 1) {
+            replacementSetter.accept(replacement);
             return;
         }
 
-        carried.shrink(1);
-        menu.setCarried(carried);
+        containerStack.shrink(1);
+        replacementSetter.accept(containerStack);
         if (!replacement.isEmpty() && !player.getInventory().add(replacement)) {
             player.drop(replacement, false);
         }

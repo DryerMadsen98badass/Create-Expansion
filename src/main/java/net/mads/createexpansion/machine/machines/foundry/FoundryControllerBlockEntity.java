@@ -53,7 +53,7 @@ public class FoundryControllerBlockEntity extends BlockEntity implements MenuPro
     private static final int VALIDATION_INTERVAL = 40;
     private static final int HEAT_INTERVAL = 20;
     private static final int BLAZE_BURNER_HEATED_TEMPERATURE = 750;
-    private static final int BLAZE_BURNER_SUPERHEATED_TEMPERATURE = 2000;
+    private static final int BLAZE_BURNER_SUPERHEATED_TEMPERATURE = 1000;
     private static final int ACTIVE_OVERLAY_TEMPERATURE = 100;
     private static final int MAX_MELTING_SLOTS = 7 * 7 * 32;
     private static final int MAX_ALLOY_RESOLVE_PASSES = 32;

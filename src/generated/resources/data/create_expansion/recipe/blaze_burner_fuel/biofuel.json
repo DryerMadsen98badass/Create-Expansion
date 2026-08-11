@@ -1,0 +1,9 @@
+{
+  "type": "create_expansion:blaze_burner_fuel",
+  "fluid_ingredient": {
+    "amount": 100,
+    "id": "create_expansion:biofuel"
+  },
+  "heated": 1700,
+  "superheated": 1700
+}

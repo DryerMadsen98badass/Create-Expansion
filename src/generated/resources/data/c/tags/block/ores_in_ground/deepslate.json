@@ -116,6 +116,7 @@
     "create_expansion:moscovium_deepslate_ore",
     "create_expansion:livermorium_deepslate_ore",
     "create_expansion:electrum_deepslate_ore",
+    "create_expansion:calcite_deepslate_ore",
     {
       "id": "minecraft:deepslate_diamond_ore",
       "required": false
@@ -133,6 +134,9 @@
       "required": false
     },
     "create_expansion:quartz_deepslate_ore",
+    "create_expansion:topaz_deepslate_ore",
+    "create_expansion:ruby_deepslate_ore",
+    "create_expansion:sapphire_deepslate_ore",
     "create_expansion:graphite_deepslate_ore",
     "create_expansion:sodalite_deepslate_ore",
     "create_expansion:lazurite_deepslate_ore",
@@ -141,6 +145,7 @@
     "create_expansion:goethite_deepslate_ore",
     "create_expansion:siderite_deepslate_ore",
     "create_expansion:pyrite_deepslate_ore",
+    "create_expansion:cinnabar_deepslate_ore",
     "create_expansion:chalcopyrite_deepslate_ore",
     "create_expansion:malachite_deepslate_ore",
     "create_expansion:azurite_deepslate_ore",
@@ -200,7 +205,6 @@
       "required": false
     },
     "create_expansion:carnallite_deepslate_ore",
-    "create_expansion:calcite_deepslate_ore",
     "create_expansion:gypsum_deepslate_ore",
     "create_expansion:fluorite_deepslate_ore",
     "create_expansion:apatite_deepslate_ore",
@@ -210,9 +214,6 @@
     "create_expansion:sylvite_deepslate_ore",
     "create_expansion:orthoclase_deepslate_ore",
     "create_expansion:bastnasite_deepslate_ore",
-    "create_expansion:xenotime_deepslate_ore",
-    "create_expansion:topaz_deepslate_ore",
-    "create_expansion:ruby_deepslate_ore",
-    "create_expansion:sapphire_deepslate_ore"
+    "create_expansion:xenotime_deepslate_ore"
   ]
 }

@@ -1,0 +1,93 @@
+{
+  "credit": "Made with Blockbench",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "rotation": 270,
+          "texture": "#0",
+          "uv": [
+            9.5,
+            16,
+            10.5,
+            11
+          ]
+        },
+        "east": {
+          "texture": "#0",
+          "uv": [
+            10.5,
+            11,
+            9.5,
+            16
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#0",
+          "uv": [
+            11,
+            11,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            11,
+            11,
+            16,
+            16
+          ]
+        },
+        "up": {
+          "rotation": 270,
+          "texture": "#0",
+          "uv": [
+            10.5,
+            11,
+            9.5,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            9.5,
+            16,
+            10.5,
+            11
+          ]
+        }
+      },
+      "from": [
+        3,
+        3,
+        0
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          28,
+          8
+        ]
+      },
+      "to": [
+        13,
+        13,
+        2
+      ]
+    }
+  ],
+  "texture_size": [
+    32,
+    32
+  ],
+  "textures": {
+    "0": "create_expansion:block/stainless_bronze_pipes",
+    "particle": "create_expansion:block/stainless_bronze_pipes"
+  }
+}

@@ -1,53 +1,65 @@
 package net.mads.createexpansion.client.screen;
 
 import net.mads.createexpansion.client.gui.CEMachineGuiTextures;
-import net.mads.createexpansion.gui.ProgressBar;
-import net.mads.createexpansion.menu.MultiblockControllerMenu;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlockEntity;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockDefinition;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockRegistry;
+import net.mads.createexpansion.menu.MultiblockControllerMenu;
+import net.mads.createexpansion.recipe.PhRange;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MultiblockControllerScreen extends AbstractContainerScreen<MultiblockControllerMenu> {
-    private static final int BACKGROUND = 0xF0111418;
-    private static final int PANEL = 0xFF1A2027;
-    private static final int PANEL_EDGE = 0xFF3E4A55;
-    private static final int SLOT = 0xFF20262D;
-    private static final int SLOT_DARK = 0xFF15191F;
-    private static final int SLOT_EDGE = 0xFF59636F;
-    private static final int TEXT = 0xFFE6EDF3;
+    private static final int SPACE_BACKGROUND = 0xFF05070B;
+    private static final int SPACE_EDGE = 0xFF3B4149;
+    private static final int TEXT = 0xFFE8EDF2;
     private static final int MUTED = 0xFF9CA8B3;
-    private static final int GREEN = 0xFF5DD97A;
-    private static final int RED = 0xFFE85B5B;
-    private static final int BLUE = 0xFF4E8FDC;
+    private static final int GREEN = 0xFF63D87C;
+    private static final int RED = 0xFFF06A6A;
+    private static final int BLUE = 0xFF6CA8EE;
+    private static final int GOLD = 0xFFF0C56A;
+    private static final int POWER_BUTTON_WIDTH = 42;
+    private static final int POWER_BUTTON_HEIGHT = 14;
+    private static final int INFO_X = 8;
+    private static final int INFO_Y = 23;
+    private static final int INFO_WIDTH = 244;
+    private static final int INFO_HEIGHT = 126;
+    private static final int CONTENT_PADDING = 7;
+    private static final int LINE_HEIGHT = 12;
+    private static final int RESOURCE_LINE_HEIGHT = 19;
+
+    private int scrollOffset;
+    private int contentHeight;
 
     public MultiblockControllerScreen(MultiblockControllerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        imageWidth = 224;
-        imageHeight = 204;
-        titleLabelX = 10;
-        titleLabelY = 8;
-        inventoryLabelX = 31;
-        inventoryLabelY = 106;
+        imageWidth = 260;
+        imageHeight = 250;
+        titleLabelX = 8;
+        titleLabelY = 6;
+        inventoryLabelX = 49;
+        inventoryLabelY = 154;
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(graphics, mouseX, mouseY, partialTick);
         super.render(graphics, mouseX, mouseY, partialTick);
+        renderPowerTooltip(graphics, mouseX, mouseY);
         renderTooltip(graphics, mouseX, mouseY);
     }
 
@@ -55,107 +67,317 @@ public class MultiblockControllerScreen extends AbstractContainerScreen<Multiblo
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         int x = leftPos;
         int y = topPos;
-        drawPanel(graphics, x, y, imageWidth, imageHeight);
-        drawStatus(graphics, x, y);
-        drawProgress(graphics, x, y);
-        drawRecipePreview(graphics, x, y);
+        CEMachineGuiTextures.drawMachinePanel(graphics, x, y, imageWidth, imageHeight);
+        drawSpacePanel(graphics, x + INFO_X, y + INFO_Y, INFO_WIDTH, INFO_HEIGHT);
+        drawInformation(graphics, x, y, mouseX, mouseY);
+        drawPowerButton(graphics, mouseX, mouseY);
 
         for (Slot slot : menu.slots) {
-            CEMachineGuiTextures.drawItemSlot(graphics, x + slot.x, y + slot.y);
+            CEMachineGuiTextures.drawItemSlot(graphics, x + slot.x - 1, y + slot.y - 1);
         }
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, titleLabelX, titleLabelY, TEXT, false);
-        graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, MUTED, false);
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0
+                && minecraft != null
+                && minecraft.gameMode != null
+                && inside(mouseX, mouseY, powerButtonX(), powerButtonY(), POWER_BUTTON_WIDTH, POWER_BUTTON_HEIGHT)) {
+            minecraft.gameMode.handleInventoryButtonClick(
+                    menu.containerId,
+                    MultiblockControllerMenu.BUTTON_TOGGLE_MACHINE
+            );
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    private void drawStatus(GuiGraphics graphics, int x, int y) {
-        boolean formed = menu.formed();
-        int color = formed ? GREEN : RED;
-        String label = formed ? "Formed" : "Unformed";
-        int labelWidth = font.width(label);
-        int chipX = x + imageWidth - labelWidth - 19;
-        graphics.fill(chipX, y + 7, x + imageWidth - 8, y + 18, 0xFF111820);
-        graphics.fill(chipX + 3, y + 10, chipX + 7, y + 14, color);
-        graphics.drawString(font, label, chipX + 10, y + 9, color, false);
-    }
-
-    private void drawProgress(GuiGraphics graphics, int x, int y) {
-        MultiblockControllerBlockEntity controller = menu.blockEntity();
-        ProgressBar bar = controller == null ? ProgressBar.ARROW : controller.progressBar();
-        int duration = Math.max(1, menu.duration());
-        int progress = Math.min(menu.progress(), duration);
-        CEMachineGuiTextures.drawProgressBar(
-                graphics,
-                bar,
-                x + (imageWidth - bar.width()) / 2,
-                y + 26,
-                progress / (float) duration
-        );
-    }
-
-    private void drawRecipePreview(GuiGraphics graphics, int x, int y) {
-        MultiblockControllerBlockEntity controller = menu.blockEntity();
-        MultiblockDefinition definition = definition(controller);
-        if (definition != null && definition.inputOnlyDisplay() != null) {
-            drawInputOnlyPreview(graphics, x, y, controller, definition.inputOnlyDisplay());
-            return;
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (!inside(mouseX, mouseY, leftPos + INFO_X, topPos + INFO_Y, INFO_WIDTH, INFO_HEIGHT)) {
+            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         }
 
+        int maximum = maximumScroll();
+        if (maximum <= 0) {
+            scrollOffset = 0;
+            return true;
+        }
+
+        scrollOffset = Math.max(0, Math.min(maximum, scrollOffset - (int) Math.signum(scrollY) * RESOURCE_LINE_HEIGHT));
+        return true;
+    }
+
+    @Override
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    }
+
+    private void drawInformation(GuiGraphics graphics, int screenX, int screenY, int mouseX, int mouseY) {
+        List<InfoLine> lines = informationLines();
+        int calculatedHeight = CONTENT_PADDING;
+        for (InfoLine line : lines) {
+            calculatedHeight += line.height();
+        }
+        contentHeight = calculatedHeight + CONTENT_PADDING;
+        scrollOffset = Math.min(scrollOffset, maximumScroll());
+
+        int boxX = screenX + INFO_X;
+        int boxY = screenY + INFO_Y;
+        graphics.enableScissor(boxX + 1, boxY + 1, boxX + INFO_WIDTH - 1, boxY + INFO_HEIGHT - 1);
+
+        int lineY = boxY + CONTENT_PADDING - scrollOffset;
+        for (InfoLine line : lines) {
+            if (line.resource() == null) {
+                graphics.drawString(font, line.text(), boxX + CONTENT_PADDING, lineY, line.color(), false);
+            } else {
+                ItemStack icon = line.resource();
+                graphics.renderItem(icon, boxX + CONTENT_PADDING, lineY - 3);
+                graphics.drawString(font, line.text(), boxX + CONTENT_PADDING + 20, lineY + 1, line.color(), false);
+            }
+            lineY += line.height();
+        }
+
+        graphics.disableScissor();
+        drawScrollBar(graphics, boxX, boxY);
+    }
+
+    private List<InfoLine> informationLines() {
+        List<InfoLine> lines = new ArrayList<>();
+        MultiblockControllerBlockEntity controller = menu.blockEntity();
+        MultiblockDefinition definition = definition(controller);
+
+        lines.add(InfoLine.text(title.getString(), GOLD));
+        lines.add(InfoLine.spacer());
+        lines.add(InfoLine.text(
+                "Status: " + (menu.formed() ? "Formed" : "Unformed"),
+                menu.formed() ? GREEN : RED
+        ));
+        lines.add(InfoLine.text(
+                "Machine: " + (menu.machineEnabled() ? "Enabled" : "Disabled"),
+                menu.machineEnabled() ? GREEN : RED
+        ));
+        if (controller != null && controller.activeRecipeId() != null) {
+            String operation = controller.recipeLogic().status().name();
+            lines.add(InfoLine.text("Operation: " + formatOperation(operation),
+                    "WORKING".equals(operation) ? GREEN : GOLD));
+        }
+
+        if (menu.duration() > 0) {
+            lines.add(InfoLine.text("Duration: " + formatSeconds(menu.duration()), TEXT));
+            lines.add(InfoLine.text(
+                    "Progress: " + formatSeconds(Math.min(menu.progress(), menu.duration()))
+                            + " / " + formatSeconds(menu.duration()),
+                    MUTED
+            ));
+        }
+
+        if (definition != null) {
+            if (menu.duration() <= 0 && definition.inputOnlyDisplay() != null) {
+                lines.add(InfoLine.text(
+                        "Duration: " + formatSeconds(definition.inputOnlyDisplay().durationTicks()),
+                        TEXT
+                ));
+            }
+            appendDriveInformation(lines, definition, controller);
+        }
+
+        if (menu.hasDurability()) {
+            lines.add(InfoLine.text(
+                    "Durability: " + formatHundredths(menu.durabilityHundredths())
+                            + " / " + menu.maxDurability(),
+                    TEXT
+            ));
+            if (menu.corrosionPerTickHundredths() > 0) {
+                lines.add(InfoLine.text(
+                        "Corrosion: -" + formatHundredths(menu.corrosionPerTickHundredths()) + "/tick",
+                        RED
+                ));
+            }
+        }
+
+        if (menu.hasPhHatch()) {
+            lines.add(InfoLine.text("pH: " + PhRange.formatHundredths(menu.machinePhHundredths()), BLUE));
+        }
+        if (menu.hasSafePhRange()) {
+            lines.add(InfoLine.text(
+                    "Safe pH: " + PhRange.formatHundredths(menu.safePhMinimumHundredths())
+                            + " - " + PhRange.formatHundredths(menu.safePhMaximumHundredths()),
+                    BLUE
+            ));
+        }
+        if (controller != null && controller.formedCoilHeat() > 0) {
+            lines.add(InfoLine.text("Temperature: " + controller.formedCoilHeat() + " C", GOLD));
+        }
+        if (menu.parallel() > 1) {
+            lines.add(InfoLine.text("Parallel: x" + menu.parallel(), BLUE));
+        }
+
+        appendRecipeInformation(lines, controller, definition);
+        return lines;
+    }
+
+    private void appendDriveInformation(
+            List<InfoLine> lines,
+            MultiblockDefinition definition,
+            MultiblockControllerBlockEntity controller
+    ) {
+        int resource = Math.abs(menu.resourcePerTick());
+        switch (definition.drive()) {
+            case ELECTRIC -> lines.add(InfoLine.text(
+                    "Energy Usage: " + (resource > 0 ? resource : definition.energyUsage()) + " CE/t",
+                    TEXT
+            ));
+            case STEAM -> lines.add(InfoLine.text(
+                    "Steam Usage: " + (resource > 0 ? resource : definition.steamUsage()) + " mB/t",
+                    TEXT
+            ));
+            case KINETIC -> {
+                if (controller != null) {
+                    lines.add(InfoLine.text("RPM: " + controller.kineticInputRpm(), TEXT));
+                }
+            }
+            case KINETIC_OUTPUT -> {
+                if (controller != null) {
+                    lines.add(InfoLine.text("Output RPM: " + controller.kineticOutputRpm(), TEXT));
+                }
+            }
+            case NONE -> {
+            }
+        }
+    }
+
+    private void appendRecipeInformation(
+            List<InfoLine> lines,
+            MultiblockControllerBlockEntity controller,
+            MultiblockDefinition definition
+    ) {
         List<ItemStack> itemInputs = controller == null ? List.of() : controller.activeItemInputs();
         List<FluidStack> fluidInputs = controller == null ? List.of() : controller.activeFluidInputs();
         List<ItemStack> itemOutputs = controller == null ? List.of() : controller.activeItemOutputs();
         List<FluidStack> fluidOutputs = controller == null ? List.of() : controller.activeFluidOutputs();
+        int duration = menu.duration();
+        int parallel = menu.parallel();
 
-        graphics.drawString(font, Component.literal("Inputs").withStyle(ChatFormatting.GRAY), x + 18, y + 50, MUTED, false);
-        graphics.drawString(font, Component.literal("Outputs").withStyle(ChatFormatting.GRAY), x + 145, y + 50, MUTED, false);
+        if (itemInputs.isEmpty() && fluidInputs.isEmpty() && itemOutputs.isEmpty() && fluidOutputs.isEmpty()
+                && definition != null && definition.inputOnlyDisplay() != null) {
+            MultiblockDefinition.InputOnlyDisplay display = definition.inputOnlyDisplay();
+            duration = display.durationTicks();
+            itemInputs = display.itemInputs().stream()
+                    .map(input -> new ItemStack(BuiltInRegistries.ITEM.get(input.itemId()), input.amount()))
+                    .filter(stack -> !stack.isEmpty() && !stack.is(Items.AIR))
+                    .toList();
+            fluidInputs = display.fluidInputs().stream()
+                    .map(input -> new FluidStack(BuiltInRegistries.FLUID.get(input.fluidId()), input.amount()))
+                    .filter(stack -> !stack.isEmpty())
+                    .toList();
+            parallel = 1;
+        }
 
-        drawStacks(graphics, itemInputs, x + 18, y + 61, false);
-        drawFluids(graphics, fluidInputs, x + 18, y + 83);
-        drawStacks(graphics, itemOutputs, x + 145, y + 61, false);
-        drawFluids(graphics, fluidOutputs, x + 145, y + 83);
-
-        graphics.drawString(font, ">", x + imageWidth / 2 - 3, y + 70, BLUE, false);
-
-        if (controller != null) {
-            ResourceLocation recipeId = controller.activeRecipeId();
-            if (recipeId != null) {
-                String recipe = recipeId.getPath();
-                graphics.drawString(font, recipe, x + imageWidth / 2 - font.width(recipe) / 2, y + 94, MUTED, false);
+        if (!itemInputs.isEmpty() || !fluidInputs.isEmpty()) {
+            lines.add(InfoLine.spacer());
+            lines.add(InfoLine.text("Inputs", BLUE));
+            for (ItemStack stack : itemInputs) {
+                int amount = multiplyClamped(stack.getCount(), parallel);
+                lines.add(itemLine(stack, amount, duration));
             }
-            if (menu.parallel() > 1) {
-                String parallel = "Parallel: x" + menu.parallel();
-                graphics.drawString(font, parallel, x + imageWidth / 2 - font.width(parallel) / 2, y + 105, BLUE, false);
+            for (FluidStack stack : fluidInputs) {
+                int amount = multiplyClamped(stack.getAmount(), parallel);
+                lines.add(fluidLine(stack, amount, duration));
+            }
+        }
+
+        if (!itemOutputs.isEmpty() || !fluidOutputs.isEmpty()) {
+            lines.add(InfoLine.spacer());
+            lines.add(InfoLine.text("Outputs", GOLD));
+            for (ItemStack stack : itemOutputs) {
+                lines.add(itemLine(stack, stack.getCount(), duration));
+            }
+            for (FluidStack stack : fluidOutputs) {
+                lines.add(fluidLine(stack, stack.getAmount(), duration));
             }
         }
     }
 
-    private void drawInputOnlyPreview(GuiGraphics graphics, int x, int y, MultiblockControllerBlockEntity controller, MultiblockDefinition.InputOnlyDisplay display) {
-        graphics.drawString(font, Component.literal("Inputs").withStyle(ChatFormatting.GRAY), x + 18, y + 50, MUTED, false);
+    private InfoLine itemLine(ItemStack stack, int amount, int duration) {
+        ItemStack icon = stack.copyWithCount(1);
+        String rate = duration > 0 ? " " + formatRate(amount, duration) + "/sec" : "";
+        return InfoLine.resource(icon, "x" + amount + " [" + stack.getHoverName().getString() + "]" + rate, TEXT);
+    }
 
-        int cePerTick = display.dynamicCePerTick() && controller != null ? controller.activeCEt() : display.cePerTick();
-        String ceText = cePerTick < 0 ? "CE/t: -" : "CE/t: " + cePerTick;
-        graphics.drawString(font, ceText, x + 18, y + 62, TEXT, false);
+    private InfoLine fluidLine(FluidStack stack, int amount, int duration) {
+        ItemStack icon = new ItemStack(stack.getFluid().getBucket());
+        if (icon.isEmpty() || icon.is(Items.AIR)) {
+            icon = new ItemStack(Items.BUCKET);
+        }
+        String rate = duration > 0 ? " " + formatRate(amount, duration) + " mB/sec" : "";
+        return InfoLine.resource(icon, "x" + amount + " [" + stack.getHoverName().getString() + "]" + rate, TEXT);
+    }
 
-        int slotY = y + 78;
-        if (!display.dynamicCePerTick()) {
-            graphics.drawString(font, "Duration: " + display.durationTicks() + " ticks", x + 18, y + 74, MUTED, false);
-            slotY = y + 88;
+    private void drawPowerButton(GuiGraphics graphics, int mouseX, int mouseY) {
+        int x = powerButtonX();
+        int y = powerButtonY();
+        boolean enabled = menu.machineEnabled();
+        boolean hovered = inside(mouseX, mouseY, x, y, POWER_BUTTON_WIDTH, POWER_BUTTON_HEIGHT);
+        int outer = hovered ? 0xFFFFFFFF : 0xFFC6C6C6;
+        int inner = enabled ? 0xFF3F8A52 : 0xFF8A4141;
+
+        graphics.fill(x, y, x + POWER_BUTTON_WIDTH, y + POWER_BUTTON_HEIGHT, outer);
+        graphics.fill(x + 1, y + 1, x + POWER_BUTTON_WIDTH - 1, y + POWER_BUTTON_HEIGHT - 1, 0xFF373737);
+        graphics.fill(x + 2, y + 2, x + POWER_BUTTON_WIDTH - 2, y + POWER_BUTTON_HEIGHT - 2, inner);
+        graphics.drawCenteredString(font, enabled ? "ON" : "OFF", x + POWER_BUTTON_WIDTH / 2, y + 3, 0xFFFFFFFF);
+    }
+
+    private void renderPowerTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (!inside(mouseX, mouseY, powerButtonX(), powerButtonY(), POWER_BUTTON_WIDTH, POWER_BUTTON_HEIGHT)) {
+            return;
+        }
+        graphics.renderComponentTooltip(
+                font,
+                List.of(
+                        Component.literal(menu.machineEnabled() ? "Machine enabled" : "Machine disabled"),
+                        Component.literal("Click to toggle").withStyle(ChatFormatting.GRAY)
+                ),
+                mouseX,
+                mouseY
+        );
+    }
+
+    private void drawSpacePanel(GuiGraphics graphics, int x, int y, int width, int height) {
+        graphics.fill(x, y, x + width, y + height, SPACE_EDGE);
+        graphics.fill(x + 1, y + 1, x + width - 1, y + height - 1, SPACE_BACKGROUND);
+        for (int index = 0; index < 48; index++) {
+            int dotX = x + 3 + Math.floorMod(index * 37 + 11, width - 6);
+            int dotY = y + 3 + Math.floorMod(index * index * 13 + 7, height - 6);
+            int color = index % 5 == 0 ? 0x99FFFFFF : 0x55FFFFFF;
+            graphics.fill(dotX, dotY, dotX + 1, dotY + 1, color);
+        }
+    }
+
+    private void drawScrollBar(GuiGraphics graphics, int boxX, int boxY) {
+        int maximum = maximumScroll();
+        if (maximum <= 0) {
+            return;
         }
 
-        List<ItemStack> itemInputs = display.itemInputs().stream()
-                .map(input -> new ItemStack(BuiltInRegistries.ITEM.get(input.itemId()), input.amount()))
-                .filter(stack -> !stack.isEmpty() && stack.getItem() != Items.AIR)
-                .toList();
-        drawStacks(graphics, itemInputs, x + 18, slotY, false);
+        int trackX = boxX + INFO_WIDTH - 4;
+        int trackY = boxY + 3;
+        int trackHeight = INFO_HEIGHT - 6;
+        int thumbHeight = Math.max(12, trackHeight * INFO_HEIGHT / Math.max(INFO_HEIGHT, contentHeight));
+        int thumbY = trackY + (trackHeight - thumbHeight) * scrollOffset / maximum;
+        graphics.fill(trackX, trackY, trackX + 2, trackY + trackHeight, 0xFF30343A);
+        graphics.fill(trackX, thumbY, trackX + 2, thumbY + thumbHeight, 0xFFB8C0C8);
+    }
 
-        List<FluidStack> fluidInputs = display.fluidInputs().stream()
-                .map(input -> new FluidStack(BuiltInRegistries.FLUID.get(input.fluidId()), input.amount()))
-                .filter(stack -> !stack.isEmpty())
-                .toList();
-        drawFluids(graphics, fluidInputs, x + 92, slotY);
+    private int maximumScroll() {
+        return Math.max(0, contentHeight - INFO_HEIGHT + 2);
+    }
+
+    private int powerButtonX() {
+        return leftPos + imageWidth - POWER_BUTTON_WIDTH - 8;
+    }
+
+    private int powerButtonY() {
+        return topPos + 3;
     }
 
     private static MultiblockDefinition definition(MultiblockControllerBlockEntity controller) {
@@ -165,31 +387,60 @@ public class MultiblockControllerScreen extends AbstractContainerScreen<Multiblo
         return MultiblockRegistry.byController(block.controllerId()).orElse(null);
     }
 
-    private void drawStacks(GuiGraphics graphics, List<ItemStack> stacks, int x, int y, boolean dark) {
-        for (int i = 0; i < Math.min(4, stacks.size()); i++) {
-            int slotX = x + (i % 2) * 18;
-            int slotY = y + (i / 2) * 18;
-            CEMachineGuiTextures.drawItemSlot(graphics, slotX, slotY);
-            graphics.renderItem(stacks.get(i), slotX + 1, slotY + 1);
-            graphics.renderItemDecorations(font, stacks.get(i), slotX + 1, slotY + 1);
+    private static boolean inside(double mouseX, double mouseY, int x, int y, int width, int height) {
+        return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+    }
+
+    private static int multiplyClamped(int value, int multiplier) {
+        return (int) Math.min(Integer.MAX_VALUE, (long) Math.max(0, value) * Math.max(1, multiplier));
+    }
+
+    private static String formatSeconds(int ticks) {
+        return BigDecimal.valueOf(ticks, 1)
+                .divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP)
+                .toPlainString() + " sec";
+    }
+
+    private static String formatRate(int amount, int durationTicks) {
+        return formatNumber(amount * 20.0D / Math.max(1, durationTicks));
+    }
+
+    private static String formatHundredths(long value) {
+        return BigDecimal.valueOf(value, 2)
+                .stripTrailingZeros()
+                .toPlainString();
+    }
+
+    private static String formatNumber(double value) {
+        return BigDecimal.valueOf(value)
+                .setScale(2, RoundingMode.HALF_UP)
+                .stripTrailingZeros()
+                .toPlainString();
+    }
+
+    private static String formatOperation(String operation) {
+        return switch (operation) {
+            case "WORKING" -> "Running";
+            case "WAITING_FOR_PH" -> "Waiting for correct pH";
+            case "WAITING_FOR_RPM" -> "Waiting for correct RPM";
+            case "WAITING_FOR_RESOURCE" -> "Waiting for power or steam";
+            case "WAITING_FOR_OUTPUT" -> "Output full";
+            case "PAUSED" -> "Paused";
+            default -> operation;
+        };
+    }
+
+    private record InfoLine(Component text, int color, ItemStack resource, int height) {
+        private static InfoLine text(String text, int color) {
+            return new InfoLine(Component.literal(text), color, null, LINE_HEIGHT);
+        }
+
+        private static InfoLine resource(ItemStack icon, String text, int color) {
+            return new InfoLine(Component.literal(text), color, icon, RESOURCE_LINE_HEIGHT);
+        }
+
+        private static InfoLine spacer() {
+            return new InfoLine(Component.empty(), MUTED, null, 5);
         }
     }
-
-    private void drawFluids(GuiGraphics graphics, List<FluidStack> fluids, int x, int y) {
-        for (int i = 0; i < Math.min(2, fluids.size()); i++) {
-            int slotX = x + 45 + i * 18;
-            CEMachineGuiTextures.drawFluidSlot(graphics, slotX, y);
-            CEMachineGuiTextures.drawFluid(graphics, fluids.get(i), slotX + 1, y + 1);
-        }
-    }
-
-    private static void drawPanel(GuiGraphics graphics, int x, int y, int width, int height) {
-        graphics.fill(x, y, x + width, y + height, BACKGROUND);
-        graphics.fill(x, y, x + width, y + 1, PANEL_EDGE);
-        graphics.fill(x, y + height - 1, x + width, y + height, PANEL_EDGE);
-        graphics.fill(x, y, x + 1, y + height, PANEL_EDGE);
-        graphics.fill(x + width - 1, y, x + width, y + height, PANEL_EDGE);
-        graphics.fill(x + 5, y + 23, x + width - 5, y + height - 5, PANEL);
-    }
-
 }

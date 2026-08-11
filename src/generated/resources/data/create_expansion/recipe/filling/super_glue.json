@@ -1,0 +1,18 @@
+{
+  "type": "create:filling",
+  "ingredients": [
+    {
+      "item": "create_expansion:empty_glue"
+    },
+    {
+      "type": "neoforge:single",
+      "amount": 1000,
+      "fluid": "create_expansion:glue"
+    }
+  ],
+  "results": [
+    {
+      "id": "create:super_glue"
+    }
+  ]
+}

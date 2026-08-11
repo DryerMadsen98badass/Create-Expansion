@@ -1,0 +1,39 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create_expansion:treated_wood_frame"
+  },
+  "inputs": [
+    {
+      "count": 6,
+      "item": "create_expansion:treated_wood_plate"
+    },
+    {
+      "count": 24,
+      "item": "create_expansion:treated_wood_screw"
+    },
+    {
+      "count": 24,
+      "item": "create_expansion:brass_rod"
+    },
+    {
+      "count": 48,
+      "item": "create_expansion:treated_wood_screw"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:brass_bearing"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:treated_wood_small_gear"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:treated_wood_gear"
+    }
+  ],
+  "result": {
+    "id": "create:brass_casing"
+  }
+}

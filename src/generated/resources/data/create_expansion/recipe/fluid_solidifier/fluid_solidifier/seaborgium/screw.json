@@ -1,0 +1,26 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 25,
+  "fluid_inputs": [
+    {
+      "amount": 36,
+      "fluid": "create_expansion:seaborgium"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:seaborgium_screw"
+      }
+    }
+  ],
+  "not_consumable_items": [
+    {
+      "count": 1,
+      "tag": "create_expansion:cold_molds/screw"
+    }
+  ],
+  "recipe_type": "create_expansion:fluid_solidifier",
+  "tier": "lv"
+}

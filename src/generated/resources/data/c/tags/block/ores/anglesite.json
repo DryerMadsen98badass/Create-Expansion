@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:anglesite_netherrack_ore",
-    "create_expansion:anglesite_deepslate_ore",
-    "create_expansion:anglesite_andesite_ore",
-    "create_expansion:anglesite_end_stone_ore",
     "create_expansion:anglesite_diorite_ore",
-    "create_expansion:anglesite_tuff_ore",
+    "create_expansion:anglesite_granite_ore",
+    "create_expansion:anglesite_netherrack_ore",
     "create_expansion:anglesite_blackstone_ore",
     "create_expansion:anglesite_ore",
-    "create_expansion:anglesite_granite_ore"
+    "create_expansion:anglesite_deepslate_ore",
+    "create_expansion:anglesite_tuff_ore",
+    "create_expansion:anglesite_andesite_ore",
+    "create_expansion:anglesite_end_stone_ore"
   ]
 }

@@ -2211,6 +2211,14 @@ public class CreateMaterialRecipeProvider implements DataProvider {
                 )
         );
 
+        sequence.add(
+                fillingStep(
+                        bearing,
+                        "create_expansion:aromatic_extract",
+                        25
+                )
+        );
+
         saveSequenced(
                 futures,
                 output,
@@ -2346,6 +2354,55 @@ public class CreateMaterialRecipeProvider implements DataProvider {
                 ingredients(
                         item(transitionalItem),
                         item(heldItem)
+                )
+        );
+
+        json.add(
+                "results",
+                results(
+                        transitionalItem,
+                        1
+                )
+        );
+
+        return json;
+    }
+
+
+    private JsonObject fillingStep(
+            String transitionalItem,
+            String fluidId,
+            int fluidAmount
+    ) {
+        JsonObject json = new JsonObject();
+
+        json.addProperty(
+                "type",
+                "create:filling"
+        );
+
+        JsonObject fluidIngredient = new JsonObject();
+
+        fluidIngredient.addProperty(
+                "type",
+                "neoforge:single"
+        );
+
+        fluidIngredient.addProperty(
+                "amount",
+                fluidAmount
+        );
+
+        fluidIngredient.addProperty(
+                "fluid",
+                fluidId
+        );
+
+        json.add(
+                "ingredients",
+                ingredients(
+                        item(transitionalItem),
+                        fluidIngredient
                 )
         );
 

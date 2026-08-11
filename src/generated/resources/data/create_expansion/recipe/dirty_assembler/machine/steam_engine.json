@@ -1,0 +1,33 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 700,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "minecraft:copper_block"
+    },
+    {
+      "count": 2,
+      "item": "create:piston_extension_pole"
+    },
+    {
+      "count": 4,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 1,
+      "item": "create:electron_tube"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create:steam_engine"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

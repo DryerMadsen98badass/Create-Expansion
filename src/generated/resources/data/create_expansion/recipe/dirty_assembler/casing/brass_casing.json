@@ -1,0 +1,49 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 10600,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "create_expansion:treated_wood_frame"
+    },
+    {
+      "count": 6,
+      "item": "create_expansion:treated_wood_plate"
+    },
+    {
+      "count": 24,
+      "item": "create_expansion:treated_wood_screw"
+    },
+    {
+      "count": 24,
+      "item": "create_expansion:brass_rod"
+    },
+    {
+      "count": 48,
+      "item": "create_expansion:treated_wood_screw"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:brass_bearing"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:treated_wood_small_gear"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:treated_wood_gear"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create:brass_casing"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

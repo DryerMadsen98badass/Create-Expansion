@@ -1,0 +1,27 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 2400,
+  "item_inputs": [
+    {
+      "count": 8,
+      "item": "create_expansion:andesite_dust"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:sphalerite_dust"
+    },
+    {
+      "count": 12,
+      "item": "minecraft:coal"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create:andesite_alloy"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:blast_furnace"
+}

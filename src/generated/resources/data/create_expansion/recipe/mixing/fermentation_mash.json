@@ -1,0 +1,20 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "type": "neoforge:single",
+      "amount": 250,
+      "fluid": "minecraft:water"
+    },
+    {
+      "item": "create_expansion:wet_biomass"
+    }
+  ],
+  "processing_time": 200,
+  "results": [
+    {
+      "amount": 250,
+      "id": "create_expansion:fermentation_mash"
+    }
+  ]
+}

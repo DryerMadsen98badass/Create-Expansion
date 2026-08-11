@@ -19,6 +19,10 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 public class SingleBlockMachineMenu extends AbstractContainerMenu {
     public static final int BUTTON_INPUT_FLUID_SLOT = 1000;
     public static final int BUTTON_OUTPUT_FLUID_SLOT = 1100;
+    public static final int BUTTON_CIRCUIT_DECREMENT = 1200;
+    public static final int BUTTON_CIRCUIT_INCREMENT = 1201;
+    public static final int BUTTON_CIRCUIT_RESET = 1202;
+    public static final int BUTTON_TOGGLE_MACHINE = 1300;
     private static final int SLOT_STEP = 18;
     private final SingleBlockMachineBlockEntity blockEntity;
     private final MachineGuiLayout layout;
@@ -156,7 +160,17 @@ public class SingleBlockMachineMenu extends AbstractContainerMenu {
             int slot = id - BUTTON_OUTPUT_FLUID_SLOT;
             return interactWithFluidSlot(player, blockEntity.outputFluidTanks(), slot, false, true);
         }
-        return false;
+
+        switch (id) {
+            case BUTTON_CIRCUIT_DECREMENT -> blockEntity.adjustCircuit(-1);
+            case BUTTON_CIRCUIT_INCREMENT -> blockEntity.adjustCircuit(1);
+            case BUTTON_CIRCUIT_RESET -> blockEntity.resetCircuit();
+            case BUTTON_TOGGLE_MACHINE -> blockEntity.toggleMachineEnabled();
+            default -> {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean interactWithFluidSlot(Player player, java.util.List<FluidTank> tanks, int slot, boolean allowFill, boolean allowDrain) {
@@ -193,6 +207,10 @@ public class SingleBlockMachineMenu extends AbstractContainerMenu {
 
     public int progressTotal() {
         return data.get(CERecipeMenuData.DURATION);
+    }
+
+    public boolean machineEnabled() {
+        return data.get(CERecipeMenuData.ENABLED) == 1;
     }
 
     public int itemInputSlots() {

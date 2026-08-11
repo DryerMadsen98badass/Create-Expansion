@@ -1,19 +1,19 @@
 {
   "values": [
-    "create_expansion:lapis_netherrack_ore",
-    {
-      "id": "minecraft:deepslate_lapis_ore",
-      "required": false
-    },
-    "create_expansion:lapis_andesite_ore",
-    "create_expansion:lapis_end_stone_ore",
     "create_expansion:lapis_diorite_ore",
-    "create_expansion:lapis_tuff_ore",
+    "create_expansion:lapis_granite_ore",
+    "create_expansion:lapis_netherrack_ore",
     "create_expansion:lapis_blackstone_ore",
     {
       "id": "minecraft:lapis_ore",
       "required": false
     },
-    "create_expansion:lapis_granite_ore"
+    {
+      "id": "minecraft:deepslate_lapis_ore",
+      "required": false
+    },
+    "create_expansion:lapis_tuff_ore",
+    "create_expansion:lapis_andesite_ore",
+    "create_expansion:lapis_end_stone_ore"
   ]
 }

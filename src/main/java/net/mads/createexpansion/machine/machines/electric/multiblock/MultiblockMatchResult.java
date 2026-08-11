@@ -16,9 +16,10 @@ public record MultiblockMatchResult(
         int coilCount,
         List<BlockPos> positions,
         Map<MultiblockAbility, List<BlockPos>> abilityPositions,
-        Map<BlockPos, ResourceLocation> overlays
+        Map<Integer, BlockPos> sequentialInputPositions,
+        Map<BlockPos, ResourceLocation> overlayModels
 ) {
     public static MultiblockMatchResult failed() {
-        return new MultiblockMatchResult(false, "", 0, null, 0, 0, List.of(), Map.of(), Map.of());
+        return new MultiblockMatchResult(false, "", 0, null, 0, 0, List.of(), Map.of(), Map.of(), Map.of());
     }
 }

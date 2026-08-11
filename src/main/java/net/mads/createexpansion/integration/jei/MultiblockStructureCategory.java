@@ -19,6 +19,9 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.mads.createexpansion.CreateExpansion;
+import net.mads.createexpansion.network.BindMultiblockSchedulePayload;
+import net.mads.createexpansion.registry.ItemRegistry;
+import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockPattern;
 import net.mads.createexpansion.machine.machines.electric.multiblock.PatternVariant;
 import net.minecraft.client.Minecraft;
@@ -28,10 +31,13 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -123,6 +129,7 @@ public class MultiblockStructureCategory implements IRecipeCategory<MultiblockJe
         button(guiGraphics, font, "Layer", 8, 16, 44, 14);
         button(guiGraphics, font, "Variant", 56, 16, 52, 14);
         button(guiGraphics, font, recipe.tier().displayName(), 112, 16, 40, 14);
+        button(guiGraphics, font, "Save", 156, 16, 46, 14);
         button(guiGraphics, font, "Reset", 206, 16, 42, 14);
 
         guiGraphics.drawString(font, Component.literal(recipe.definition().displayName()), 8, 4, 0xFF303030, false);
@@ -145,6 +152,10 @@ public class MultiblockStructureCategory implements IRecipeCategory<MultiblockJe
         }
         if (inside(mouseX, mouseY, 112, 16, 40, 14)) {
             tooltip.add(Component.literal("Next machine tier"));
+            return;
+        }
+        if (inside(mouseX, mouseY, 156, 16, 46, 14)) {
+            tooltip.add(Component.literal("Save this variant and tier to the held Machine Control Schedule"));
             return;
         }
         if (inside(mouseX, mouseY, 206, 16, 42, 14)) {
@@ -224,7 +235,7 @@ public class MultiblockStructureCategory implements IRecipeCategory<MultiblockJe
                         continue;
                     }
 
-                    BlockState state = renderState(recipe, symbol);
+                    BlockState state = renderState(recipe, symbol, x, y, z);
                     if (state == null) {
                         continue;
                     }
@@ -264,12 +275,86 @@ public class MultiblockStructureCategory implements IRecipeCategory<MultiblockJe
     }
 
     @Nullable
-    private static BlockState renderState(MultiblockJeiRecipe recipe, char symbol) {
+    private static BlockState renderState(MultiblockJeiRecipe recipe, char symbol, int x, int y, int z) {
         List<ItemStack> stacks = recipe.validStacks(symbol);
         if (stacks.isEmpty() || !(stacks.getFirst().getItem() instanceof BlockItem blockItem)) {
             return null;
         }
-        return blockItem.getBlock().defaultBlockState();
+
+        BlockState state = blockItem.getBlock().defaultBlockState();
+        if (state.getBlock() instanceof MachinePortBlock && state.hasProperty(MachinePortBlock.FACING)) {
+            state = state.setValue(MachinePortBlock.FACING, abilityFacing(recipe, x, y, z));
+        }
+        return state;
+    }
+
+    private static Direction abilityFacing(MultiblockJeiRecipe recipe, int x, int y, int z) {
+        PatternVariant variant = recipe.variant();
+        double centerX = variant.width() / 2.0D;
+        double centerY = variant.height() / 2.0D;
+        double centerZ = variant.length() / 2.0D;
+        double dx = x + 0.5D - centerX;
+        double dy = y + 0.5D - centerY;
+        double dz = z + 0.5D - centerZ;
+        List<Direction> remaining = new java.util.ArrayList<>(List.of(Direction.values()));
+
+        while (!remaining.isEmpty()) {
+            double bestScore = remaining.stream()
+                    .mapToDouble(direction -> dx * direction.getStepX() + dy * direction.getStepY() + dz * direction.getStepZ())
+                    .max()
+                    .orElse(-Double.MAX_VALUE);
+            List<Direction> scoreGroup = remaining.stream()
+                    .filter(direction -> Math.abs(dx * direction.getStepX() + dy * direction.getStepY() + dz * direction.getStepZ() - bestScore) <= 1.0E-7D)
+                    .toList();
+
+            int bestAir = 0;
+            List<Direction> airWinners = new java.util.ArrayList<>();
+            for (Direction direction : scoreGroup) {
+                int air = consecutivePatternAirAhead(variant, x, y, z, direction, 64);
+                if (air <= 0) {
+                    continue;
+                }
+                if (air > bestAir) {
+                    bestAir = air;
+                    airWinners.clear();
+                    airWinners.add(direction);
+                } else if (air == bestAir) {
+                    airWinners.add(direction);
+                }
+            }
+
+            if (!airWinners.isEmpty()) {
+                if (airWinners.size() == 1) {
+                    return airWinners.getFirst();
+                }
+                int randomIndex = Math.floorMod(
+                        java.util.Objects.hash(System.identityHashCode(recipe), variant.id(), x, y, z, Double.doubleToLongBits(bestScore)),
+                        airWinners.size()
+                );
+                return airWinners.get(randomIndex);
+            }
+
+            remaining.removeAll(scoreGroup);
+        }
+
+        Direction[] directions = Direction.values();
+        int randomIndex = Math.floorMod(
+                java.util.Objects.hash(System.identityHashCode(recipe), variant.id(), x, y, z),
+                directions.length
+        );
+        return directions[randomIndex];
+    }
+
+    private static int consecutivePatternAirAhead(PatternVariant variant, int x, int y, int z, Direction direction, int maximumDistance) {
+        for (int distance = 1; distance <= maximumDistance; distance++) {
+            int checkX = x + direction.getStepX() * distance;
+            int checkY = y + direction.getStepY() * distance;
+            int checkZ = z + direction.getStepZ() * distance;
+            if (variant.symbolAt(checkX, checkY, checkZ) != MultiblockPattern.air) {
+                return distance - 1;
+            }
+        }
+        return maximumDistance;
     }
 
     private static void drawSelection(MultiblockJeiRecipe recipe, GuiGraphics guiGraphics, Font font) {
@@ -485,6 +570,34 @@ public class MultiblockStructureCategory implements IRecipeCategory<MultiblockJe
         return false;
     }
 
+    private static void saveToHeldSchedule(MultiblockJeiRecipe recipe) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null) {
+            return;
+        }
+
+        InteractionHand hand;
+        if (minecraft.player.getMainHandItem().is(ItemRegistry.MACHINE_CONTROL_SCHEDULE.get())) {
+            hand = InteractionHand.MAIN_HAND;
+        } else if (minecraft.player.getOffhandItem().is(ItemRegistry.MACHINE_CONTROL_SCHEDULE.get())) {
+            hand = InteractionHand.OFF_HAND;
+        } else {
+            minecraft.player.displayClientMessage(Component.literal("Hold a Machine Control Schedule first"), true);
+            return;
+        }
+
+        PacketDistributor.sendToServer(new BindMultiblockSchedulePayload(
+                recipe.definition().id(),
+                recipe.variant().id(),
+                recipe.tier().id(),
+                hand.ordinal()
+        ));
+        minecraft.player.displayClientMessage(
+                Component.literal("Saved " + recipe.definition().displayName() + " variant " + recipe.variant().id() + " (" + recipe.tier().displayName() + ")"),
+                true
+        );
+    }
+
     private static boolean inside(double mouseX, double mouseY, int x, int y, int width, int height) {
         return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
@@ -529,6 +642,11 @@ public class MultiblockStructureCategory implements IRecipeCategory<MultiblockJe
             }
             if (inside(mouseX, mouseY, 112, 16, 40, 14)) {
                 recipe.nextTier();
+                dragged = false;
+                return true;
+            }
+            if (inside(mouseX, mouseY, 156, 16, 46, 14)) {
+                saveToHeldSchedule(recipe);
                 dragged = false;
                 return true;
             }
@@ -588,6 +706,7 @@ public class MultiblockStructureCategory implements IRecipeCategory<MultiblockJe
             return inside(mouseX, mouseY, 8, 16, 44, 14)
                     || inside(mouseX, mouseY, 56, 16, 52, 14)
                     || inside(mouseX, mouseY, 112, 16, 40, 14)
+                    || inside(mouseX, mouseY, 156, 16, 46, 14)
                     || inside(mouseX, mouseY, 206, 16, 42, 14)
                     || insideSelectedPageButton(mouseX, mouseY, recipe)
                     || insideMaterialPageButton(mouseX, mouseY, recipe)

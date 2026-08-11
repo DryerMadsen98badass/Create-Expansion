@@ -1,0 +1,63 @@
+Create Expansion - Blaze Burner Fuel Recipes
+============================================
+
+Custom Blaze Burner fuels live outside the CE machine recipe runtime because the block is Create's
+own Blaze Burner.
+
+Runtime/data classes:
+
+- src/main/java/net/mads/createexpansion/recipe/recipetypes/BlazeBurnerFuelRecipeType.java
+- src/main/java/net/mads/createexpansion/recipe/recipes/blazeburnerrecipes/BlazeBurnerFuelRecipe.java
+- src/main/java/net/mads/createexpansion/recipe/recipes/blazeburnerrecipes/BlazeBurnerFuelRecipeInput.java
+- src/main/java/net/mads/createexpansion/compat/create/BlazeBurnerFuelHandler.java
+- src/main/java/net/mads/createexpansion/mixin/BlazeBurnerBlockEntityMixin.java
+- src/main/java/net/mads/createexpansion/integration/jei/BlazeBurnerFuelCategory.java
+
+Rules:
+
+- Normal Create/vanilla furnace fuels still work through Create's original item fuel path.
+- Custom recipe item inputs do not need to be furnace fuels.
+- A recipe must have exactly one input: item or fluid.
+- A recipe must set `heated(...)`, `superheated(...)`, or both.
+- If both are set, the Blaze Burner runs superheated first, then heated.
+- Fluid recipes use a 4000 mB Blaze Burner buffer exposed as a NeoForge fluid capability.
+- The fluid buffer is input-only. It behaves like a fuel slot, not like a normal drainable tank.
+- The burner consumes recipe-sized fluid portions from the buffer when its remaining burn time is
+  at or below Create's insertion threshold.
+- JEI shows only custom `create_expansion:blaze_burner_fuel` recipes, not every furnace fuel.
+
+Builder examples:
+
+```java
+BlazeBurnerFuelRecipe.recipe()
+        .id("dirt")
+        .inputItem("minecraft:dirt")
+        .superheated(1000)
+        .heated(100)
+        .save(output);
+
+BlazeBurnerFuelRecipe.recipe()
+        .id("biofuel")
+        .inputFluid("create_expansion:biofuel", 100)
+        .superheated(5000)
+        .heated(100)
+        .save(output);
+```
+
+Generated JSON path:
+
+data/create_expansion/recipe/blaze_burner_fuel/<id>.json
+
+JSON shape:
+
+```json
+{
+  "type": "create_expansion:blaze_burner_fuel",
+  "fluid_ingredient": {
+    "id": "create_expansion:biofuel",
+    "amount": 100
+  },
+  "superheated": 5000,
+  "heated": 100
+}
+```

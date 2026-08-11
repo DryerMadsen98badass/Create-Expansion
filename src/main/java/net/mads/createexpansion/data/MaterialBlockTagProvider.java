@@ -2,18 +2,18 @@ package net.mads.createexpansion.data;
 
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.block.ActiveBlockDefinition;
-import net.mads.createexpansion.block.ActiveBlocks;
+import net.mads.createexpansion.block.SimpleBlocks;
 import net.mads.createexpansion.block.MiningTier;
 import net.mads.createexpansion.block.MiningTool;
 import net.mads.createexpansion.block.SimpleBlockDefinition;
 import net.mads.createexpansion.block.SimpleBlockVariant;
-import net.mads.createexpansion.block.SimpleBlocks;
 import net.mads.createexpansion.machine.MachineDefinition;
 import net.mads.createexpansion.machine.SingleBlockMachineInstance;
 import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialPart;
 import net.mads.createexpansion.registry.BlockRegistry;
+import net.mads.createexpansion.transport.FluidTransportRegistrations;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -91,10 +91,12 @@ public class MaterialBlockTagProvider
             HolderLookup.Provider provider
     ) {
         addSimpleBlockMiningTags();
+        addSimpleBlockConnectionTags();
         addActiveBlockMiningTags();
         addFoundryMiningTags();
         addMultiblockControllerMiningTags();
         addSingleBlockMachineMiningTags();
+        addFluidTransportMiningTags();
 
         for (IndustrialMaterial material
                 : IndustrialMaterials.ALL) {
@@ -164,6 +166,38 @@ public class MaterialBlockTagProvider
         }
     }
 
+    private void addSimpleBlockConnectionTags() {
+        for (SimpleBlockDefinition definition
+                : SimpleBlocks.ALL) {
+
+            for (SimpleBlockVariant variant
+                    : definition.variants()) {
+
+                Block block = BlockRegistry
+                        .getSimpleBlockVariant(
+                                definition.id(),
+                                variant
+                        )
+                        .get();
+
+                switch (variant) {
+                    case WALL -> tag(BlockTags.WALLS)
+                            .add(block);
+
+                    case FENCE -> tag(BlockTags.FENCES)
+                            .add(block);
+
+                    case FENCE_GATE -> tag(BlockTags.FENCE_GATES)
+                            .add(block);
+
+                    default -> {
+                    }
+                }
+            }
+        }
+    }
+
+
     private void addSimpleBlockMiningTags() {
         for (SimpleBlockDefinition definition
                 : SimpleBlocks.ALL) {
@@ -197,7 +231,7 @@ public class MaterialBlockTagProvider
 
     private void addActiveBlockMiningTags() {
         for (ActiveBlockDefinition definition
-                : ActiveBlocks.ALL) {
+                : SimpleBlocks.ACTIVE) {
 
             addMiningTags(
                     BlockRegistry
@@ -250,6 +284,15 @@ public class MaterialBlockTagProvider
                     instance.definition().miningTier()
             );
         }
+    }
+
+    private void addFluidTransportMiningTags() {
+        FluidTransportRegistrations.allBlocks().forEach(registration -> addPickaxeStoneTags(
+                registration.pipe().get(),
+                registration.glassPipe().get(),
+                registration.pump().get(),
+                registration.tank().get()
+        ));
     }
 
     private void addPickaxeStoneTags(

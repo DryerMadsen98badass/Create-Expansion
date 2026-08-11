@@ -1,0 +1,45 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 1600,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "create_expansion:bricked_copper_casing"
+    },
+    {
+      "count": 1,
+      "item": "create:fluid_tank"
+    },
+    {
+      "count": 1,
+      "item": "create:copper_valve_handle"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:copper_bearing"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:copper_rotor"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:copper_spring"
+    },
+    {
+      "count": 10,
+      "item": "create_expansion:copper_screw"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:steam_copper_steam_sprinkler"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

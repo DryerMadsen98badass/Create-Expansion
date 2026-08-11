@@ -9,8 +9,6 @@ public class CokeOvenRecipeType {
             .recipeTypeDefinition(Option.id("coke_oven"))
             .recipeTypeDefinition(Option.displayName("Coke Oven"))
             .recipeTypeDefinition(Option.maxIO(1, 1, 0, 1))
-            .recipeTypeDefinition(Option.kineticMode(RecipeTypeDefinition.KineticMode.NONE))
-            .recipeTypeDefinition(Option.energyMode(RecipeTypeDefinition.EnergyMode.NONE))
             .recipeTypeDefinition(Option.progressBar(ProgressBar.COKE_OVEN))
             .build();
 

@@ -2,19 +2,19 @@ package net.mads.createexpansion.registry;
 
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.block.ActiveBlockDefinition;
-import net.mads.createexpansion.block.ActiveBlocks;
+import net.mads.createexpansion.block.SimpleBlocks;
 import net.mads.createexpansion.block.SimpleBlockDefinition;
 import net.mads.createexpansion.block.SimpleBlockVariant;
-import net.mads.createexpansion.block.SimpleBlocks;
 import net.mads.createexpansion.energy.EnergyWireBlock;
 import net.mads.createexpansion.energy.WireThickness;
 import net.mads.createexpansion.item.FiredBucketItem;
 import net.mads.createexpansion.item.SimpleItemDefinition;
 import net.mads.createexpansion.item.SimpleItems;
+import net.mads.createexpansion.machine.MachineDefinition;
 import net.mads.createexpansion.machine.MachinePortType;
 import net.mads.createexpansion.machine.MachineTier;
-import net.mads.createexpansion.machine.MachineDefinition;
 import net.mads.createexpansion.machine.SingleBlockMachineInstance;
+import net.mads.createexpansion.machine.control.MachineControlScheduleItem;
 import net.mads.createexpansion.machine.StaticMachinePortType;
 import net.mads.createexpansion.machine.coil.CoilDefinition;
 import net.mads.createexpansion.machine.coil.CoilDefinitions;
@@ -30,6 +30,7 @@ import net.mads.createexpansion.material.IndustrialMaterial;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialItem;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.transport.FluidTransportRegistrations;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -55,6 +56,15 @@ public final class ItemRegistry {
                     "fired_bucket",
                     () -> new FiredBucketItem(
                             Fluids.EMPTY,
+                            new Item.Properties().stacksTo(16)
+                    )
+            );
+
+
+    public static final DeferredHolder<Item, MachineControlScheduleItem> MACHINE_CONTROL_SCHEDULE =
+            ITEMS.register(
+                    "machine_control_schedule",
+                    () -> new MachineControlScheduleItem(
                             new Item.Properties().stacksTo(16)
                     )
             );
@@ -191,7 +201,7 @@ public final class ItemRegistry {
             BlockItem
             > FIREBRICK_FIREBOX =
             registerActiveBlockItem(
-                    ActiveBlocks.ALL.getFirst()
+                    SimpleBlocks.ACTIVE.getFirst()
             );
 
     public static final DeferredHolder<
@@ -330,6 +340,7 @@ public final class ItemRegistry {
             );
 
     static {
+        FluidTransportRegistrations.registerItems(ITEMS);
         registerActiveBlockItems();
         registerSimpleBlockItems();
         registerSimpleItems();
@@ -373,7 +384,7 @@ public final class ItemRegistry {
 
     private static void registerActiveBlockItems() {
         for (ActiveBlockDefinition definition
-                : ActiveBlocks.ALL) {
+                : SimpleBlocks.ACTIVE) {
 
             if (ACTIVE_BLOCK_ITEMS.containsKey(definition.id())) {
                 continue;
@@ -448,9 +459,18 @@ public final class ItemRegistry {
                     definition.id(),
                     ITEMS.register(
                             definition.id(),
-                            () -> new Item(
-                                    new Item.Properties()
-                            )
+                            () -> {
+                                Item.Properties properties =
+                                        new Item.Properties();
+
+                                if (definition.hasDurability()) {
+                                    properties.durability(
+                                            definition.durability()
+                                    );
+                                }
+
+                                return new Item(properties);
+                            }
                     )
             );
         }

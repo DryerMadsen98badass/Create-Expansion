@@ -1,6 +1,11 @@
 package net.mads.createexpansion.machine;
 
+import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
+import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import net.mads.createexpansion.recipe.CEChancedFluidInput;
+import net.mads.createexpansion.recipe.CEChancedFluidOutput;
 import net.mads.createexpansion.recipe.CEChancedItemOutput;
+import net.mads.createexpansion.recipe.CEChancedItemInput;
 import net.mads.createexpansion.recipe.CERecipe;
 import net.mads.createexpansion.recipe.CERecipeInput;
 import net.mads.createexpansion.recipe.CERecipeLookup;
@@ -9,38 +14,53 @@ import net.mads.createexpansion.energy.CEEnergyStorage;
 import net.mads.createexpansion.fluid.IndustrialFluids;
 import net.mads.createexpansion.gui.ProgressBar;
 import net.mads.createexpansion.menu.SingleBlockMachineMenu;
+import net.mads.createexpansion.machine.interaction.BlockInteraction;
 import net.mads.createexpansion.machine.interaction.InteractionContext;
 import net.mads.createexpansion.machine.interaction.InteractionPhase;
 import net.mads.createexpansion.machine.interaction.InteractionRuntime;
 import net.mads.createexpansion.machine.interaction.InteractionWearStore;
 import net.mads.createexpansion.machine.interaction.MachineModifier;
+import net.mads.createexpansion.machine.SingleBlockDefinition.MachineSide;
 import net.mads.createexpansion.machine.interaction.ConditionFailure;
 import net.mads.createexpansion.machine.runtime.CERecipeExecution;
 import net.mads.createexpansion.machine.runtime.CERecipeLogic;
 import net.mads.createexpansion.machine.runtime.CERecipeLogicHost;
 import net.mads.createexpansion.machine.runtime.CERecipeLogicMachine;
 import net.mads.createexpansion.machine.runtime.CERecipeTickResult;
+import net.mads.createexpansion.machine.runtime.CERecipeStatus;
+import net.mads.createexpansion.machine.control.MachineControlSchedule;
+import net.mads.createexpansion.machine.control.MachineControlScheduleHost;
+import net.mads.createexpansion.machine.control.MachineControlContext;
+import net.mads.createexpansion.machine.control.MachineControlSnapshot;
+import net.mads.createexpansion.machine.control.MachineControlTarget;
+import net.mads.createexpansion.machine.control.MachineControlVariableStore;
+import net.mads.createexpansion.machine.tree.TreeExtractionSavedData;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.mads.createexpansion.registry.FluidRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -51,27 +71,47 @@ import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class SingleBlockMachineBlockEntity extends BlockEntity implements Clearable, MenuProvider, CERecipeLogicMachine {
+public class SingleBlockMachineBlockEntity extends GeneratingKineticBlockEntity implements Clearable, MenuProvider, CERecipeLogicMachine, MachineControlTarget, MachineControlScheduleHost {
     private static final int BLOCKED_VENT_EXPLOSION_TICKS = 100;
     private static final int MAX_ITEM_INPUT_SLOTS = 16;
     private static final int MAX_ITEM_OUTPUT_SLOTS = 16;
     private static final int MAX_FLUID_INPUT_TANKS = 8;
     private static final int MAX_FLUID_OUTPUT_TANKS = 8;
     private static final int RECIPE_FLUID_TANK_CAPACITY = 16_000;
+    private static final String KINETIC_OUTPUT_RPM_DATA = "KineticOutputRpm";
 
     private final ItemStackHandler inputItems = createInventory(MAX_ITEM_INPUT_SLOTS);
     private final ItemStackHandler outputItems = createInventory(MAX_ITEM_OUTPUT_SLOTS);
-    private final IItemHandler itemCapability = new MachineItemHandler();
     private final FluidTank[] inputFluids = createFluidTanks(MAX_FLUID_INPUT_TANKS);
     private final FluidTank[] outputFluids = createFluidTanks(MAX_FLUID_OUTPUT_TANKS);
-    private final IFluidHandler fluidCapability = new MachineFluidHandler();
     private final FluidTank steamTank = createSteamTank();
+    private static final TagKey<Block> SPRINKLER_BLACKLIST = TagKey.create(
+            Registries.BLOCK,
+            ResourceLocation.fromNamespaceAndPath("create_expansion", "sprinkler_blacklist")
+    );
+
     private final InteractionWearStore interactionWear = new InteractionWearStore();
+    private final EnumMap<Direction, MachineControlSchedule> machineControlSchedules = new EnumMap<>(Direction.class);
+    private final MachineControlVariableStore machineControlVariables = new MachineControlVariableStore();
+    private int machineControlOutputSignature = -1;
+    private long machineControlSnapshotTick = Long.MIN_VALUE;
+    private MachineControlSnapshot machineControlSnapshot;
+    private long machineControlInputRevision;
+    private long machineControlCachedInputRevision = Long.MIN_VALUE;
+    private List<ItemStack> machineControlCachedItemInputs = List.of();
+    private List<FluidStack> machineControlCachedFluidInputs = List.of();
+    private final List<BlockPos> sprinklerTargets = new ArrayList<>();
+    private int sprinklerTargetIndex;
     private final CERecipeLogic recipeLogic = new CERecipeLogic(new RecipeHost());
     private final CEEnergyStorage ceContainer = new CEEnergyStorage(
             MachineTier.LV,
@@ -131,17 +171,45 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
     private int overlayFrame;
     private int overlayFrameTicks;
     private int recipeSyncCooldown;
+    private int circuit;
     private ResourceLocation preferredRecipeId;
+    private int temperature;
+    private int temperatureTickCounter;
+    private long temperatureOperationTicks;
+    private float lastGeneratedSpeed = Float.NaN;
+    private boolean machineEnabled = true;
+
+    public SingleBlockMachineBlockEntity(
+            BlockEntityType<?> type,
+            BlockPos pos,
+            BlockState blockState
+    ) {
+        super(type, pos, blockState);
+    }
 
     public SingleBlockMachineBlockEntity(
             BlockPos pos,
             BlockState blockState
     ) {
-        super(
+        this(
                 BlockEntityRegistry.SINGLE_BLOCK_MACHINE.get(),
                 pos,
                 blockState
         );
+    }
+
+    @Override
+    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+        super.addBehaviours(behaviours);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (level != null && !level.isClientSide()) {
+            serverTick();
+        }
     }
 
     public void serverTick() {
@@ -156,8 +224,21 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         }
 
         SingleBlockMachineInstance instance = block.instance();
-        recipeLogic.serverTick();
-        boolean active = recipeLogic.isActive();
+        applyMachineControlSchedules();
+        tickTemperature(instance);
+        if (machineEnabled) {
+            recipeLogic.serverTick();
+        }
+        refreshGeneratedRotation();
+
+        SingleBlockDefinition.TemperatureSettings temperatureSettings = instance.definition().temperature();
+        boolean conditionHeated = temperatureSettings != null && temperatureSettings.usesHeatConditions();
+        if (machineEnabled && conditionHeated) {
+            runTemperatureOperations(instance, 0);
+        }
+
+        boolean active = machineEnabled
+                && (recipeLogic.isActive() || (conditionHeated && meetsTemperatureRequirement(instance)));
 
         int nextOverlayFrame = active ? tickOverlayFrame(instance) : 0;
         if (state.getValue(SingleBlockMachineBlock.ACTIVE) != active
@@ -167,6 +248,8 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
                     .setValue(SingleBlockMachineBlock.OVERLAY_FRAME, nextOverlayFrame);
             level.setBlock(getBlockPos(), state, Block.UPDATE_ALL);
         }
+
+        refreshMachineControlRedstoneOutputs();
 
         if (instance == null
                 || instance.definition().power() != SingleBlockMachinePower.STEAM
@@ -210,18 +293,17 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
     }
 
     public IItemHandler itemCapability(Direction side) {
-        if (side == Direction.UP) {
-            return null;
-        }
-
-        return itemCapability;
+        SingleBlockMachineInstance instance = instance();
+        if (instance == null || (side == Direction.UP
+                && instance.definition().power() == SingleBlockMachinePower.STEAM)) return null;
+        if (side == null) return new MachineItemHandler(null);
+        MachineSide machineSide = relativeSide(side);
+        if (instance == null || (!instance.definition().allowsItemInput(machineSide)
+                && !instance.definition().allowsItemOutput(machineSide))) return null;
+        return new MachineItemHandler(machineSide);
     }
 
     public IFluidHandler fluidCapability(Direction side) {
-        if (side == Direction.UP) {
-            return null;
-        }
-
         SingleBlockMachineInstance instance = instance();
         if (instance == null
                 || (instance.definition().resource() != SingleBlockMachineResource.STEAM
@@ -230,7 +312,26 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
             return null;
         }
 
-        return fluidCapability;
+        if (side == Direction.UP
+                && instance.definition().power() == SingleBlockMachinePower.STEAM) {
+            return null;
+        }
+
+        if (side == null) return new MachineFluidHandler(null);
+        MachineSide machineSide = relativeSide(side);
+        if (!instance.definition().allowsFluidInput(machineSide)
+                && !instance.definition().allowsFluidOutput(machineSide)) return null;
+        return new MachineFluidHandler(machineSide);
+    }
+
+    private MachineSide relativeSide(Direction side) {
+        if (side == Direction.UP) return MachineSide.TOP;
+        if (side == Direction.DOWN) return MachineSide.BOTTOM;
+        Direction facing = getBlockState().getValue(SingleBlockMachineBlock.FACING);
+        if (side == facing) return MachineSide.FRONT;
+        if (side == facing.getOpposite()) return MachineSide.BACK;
+        if (side == facing.getClockWise()) return MachineSide.RIGHT;
+        return MachineSide.LEFT;
     }
 
     public CEEnergyContainer ceContainer() {
@@ -287,6 +388,26 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         return instance == null ? 0 : instance.steamUsage();
     }
 
+    public int temperature() {
+        return temperature;
+    }
+
+    public int minimumOperatingTemperature() {
+        SingleBlockMachineInstance instance = instance();
+        SingleBlockDefinition.TemperatureSettings settings = instance == null
+                ? null
+                : instance.definition().temperature();
+        return settings == null ? 0 : settings.minimumOperatingTemperature();
+    }
+
+    public int maximumTemperature() {
+        SingleBlockMachineInstance instance = instance();
+        SingleBlockDefinition.TemperatureSettings settings = instance == null
+                ? null
+                : instance.definition().temperature();
+        return settings == null ? 0 : settings.maximumTemperature();
+    }
+
     public long energyStored() {
         return energyStored;
     }
@@ -306,7 +427,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
             return 0;
         }
 
-        return instance.definition().cet();
+        return instance.energyUsage();
     }
 
     private boolean acceptsEnergyInput() {
@@ -368,7 +489,12 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
                             preferredRecipeId,
                             java.util.Set.copyOf(instance.definition().recipeTypes())
                     )
-                    .filter(holder -> holder.value().matches(input, level))
+                    .filter(holder -> instance.definition().usesKineticInput()
+                        ? holder.value().matchesIgnoringRpm(input, level)
+                        : holder.value().matches(input, level))
+                    .filter(holder -> holder.value().phRange().isEmpty())
+                    .filter(holder -> kineticRecipeReady(instance, holder.value()))
+                    .filter(holder -> treeSourceMatches(level, instance, holder.value()))
                     .filter(holder -> startInteractionsReady(instance, holder.value(), context));
 
             if (preferred.isPresent()) {
@@ -378,10 +504,59 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
 
         return CERecipeLookup.candidatesByTypes(level.getRecipeManager(), instance.definition().recipeTypes(), input)
                 .stream()
-                .filter(holder -> holder.value().matches(input, level))
+                .filter(holder -> instance.definition().usesKineticInput()
+                        ? holder.value().matchesIgnoringRpm(input, level)
+                        : holder.value().matches(input, level))
+                .filter(holder -> holder.value().phRange().isEmpty())
+                .filter(holder -> kineticRecipeReady(instance, holder.value()))
+                .filter(holder -> treeSourceMatches(level, instance, holder.value()))
                 .filter(holder -> startInteractionsReady(instance, holder.value(), context))
                 .sorted(java.util.Comparator.comparing(holder -> holder.id().toString()))
                 .findFirst();
+    }
+
+    private boolean treeSourceMatches(
+            Level level,
+            SingleBlockMachineInstance instance,
+            CERecipe recipe
+    ) {
+        if (recipe.treeSource().isEmpty()) {
+            return true;
+        }
+
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+
+        Optional<BlockInteraction> treeInteraction = instance.definition().blockInteractions()
+                .stream()
+                .filter(interaction -> interaction.type() == BlockInteraction.Type.TREE_EXTRACT)
+                .findFirst();
+
+        if (treeInteraction.isEmpty()) {
+            treeInteraction = recipe.blockInteractions()
+                    .stream()
+                    .filter(interaction -> interaction.type() == BlockInteraction.Type.TREE_EXTRACT)
+                    .findFirst();
+        }
+
+        if (treeInteraction.isEmpty()) {
+            return false;
+        }
+
+        Direction facing = getBlockState().hasProperty(SingleBlockMachineBlock.FACING)
+                ? getBlockState().getValue(SingleBlockMachineBlock.FACING)
+                : Direction.NORTH;
+
+        BlockPos rootPos = treeInteraction.get().pos().rotate(
+                getBlockPos(),
+                facing
+        );
+
+        return TreeExtractionSavedData.get(serverLevel)
+                .getTree(rootPos)
+                .map(tree -> tree.logId().equals(recipe.treeSource().get()))
+                .orElse(false);
     }
 
     private boolean startInteractionsReady(SingleBlockMachineInstance instance, CERecipe recipe, InteractionContext context) {
@@ -394,21 +569,258 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
     }
 
     private CERecipeInput recipeInput(SingleBlockMachineInstance instance) {
+        MachineDrive drive = switch (instance.definition().power()) {
+            case ELECTRIC -> MachineDrive.ELECTRIC;
+            case STEAM -> MachineDrive.STEAM;
+            case KINETIC -> instance.definition().usesKineticOutput()
+                    ? MachineDrive.KINETIC_OUTPUT
+                    : MachineDrive.KINETIC;
+            case NONE -> MachineDrive.NONE;
+        };
+        Optional<MachineTier> processingTier = drive == MachineDrive.NONE || instance.tier() == MachineTier.NONE
+                ? Optional.empty()
+                : Optional.of(instance.tier().recipeTier());
+        int rpm = drive.usesKineticInput() ? kineticRpm() : 0;
+
         return new CERecipeInput(
                 visibleItemInputs(),
                 visibleFluidInputs(),
-                Optional.empty(),
+                circuit > 0 ? Optional.of(circuit) : Optional.empty(),
                 java.util.Set.of(),
-                Optional.of(instance.tier().isSteam() ? MachineTier.ULV : instance.tier()),
-                Optional.empty(),
-                Optional.of(instance.tier().isSteam() ? MachineTier.ULV : instance.tier()),
-                0,
+                processingTier,
+                drive.usesKineticInput() ? processingTier : Optional.empty(),
+                drive == MachineDrive.ELECTRIC ? processingTier : Optional.empty(),
+                drive,
+                rpm,
                 0
         );
     }
 
-    private static int adjustedDuration(SingleBlockMachineInstance instance, CERecipe recipe) {
-        int duration = recipe.runtimeDuration(instance.tier().isSteam() ? MachineTier.ULV : instance.tier(), 0);
+    public int kineticRpm() {
+        return Math.round(Math.abs(getSpeed()));
+    }
+
+    public int recipeMinimumRpm() {
+        return activeRecipeForKineticLimits().flatMap(CERecipe::minRpm).orElse(0);
+    }
+
+    public int recipeMaximumRpm() {
+        return activeRecipeForKineticLimits().flatMap(CERecipe::maxRpm).orElse(0);
+    }
+
+    public int machineRpm() {
+        SingleBlockMachineInstance instance = instance();
+        return instance != null && instance.definition().usesKineticInput() ? kineticRpm() : 0;
+    }
+
+    public double kineticSuPerRpm() {
+        SingleBlockMachineInstance instance = instance();
+        return instance == null ? 0.0D : instance.kineticSuPerRpm();
+    }
+
+    public Optional<Integer> kineticMinimumRpm() {
+        return effectiveMinimumRpm(activeRecipeForKineticLimits().orElse(null));
+    }
+
+    public Optional<Integer> kineticMaximumRpm() {
+        return effectiveMaximumRpm(activeRecipeForKineticLimits().orElse(null));
+    }
+
+    public KineticRpmError kineticRpmError() {
+        SingleBlockMachineInstance instance = instance();
+        if (instance == null || !instance.definition().usesKineticInput()) {
+            return KineticRpmError.NONE;
+        }
+        return kineticRpmError(activeRecipeForKineticLimits().orElse(null));
+    }
+
+    public int kineticOutputRpm() {
+        if (!machineEnabled) {
+            return 0;
+        }
+
+        SingleBlockMachineInstance instance = instance();
+        if (instance == null || !instance.definition().usesKineticOutput()) {
+            return 0;
+        }
+
+        CERecipeExecution execution = recipeLogic.execution();
+        if (!recipeLogic.isActive() || execution == null) {
+            return 0;
+        }
+        return Math.max(0, Math.min(
+                CERecipe.DEFAULT_MAX_RPM,
+                execution.machineData().getInt(KINETIC_OUTPUT_RPM_DATA)
+        ));
+    }
+
+    private Optional<CERecipe> activeRecipeForKineticLimits() {
+        CERecipeExecution execution = recipeLogic.execution();
+        return execution == null
+                ? Optional.empty()
+                : recipeById(execution.recipeId());
+    }
+
+    private boolean hasKineticInputPower() {
+        SingleBlockMachineInstance instance = instance();
+        return instance != null
+                && instance.definition().usesKineticInput()
+                && Math.abs(getSpeed()) >= 1.0F
+                && isSpeedRequirementFulfilled();
+    }
+
+    private KineticRpmError kineticRpmError(@Nullable CERecipe recipe) {
+        int rpm = kineticRpm();
+        int minimum = effectiveMinimumRpm(recipe).orElse(1);
+        int maximum = effectiveMaximumRpm(recipe).orElse(CERecipe.DEFAULT_MAX_RPM);
+
+        if (rpm > maximum) {
+            return KineticRpmError.TOO_AGGRESSIVE;
+        }
+        if (!hasKineticInputPower() || rpm < minimum) {
+            return KineticRpmError.INSUFFICIENT;
+        }
+        return KineticRpmError.NONE;
+    }
+
+    private Optional<Integer> effectiveMinimumRpm(@Nullable CERecipe recipe) {
+        SingleBlockMachineInstance instance = instance();
+        Optional<Integer> machineMinimum = instance == null
+                ? Optional.empty()
+                : instance.definition().minRpm();
+        Optional<Integer> recipeMinimum = recipe == null
+                ? Optional.empty()
+                : recipe.minRpm();
+        if (machineMinimum.isPresent() && recipeMinimum.isPresent()) {
+            return Optional.of(Math.max(machineMinimum.get(), recipeMinimum.get()));
+        }
+        return machineMinimum.isPresent() ? machineMinimum : recipeMinimum;
+    }
+
+    private Optional<Integer> effectiveMaximumRpm(@Nullable CERecipe recipe) {
+        SingleBlockMachineInstance instance = instance();
+        Optional<Integer> machineMaximum = instance == null
+                ? Optional.empty()
+                : instance.definition().maxRpm();
+        Optional<Integer> recipeMaximum = recipe == null
+                ? Optional.empty()
+                : recipe.maxRpm();
+        if (machineMaximum.isPresent() && recipeMaximum.isPresent()) {
+            return Optional.of(Math.min(machineMaximum.get(), recipeMaximum.get()));
+        }
+        return machineMaximum.isPresent() ? machineMaximum : recipeMaximum;
+    }
+
+    private boolean kineticRecipeReady(
+            SingleBlockMachineInstance instance,
+            CERecipe recipe
+    ) {
+        if (instance.definition().usesKineticInput()) {
+            int minimum = effectiveMinimumRpm(recipe).orElse(1);
+            int maximum = effectiveMaximumRpm(recipe).orElse(CERecipe.DEFAULT_MAX_RPM);
+            return minimum <= maximum;
+        }
+        if (instance.definition().usesKineticOutput()) {
+            return resolvedOutputRpm(instance, recipe) > 0;
+        }
+        return true;
+    }
+
+    private static int resolvedOutputRpm(
+            SingleBlockMachineInstance instance,
+            CERecipe recipe
+    ) {
+        return recipe.outputRpm()
+                .or(() -> instance.definition().outputRpm())
+                .orElse(0);
+    }
+
+    private void refreshGeneratedRotation() {
+        SingleBlockMachineInstance instance = instance();
+        if (level == null
+                || level.isClientSide()
+                || instance == null
+                || !instance.definition().usesKineticOutput()) {
+            return;
+        }
+
+        float generatedSpeed = getGeneratedSpeed();
+        if (Float.compare(lastGeneratedSpeed, generatedSpeed) == 0) {
+            return;
+        }
+
+        lastGeneratedSpeed = generatedSpeed;
+        updateGeneratedRotation();
+    }
+
+    @Override
+    public float getGeneratedSpeed() {
+        SingleBlockMachineInstance instance = instance();
+        if (instance == null || !instance.definition().usesKineticOutput()) {
+            return 0.0F;
+        }
+
+        int rpm = kineticOutputRpm();
+        if (rpm <= 0
+                || !(getBlockState().getBlock() instanceof SingleBlockMachineBlock block)) {
+            return 0.0F;
+        }
+
+        Direction output = block.kineticDirection(getBlockState());
+        return output == null ? 0.0F : convertToDirection(rpm, output);
+    }
+
+    @Override
+    public float calculateStressApplied() {
+        SingleBlockMachineInstance instance = instance();
+        if (instance != null && instance.definition().usesKineticInput()) {
+            float stress = (float) Math.min(Float.MAX_VALUE, instance.kineticSuPerRpm());
+            this.lastStressApplied = stress;
+            return stress;
+        }
+        return super.calculateStressApplied();
+    }
+
+    @Override
+    public float calculateAddedStressCapacity() {
+        SingleBlockMachineInstance instance = instance();
+        if (instance != null && instance.definition().usesKineticOutput()) {
+            float capacity = (float) Math.min(Float.MAX_VALUE, instance.kineticSuPerRpm());
+            this.lastCapacityProvided = capacity;
+            return capacity;
+        }
+        return super.calculateAddedStressCapacity();
+    }
+
+    private int adjustedDuration(
+            SingleBlockMachineInstance instance,
+            CERecipe recipe,
+            CERecipeInput input
+    ) {
+        MachineTier runtimeTier = input.processingTier()
+                .orElse(instance.tier().recipeTier());
+        int durationRpm = input.rpm();
+        if (instance.definition().usesKineticInput()) {
+            int minimum = effectiveMinimumRpm(recipe).orElse(1);
+            int maximum = effectiveMaximumRpm(recipe).orElse(CERecipe.DEFAULT_MAX_RPM);
+            durationRpm = Math.max(minimum, Math.min(maximum, Math.max(1, durationRpm)));
+        }
+        int duration = recipe.runtimeDuration(runtimeTier, input.drive(), durationRpm, input);
+
+        /*
+         * Generator recipe types do not always define a required recipe tier. In that
+         * case, use the generator definition's first generated tier as the baseline so
+         * every higher machine tier still halves the recipe duration, matching electric
+         * singleblock overclocking. Recipes with an explicit required tier are already
+         * overclocked by CERecipe.runtimeDuration(...), so they must not be divided twice.
+         */
+        if (instance.definition().usesKineticOutput() && recipe.requiredTier().isEmpty()) {
+            int factor = MachineTierStats.tierOverclockFactor(
+                    instance.definition().startTier().recipeTier(),
+                    instance.tier().recipeTier()
+            );
+            duration = Math.max(1, (duration + factor - 1) / factor);
+        }
 
         if (instance.tier().isSteam()) {
             duration *= instance.tier().steamDurationMultiplier();
@@ -423,11 +835,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         if (instance.definition().resource() == SingleBlockMachineResource.STEAM) {
             amount = instance.steamUsage();
         } else if (instance.definition().resource() == SingleBlockMachineResource.ENERGY) {
-            amount = recipe.runtimeCEt(instance.tier());
-
-            if (amount <= 0) {
-                amount = instance.definition().cet();
-            }
+            amount = instance.energyUsage();
         } else {
             return 0;
         }
@@ -449,6 +857,11 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
     }
 
     private boolean canProcessResource(SingleBlockMachineInstance instance, int amount) {
+        if (instance.definition().usesKineticInput()
+                && !hasKineticInputPower()) {
+            return false;
+        }
+
         if (amount == 0) {
             return true;
         }
@@ -468,7 +881,10 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         return true;
     }
 
-    private List<ItemStack> rollItemOutputs(CERecipe recipe) {
+    private List<ItemStack> rollItemOutputs(
+            CERecipe recipe,
+            Optional<MachineTier> runtimeTier
+    ) {
         List<ItemStack> outputs = new ArrayList<>();
         Level level = getLevel();
 
@@ -477,12 +893,33 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         }
 
         for (CEChancedItemOutput output : recipe.itemOutputs()) {
-            if (output.chance() >= CEChancedItemOutput.MAX_CHANCE
-                    || level.random.nextInt(CEChancedItemOutput.MAX_CHANCE) < output.chance()) {
+            int chance = output.effectiveChance(runtimeTier, recipe.requiredTier());
+            if (chance >= CEChancedItemOutput.MAX_CHANCE
+                    || level.random.nextInt(CEChancedItemOutput.MAX_CHANCE) < chance) {
                 outputs.add(output.stack().copy());
             }
         }
 
+        return outputs;
+    }
+
+
+    private static List<FluidStack> possibleFluidOutputs(CERecipe recipe) {
+        List<FluidStack> outputs = recipe.fluidOutputs().stream().map(FluidStack::copy).collect(Collectors.toCollection(ArrayList::new));
+        recipe.chancedFluidOutputs().stream().map(output -> output.stack().copy()).forEach(outputs::add);
+        return outputs;
+    }
+
+    private List<FluidStack> rollFluidOutputs(CERecipe recipe, Optional<MachineTier> runtimeTier) {
+        List<FluidStack> outputs = recipe.fluidOutputs().stream().map(FluidStack::copy).collect(Collectors.toCollection(ArrayList::new));
+        Level level = getLevel();
+        if (level == null) return outputs;
+        for (CEChancedFluidOutput output : recipe.chancedFluidOutputs()) {
+            int chance = output.effectiveChance(runtimeTier, recipe.requiredTier());
+            if (chance >= CEChancedFluidOutput.MAX_CHANCE || level.random.nextInt(CEChancedFluidOutput.MAX_CHANCE) < chance) {
+                outputs.add(output.stack().copy());
+            }
+        }
         return outputs;
     }
 
@@ -551,24 +988,75 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         return true;
     }
 
-    private void consumeInputs(CERecipe recipe) {
+    private void consumeInputs(CERecipe recipe, CERecipeInput input) {
+        if (recipe.furnaceFuel()) {
+            recipe.furnaceFuelStack(input).ifPresent(this::consumeOneFuelItem);
+        }
         recipe.itemInputs().forEach(this::consumeItemInput);
+        recipe.chancedItemInputs().forEach(chancedInput ->
+                consumeChancedItemInput(chancedInput, input.processingTier(), recipe.requiredTier()));
         recipe.fluidInputs().forEach(this::consumeFluidInput);
+        recipe.chancedFluidInputs().forEach(chancedInput ->
+                consumeChancedFluidInput(chancedInput, input.processingTier(), recipe.requiredTier()));
+    }
+
+    private void consumeOneFuelItem(ItemStack fuel) {
+        for (int slot = 0; slot < itemInputSlotCount(); slot++) {
+            ItemStack stack = inputItems.getStackInSlot(slot);
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack, fuel)) {
+                inputItems.extractItem(slot, 1, false);
+                return;
+            }
+        }
     }
 
     private void consumeItemInput(SizedIngredient input) {
-        int remaining = input.count();
+        consumeItemInput(input.ingredient(), input.count());
+    }
+
+    private void consumeItemInput(Ingredient ingredient, int count) {
+        int remaining = count;
 
         for (int slot = 0; slot < itemInputSlotCount() && remaining > 0; slot++) {
             ItemStack stack = inputItems.getStackInSlot(slot);
 
-            if (stack.isEmpty() || !input.ingredient().test(stack)) {
+            if (stack.isEmpty() || !ingredient.test(stack)) {
                 continue;
             }
 
             int extracted = Math.min(remaining, stack.getCount());
             inputItems.extractItem(slot, extracted, false);
             remaining -= extracted;
+        }
+    }
+
+    private void consumeChancedItemInput(
+            CEChancedItemInput input,
+            Optional<MachineTier> runtimeTier,
+            Optional<MachineTier> baselineTier
+    ) {
+        int chance = input.effectiveChance(runtimeTier, baselineTier);
+        int amount = 0;
+        for (int i = 0; i < input.ingredient().count(); i++) {
+            if (chance >= CEChancedItemInput.MAX_CHANCE || level.random.nextInt(CEChancedItemInput.MAX_CHANCE) < chance) {
+                amount++;
+            }
+        }
+
+        if (amount > 0) {
+            consumeItemInput(input.ingredient().ingredient(), amount);
+        }
+    }
+
+
+    private void consumeChancedFluidInput(
+            CEChancedFluidInput input,
+            Optional<MachineTier> runtimeTier,
+            Optional<MachineTier> baselineTier
+    ) {
+        int chance = input.effectiveChance(runtimeTier, baselineTier);
+        if (chance >= CEChancedFluidInput.MAX_CHANCE || level.random.nextInt(CEChancedFluidInput.MAX_CHANCE) < chance) {
+            consumeFluidInput(input.ingredient());
         }
     }
 
@@ -611,6 +1099,14 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
             @Override
             public InteractionWearStore wearStore() {
                 return interactionWear;
+            }
+
+            @Override
+            public Map<String, net.mads.createexpansion.machine.interaction.MachineArea.Resolved> areas() {
+                return instance.definition().areas().stream().collect(Collectors.toUnmodifiableMap(
+                        net.mads.createexpansion.machine.interaction.MachineArea::name,
+                        area -> area.resolve(getBlockPos(), facing, instance.tier(), instance.definition().startTier())
+                ));
             }
         };
     }
@@ -667,9 +1163,519 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         return stacks;
     }
 
+    private void tickTemperature(SingleBlockMachineInstance instance) {
+        SingleBlockDefinition.TemperatureSettings settings = instance.definition().temperature();
+        if (settings == null) {
+            if (temperature != 0 || temperatureTickCounter != 0 || temperatureOperationTicks != 0L) {
+                temperature = 0;
+                temperatureTickCounter = 0;
+                temperatureOperationTicks = 0L;
+                setChangedAndSync();
+            }
+            return;
+        }
+
+        temperatureTickCounter++;
+        if (temperatureTickCounter < settings.changeIntervalTicks()) {
+            return;
+        }
+
+        temperatureTickCounter = 0;
+        int previous = temperature;
+
+        boolean heating = machineEnabled && (settings.usesHeatConditions()
+                ? heatConditionsMatch(instance, settings)
+                : recipeLogic.isActive());
+
+        if (heating) {
+            temperature = Math.min(
+                    settings.maximumTemperature(),
+                    temperature + settings.heatingAmount()
+            );
+        } else {
+            temperature = Math.max(0, temperature - settings.coolingAmount());
+        }
+
+        if (temperature != previous) {
+            setChangedAndSync();
+        }
+    }
+
+    private boolean heatConditionsMatch(
+            SingleBlockMachineInstance instance,
+            SingleBlockDefinition.TemperatureSettings settings
+    ) {
+        Level level = getLevel();
+        if (level == null || settings.heatConditions().isEmpty()) {
+            return false;
+        }
+
+        InteractionContext context = interactionContext(level, instance);
+        return settings.heatConditions().stream().allMatch(condition ->
+                condition.matches(context)
+        );
+    }
+
+    private boolean meetsTemperatureRequirement(SingleBlockMachineInstance instance) {
+        SingleBlockDefinition.TemperatureSettings settings = instance.definition().temperature();
+        return settings == null || temperature >= settings.minimumOperatingTemperature();
+    }
+
+    /**
+     * Runs the operations nested inside Option.temperature(...). All due inputs and outputs,
+     * including steam production, are simulated first and are then committed together.
+     * Returning false only skips production for this tick; it does not pause the fuel recipe.
+     */
+    private boolean runTemperatureOperations(SingleBlockMachineInstance instance, int steamToProduce) {
+        SingleBlockDefinition.TemperatureSettings settings = instance.definition().temperature();
+        if (settings == null || !meetsTemperatureRequirement(instance)) {
+            return false;
+        }
+
+        long operationTick = temperatureOperationTicks;
+        List<SingleBlockDefinition.StackRequirement> itemInputs = due(settings.inputItems(), operationTick);
+        List<SingleBlockDefinition.StackRequirement> fluidInputs = due(settings.inputFluids(), operationTick);
+        List<SingleBlockDefinition.StackRequirement> itemOutputs = due(settings.outputItems(), operationTick);
+        List<SingleBlockDefinition.StackRequirement> fluidOutputs = due(settings.outputFluids(), operationTick);
+
+        if (!hasRequiredItems(itemInputs)
+                || !hasRequiredFluids(fluidInputs)
+                || !canFitFixedItems(itemOutputs)
+                || !canFitFixedFluids(fluidOutputs)
+                || !canFitSteam(steamToProduce)) {
+            return false;
+        }
+
+        consumeFixedItems(itemInputs);
+        consumeFixedFluids(fluidInputs);
+        produceFixedItems(itemOutputs);
+        produceFixedFluids(fluidOutputs);
+        produceSteam(steamToProduce);
+        temperatureOperationTicks++;
+        setChangedAndSync();
+        return true;
+    }
+
+    private static List<SingleBlockDefinition.StackRequirement> due(
+            List<SingleBlockDefinition.StackRequirement> requirements,
+            long tick
+    ) {
+        return requirements.stream()
+                .filter(requirement -> tick % requirement.durationTicks() == 0L)
+                .toList();
+    }
+
+    private boolean hasRequiredItems(List<SingleBlockDefinition.StackRequirement> requirements) {
+        Map<Item, Integer> needed = new HashMap<>();
+        for (SingleBlockDefinition.StackRequirement requirement : requirements) {
+            Item item = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(requirement.id())).orElse(null);
+            if (item == null) {
+                return false;
+            }
+            needed.merge(item, requirement.amount(), Integer::sum);
+        }
+
+        for (Map.Entry<Item, Integer> entry : needed.entrySet()) {
+            int found = 0;
+            for (int slot = 0; slot < itemInputSlotCount(); slot++) {
+                ItemStack stack = inputItems.getStackInSlot(slot);
+                if (stack.is(entry.getKey())) {
+                    found += stack.getCount();
+                }
+            }
+            if (found < entry.getValue()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean hasRequiredFluids(List<SingleBlockDefinition.StackRequirement> requirements) {
+        Map<net.minecraft.world.level.material.Fluid, Integer> needed = new HashMap<>();
+        for (SingleBlockDefinition.StackRequirement requirement : requirements) {
+            net.minecraft.world.level.material.Fluid fluid = BuiltInRegistries.FLUID
+                    .getOptional(ResourceLocation.parse(requirement.id()))
+                    .orElse(null);
+            if (fluid == null) {
+                return false;
+            }
+            needed.merge(fluid, requirement.amount(), Integer::sum);
+        }
+
+        for (Map.Entry<net.minecraft.world.level.material.Fluid, Integer> entry : needed.entrySet()) {
+            int found = 0;
+            for (int tank = 0; tank < inputFluidSlotCount(); tank++) {
+                FluidStack stack = inputFluids[tank].getFluid();
+                if (!stack.isEmpty() && stack.getFluid() == entry.getKey()) {
+                    found += stack.getAmount();
+                }
+            }
+            if (found < entry.getValue()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean canFitFixedItems(List<SingleBlockDefinition.StackRequirement> requirements) {
+        List<ItemStack> stacks = new ArrayList<>();
+        for (SingleBlockDefinition.StackRequirement requirement : requirements) {
+            Item item = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(requirement.id())).orElse(null);
+            if (item == null) {
+                return false;
+            }
+            stacks.add(new ItemStack(item, requirement.amount()));
+        }
+        return canFitItems(stacks);
+    }
+
+    private boolean canFitFixedFluids(List<SingleBlockDefinition.StackRequirement> requirements) {
+        List<FluidStack> stacks = new ArrayList<>();
+        for (SingleBlockDefinition.StackRequirement requirement : requirements) {
+            net.minecraft.world.level.material.Fluid fluid = BuiltInRegistries.FLUID
+                    .getOptional(ResourceLocation.parse(requirement.id()))
+                    .orElse(null);
+            if (fluid == null) {
+                return false;
+            }
+            stacks.add(new FluidStack(fluid, requirement.amount()));
+        }
+        return canFitFluids(stacks);
+    }
+
+    private boolean canFitSteam(int amount) {
+        return amount <= 0 || steamTank.getFluidAmount() + amount <= steamTank.getCapacity();
+    }
+
+    private void consumeFixedItems(List<SingleBlockDefinition.StackRequirement> requirements) {
+        for (SingleBlockDefinition.StackRequirement requirement : requirements) {
+            Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(requirement.id()));
+            int remaining = requirement.amount();
+            for (int slot = 0; slot < itemInputSlotCount() && remaining > 0; slot++) {
+                ItemStack stack = inputItems.getStackInSlot(slot);
+                if (!stack.is(item)) {
+                    continue;
+                }
+                int extracted = Math.min(remaining, stack.getCount());
+                inputItems.extractItem(slot, extracted, false);
+                remaining -= extracted;
+            }
+        }
+    }
+
+    private void consumeFixedFluids(List<SingleBlockDefinition.StackRequirement> requirements) {
+        for (SingleBlockDefinition.StackRequirement requirement : requirements) {
+            net.minecraft.world.level.material.Fluid fluid = BuiltInRegistries.FLUID
+                    .get(ResourceLocation.parse(requirement.id()));
+            int remaining = requirement.amount();
+            for (int tank = 0; tank < inputFluidSlotCount() && remaining > 0; tank++) {
+                FluidStack stack = inputFluids[tank].getFluid();
+                if (stack.isEmpty() || stack.getFluid() != fluid) {
+                    continue;
+                }
+                FluidStack drained = inputFluids[tank].drain(remaining, FluidAction.EXECUTE);
+                remaining -= drained.getAmount();
+            }
+        }
+    }
+
+    private void produceFixedItems(List<SingleBlockDefinition.StackRequirement> requirements) {
+        for (SingleBlockDefinition.StackRequirement requirement : requirements) {
+            Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(requirement.id()));
+            produceItemOutput(new ItemStack(item, requirement.amount()));
+        }
+    }
+
+    private void produceFixedFluids(List<SingleBlockDefinition.StackRequirement> requirements) {
+        for (SingleBlockDefinition.StackRequirement requirement : requirements) {
+            net.minecraft.world.level.material.Fluid fluid = BuiltInRegistries.FLUID
+                    .get(ResourceLocation.parse(requirement.id()));
+            produceFluidOutput(new FluidStack(fluid, requirement.amount()));
+        }
+    }
+
+    private void produceSteam(int amount) {
+        if (amount <= 0) {
+            return;
+        }
+
+        FluidRegistry.RegisteredFluid steam =
+                FluidRegistry.CHEMICAL_FLUIDS.get(IndustrialFluids.STEAM.registryName());
+        if (steam != null) {
+            steamTank.fill(new FluidStack(steam.source().get(), amount), FluidAction.EXECUTE);
+        }
+    }
+
     private void resetOverlay() {
         overlayFrame = 0;
         overlayFrameTicks = 0;
+    }
+
+    private void applyMachineControlSchedules() {
+        if (machineControlSchedules.isEmpty()) return;
+        boolean enabled = evaluateAllMachineControlSchedules();
+        boolean variablesChanged = false;
+        for (Direction side : machineControlSchedules.keySet()) {
+            MachineControlSchedule schedule = machineControlSchedule(side);
+            if (schedule != null) variablesChanged |= schedule.consumeRuntimeDirty();
+        }
+        setMachineEnabled(enabled);
+        if (variablesChanged) setChangedAndSync();
+    }
+
+    @Override
+    public boolean isMachineEnabled() {
+        return machineEnabled;
+    }
+
+    @Override
+    public void setMachineEnabled(boolean enabled) {
+        if (machineEnabled == enabled) {
+            return;
+        }
+
+        machineEnabled = enabled;
+        if (!enabled) {
+            resetOverlay();
+            Level level = getLevel();
+            BlockState state = getBlockState();
+            if (level != null
+                    && state.hasProperty(SingleBlockMachineBlock.ACTIVE)
+                    && (state.getValue(SingleBlockMachineBlock.ACTIVE)
+                    || state.getValue(SingleBlockMachineBlock.OVERLAY_FRAME) != 0)) {
+                level.setBlock(
+                        getBlockPos(),
+                        state.setValue(SingleBlockMachineBlock.ACTIVE, false)
+                                .setValue(SingleBlockMachineBlock.OVERLAY_FRAME, 0),
+                        Block.UPDATE_ALL
+                );
+            }
+        }
+
+        setChangedAndSync();
+    }
+
+    @Override
+    public EnumMap<Direction, MachineControlSchedule> machineControlSchedules() {
+        return machineControlSchedules;
+    }
+
+    @Override
+    public MachineControlVariableStore machineControlVariables() {
+        return machineControlVariables;
+    }
+
+    @Override
+    public boolean acceptsMachineControlSchedules() {
+        return true;
+    }
+
+    @Override
+    public void machineControlSchedulesChanged() {
+        Level level = getLevel();
+        if (level != null && !level.isClientSide()) {
+            applyMachineControlSchedules();
+            refreshMachineControlRedstoneOutputs();
+        }
+        setChangedAndSync();
+    }
+
+    @Override
+    public MachineControlTarget machineControlTarget() {
+        return this;
+    }
+
+    @Override
+    public MachineControlContext machineControlContext(int redstoneInput) {
+        return currentMachineControlSnapshot().withRedstoneInput(redstoneInput);
+    }
+
+    private MachineControlSnapshot currentMachineControlSnapshot() {
+        Level level = getLevel();
+        long tick = level == null ? Long.MIN_VALUE : level.getGameTime();
+        if (machineControlSnapshot != null && machineControlSnapshotTick == tick) return machineControlSnapshot;
+        machineControlSnapshotTick = tick;
+        machineControlSnapshot = MachineControlSnapshot.builder(tick)
+                .inputRevision(machineControlInputRevision)
+                .machineRunning(machineEnabled && recipeLogic.status() == CERecipeStatus.WORKING)
+                .hasActiveRecipe(recipeLogic.execution() != null)
+                .recipeProgress(progress())
+                .recipeDuration(progressTotal())
+                .energy(this::energyStored, this::energyCapacity)
+                .steam(this::steamStored, this::steamCapacity)
+                .diagnostics(this::machineControlDiagnosticsSnapshot)
+                .itemInputs(this::cachedMachineControlItemInputs)
+                .fluidInputs(this::cachedMachineControlFluidInputs)
+                .temperature(temperature())
+                .rpm(recipeMinimumRpm(), recipeMaximumRpm(), machineRpm())
+                .build();
+        return machineControlSnapshot;
+    }
+
+    private List<ItemStack> cachedMachineControlItemInputs() {
+        refreshMachineControlInputCaches();
+        return machineControlCachedItemInputs;
+    }
+
+    private List<FluidStack> cachedMachineControlFluidInputs() {
+        refreshMachineControlInputCaches();
+        return machineControlCachedFluidInputs;
+    }
+
+    private void refreshMachineControlInputCaches() {
+        if (machineControlCachedInputRevision == machineControlInputRevision) return;
+        machineControlCachedInputRevision = machineControlInputRevision;
+        machineControlCachedItemInputs = visibleItemInputs().stream().map(ItemStack::copy).toList();
+        machineControlCachedFluidInputs = visibleFluidInputs().stream().map(FluidStack::copy).toList();
+    }
+
+    private void machineControlInputsChanged() {
+        machineControlInputRevision++;
+        machineControlCachedInputRevision = Long.MIN_VALUE;
+        setChangedAndSync();
+    }
+
+    private MachineControlSnapshot.Diagnostics machineControlDiagnosticsSnapshot() {
+        SingleBlockMachineInstance instance = instance();
+        if (instance == null) return MachineControlSnapshot.Diagnostics.NONE;
+        CERecipeExecution execution = recipeLogic.execution();
+        if (execution != null) {
+            return new MachineControlSnapshot.Diagnostics(
+                    false,
+                    execution.resourcePerTick() > 0 && !canProcessResource(instance, execution.resourcePerTick()),
+                    recipeLogic.status() == CERecipeStatus.WAITING_FOR_OUTPUT
+            );
+        }
+
+        Optional<RecipeHolder<CERecipe>> candidate = machineControlRecipeCandidate();
+        if (candidate.isEmpty()) return new MachineControlSnapshot.Diagnostics(true, false, false);
+        CERecipe recipe = candidate.get().value();
+        int resourcePerTick = resourcePerTick(instance, recipe);
+        List<ItemStack> itemOutputs = recipe.itemOutputs().stream().map(output -> output.stack().copy()).toList();
+        List<FluidStack> fluidOutputs = possibleFluidOutputs(recipe);
+        return new MachineControlSnapshot.Diagnostics(
+                false,
+                resourcePerTick > 0 && !canProcessResource(instance, resourcePerTick),
+                !canFitItems(itemOutputs) || !canFitFluids(fluidOutputs)
+        );
+    }
+
+    public int machineControlSignal(Direction side) {
+        return side == null ? 0 : machineControlRedstoneOutput(side);
+    }
+
+    private void refreshMachineControlRedstoneOutputs() {
+        Level level = getLevel();
+        if (level == null || level.isClientSide()) return;
+        int signature = 0;
+        for (Direction side : Direction.values()) {
+            signature |= (machineControlSignal(side) & 15) << (side.get3DDataValue() * 4);
+        }
+        if (signature == machineControlOutputSignature) return;
+        int previous = machineControlOutputSignature;
+        machineControlOutputSignature = signature;
+        for (Direction side : Direction.values()) {
+            int shift = side.get3DDataValue() * 4;
+            if (previous < 0 || ((previous >>> shift) & 15) != ((signature >>> shift) & 15)) {
+                level.updateNeighborsAt(worldPosition.relative(side), getBlockState().getBlock());
+            }
+        }
+        level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+    }
+
+    private Optional<RecipeHolder<CERecipe>> machineControlRecipeCandidate() {
+        Level level = getLevel();
+        SingleBlockMachineInstance instance = instance();
+        return level == null || instance == null ? Optional.empty() : findRecipe(level, instance);
+    }
+
+    private boolean machineControlOutputBlocked() {
+        if (recipeLogic.status() == CERecipeStatus.WAITING_FOR_OUTPUT) return true;
+        if (recipeLogic.execution() != null) return false;
+        return machineControlRecipeCandidate().map(holder -> {
+            CERecipe recipe = holder.value();
+            List<ItemStack> itemOutputs = recipe.itemOutputs().stream().map(output -> output.stack().copy()).toList();
+            List<FluidStack> fluidOutputs = possibleFluidOutputs(recipe);
+            return !canFitItems(itemOutputs) || !canFitFluids(fluidOutputs);
+        }).orElse(false);
+    }
+
+    private boolean machineControlMissingEnergy() {
+        SingleBlockMachineInstance instance = instance();
+        if (instance == null) return false;
+        CERecipeExecution execution = recipeLogic.execution();
+        if (execution != null) return execution.resourcePerTick() > 0 && !canProcessResource(instance, execution.resourcePerTick());
+        return machineControlRecipeCandidate()
+                .map(holder -> resourcePerTick(instance, holder.value()))
+                .filter(amount -> amount > 0)
+                .map(amount -> !canProcessResource(instance, amount))
+                .orElse(false);
+    }
+
+    private boolean machineControlMissingInput() {
+        return recipeLogic.execution() == null && machineControlRecipeCandidate().isEmpty();
+    }
+
+    private int machineControlItemCount(String filter) {
+        if (filter == null || filter.isBlank()) return visibleItemInputs().stream().mapToInt(ItemStack::getCount).sum();
+        return visibleItemInputs().stream()
+                .filter(stack -> machineControlItemMatchesFilter(stack, filter))
+                .mapToInt(ItemStack::getCount)
+                .sum();
+    }
+
+    private int machineControlFluidAmount(String filter) {
+        if (filter == null || filter.isBlank()) return visibleFluidInputs().stream().mapToInt(FluidStack::getAmount).sum();
+        return visibleFluidInputs().stream()
+                .filter(stack -> machineControlFluidMatchesFilter(stack, filter))
+                .mapToInt(FluidStack::getAmount)
+                .sum();
+    }
+
+    private boolean machineControlItemMatchesFilter(ItemStack stack, String filter) {
+        for (String raw : filter.split("[,;\n]+")) {
+            String token = raw.trim();
+            if (token.isEmpty()) continue;
+            boolean tag = token.startsWith("#");
+            ResourceLocation id = ResourceLocation.tryParse(tag ? token.substring(1) : token);
+            if (id == null) continue;
+            if (tag && stack.is(TagKey.create(Registries.ITEM, id))) return true;
+            if (!tag && BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(id)) return true;
+        }
+        return false;
+    }
+
+    private boolean machineControlFluidMatchesFilter(FluidStack stack, String filter) {
+        for (String raw : filter.split("[,;\n]+")) {
+            String token = raw.trim();
+            if (token.isEmpty()) continue;
+            boolean tag = token.startsWith("#");
+            ResourceLocation id = ResourceLocation.tryParse(tag ? token.substring(1) : token);
+            if (id == null) continue;
+            if (tag && stack.getFluid().builtInRegistryHolder().is(TagKey.create(Registries.FLUID, id))) return true;
+            if (!tag && BuiltInRegistries.FLUID.getKey(stack.getFluid()).equals(id)) return true;
+        }
+        return false;
+    }
+
+    private boolean machineControlItemMatches(String value, boolean tagMatch) {
+        ResourceLocation id = ResourceLocation.tryParse(value);
+        if (id == null) return false;
+        if (tagMatch) {
+            TagKey<Item> tag = TagKey.create(Registries.ITEM, id);
+            return visibleItemInputs().stream().anyMatch(stack -> stack.is(tag));
+        }
+        return visibleItemInputs().stream().anyMatch(stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(id));
+    }
+
+    private boolean machineControlFluidMatches(String value, boolean tagMatch) {
+        ResourceLocation id = ResourceLocation.tryParse(value);
+        if (id == null) return false;
+        if (tagMatch) {
+            TagKey<net.minecraft.world.level.material.Fluid> tag = TagKey.create(Registries.FLUID, id);
+            return visibleFluidInputs().stream().anyMatch(stack -> stack.getFluid().builtInRegistryHolder().is(tag));
+        }
+        return visibleFluidInputs().stream().anyMatch(stack -> BuiltInRegistries.FLUID.getKey(stack.getFluid()).equals(id));
     }
 
     public CERecipeLogic recipeLogic() {
@@ -697,6 +1703,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
             }
 
             CERecipe recipe = holder.get().value();
+            CERecipeInput input = recipeInput(instance);
             int resourcePerTick = resourcePerTick(instance, recipe);
             InteractionContext context = interactionContext(level, instance);
 
@@ -716,18 +1723,12 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
                 return Optional.empty();
             }
 
-            List<ItemStack> possibleItemOutputs = recipe.itemOutputs().stream()
-                    .map(output -> output.stack().copy())
-                    .toList();
-            List<FluidStack> fluidOutputs = recipe.fluidOutputs().stream()
-                    .map(FluidStack::copy)
-                    .toList();
+            List<ItemStack> itemOutputs = rollItemOutputs(recipe, input.processingTier());
+            List<FluidStack> fluidOutputs = rollFluidOutputs(recipe, input.processingTier());
 
-            if (!canFitItems(possibleItemOutputs) || !canFitFluids(fluidOutputs)) {
+            if (!canFitItems(itemOutputs) || !canFitFluids(fluidOutputs)) {
                 return Optional.empty();
             }
-
-            List<ItemStack> itemOutputs = rollItemOutputs(recipe);
 
             InteractionRuntime.applyInteractions(
                     instance.definition().blockInteractions(),
@@ -740,26 +1741,35 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
                     InteractionPhase.ON_START
             );
 
-            consumeInputs(recipe);
+            ItemStack furnaceFuelInput = recipe.furnaceFuelStack(input).orElse(ItemStack.EMPTY);
+            consumeInputs(recipe, input);
             preferredRecipeId = holder.get().id();
+
+            CompoundTag machineData = new CompoundTag();
+            if (instance.definition().usesKineticOutput()) {
+                machineData.putInt(
+                        KINETIC_OUTPUT_RPM_DATA,
+                        resolvedOutputRpm(instance, recipe)
+                );
+            }
 
             return Optional.of(new CERecipeExecution(
                     holder.get().id(),
                     recipe.recipeType(),
                     InteractionRuntime.adjustedDuration(
-                            adjustedDuration(instance, recipe),
+                            adjustedDuration(instance, recipe, input),
                             machineModifier,
                             recipeModifier
                     ),
                     resourcePerTick,
                     1,
-                    recipe.itemInputs().stream()
-                            .map(input -> input.ingredient().getItems()[0].copyWithCount(input.count()))
-                            .toList(),
-                    List.of(),
+                    recipe.furnaceFuel()
+                            ? List.of(furnaceFuelInput.copyWithCount(1))
+                            : displayItemInputs(recipe),
+                    displayFluidInputs(recipe),
                     itemOutputs,
                     fluidOutputs,
-                    new CompoundTag()
+                    machineData
             ));
         }
 
@@ -773,6 +1783,17 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
             }
 
             Optional<CERecipe> recipe = recipeById(execution.recipeId());
+
+            if (instance.definition().usesKineticInput()) {
+                if (recipe.isEmpty()) {
+                    return CERecipeTickResult.CANCEL;
+                }
+                if (!hasKineticInputPower()
+                        || kineticRpmError(recipe.get()) != KineticRpmError.NONE) {
+                    return CERecipeTickResult.WAIT_FOR_RPM;
+                }
+            }
+
             InteractionContext context = interactionContext(level, instance);
 
             ConditionFailure machineFailure = InteractionRuntime.failedConditionBehavior(
@@ -800,7 +1821,23 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
             }
 
             int amount = execution.resourcePerTick();
+
+            /*
+             * Operations nested inside Option.temperature(...) must run even when this
+             * machine does not use the separate energy/steam resource system. A tierless
+             * boiler normally has resourcePerTick == 0 and uses nested inputFluid and
+             * outputFluid operations for water -> steam conversion.
+             */
+            if (instance.definition().hasTemperature()) {
+                int steamToProduce =
+                        instance.definition().resource() == SingleBlockMachineResource.STEAM && amount < 0
+                                ? -amount
+                                : 0;
+                runTemperatureOperations(instance, steamToProduce);
+            }
+
             if (amount == 0) {
+                tickSprinklerInteractions(instance, context);
                 return CERecipeTickResult.CONTINUE;
             }
 
@@ -811,15 +1848,14 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
                     }
 
                     steamTank.drain(amount, FluidAction.EXECUTE);
-                } else {
+                } else if (!instance.definition().hasTemperature()) {
+                    int produced = -amount;
                     FluidRegistry.RegisteredFluid steam =
                             FluidRegistry.CHEMICAL_FLUIDS.get(IndustrialFluids.STEAM.registryName());
 
                     if (steam == null) {
                         return CERecipeTickResult.CANCEL;
                     }
-
-                    int produced = -amount;
 
                     if (steamTank.getFluidAmount() + produced > steamTank.getCapacity()) {
                         return CERecipeTickResult.WAIT_FOR_RESOURCE;
@@ -831,6 +1867,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
                     );
                 }
 
+                tickSprinklerInteractions(instance, context);
                 return CERecipeTickResult.CONTINUE;
             }
 
@@ -850,7 +1887,14 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
                 ceContainer.insert(produced, false);
             }
 
+            tickSprinklerInteractions(instance, context);
             return CERecipeTickResult.CONTINUE;
+        }
+
+        @Override
+        public boolean resetDurationWhenResourceMissing() {
+            SingleBlockMachineInstance instance = instance();
+            return instance == null || !instance.definition().noDurationReset();
         }
 
         @Override
@@ -890,27 +1934,30 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         }
 
         @Override
-        public void completeRecipe(CERecipeExecution execution) {
+        public boolean completeRecipe(CERecipeExecution execution) {
             SingleBlockMachineInstance instance = instance();
             Level level = getLevel();
             Optional<CERecipe> recipe = recipeById(execution.recipeId());
 
-            if (instance != null && level != null && recipe.isPresent()) {
-                InteractionContext context = interactionContext(level, instance);
+            if (instance == null || level == null || recipe.isEmpty()) {
+                return false;
+            }
 
-                InteractionRuntime.applyInteractions(
-                        instance.definition().blockInteractions(),
-                        context,
-                        InteractionPhase.ON_COMPLETE
-                );
-                InteractionRuntime.applyInteractions(
-                        recipe.get().blockInteractions(),
-                        context,
-                        InteractionPhase.ON_COMPLETE
-                );
+            InteractionContext context = interactionContext(level, instance);
+            if (!InteractionRuntime.applyInteractions(
+                    instance.definition().blockInteractions(),
+                    context,
+                    InteractionPhase.ON_COMPLETE
+            ) || !InteractionRuntime.applyInteractions(
+                    recipe.get().blockInteractions(),
+                    context,
+                    InteractionPhase.ON_COMPLETE
+            )) {
+                return false;
             }
 
             produceOutputs(execution);
+            return true;
         }
 
         @Override
@@ -919,6 +1966,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
                 resetOverlay();
             }
 
+            refreshGeneratedRotation();
             setChanged();
 
             if (activeChanged || recipeSyncCooldown <= 0) {
@@ -953,7 +2001,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         return new ItemStackHandler(slots) {
             @Override
             protected void onContentsChanged(int slot) {
-                setChangedAndSync();
+                machineControlInputsChanged();
             }
         };
     }
@@ -1000,9 +2048,35 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
 
             @Override
             protected void onContentsChanged() {
-                setChangedAndSync();
+                machineControlInputsChanged();
             }
         };
+    }
+
+
+    public int circuit() {
+        return circuit;
+    }
+
+    public void adjustCircuit(int amount) {
+        if (amount == 0) {
+            return;
+        }
+        setCircuit(Math.floorMod(circuit + amount, 33));
+    }
+
+    public void resetCircuit() {
+        setCircuit(0);
+    }
+
+    public void setCircuit(int circuit) {
+        int next = Math.max(0, Math.min(32, circuit));
+        if (this.circuit == next) {
+            return;
+        }
+        this.circuit = next;
+        preferredRecipeId = null;
+        setChangedAndSync();
     }
 
     private void setChangedAndSync() {
@@ -1017,13 +2091,114 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         }
     }
 
-    @Override
-    protected void saveAdditional(
-            CompoundTag tag,
-            HolderLookup.Provider registries
+    private void tickSprinklerInteractions(
+            SingleBlockMachineInstance instance,
+            InteractionContext context
     ) {
-        super.saveAdditional(tag, registries);
+        int processingTick = recipeLogic.progress() + 1;
 
+        for (BlockInteraction interaction : instance.definition().blockInteractions()) {
+            if (interaction.type() != BlockInteraction.Type.SPRINKLER
+                    || processingTick % interaction.interval() != 0) {
+                continue;
+            }
+
+            int actions = sprinklerActions(instance, interaction);
+            runSprinklerInterval(interaction, context, actions);
+        }
+    }
+
+    private static int sprinklerActions(
+            SingleBlockMachineInstance instance,
+            BlockInteraction interaction
+    ) {
+        int actual = MachineTierStats.tierIndex(instance.tier().recipeTier());
+        int start = MachineTierStats.tierIndex(instance.definition().startTier().recipeTier());
+        int actions = interaction.actionsPerInterval();
+
+        for (int step = 0; step < Math.max(0, actual - start); step++) {
+            actions = Math.multiplyExact(actions, interaction.actionMultiplierPerTier());
+        }
+
+        return actions;
+    }
+
+    private void runSprinklerInterval(
+            BlockInteraction interaction,
+            InteractionContext context,
+            int actions
+    ) {
+        if (!(context.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        if (sprinklerTargets.isEmpty() || sprinklerTargetIndex >= sprinklerTargets.size()) {
+            rebuildSprinklerTargets(interaction, context);
+        }
+
+        for (int action = 0; action < actions && sprinklerTargetIndex < sprinklerTargets.size(); action++) {
+            BlockPos target = sprinklerTargets.get(sprinklerTargetIndex++);
+            applySprinklerBonemeal(serverLevel, target);
+        }
+
+        if (sprinklerTargetIndex >= sprinklerTargets.size()) {
+            sprinklerTargets.clear();
+            sprinklerTargetIndex = 0;
+        }
+    }
+
+    private void rebuildSprinklerTargets(
+            BlockInteraction interaction,
+            InteractionContext context
+    ) {
+        sprinklerTargets.clear();
+        sprinklerTargetIndex = 0;
+
+        interaction.area()
+                .map(context.areas()::get)
+                .ifPresent(area -> area.positions().stream()
+                        .filter(pos -> isValidSprinklerTarget(context.level(), pos))
+                        .forEach(sprinklerTargets::add));
+    }
+
+    private static boolean isValidSprinklerTarget(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (state.is(SPRINKLER_BLACKLIST) || isBuiltInSprinklerBlacklist(state)) {
+            return false;
+        }
+
+        return state.getBlock() instanceof BonemealableBlock bonemealable
+                && bonemealable.isValidBonemealTarget(level, pos, state);
+    }
+
+    private static boolean isBuiltInSprinklerBlacklist(BlockState state) {
+        return state.is(Blocks.GRASS_BLOCK)
+                || state.is(Blocks.MOSS_BLOCK)
+                || state.is(Blocks.CRIMSON_NYLIUM)
+                || state.is(Blocks.WARPED_NYLIUM)
+                || state.is(Blocks.NETHERRACK);
+    }
+
+    private static void applySprinklerBonemeal(ServerLevel level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (!isValidSprinklerTarget(level, pos)
+                || !(state.getBlock() instanceof BonemealableBlock bonemealable)) {
+            return;
+        }
+
+        if (bonemealable.isBonemealSuccess(level, level.random, pos, state)) {
+            bonemealable.performBonemeal(level, level.random, pos, state);
+            level.levelEvent(1505, pos, 0);
+        }
+    }
+
+
+    @Override
+    protected void write(
+            CompoundTag tag,
+            HolderLookup.Provider registries,
+            boolean clientPacket
+    ) {
         tag.put("InputItems", inputItems.serializeNBT(registries));
         tag.put("OutputItems", outputItems.serializeNBT(registries));
         tag.put("SteamTank", steamTank.writeToNBT(registries, new CompoundTag()));
@@ -1032,6 +2207,13 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         saveTanks(tag, "OutputFluids", outputFluids, registries);
 
         tag.putLong("EnergyStored", energyStored);
+        tag.putBoolean("MachineEnabled", machineEnabled);
+        saveMachineControlSchedules(tag);
+        tag.putInt("Circuit", circuit);
+        tag.putInt("Temperature", temperature);
+        tag.putInt("TemperatureTickCounter", temperatureTickCounter);
+        tag.putLong("TemperatureOperationTicks", temperatureOperationTicks);
+        tag.putInt("SprinklerTargetIndex", sprinklerTargetIndex);
 
         if (preferredRecipeId != null) {
             tag.putString("PreferredRecipe", preferredRecipeId.toString());
@@ -1039,15 +2221,15 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
 
         interactionWear.save(tag);
         recipeLogic.save(tag, registries);
+        super.write(tag, registries, clientPacket);
     }
 
     @Override
-    protected void loadAdditional(
+    protected void read(
             CompoundTag tag,
-            HolderLookup.Provider registries
+            HolderLookup.Provider registries,
+            boolean clientPacket
     ) {
-        super.loadAdditional(tag, registries);
-
         if (tag.contains("InputItems")) {
             inputItems.deserializeNBT(registries, tag.getCompound("InputItems"));
         }
@@ -1063,10 +2245,20 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
         loadTanks(tag, "InputFluids", inputFluids, registries);
         loadTanks(tag, "OutputFluids", outputFluids, registries);
 
+        machineEnabled = !tag.contains("MachineEnabled") || tag.getBoolean("MachineEnabled");
+        loadMachineControlSchedules(tag);
+
         energyStored = Math.max(
                 0L,
                 Math.min(tag.getLong("EnergyStored"), energyCapacity())
         );
+
+        circuit = Math.max(0, Math.min(32, tag.getInt("Circuit")));
+        temperature = Math.max(0, tag.getInt("Temperature"));
+        temperatureTickCounter = Math.max(0, tag.getInt("TemperatureTickCounter"));
+        temperatureOperationTicks = Math.max(0L, tag.getLong("TemperatureOperationTicks"));
+        sprinklerTargetIndex = Math.max(0, tag.getInt("SprinklerTargetIndex"));
+        sprinklerTargets.clear();
 
         preferredRecipeId = tag.contains("PreferredRecipe")
                 ? ResourceLocation.parse(tag.getString("PreferredRecipe"))
@@ -1074,18 +2266,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
 
         interactionWear.load(tag);
         recipeLogic.load(tag, registries);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
-        return tag;
-    }
-
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+        super.read(tag, registries, clientPacket);
     }
 
     @Override
@@ -1132,12 +2313,16 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
     }
 
     private class MachineItemHandler extends CombinedInvWrapper {
-        private MachineItemHandler() {
+        private final MachineSide side;
+
+        private MachineItemHandler(MachineSide side) {
             super(inputItems, outputItems);
+            this.side = side;
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            if (side != null && !instance().definition().allowsItemOutput(side)) return ItemStack.EMPTY;
             int outputStart = MAX_ITEM_INPUT_SLOTS;
 
             if (slot < outputStart || slot >= outputStart + itemOutputSlotCount()) {
@@ -1149,6 +2334,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            if (side != null && !instance().definition().allowsItemInput(side)) return stack;
             if (slot < 0 || slot >= itemInputSlotCount()) {
                 return stack;
             }
@@ -1164,7 +2350,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
             tanks[i] = new FluidTank(RECIPE_FLUID_TANK_CAPACITY) {
                 @Override
                 protected void onContentsChanged() {
-                    setChangedAndSync();
+                    machineControlInputsChanged();
                 }
             };
         }
@@ -1225,6 +2411,12 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
     }
 
     private class MachineFluidHandler implements IFluidHandler {
+        private final MachineSide side;
+
+        private MachineFluidHandler(MachineSide side) {
+            this.side = side;
+        }
+
         @Override
         public int getTanks() {
             return (instance() != null
@@ -1259,6 +2451,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
 
         @Override
         public int fill(FluidStack resource, FluidAction action) {
+            if (side != null && !instance().definition().allowsFluidInput(side)) return 0;
             if (resource.isEmpty()) {
                 return 0;
             }
@@ -1269,21 +2462,27 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
                         : 0;
             }
 
-            int filled = 0;
-            int remaining = resource.getAmount();
+            for (int i = 0; i < inputFluidSlotCount(); i++) {
+                FluidStack stored = inputFluids[i].getFluid();
 
-            for (int i = 0; i < inputFluidSlotCount() && remaining > 0; i++) {
-                FluidStack request = resource.copyWithAmount(remaining);
-                int accepted = inputFluids[i].fill(request, action);
-                filled += accepted;
-                remaining -= accepted;
+                if (!stored.isEmpty()
+                        && FluidStack.isSameFluidSameComponents(stored, resource)) {
+                    return inputFluids[i].fill(resource, action);
+                }
             }
 
-            return filled;
+            for (int i = 0; i < inputFluidSlotCount(); i++) {
+                if (inputFluids[i].isEmpty()) {
+                    return inputFluids[i].fill(resource, action);
+                }
+            }
+
+            return 0;
         }
 
         @Override
         public FluidStack drain(FluidStack resource, FluidAction action) {
+            if (side != null && !instance().definition().allowsFluidOutput(side)) return FluidStack.EMPTY;
             if (resource.isEmpty()) {
                 return FluidStack.EMPTY;
             }
@@ -1309,6 +2508,7 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
 
         @Override
         public FluidStack drain(int maxDrain, FluidAction action) {
+            if (side != null && !instance().definition().allowsFluidOutput(side)) return FluidStack.EMPTY;
             if (steamTankAllowsOutput()) {
                 FluidStack drained = steamTank.drain(maxDrain, action);
 
@@ -1366,5 +2566,41 @@ public class SingleBlockMachineBlockEntity extends BlockEntity implements Cleara
 
             return null;
         }
+    }
+
+    private static List<ItemStack> displayItemInputs(CERecipe recipe) {
+        List<ItemStack> stacks = new ArrayList<>();
+        for (SizedIngredient input : recipe.itemInputs()) {
+            ItemStack[] candidates = input.getItems();
+            if (candidates.length > 0) {
+                stacks.add(candidates[0].copyWithCount(input.count()));
+            }
+        }
+        for (CEChancedItemInput input : recipe.chancedItemInputs()) {
+            ItemStack[] candidates = input.ingredient().getItems();
+            if (candidates.length > 0) stacks.add(candidates[0].copyWithCount(input.ingredient().count()));
+        }
+        for (SizedIngredient input : recipe.notConsumableItems()) {
+            ItemStack[] candidates = input.getItems();
+            if (candidates.length > 0) stacks.add(candidates[0].copyWithCount(input.count()));
+        }
+        return stacks;
+    }
+
+    private static List<FluidStack> displayFluidInputs(CERecipe recipe) {
+        List<FluidStack> stacks = new ArrayList<>();
+        for (SizedFluidIngredient input : recipe.fluidInputs()) {
+            FluidStack[] candidates = input.getFluids();
+            if (candidates.length > 0) stacks.add(candidates[0].copy());
+        }
+        for (CEChancedFluidInput input : recipe.chancedFluidInputs()) {
+            FluidStack[] candidates = input.ingredient().getFluids();
+            if (candidates.length > 0) stacks.add(candidates[0].copy());
+        }
+        for (SizedFluidIngredient input : recipe.notConsumableFluids()) {
+            FluidStack[] candidates = input.getFluids();
+            if (candidates.length > 0) stacks.add(candidates[0].copy());
+        }
+        return stacks;
     }
 }

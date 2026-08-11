@@ -1,0 +1,22 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "type": "neoforge:single",
+      "amount": 250,
+      "fluid": "create_expansion:pine_resin"
+    },
+    {
+      "type": "neoforge:single",
+      "amount": 100,
+      "fluid": "minecraft:water"
+    }
+  ],
+  "processing_time": 600,
+  "results": [
+    {
+      "amount": 250,
+      "id": "create_expansion:glue"
+    }
+  ]
+}

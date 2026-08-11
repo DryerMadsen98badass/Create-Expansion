@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Declarative definition of one CE recipe type.
+ * Declarative definition of one CE process type.
+ *
+ * <p>The definition describes recipe IO, supported custom logic and display
+ * information. Power is a property of the machine, not the recipe type.</p>
  */
 public record RecipeTypeDefinition(
         ResourceLocation id,
@@ -18,10 +21,9 @@ public record RecipeTypeDefinition(
         int maxItemOutputs,
         int maxFluidInputs,
         int maxFluidOutputs,
-        KineticMode kineticMode,
-        EnergyMode energyMode,
         List<ResourceLocation> supportedLogic,
-        ProgressBar progressBar
+        ProgressBar progressBar,
+        int baseBlockItemInputIndex
 ) {
     public RecipeTypeDefinition {
         supportedLogic = List.copyOf(supportedLogic);
@@ -30,32 +32,6 @@ public record RecipeTypeDefinition(
 
     public boolean supportsLogic(ResourceLocation logicId) {
         return supportedLogic.contains(logicId);
-    }
-
-    public boolean usesRpm() {
-        return acceptsRpm();
-    }
-
-    public boolean acceptsRpm() {
-        return kineticMode == KineticMode.CONSUMES || kineticMode == KineticMode.BOTH;
-    }
-
-    public boolean outputsRpm() {
-        return kineticMode == KineticMode.GENERATES || kineticMode == KineticMode.BOTH;
-    }
-
-    public enum KineticMode {
-        NONE,
-        CONSUMES,
-        GENERATES,
-        BOTH
-    }
-
-    public enum EnergyMode {
-        NONE,
-        CONSUMES,
-        GENERATES,
-        BOTH
     }
 
     public static Builder recipeType() {
@@ -95,16 +71,6 @@ public record RecipeTypeDefinition(
             };
         }
 
-        /** Defines whether recipes can consume or generate kinetic rotation. */
-        static Option kineticMode(KineticMode kineticMode) {
-            return builder -> builder.kineticMode = Objects.requireNonNull(kineticMode);
-        }
-
-        /** Defines whether recipes can consume or generate CE. */
-        static Option energyMode(EnergyMode energyMode) {
-            return builder -> builder.energyMode = Objects.requireNonNull(energyMode);
-        }
-
         /** Adds a supported custom recipe-logic capability. */
         static Option logic(CERecipeLogicDefinition logic) {
             return builder -> builder.supportedLogic.add(Objects.requireNonNull(logic).id());
@@ -117,6 +83,11 @@ public record RecipeTypeDefinition(
         static Option progressBar(ProgressBar progressBar) {
             return builder -> builder.progressBar = Objects.requireNonNull(progressBar);
         }
+
+        /** Marks the first item input slot as the recipe's base block in automatic recipe viewers. */
+        static Option baseBlockInput() {
+            return builder -> builder.baseBlockItemInputIndex = 0;
+        }
     }
 
     public static final class Builder {
@@ -126,10 +97,9 @@ public record RecipeTypeDefinition(
         private int maxItemOutputs;
         private int maxFluidInputs;
         private int maxFluidOutputs;
-        private KineticMode kineticMode = KineticMode.NONE;
-        private EnergyMode energyMode = EnergyMode.CONSUMES;
         private final List<ResourceLocation> supportedLogic = new ArrayList<>();
         private ProgressBar progressBar = ProgressBar.ARROW;
+        private int baseBlockItemInputIndex = -1;
 
         private Builder() {
         }
@@ -156,10 +126,9 @@ public record RecipeTypeDefinition(
                     maxItemOutputs,
                     maxFluidInputs,
                     maxFluidOutputs,
-                    kineticMode,
-                    energyMode,
                     supportedLogic,
-                    progressBar
+                    progressBar,
+                    baseBlockItemInputIndex
             );
         }
     }

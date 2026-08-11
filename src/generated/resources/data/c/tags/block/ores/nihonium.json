@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:nihonium_netherrack_ore",
-    "create_expansion:nihonium_deepslate_ore",
-    "create_expansion:nihonium_andesite_ore",
-    "create_expansion:nihonium_end_stone_ore",
     "create_expansion:nihonium_diorite_ore",
-    "create_expansion:nihonium_tuff_ore",
+    "create_expansion:nihonium_granite_ore",
+    "create_expansion:nihonium_netherrack_ore",
     "create_expansion:nihonium_blackstone_ore",
     "create_expansion:nihonium_ore",
-    "create_expansion:nihonium_granite_ore"
+    "create_expansion:nihonium_deepslate_ore",
+    "create_expansion:nihonium_tuff_ore",
+    "create_expansion:nihonium_andesite_ore",
+    "create_expansion:nihonium_end_stone_ore"
   ]
 }

@@ -1,6 +1,5 @@
 {
   "type": "create:mixing",
-  "heat_requirement": "heated",
   "ingredients": [
     {
       "type": "neoforge:single",
@@ -11,9 +10,6 @@
       "type": "neoforge:single",
       "amount": 100,
       "fluid": "create_expansion:ethanol"
-    },
-    {
-      "item": "create_expansion:biofuel_catalyst"
     }
   ],
   "processing_time": 500,

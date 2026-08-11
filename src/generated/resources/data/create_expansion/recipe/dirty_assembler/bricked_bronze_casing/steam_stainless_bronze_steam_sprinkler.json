@@ -1,0 +1,45 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 1600,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "create_expansion:bricked_bronze_casing"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:stainless_bronze_fluid_tank"
+    },
+    {
+      "count": 1,
+      "item": "create:copper_valve_handle"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:stainless_bronze_bearing"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:stainless_bronze_rotor"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:stainless_bronze_spring"
+    },
+    {
+      "count": 10,
+      "item": "create_expansion:stainless_bronze_screw"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:steam_bronze_steam_sprinkler"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

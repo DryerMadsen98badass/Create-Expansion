@@ -33,6 +33,7 @@ public record IndustrialMaterial(
         Optional<MachineTier> centrifugeTier,
         int centrifugeInputCount,
         Optional<MachineTier> electrolyserTier,
+        int electrolyserInputCount,
         Optional<IndustrialMaterial> smeltingResult,
         boolean smeltingSelf
 ) implements IndustrialSubstance {
@@ -53,14 +54,14 @@ public record IndustrialMaterial(
     public IndustrialMaterial(String id, String displayName, int color, Set<MaterialPart> parts) {
         this(id, displayName, color, "dull", "dull", parts, Map.of(), Set.of(), Map.of(),
                 1, 300, false, false, 300, 0, Optional.empty(), List.of(), 0, false,
-                Map.of(), List.of(), Optional.empty(), 0, Optional.empty(), Optional.empty(), false);
+                Map.of(), List.of(), Optional.empty(), 0, Optional.empty(), 0, Optional.empty(), false);
     }
 
     public IndustrialMaterial(String id, String displayName, int color, Set<MaterialPart> parts,
                               Map<MaterialPart, ResourceLocation> existingParts) {
         this(id, displayName, color, "dull", "dull", parts, existingParts, Set.of(), Map.of(),
                 1, 300, false, false, 300, 0, Optional.empty(), List.of(), 0, false,
-                Map.of(), List.of(), Optional.empty(), 0, Optional.empty(), Optional.empty(), false);
+                Map.of(), List.of(), Optional.empty(), 0, Optional.empty(), 0, Optional.empty(), false);
     }
 
     public boolean has(MaterialPart part) { return parts.contains(part); }

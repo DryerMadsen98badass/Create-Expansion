@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:anatase_netherrack_ore",
-    "create_expansion:anatase_deepslate_ore",
-    "create_expansion:anatase_andesite_ore",
-    "create_expansion:anatase_end_stone_ore",
     "create_expansion:anatase_diorite_ore",
-    "create_expansion:anatase_tuff_ore",
+    "create_expansion:anatase_granite_ore",
+    "create_expansion:anatase_netherrack_ore",
     "create_expansion:anatase_blackstone_ore",
     "create_expansion:anatase_ore",
-    "create_expansion:anatase_granite_ore"
+    "create_expansion:anatase_deepslate_ore",
+    "create_expansion:anatase_tuff_ore",
+    "create_expansion:anatase_andesite_ore",
+    "create_expansion:anatase_end_stone_ore"
   ]
 }

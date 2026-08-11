@@ -6,7 +6,7 @@ Scope
 
 Singleblock machine GUIs and machine port GUIs can render fluid tanks as clickable GUI slots.
 These are not vanilla `Slot` instances. They are visual fluid slots that send a menu button id to
-the server when the player right-clicks them.
+the server when the player left-clicks or right-clicks them.
 
 Files
 -----
@@ -19,22 +19,44 @@ Files
   - `src/main/java/net/mads/createexpansion/menu/MachinePortMenu.java`
 - Shared cursor-container logic:
   - `src/main/java/net/mads/createexpansion/menu/FluidSlotClickHandler.java`
+- Fired bucket item capability:
+  - `src/main/java/net/mads/createexpansion/fluid/FiredFluidBucketWrapper.java`
+- Bucket capability registration:
+  - `src/main/java/net/mads/createexpansion/registry/FluidRegistry.java`
 
 Behavior
 --------
 
 - Hovering a fluid slot draws a light highlight over the slot and shows the fluid tooltip.
-- Right-clicking a fluid slot with a filled fluid container tries to put that fluid into the tank.
-- Right-clicking a fluid slot with an empty fluid container tries to take fluid from the tank.
+- Singleblock fluid contents render on the slot's 16x16 inner origin (`frame + 1`), matching item
+  placement and machine-port fluid slots. Do not add an extra pixel offset to the fluid layer.
+- Left-clicking or right-clicking a fluid slot with a filled fluid container tries to put that fluid
+  into the tank.
+- Left-clicking or right-clicking a fluid slot with an empty fluid container tries to take fluid from
+  the tank.
+- The server tries the carried cursor stack first. If the cursor is empty, it tries the player's
+  main-hand item and then offhand item, so buckets/containers in the selected hotbar slot work in
+  the same GTCEu-style flow.
 - Only one container from the cursor stack is processed per click.
 - If the cursor stack has more than one container, the returned filled/empty container is inserted
   into the player inventory, or dropped if the inventory is full.
+- Fired buckets use their own item fluid wrapper. Filling a fired bucket from a tank must return the
+  matching fired filled bucket, and draining a fired filled bucket must return `fired_bucket`, not a
+  vanilla bucket.
+- Vanilla `minecraft:bucket`, `minecraft:water_bucket`, and `minecraft:lava_bucket` are explicitly
+  registered with `FluidBucketWrapper`; do not assume NeoForge provides those item capabilities for
+  this project.
+- `FluidSlotClickHandler` also has a direct `BucketItem` fallback. If item capability lookup returns
+  null for a bucket on the cursor or in-hand, it wraps the one-item copy with `FluidBucketWrapper` or
+  `FiredFluidBucketWrapper` directly.
 
 Singleblock rules
 -----------------
 
 - Input fluid slots can be filled and drained from the GUI.
 - Output fluid slots can only be drained from the GUI.
+- Automation can access the normal fluid capability from the top of non-steam singleblocks.
+  Steam singleblocks return no top fluid capability because that face is reserved for the vent.
 - The actual tank contents are still stored on `SingleBlockMachineBlockEntity`, and the tank
   `onContentsChanged()` callback syncs the block entity to the client.
 
@@ -61,8 +83,13 @@ Verification
 ------------
 
 - Open a singleblock machine with input fluid slots.
-- Pick up a water bucket on the cursor and right-click the input fluid slot.
+- Pick up a water bucket on the cursor and left-click the input fluid slot.
 - The bucket should become empty and the tank should show 1000 mB water.
-- Right-click the same slot again with another water bucket; the tank should increase by 1000 mB.
-- Right-click with an empty bucket; the bucket should fill and the tank should lose 1000 mB.
+- Left-click the same slot again with another water bucket; the tank should increase by 1000 mB.
+- Left-click with an empty bucket; the bucket should fill and the tank should lose 1000 mB.
+- Repeat the cursor test with `minecraft:bucket` over a machine output fluid slot and a machine
+  output hatch fluid slot.
+- Repeat with an empty bucket in the selected hotbar slot and no carried cursor item.
+- Repeat the drain/fill checks with `fired_bucket` and fired filled buckets. Output hatches must not
+  convert the fired container into `minecraft:bucket`.
 - Repeat the same style test with an input hatch, output hatch, and I/O interface.

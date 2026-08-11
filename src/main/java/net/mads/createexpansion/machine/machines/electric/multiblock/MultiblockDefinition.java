@@ -1,14 +1,18 @@
 package net.mads.createexpansion.machine.machines.electric.multiblock;
 
 import net.mads.createexpansion.gui.ProgressBar;
+import net.mads.createexpansion.machine.MachineDrive;
 import net.mads.createexpansion.machine.MachineTier;
 import net.mads.createexpansion.machine.coil.CoilBlock;
 import net.mads.createexpansion.machine.coil.CoilLogic;
 import net.mads.createexpansion.machine.interaction.BlockInteraction;
 import net.mads.createexpansion.machine.interaction.MachineCondition;
 import net.mads.createexpansion.machine.interaction.MachineModifier;
+import net.mads.createexpansion.machine.interaction.MachineArea;
+import net.mads.createexpansion.recipe.CERecipe;
 import net.mads.createexpansion.recipe.CERecipeLogicDefinition;
 import net.mads.createexpansion.recipe.CERecipeTypes;
+import net.mads.createexpansion.recipe.PhRange;
 import net.mads.createexpansion.recipe.RecipeTypeDefinition;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -37,6 +42,15 @@ public final class MultiblockDefinition {
     private final List<PatternVariant> variants;
     private final Map<Character, MultiblockPredicate> predicates;
     private final Set<MultiblockAbility> requiredRecipeAbilities;
+    private final MachineDrive drive;
+    private final int energyUsage;
+    private final int steamUsage;
+    private final Optional<Integer> minRpm;
+    private final Optional<Integer> maxRpm;
+    private final Optional<Integer> outputRpm;
+    private final Optional<PhRange> phRange;
+    private final Optional<Integer> machineDurability;
+    private final boolean sequencedInput;
     private final List<String> tooltip;
     private final boolean externalHeatSource;
     private final InputOnlyDisplay inputOnlyDisplay;
@@ -46,6 +60,7 @@ public final class MultiblockDefinition {
     private final List<BlockInteraction> blockInteractions;
     private final List<MachineCondition> conditions;
     private final List<MachineModifier> modifiers;
+    private final List<MachineArea> areas;
     private final ProgressBar progressBar;
 
     private MultiblockDefinition(Builder builder) {
@@ -57,6 +72,15 @@ public final class MultiblockDefinition {
         this.logicIds = List.copyOf(builder.logicIds);
         this.predicates = Map.copyOf(builder.predicates);
         this.requiredRecipeAbilities = builder.requiredRecipeAbilities.isEmpty() ? Set.of() : EnumSet.copyOf(builder.requiredRecipeAbilities);
+        this.drive = builder.drive;
+        this.energyUsage = builder.energyUsage;
+        this.steamUsage = builder.steamUsage;
+        this.minRpm = builder.minRpm;
+        this.maxRpm = builder.maxRpm;
+        this.outputRpm = builder.outputRpm;
+        this.phRange = builder.phRange;
+        this.machineDurability = builder.machineDurability;
+        this.sequencedInput = builder.sequencedInput;
         this.tooltip = List.copyOf(builder.tooltip);
         this.externalHeatSource = builder.externalHeatSource;
         this.inputOnlyDisplay = builder.inputOnlyDisplay;
@@ -66,6 +90,7 @@ public final class MultiblockDefinition {
         this.blockInteractions = List.copyOf(builder.blockInteractions);
         this.conditions = List.copyOf(builder.conditions);
         this.modifiers = List.copyOf(builder.modifiers);
+        this.areas = List.copyOf(builder.areas);
         this.progressBar = builder.progressBar != null
                 ? builder.progressBar
                 : builder.recipeTypeDefinitions.stream()
@@ -129,6 +154,11 @@ public final class MultiblockDefinition {
         return modifiers;
     }
 
+    /** Named controller-relative areas available to conditions and block interactions. */
+    public List<MachineArea> areas() {
+        return areas;
+    }
+
     public List<BlockPos> worldInteractionPositions(
             BlockPos controllerPos,
             Direction facing,
@@ -151,8 +181,48 @@ public final class MultiblockDefinition {
         return predicate == null ? List.of() : predicate.countRequirements();
     }
 
+    MultiblockPredicate predicate(char symbol) {
+        return predicates.get(symbol);
+    }
+
     public Set<MultiblockAbility> requiredRecipeAbilities() {
         return requiredRecipeAbilities;
+    }
+
+    public MachineDrive drive() {
+        return drive;
+    }
+
+    public int energyUsage() {
+        return energyUsage;
+    }
+
+    public int steamUsage() {
+        return steamUsage;
+    }
+
+    public Optional<Integer> minRpm() {
+        return minRpm;
+    }
+
+    public Optional<Integer> maxRpm() {
+        return maxRpm;
+    }
+
+    public Optional<Integer> outputRpm() {
+        return outputRpm;
+    }
+
+    public Optional<PhRange> phRange() {
+        return phRange;
+    }
+
+    public Optional<Integer> machineDurability() {
+        return machineDurability;
+    }
+
+    public boolean sequencedInput() {
+        return sequencedInput;
     }
 
     public List<String> tooltip() {
@@ -217,8 +287,9 @@ public final class MultiblockDefinition {
         MachineTier formedTier = null;
         List<BlockPos> positions = new ArrayList<>();
         Map<MultiblockAbility, List<BlockPos>> abilityPositions = new EnumMap<>(MultiblockAbility.class);
+        Map<Integer, BlockPos> sequentialInputPositions = new HashMap<>();
         Map<String, Integer> countMatches = new HashMap<>();
-        Map<BlockPos, ResourceLocation> overlays = new HashMap<>();
+        Map<BlockPos, ResourceLocation> overlayModels = new HashMap<>();
 
         for (int x = 0; x < variant.layers().size(); x++) {
             MultiblockPattern.Row[] rows = variant.layers().get(x);
@@ -243,9 +314,16 @@ public final class MultiblockDefinition {
                     for (MultiblockAbility ability : match.abilities()) {
                         abilityPositions.computeIfAbsent(ability, ignored -> new ArrayList<>()).add(worldPos);
                     }
+                    int sequentialIndex = predicate.sequentialInputIndex();
+                    if (sequentialIndex > 0) {
+                        if (!match.abilities().contains(MultiblockAbility.ITEM_INPUT)
+                                || sequentialInputPositions.putIfAbsent(sequentialIndex, worldPos) != null) {
+                            return MultiblockMatchResult.failed();
+                        }
+                    }
                     match.counts().forEach((key, count) -> countMatches.merge(key, count, Integer::sum));
-                    if (match.overlayTexture() != null) {
-                        overlays.put(worldPos, match.overlayTexture());
+                    if (match.overlayModel() != null) {
+                        overlayModels.put(worldPos, match.overlayModel());
                     }
                 }
             }
@@ -257,13 +335,40 @@ public final class MultiblockDefinition {
         if (!hasRequiredCounts(countMatches)) {
             return MultiblockMatchResult.failed();
         }
+        if (sequencedInput && !hasValidSequentialInputs(sequentialInputPositions)) {
+            return MultiblockMatchResult.failed();
+        }
 
         CoilInfo coilInfo = coilInfo(level, positions);
         if (requiresCoils() && !coilInfo.valid()) {
             return MultiblockMatchResult.failed();
         }
 
-        return new MultiblockMatchResult(true, variant.id(), variant.variantLevel(), formedTier, coilInfo.heat(), coilInfo.count(), List.copyOf(positions), copyAbilities(abilityPositions), Map.copyOf(overlays));
+        return new MultiblockMatchResult(
+                true,
+                variant.id(),
+                variant.variantLevel(),
+                formedTier,
+                coilInfo.heat(),
+                coilInfo.count(),
+                List.copyOf(positions),
+                copyAbilities(abilityPositions),
+                Map.copyOf(sequentialInputPositions),
+                Map.copyOf(overlayModels)
+        );
+    }
+
+    private static boolean hasValidSequentialInputs(Map<Integer, BlockPos> sequentialInputPositions) {
+        if (sequentialInputPositions.isEmpty()) {
+            return false;
+        }
+        int maximum = sequentialInputPositions.keySet().stream().mapToInt(Integer::intValue).max().orElse(0);
+        for (int index = 1; index <= maximum; index++) {
+            if (!sequentialInputPositions.containsKey(index)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean requiresCoils() {
@@ -431,6 +536,57 @@ public final class MultiblockDefinition {
             return builder -> builder.recipeTypes(recipeTypes);
         }
 
+        /** Defines the ULV base CE/t and makes this an electric multiblock. */
+        static Option energyUsage(int energyUsage) {
+            return builder -> builder.energyUsage(energyUsage);
+        }
+
+        /** Makes this a kinetic multiblock powered through a Kinetic Input Box. */
+        static Option kineticInput() {
+            return Builder::kineticInput;
+        }
+
+        /** Enables ordered ITEM_INPUT positions declared with sequentialInput(index). */
+        static Option sequencedInput() {
+            return Builder::sequencedInput;
+        }
+
+        /** Makes this a kinetic generator using Kinetic Output Boxes. */
+        static Option kineticOutput() {
+            return Builder::kineticOutput;
+        }
+
+        /** Defines steam consumed per tick and makes this a steam multiblock. */
+        static Option steamUsage(int steamUsage) {
+            return builder -> builder.steamUsage(steamUsage);
+        }
+
+        /** Defines the machine's inclusive minimum kinetic speed. */
+        static Option minRpm(int minRpm) {
+            return builder -> builder.minRpm(minRpm);
+        }
+
+        /** Defines the machine's inclusive maximum kinetic speed. */
+        static Option maxRpm(int maxRpm) {
+            return builder -> builder.maxRpm(maxRpm);
+        }
+
+        /** Defines the default rotational speed produced by this generator. */
+        static Option outputRpm(int outputRpm) {
+            return builder -> builder.outputRpm(outputRpm);
+        }
+
+        /** Defines the inclusive pH range the formed multiblock can safely tolerate. */
+        static Option phRange(double minimum, double maximum) {
+            PhRange range = PhRange.of(minimum, maximum);
+            return builder -> builder.phRange(range);
+        }
+
+        /** Defines the maximum structural durability used by pH corrosion. */
+        static Option machineDurability(int durability) {
+            return builder -> builder.machineDurability(durability);
+        }
+
         /** Adds a supported custom recipe-logic capability. */
         static Option logic(CERecipeLogicDefinition logic) {
             return builder -> builder.logic(logic);
@@ -498,6 +654,19 @@ public final class MultiblockDefinition {
         }
 
         /**
+         * Adds a named controller-relative area. Area boxes use left/right,
+         * bottom/top and front/back, and rotate automatically with the controller.
+         */
+        static Option area(MachineArea area) {
+            return builder -> builder.areas.add(Objects.requireNonNull(area));
+        }
+
+        /** Adds a named controller-relative area from its fluent builder. */
+        static Option area(MachineArea.Builder area) {
+            return area(Objects.requireNonNull(area).build());
+        }
+
+        /**
          * Adds one complete pattern variant. Layers and rows retain the existing layout syntax,
          * and the variant id controls variant ordering.
          */
@@ -553,6 +722,15 @@ public final class MultiblockDefinition {
         private final Map<Character, MultiblockPredicate> rawPredicates = new HashMap<>();
         private final Map<Character, MultiblockPredicate> predicates = new HashMap<>();
         private final Set<MultiblockAbility> requiredRecipeAbilities = EnumSet.noneOf(MultiblockAbility.class);
+        private MachineDrive drive = MachineDrive.NONE;
+        private int energyUsage;
+        private int steamUsage;
+        private Optional<Integer> minRpm = Optional.empty();
+        private Optional<Integer> maxRpm = Optional.empty();
+        private Optional<Integer> outputRpm = Optional.empty();
+        private Optional<PhRange> phRange = Optional.empty();
+        private Optional<Integer> machineDurability = Optional.empty();
+        private boolean sequencedInput;
         private final List<String> tooltip = new ArrayList<>();
         private boolean externalHeatSource;
         private InputOnlyDisplay inputOnlyDisplay;
@@ -562,6 +740,7 @@ public final class MultiblockDefinition {
         private final List<BlockInteraction> blockInteractions = new ArrayList<>();
         private final List<MachineCondition> conditions = new ArrayList<>();
         private final List<MachineModifier> modifiers = new ArrayList<>();
+        private final List<MachineArea> areas = new ArrayList<>();
         private ProgressBar progressBar;
 
         private Builder() {
@@ -679,6 +858,70 @@ public final class MultiblockDefinition {
             return this;
         }
 
+        private Builder energyUsage(int energyUsage) {
+            selectDrive(MachineDrive.ELECTRIC);
+            this.energyUsage = energyUsage;
+            return this;
+        }
+
+        private Builder kineticInput() {
+            selectDrive(MachineDrive.KINETIC);
+            return this;
+        }
+
+        private Builder sequencedInput() {
+            this.sequencedInput = true;
+            return this;
+        }
+
+        private Builder kineticOutput() {
+            selectDrive(MachineDrive.KINETIC_OUTPUT);
+            return this;
+        }
+
+        private Builder steamUsage(int steamUsage) {
+            selectDrive(MachineDrive.STEAM);
+            this.steamUsage = steamUsage;
+            return this;
+        }
+
+        private Builder minRpm(int minRpm) {
+            this.minRpm = Optional.of(minRpm);
+            return this;
+        }
+
+        private Builder maxRpm(int maxRpm) {
+            this.maxRpm = Optional.of(maxRpm);
+            return this;
+        }
+
+        private Builder outputRpm(int outputRpm) {
+            this.outputRpm = Optional.of(outputRpm);
+            return this;
+        }
+
+        private Builder phRange(PhRange phRange) {
+            this.phRange = Optional.of(Objects.requireNonNull(phRange));
+            return this;
+        }
+
+        private Builder machineDurability(int durability) {
+            if (durability <= 0) {
+                throw new IllegalArgumentException("Machine durability must be positive");
+            }
+            this.machineDurability = Optional.of(durability);
+            return this;
+        }
+
+        private void selectDrive(MachineDrive selectedDrive) {
+            if (drive != MachineDrive.NONE && drive != selectedDrive) {
+                throw new IllegalStateException(
+                        "Multiblock " + id + " cannot use both " + drive + " and " + selectedDrive
+                );
+            }
+            drive = selectedDrive;
+        }
+
         private Builder recipeTypes(String... recipeTypes) {
             for (String recipeType : recipeTypes) {
                 recipeType(recipeType);
@@ -756,8 +999,45 @@ public final class MultiblockDefinition {
             if (variants.isEmpty()) {
                 throw new IllegalStateException("Multiblock " + id + " has no variants");
             }
+            validateDrive();
             resolvePredicates();
             return new MultiblockDefinition(this);
+        }
+
+        private void validateDrive() {
+            if (drive == MachineDrive.ELECTRIC && (energyUsage <= 0 || energyUsage >= 9)) {
+                throw new IllegalStateException(
+                        "Electric multiblock " + id + " energy usage must be between 1 and 8"
+                );
+            }
+            if (drive != MachineDrive.ELECTRIC && energyUsage != 0) {
+                throw new IllegalStateException("Only electric multiblocks can define energy usage: " + id);
+            }
+            if (drive == MachineDrive.STEAM && steamUsage <= 0) {
+                throw new IllegalStateException("Steam multiblock " + id + " must use a positive steam amount");
+            }
+            if (drive != MachineDrive.STEAM && steamUsage != 0) {
+                throw new IllegalStateException("Only steam multiblocks can define steam usage: " + id);
+            }
+            if (minRpm.isPresent() && (minRpm.get() < 1 || minRpm.get() > CERecipe.DEFAULT_MAX_RPM)) {
+                throw new IllegalStateException("Multiblock " + id + " has min RPM outside 1-" + CERecipe.DEFAULT_MAX_RPM);
+            }
+            if (maxRpm.isPresent() && (maxRpm.get() < 1 || maxRpm.get() > CERecipe.DEFAULT_MAX_RPM)) {
+                throw new IllegalStateException("Multiblock " + id + " has max RPM outside 1-" + CERecipe.DEFAULT_MAX_RPM);
+            }
+            if (minRpm.isPresent() && maxRpm.isPresent() && maxRpm.get() < minRpm.get()) {
+                throw new IllegalStateException("Multiblock " + id + " has max RPM lower than min RPM");
+            }
+            if ((minRpm.isPresent() || maxRpm.isPresent()) && drive != MachineDrive.KINETIC) {
+                throw new IllegalStateException("Only kinetic input multiblocks can define RPM limits: " + id);
+            }
+            if (outputRpm.isPresent()
+                    && (outputRpm.get() < 1 || outputRpm.get() > CERecipe.DEFAULT_MAX_RPM)) {
+                throw new IllegalStateException("Multiblock " + id + " has output RPM outside 1-" + CERecipe.DEFAULT_MAX_RPM);
+            }
+            if (outputRpm.isPresent() && drive != MachineDrive.KINETIC_OUTPUT) {
+                throw new IllegalStateException("Only kinetic output multiblocks can define output RPM: " + id);
+            }
         }
 
         private InputOnlyDisplay inputOnlyDisplayOrDefault() {
@@ -804,26 +1084,14 @@ public final class MultiblockDefinition {
                 if (recipeType.maxFluidOutputs() > 0) {
                     abilities.add(MultiblockAbility.FLUID_OUTPUT);
                 }
-                switch (recipeType.kineticMode()) {
-                    case CONSUMES -> abilities.add(MultiblockAbility.KINETIC_INPUT);
-                    case GENERATES -> abilities.add(MultiblockAbility.KINETIC_OUTPUT);
-                    case BOTH -> {
-                        abilities.add(MultiblockAbility.KINETIC_INPUT);
-                        abilities.add(MultiblockAbility.KINETIC_OUTPUT);
-                    }
-                    case NONE -> {
-                    }
-                }
+            }
 
-                switch (recipeType.energyMode()) {
-                    case CONSUMES -> abilities.add(MultiblockAbility.ENERGY_INPUT);
-                    case GENERATES -> abilities.add(MultiblockAbility.ENERGY_OUTPUT);
-                    case BOTH -> {
-                        abilities.add(MultiblockAbility.ENERGY_INPUT);
-                        abilities.add(MultiblockAbility.ENERGY_OUTPUT);
-                    }
-                    case NONE -> {
-                    }
+            switch (drive) {
+                case ELECTRIC -> abilities.add(MultiblockAbility.ENERGY_INPUT);
+                case KINETIC -> abilities.add(MultiblockAbility.KINETIC_INPUT);
+                case KINETIC_OUTPUT -> abilities.add(MultiblockAbility.KINETIC_OUTPUT);
+                case STEAM -> abilities.add(MultiblockAbility.FLUID_INPUT);
+                case NONE -> {
                 }
             }
             return abilities;

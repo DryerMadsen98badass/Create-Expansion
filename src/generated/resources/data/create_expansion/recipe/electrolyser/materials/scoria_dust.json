@@ -1,0 +1,44 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 2400,
+  "fluid_outputs": [
+    {
+      "amount": 6000,
+      "id": "create_expansion:oxygen"
+    }
+  ],
+  "item_inputs": [
+    {
+      "count": 12,
+      "item": "create_expansion:scoria_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 2,
+        "id": "create_expansion:amphibole_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 2,
+        "id": "create_expansion:silicon_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:iron_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:magnesium_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:electrolyser",
+  "tier": "lv"
+}

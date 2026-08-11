@@ -1,0 +1,26 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 40,
+  "fluid_outputs": [
+    {
+      "amount": 35,
+      "id": "create_expansion:fermentation_mash"
+    }
+  ],
+  "item_inputs": [
+    {
+      "count": 2,
+      "item": "minecraft:pumpkin"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:wet_biomass"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:extractor",
+  "tier": "ulv"
+}

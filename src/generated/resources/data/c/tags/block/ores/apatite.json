@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:apatite_netherrack_ore",
-    "create_expansion:apatite_deepslate_ore",
-    "create_expansion:apatite_andesite_ore",
-    "create_expansion:apatite_end_stone_ore",
     "create_expansion:apatite_diorite_ore",
-    "create_expansion:apatite_tuff_ore",
+    "create_expansion:apatite_granite_ore",
+    "create_expansion:apatite_netherrack_ore",
     "create_expansion:apatite_blackstone_ore",
     "create_expansion:apatite_ore",
-    "create_expansion:apatite_granite_ore"
+    "create_expansion:apatite_deepslate_ore",
+    "create_expansion:apatite_tuff_ore",
+    "create_expansion:apatite_andesite_ore",
+    "create_expansion:apatite_end_stone_ore"
   ]
 }

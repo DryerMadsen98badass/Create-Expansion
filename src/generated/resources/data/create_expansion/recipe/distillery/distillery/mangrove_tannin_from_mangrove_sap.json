@@ -1,0 +1,18 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 100,
+  "fluid_inputs": [
+    {
+      "amount": 250,
+      "fluid": "create_expansion:mangrove_sap"
+    }
+  ],
+  "fluid_outputs": [
+    {
+      "amount": 150,
+      "id": "create_expansion:mangrove_tannin"
+    }
+  ],
+  "recipe_type": "create_expansion:distillery",
+  "tier": "ulv"
+}

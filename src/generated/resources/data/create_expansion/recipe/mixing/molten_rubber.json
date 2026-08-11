@@ -1,0 +1,19 @@
+{
+  "type": "create:mixing",
+  "heat_requirement": "heated",
+  "ingredients": [
+    {
+      "item": "create_expansion:natural_rubber_ingot"
+    },
+    {
+      "item": "create_expansion:sulfur_tiny_dust"
+    }
+  ],
+  "processing_time": 400,
+  "results": [
+    {
+      "amount": 144,
+      "id": "create_expansion:molten_rubber"
+    }
+  ]
+}

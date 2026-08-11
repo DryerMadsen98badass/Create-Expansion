@@ -91,10 +91,10 @@
     "create_expansion:moscovium_hot_cast_screw_mold",
     "create_expansion:livermorium_hot_cast_screw_mold",
     "create_expansion:bronze_hot_cast_screw_mold",
-    "create_expansion:steel_hot_cast_screw_mold",
-    "create_expansion:wrought_iron_hot_cast_screw_mold",
     "create_expansion:brass_hot_cast_screw_mold",
     "create_expansion:electrum_hot_cast_screw_mold",
+    "create_expansion:steel_hot_cast_screw_mold",
+    "create_expansion:wrought_iron_hot_cast_screw_mold",
     "create_expansion:andesite_alloy_hot_cast_screw_mold"
   ]
 }

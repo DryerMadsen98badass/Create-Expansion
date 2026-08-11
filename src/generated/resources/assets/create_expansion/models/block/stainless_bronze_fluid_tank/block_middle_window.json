@@ -1,0 +1,564 @@
+{
+  "parent": "block/block",
+  "credit": "Made with Blockbench",
+  "elements": [
+    {
+      "faces": {
+        "east": {
+          "cullface": "north",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#1",
+          "uv": [
+            12,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "cullface": "north",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            4,
+            16
+          ]
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "name": "SideRight",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          -23
+        ]
+      },
+      "to": [
+        4,
+        16,
+        1
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#1",
+          "uv": [
+            12,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "cullface": "east",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ]
+        },
+        "west": {
+          "cullface": "east",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            4,
+            16
+          ]
+        }
+      },
+      "from": [
+        15,
+        0,
+        0
+      ],
+      "name": "SideRight",
+      "to": [
+        16,
+        16,
+        4
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "south",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            4,
+            16
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#1",
+          "uv": [
+            12,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "cullface": "south",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ]
+        }
+      },
+      "from": [
+        12,
+        0,
+        15
+      ],
+      "name": "SideRight",
+      "to": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "west",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            4,
+            16
+          ]
+        },
+        "north": {
+          "cullface": "west",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#1",
+          "uv": [
+            12,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "from": [
+        0,
+        0,
+        12
+      ],
+      "name": "SideRight",
+      "to": [
+        1,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "north",
+          "texture": "#3",
+          "uv": [
+            8,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "cullface": "north",
+          "texture": "#3",
+          "uv": [
+            8,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "from": [
+        4,
+        0,
+        0.95
+      ],
+      "name": "Window",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          -23
+        ]
+      },
+      "to": [
+        12,
+        16,
+        0.95
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#3",
+          "uv": [
+            8,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "cullface": "east",
+          "texture": "#3",
+          "uv": [
+            8,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "from": [
+        15.05,
+        0,
+        4
+      ],
+      "name": "Window",
+      "to": [
+        15.05,
+        16,
+        12
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "south",
+          "texture": "#3",
+          "uv": [
+            8,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#3",
+          "uv": [
+            8,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "from": [
+        4,
+        0,
+        15.05
+      ],
+      "name": "Window",
+      "to": [
+        12,
+        16,
+        15.05
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "west",
+          "texture": "#3",
+          "uv": [
+            8,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#3",
+          "uv": [
+            8,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "from": [
+        0.95,
+        0,
+        4
+      ],
+      "name": "Window",
+      "to": [
+        0.95,
+        16,
+        12
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "north",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            4,
+            16
+          ]
+        },
+        "south": {
+          "cullface": "north",
+          "texture": "#1",
+          "uv": [
+            12,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "cullface": "north",
+          "texture": "#1",
+          "uv": [
+            15,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "from": [
+        12,
+        0,
+        0
+      ],
+      "name": "SideLeft",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          -23
+        ]
+      },
+      "to": [
+        16,
+        16,
+        1
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            4,
+            16
+          ]
+        },
+        "north": {
+          "cullface": "east",
+          "texture": "#1",
+          "uv": [
+            15,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "cullface": "east",
+          "texture": "#1",
+          "uv": [
+            12,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "from": [
+        15,
+        0,
+        12
+      ],
+      "name": "SideLeft",
+      "to": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "south",
+          "texture": "#1",
+          "uv": [
+            15,
+            0,
+            16,
+            16
+          ]
+        },
+        "north": {
+          "cullface": "south",
+          "texture": "#1",
+          "uv": [
+            12,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            4,
+            16
+          ]
+        }
+      },
+      "from": [
+        0,
+        0,
+        15
+      ],
+      "name": "SideLeft",
+      "to": [
+        4,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "west",
+          "texture": "#1",
+          "uv": [
+            12,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "cullface": "west",
+          "texture": "#1",
+          "uv": [
+            15,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#1",
+          "uv": [
+            0,
+            0,
+            4,
+            16
+          ]
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "name": "SideLeft",
+      "to": [
+        1,
+        16,
+        4
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "children": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "color": 0,
+      "name": "tank",
+      "origin": [
+        8,
+        8,
+        -23
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout_mipped",
+  "textures": {
+    "1": "create_expansion:block/stainless_bronze_fluid_tank",
+    "3": "create:block/fluid_tank_window",
+    "particle": "create_expansion:block/stainless_bronze_fluid_tank"
+  }
+}

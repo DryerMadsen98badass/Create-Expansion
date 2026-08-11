@@ -1,6 +1,8 @@
 package net.mads.createexpansion.registry;
 
+import com.simibubi.create.AllBlockEntityTypes;
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
+import net.mads.createexpansion.compat.create.BlazeBurnerFuelHandler;
 import net.mads.createexpansion.machine.SingleBlockMachineBlockEntity;
 import net.mads.createexpansion.energy.CreativeEnergyBlockEntity;
 import net.mads.createexpansion.energy.EnergyWireBlockEntity;
@@ -25,6 +27,7 @@ import net.mads.createexpansion.machine.machines.kinetic.sifter.KineticSifterReg
 import net.mads.createexpansion.machine.machines.kinetic.wiredrawer.KineticWireDrawerBlockEntity;
 import net.mads.createexpansion.machine.machines.kinetic.wiredrawer.KineticWireDrawerPartBlockEntity;
 import net.mads.createexpansion.machine.machines.kinetic.wiredrawer.KineticWireDrawerRegistration;
+import net.mads.createexpansion.transport.FluidTransportRegistrations;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -94,6 +97,10 @@ public class BlockEntityRegistry {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<KineticCoilingMachineBlockEntity>> SPRING_COILING_MACHINE =
             KineticCoilingMachineRegistration.registerBlockEntity(BLOCK_ENTITIES, BlockRegistry.SPRING_COILING_MACHINE::get);
 
+    static {
+        FluidTransportRegistrations.registerBlockEntities(BLOCK_ENTITIES);
+    }
+
     public static void register(IEventBus modEventBus) {
         BLOCK_ENTITIES.register(modEventBus);
     }
@@ -119,6 +126,14 @@ public class BlockEntityRegistry {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, FOUNDRY_HATCH.get(), (hatch, side) -> hatch.itemCapability());
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, FOUNDRY_MOLD_CASTER.get(), (caster, side) -> caster.itemCapability());
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, FOUNDRY_MOLD_CASTER.get(), (caster, side) -> caster.fluidCapability());
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, AllBlockEntityTypes.HEATER.get(), (burner, side) -> BlazeBurnerFuelHandler.fluidCapability(burner));
+        FluidTransportRegistrations.allBlockEntities().forEach(registration ->
+                event.registerBlockEntity(
+                        Capabilities.FluidHandler.BLOCK,
+                        registration.tank().get(),
+                        (tank, side) -> tank.fluidCapability()
+                )
+        );
     }
 
     private static Block[] allMachinePortBlocks() {

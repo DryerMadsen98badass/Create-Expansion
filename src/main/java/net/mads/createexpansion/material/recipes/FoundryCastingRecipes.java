@@ -30,7 +30,7 @@ public final class FoundryCastingRecipes {
         shape(MaterialPart.CAST_GEAR_MOLD, MaterialPart.HOT_CAST_GEAR_MOLD, MaterialPart.CAST_GEAR, MaterialPart.GEAR, 576);
         shape(MaterialPart.CAST_SMALL_GEAR_MOLD, MaterialPart.HOT_CAST_SMALL_GEAR_MOLD, MaterialPart.CAST_SMALL_GEAR, MaterialPart.SMALL_GEAR, 144);
         shape(MaterialPart.CAST_BEARING_BALL_MOLD, MaterialPart.HOT_CAST_BEARING_BALL_MOLD, MaterialPart.CAST_BEARING_BALL, MaterialPart.BEARING_BALL, 36);
-        shape(MaterialPart.CAST_BEARING_MOLD, MaterialPart.HOT_CAST_BEARING_MOLD, MaterialPart.CAST_BEARING, MaterialPart.BEARING, 288);
+//        shape(MaterialPart.CAST_BEARING_MOLD, MaterialPart.HOT_CAST_BEARING_MOLD, MaterialPart.CAST_BEARING, MaterialPart.BEARING, 288);
         shape(MaterialPart.CAST_ROTOR_MOLD, MaterialPart.HOT_CAST_ROTOR_MOLD, MaterialPart.CAST_ROTOR, MaterialPart.ROTOR, 576);
     }
 

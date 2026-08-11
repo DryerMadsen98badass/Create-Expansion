@@ -1,9 +1,16 @@
 package net.mads.createexpansion.client;
 
+import com.simibubi.create.AllPartialModels;
+import com.simibubi.create.content.fluids.tank.FluidTankRenderer;
+import com.simibubi.create.content.kinetics.base.SingleAxisRotatingVisual;
 import com.simibubi.create.foundation.item.KineticStats;
+import com.simibubi.create.foundation.model.ModelSwapper;
 import com.simibubi.create.foundation.item.TooltipModifier;
+import net.mads.createexpansion.client.model.FluidTransportPipeAttachmentModel;
+import net.mads.createexpansion.client.model.FluidTransportTankModel;
 import net.mads.createexpansion.client.screen.FoundryControllerScreen;
 import net.mads.createexpansion.client.screen.MachinePortScreen;
+import net.mads.createexpansion.client.screen.MachineControlScheduleScreen;
 import net.mads.createexpansion.client.screen.MultiblockControllerScreen;
 import net.mads.createexpansion.client.screen.SingleBlockMachineScreen;
 import net.mads.createexpansion.block.SimpleBlockDefinition;
@@ -12,9 +19,11 @@ import net.mads.createexpansion.energy.EnergyWireBlock;
 import net.mads.createexpansion.material.MaterialBlock;
 import net.mads.createexpansion.material.MaterialItem;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.machine.MachineModelTintResolver;
 import net.mads.createexpansion.machine.MachineCasingBlock;
 import net.mads.createexpansion.machine.MachinePortBlock;
 import net.mads.createexpansion.machine.MachinePortBlockEntity;
+import net.mads.createexpansion.machine.SingleBlockDefinition;
 import net.mads.createexpansion.machine.SingleBlockMachineBlock;
 import net.mads.createexpansion.machine.machines.electric.multiblock.MultiblockControllerBlock;
 import net.mads.createexpansion.machine.machines.foundry.FoundryMoldCasterRenderer;
@@ -22,18 +31,24 @@ import net.mads.createexpansion.machine.machines.kinetic.centrifuge.KineticCentr
 import net.mads.createexpansion.machine.machines.kinetic.coiling.KineticCoilingMachineRenderer;
 import net.mads.createexpansion.machine.machines.kinetic.hydraulicpress.HydraulicPressRenderer;
 import net.mads.createexpansion.machine.machines.kinetic.lathe.KineticLatheRenderer;
+import net.mads.createexpansion.machine.machines.kinetic.singleblock.KineticSingleBlockMachineRenderer;
 import net.mads.createexpansion.machine.machines.kinetic.rollingmill.KineticRollingMillRenderer;
 import net.mads.createexpansion.machine.machines.kinetic.sifter.KineticSifterRenderer;
 import net.mads.createexpansion.machine.machines.kinetic.wiredrawer.KineticWireDrawerRenderer;
 import net.mads.createexpansion.registry.FluidRegistry;
 import net.mads.createexpansion.registry.MenuRegistry;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
+import net.mads.createexpansion.transport.FluidTransportGlassPipeRenderer;
+import net.mads.createexpansion.transport.FluidTransportPumpRenderer;
+import net.mads.createexpansion.transport.FluidTransportRegistrations;
+import dev.engine_room.flywheel.lib.visualization.SimpleBlockEntityVisualizer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.model.DynamicFluidContainerModel;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
@@ -52,6 +67,7 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
+        CreateExpansionSpriteShifts.init();
         event.enqueueWork(() -> TooltipModifier.REGISTRY.register(
                 ItemRegistry.KINETIC_SIFTER.get(),
                 new KineticStats(BlockRegistry.KINETIC_SIFTER.get())
@@ -76,11 +92,50 @@ public class ClientSetup {
                 ItemRegistry.SPRING_COILING_MACHINE.get(),
                 new KineticStats(BlockRegistry.SPRING_COILING_MACHINE.get())
         ));
+        FluidTransportRegistrations.allItems().forEach(registration ->
+                event.enqueueWork(() -> TooltipModifier.REGISTRY.register(
+                        registration.pump().get(),
+                        new KineticStats(FluidTransportRegistrations.blocks(registration.tier()).pump().get())
+                ))
+        );
+        FluidTransportRegistrations.allBlockEntities().forEach(registration ->
+                event.enqueueWork(() -> SimpleBlockEntityVisualizer.builder(registration.pump().get())
+                        .factory(SingleAxisRotatingVisual.ofZ(AllPartialModels.MECHANICAL_PUMP_COG))
+                        .skipVanillaRender(blockEntity -> false)
+                        .apply())
+        );
+    }
+
+    @SubscribeEvent
+    public static void modifyBakedModels(ModelEvent.ModifyBakingResult event) {
+        FluidTransportRegistrations.allBlocks().forEach(registration -> {
+            ModelSwapper.swapModels(
+                    event.getModels(),
+                    ModelSwapper.getAllBlockStateModelLocations(registration.pipe().get()),
+                    model -> new FluidTransportPipeAttachmentModel(model, registration.tier())
+            );
+            ModelSwapper.swapModels(
+                    event.getModels(),
+                    ModelSwapper.getAllBlockStateModelLocations(registration.glassPipe().get()),
+                    model -> new FluidTransportPipeAttachmentModel(model, registration.tier())
+            );
+            ModelSwapper.swapModels(
+                    event.getModels(),
+                    ModelSwapper.getAllBlockStateModelLocations(registration.pump().get()),
+                    model -> new FluidTransportPipeAttachmentModel(model, registration.tier())
+            );
+            ModelSwapper.swapModels(
+                    event.getModels(),
+                    ModelSwapper.getAllBlockStateModelLocations(registration.tank().get()),
+                    model -> new FluidTransportTankModel(model, registration.tier())
+            );
+        });
     }
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(BlockEntityRegistry.MACHINE_PORT.get(), MachinePortOverlayRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.SINGLE_BLOCK_MACHINE.get(), KineticSingleBlockMachineRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.KINETIC_SIFTER.get(), KineticSifterRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.KINETIC_CENTRIFUGE.get(), KineticCentrifugeRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.KINETIC_LATHE.get(), KineticLatheRenderer::new);
@@ -89,6 +144,11 @@ public class ClientSetup {
         event.registerBlockEntityRenderer(BlockEntityRegistry.HYDRAULIC_PRESS.get(), HydraulicPressRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.SPRING_COILING_MACHINE.get(), KineticCoilingMachineRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.FOUNDRY_MOLD_CASTER.get(), FoundryMoldCasterRenderer::new);
+        FluidTransportRegistrations.allBlockEntities().forEach(registration -> {
+            event.registerBlockEntityRenderer(registration.glassPipe().get(), FluidTransportGlassPipeRenderer::new);
+            event.registerBlockEntityRenderer(registration.pump().get(), FluidTransportPumpRenderer::new);
+            event.registerBlockEntityRenderer(registration.tank().get(), FluidTankRenderer::new);
+        });
     }
 
     @SubscribeEvent
@@ -196,25 +256,19 @@ public class ClientSetup {
         }, merge(machinePorts, staticMachinePorts));
 
         event.register((stack, tintIndex) -> {
-            if (tintIndex != 0) {
-                return -1;
-            }
-
-            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof MultiblockControllerBlock controller && controller.usesTint()) {
-                return opaque(controller.tintColor());
+            if (stack.getItem() instanceof BlockItem blockItem
+                    && blockItem.getBlock() instanceof MultiblockControllerBlock controller
+                    && controller.usesTint(tintIndex)) {
+                return opaque(controller.tintColor(tintIndex));
             }
 
             return -1;
         }, multiblockControllers);
 
         event.register((stack, tintIndex) -> {
-            if (tintIndex != 0) {
-                return -1;
-            }
-
             if (stack.getItem() instanceof BlockItem blockItem
                     && blockItem.getBlock() instanceof SingleBlockMachineBlock machine) {
-                return opaque(machine.instance().tier().color());
+                return singleBlockMachineColor(machine, tintIndex);
             }
 
             return -1;
@@ -337,24 +391,16 @@ public class ClientSetup {
         }, merge(machinePorts, staticMachinePorts));
 
         event.register((state, level, pos, tintIndex) -> {
-            if (tintIndex != 0) {
-                return -1;
-            }
-
-            if (state.getBlock() instanceof MultiblockControllerBlock controller && controller.usesTint()) {
-                return opaque(controller.tintColor());
+            if (state.getBlock() instanceof MultiblockControllerBlock controller && controller.usesTint(tintIndex)) {
+                return opaque(controller.tintColor(tintIndex));
             }
 
             return -1;
         }, multiblockControllers);
 
         event.register((state, level, pos, tintIndex) -> {
-            if (tintIndex != 0) {
-                return -1;
-            }
-
             if (state.getBlock() instanceof SingleBlockMachineBlock machine) {
-                return opaque(machine.instance().tier().color());
+                return singleBlockMachineColor(machine, tintIndex);
             }
 
             return -1;
@@ -425,10 +471,36 @@ public class ClientSetup {
         event.register(MenuRegistry.MULTIBLOCK_CONTROLLER.get(), MultiblockControllerScreen::new);
         event.register(MenuRegistry.FOUNDRY_CONTROLLER.get(), FoundryControllerScreen::new);
         event.register(MenuRegistry.SINGLE_BLOCK_MACHINE.get(), SingleBlockMachineScreen::new);
+        event.register(MenuRegistry.MACHINE_CONTROL_SCHEDULE.get(), MachineControlScheduleScreen::new);
     }
 
     private static boolean isMaterialTintLayer(int tintIndex) {
         return tintIndex == 0 || tintIndex == 1;
+    }
+
+    private static int singleBlockMachineColor(SingleBlockMachineBlock machine, int tintIndex) {
+        SingleBlockDefinition.MachineSide side = SingleBlockDefinition.MachineSide.fromTintIndex(tintIndex);
+        if (side == null) {
+            return -1;
+        }
+
+        Integer customColor = machine.instance().definition().sideTextureColor(side);
+        if (customColor != null) {
+            return opaque(customColor);
+        }
+
+        if (tintIndex == 0) {
+            Integer modelColor = MachineModelTintResolver.resolve(machine.instance().definition().model());
+            if (modelColor != null) {
+                return opaque(modelColor);
+            }
+        }
+
+        if (machine.instance().definition().sideTexture(side) == null && machine.instance().tier().isElectric()) {
+            return opaque(machine.instance().tier().color());
+        }
+
+        return -1;
     }
 
     private static int opaque(int color) {

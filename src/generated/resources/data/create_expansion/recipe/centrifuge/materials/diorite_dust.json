@@ -1,0 +1,32 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 1800,
+  "item_inputs": [
+    {
+      "count": 9,
+      "item": "create_expansion:diorite_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 5,
+        "id": "create_expansion:feldspar_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 3,
+        "id": "create_expansion:amphibole_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:quartz_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:centrifuge",
+  "tier": "ulv"
+}

@@ -6,6 +6,7 @@ import net.mads.createexpansion.recipe.CERecipeSerializer;
 import net.mads.createexpansion.recipe.recipes.assembly.AssemblyRecipe;
 import net.mads.createexpansion.recipe.recipes.foundry.CasterTransformationRecipe;
 import net.mads.createexpansion.recipe.recipes.foundry.FoundryMeltingRecipe;
+import net.mads.createexpansion.recipe.recipes.blazeburnerrecipes.BlazeBurnerFuelRecipe;
 import net.mads.createexpansion.recipe.recipes.centrifuge.CentrifugingRecipe;
 import net.mads.createexpansion.recipe.recipes.lathe.TurningRecipe;
 import net.mads.createexpansion.recipe.recipes.sifter.SiftingRecipe;
@@ -15,6 +16,7 @@ import net.mads.createexpansion.recipe.recipes.hydraulicpress.HydraulicPressingR
 import net.mads.createexpansion.recipe.recipes.coiling.CoilingRecipe;
 import net.mads.createexpansion.recipe.recipetypes.AssemblyRecipeType;
 import net.mads.createexpansion.recipe.recipetypes.CasterTransformationRecipeType;
+import net.mads.createexpansion.recipe.recipetypes.BlazeBurnerFuelRecipeType;
 import net.mads.createexpansion.recipe.recipetypes.CentrifugingRecipeType;
 import net.mads.createexpansion.recipe.recipetypes.FoundryMeltingRecipeType;
 import net.mads.createexpansion.recipe.recipetypes.SiftingRecipeType;
@@ -127,6 +129,17 @@ public class RecipeRegistry {
                 @Override
                 public String toString() {
                     return CasterTransformationRecipeType.ID.toString();
+                }
+            });
+
+    public static final DeferredHolder<RecipeSerializer<?>, BlazeBurnerFuelRecipe.Serializer> BLAZE_BURNER_FUEL_RECIPE_SERIALIZER =
+            RECIPE_SERIALIZERS.register(BlazeBurnerFuelRecipeType.NAME, BlazeBurnerFuelRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BlazeBurnerFuelRecipe>> BLAZE_BURNER_FUEL_RECIPE_TYPE =
+            RECIPE_TYPES.register(BlazeBurnerFuelRecipeType.NAME, () -> new RecipeType<>() {
+                @Override
+                public String toString() {
+                    return BlazeBurnerFuelRecipeType.ID.toString();
                 }
             });
 

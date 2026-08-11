@@ -91,10 +91,10 @@
     "create_expansion:moscovium_cast_ingot_mold",
     "create_expansion:livermorium_cast_ingot_mold",
     "create_expansion:bronze_cast_ingot_mold",
-    "create_expansion:steel_cast_ingot_mold",
-    "create_expansion:wrought_iron_cast_ingot_mold",
     "create_expansion:brass_cast_ingot_mold",
     "create_expansion:electrum_cast_ingot_mold",
+    "create_expansion:steel_cast_ingot_mold",
+    "create_expansion:wrought_iron_cast_ingot_mold",
     "create_expansion:andesite_alloy_cast_ingot_mold"
   ]
 }

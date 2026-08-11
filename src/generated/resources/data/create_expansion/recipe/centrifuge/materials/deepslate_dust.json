@@ -1,0 +1,38 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 1400,
+  "item_inputs": [
+    {
+      "count": 7,
+      "item": "create_expansion:deepslate_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 3,
+        "id": "create_expansion:feldspar_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 2,
+        "id": "create_expansion:amphibole_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:iron_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:magnesium_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:centrifuge",
+  "tier": "ulv"
+}

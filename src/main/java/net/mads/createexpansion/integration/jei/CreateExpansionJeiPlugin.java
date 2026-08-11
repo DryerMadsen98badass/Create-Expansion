@@ -36,7 +36,7 @@ import java.util.Set;
 
 @JeiPlugin
 public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugin {
-    private static final Map<ResourceLocation, RecipeType<CERecipe>> RECIPE_TYPES = new HashMap<>();
+    private static final Map<ResourceLocation, RecipeType<RecipeHolder<CERecipe>>> RECIPE_TYPES = new HashMap<>();
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -57,14 +57,11 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
         registration.addRecipeCategories(new FoundryMeltingCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new FoundryCastingCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new CasterTransformationCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new BlazeBurnerFuelCategory(registration.getJeiHelpers().getGuiHelper()));
 
         // Register categories for each CERecipeType
         for (var recipeType : CERecipeTypes.ALL) {
-            RecipeType<CERecipe> jeiRecipeType = RecipeType.create(
-                    CreateExpansion.MOD_ID,
-                    recipeType.id().getPath(),
-                    CERecipe.class
-            );
+            RecipeType<RecipeHolder<CERecipe>> jeiRecipeType = RecipeType.createRecipeHolderType(recipeType.id());
             ItemStack icon = getCategoryIcon(recipeType.id());
             CERecipeCategory category = new CERecipeCategory(recipeType, jeiRecipeType, registration.getJeiHelpers().getGuiHelper(), icon);
             registration.addRecipeCategories(category);
@@ -89,6 +86,7 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
             registration.addRecipes(HydraulicPressingCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.HYDRAULIC_PRESSING_RECIPE_TYPE.get()));
             registration.addRecipes(CoilingCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.COILING_RECIPE_TYPE.get()));
             registration.addRecipes(AssemblyCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.ASSEMBLY_RECIPE_TYPE.get()));
+            registration.addRecipes(BlazeBurnerFuelCategory.TYPE, recipeManager.getAllRecipesFor(RecipeRegistry.BLAZE_BURNER_FUEL_RECIPE_TYPE.get()));
             var foundryMeltingRecipes = recipeManager.getAllRecipesFor(RecipeRegistry.FOUNDRY_MELTING_RECIPE_TYPE.get());
             registration.addRecipes(FoundryMeltingCategory.TYPE, foundryMeltingRecipes.isEmpty() ? FoundryMeltingRecipes.syntheticRecipes() : foundryMeltingRecipes);
             registration.addRecipes(FoundryCastingCategory.TYPE, FoundryCastingJeiRecipe.all());
@@ -100,12 +98,11 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
             for (var recipeType : CERecipeTypes.ALL) {
                 var recipes = recipeManager.getAllRecipesFor(RecipeRegistry.MACHINE_RECIPE_TYPE.get());
                 var filtered = recipes.stream()
-                        .map(r -> r.value())
-                        .filter(r -> r.recipeType().equals(recipeType.id()))
+                        .filter(r -> r.value().recipeType().equals(recipeType.id()))
                         .toList();
 
                 if (!filtered.isEmpty()) {
-                    RecipeType<CERecipe> jeiRecipeType = RECIPE_TYPES.get(recipeType.id());
+                    RecipeType<RecipeHolder<CERecipe>> jeiRecipeType = RECIPE_TYPES.get(recipeType.id());
                     if (jeiRecipeType != null) {
                         registration.addRecipes(jeiRecipeType, filtered);
                     }
@@ -137,6 +134,7 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
         registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_MOLD_CASTER.get(), FoundryCastingCategory.TYPE);
         registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_DRAIN.get(), CasterTransformationCategory.TYPE);
         registration.addRecipeCatalyst(ItemRegistry.FOUNDRY_MOLD_CASTER.get(), CasterTransformationCategory.TYPE);
+        registration.addRecipeCatalyst(com.simibubi.create.AllBlocks.BLAZE_BURNER.asStack(), BlazeBurnerFuelCategory.TYPE);
 
         Set<ResourceLocation> recipeTypesWithMachineCatalyst = new HashSet<>();
 
@@ -148,7 +146,7 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
             }
 
             for (ResourceLocation recipeTypeId : instance.definition().recipeTypes()) {
-                RecipeType<CERecipe> jeiRecipeType = RECIPE_TYPES.get(recipeTypeId);
+                RecipeType<RecipeHolder<CERecipe>> jeiRecipeType = RECIPE_TYPES.get(recipeTypeId);
                 if (jeiRecipeType != null) {
                     registration.addRecipeCatalyst(machineItem.get(), jeiRecipeType);
                     recipeTypesWithMachineCatalyst.add(recipeTypeId);
@@ -164,7 +162,7 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
             }
 
             for (ResourceLocation recipeTypeId : definition.recipeTypes()) {
-                RecipeType<CERecipe> jeiRecipeType = RECIPE_TYPES.get(recipeTypeId);
+                RecipeType<RecipeHolder<CERecipe>> jeiRecipeType = RECIPE_TYPES.get(recipeTypeId);
                 if (jeiRecipeType != null) {
                     registration.addRecipeCatalyst(controllerItem.get(), jeiRecipeType);
                     recipeTypesWithMachineCatalyst.add(recipeTypeId);
@@ -193,6 +191,7 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
         recipeTypes.add(FoundryMeltingCategory.TYPE);
         recipeTypes.add(FoundryCastingCategory.TYPE);
         recipeTypes.add(CasterTransformationCategory.TYPE);
+        recipeTypes.add(BlazeBurnerFuelCategory.TYPE);
         return recipeTypes;
     }
 
@@ -232,6 +231,15 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
             var recipes = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(RecipeRegistry.CASTER_TRANSFORMATION_RECIPE_TYPE.get());
             return (recipes.isEmpty() ? CasterTransformationRecipes.syntheticRecipes() : recipes).stream()
                     .map(RecipeHolder::value)
+                    .map(recipe -> (T) recipe)
+                    .toList();
+        }
+        if (recipeTypeUid.equals(BlazeBurnerFuelCategory.TYPE.getUid())) {
+            if (Minecraft.getInstance().level == null) {
+                return List.of();
+            }
+            return Minecraft.getInstance().level.getRecipeManager()
+                    .getAllRecipesFor(RecipeRegistry.BLAZE_BURNER_FUEL_RECIPE_TYPE.get()).stream()
                     .map(recipe -> (T) recipe)
                     .toList();
         }
@@ -281,8 +289,7 @@ public class CreateExpansionJeiPlugin implements IModPlugin, IRecipeManagerPlugi
                     .toList();
         }
         var recipes = recipeManager.getAllRecipesFor(RecipeRegistry.MACHINE_RECIPE_TYPE.get()).stream()
-                .map(r -> r.value())
-                .filter(r -> r.recipeType().equals(recipeTypeUid))
+                .filter(r -> r.value().recipeType().equals(recipeTypeUid))
                 .map(r -> (T) r)
                 .toList();
         return recipes;

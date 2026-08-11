@@ -1,0 +1,14 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create_expansion:hot_tempered_glass"
+    }
+  ],
+  "processing_time": 1200,
+  "results": [
+    {
+      "id": "create_expansion:tempered_glass"
+    }
+  ]
+}

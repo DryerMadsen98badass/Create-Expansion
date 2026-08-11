@@ -55,6 +55,34 @@ public class CentrifugingRecipe implements Recipe<CentrifugingRecipeInput> {
             int minRpm,
             Optional<Integer> maxRpm
     ) {
+        if (itemIngredients.size() > 1) {
+            throw new IllegalArgumentException("Centrifuging recipes support at most one item input");
+        }
+        if (fluidIngredients.size() > 1) {
+            throw new IllegalArgumentException("Centrifuging recipes support at most one fluid input");
+        }
+        if (itemResults.size() > 4) {
+            throw new IllegalArgumentException("Centrifuging recipes support at most four item outputs");
+        }
+        if (fluidResults.size() > 2) {
+            throw new IllegalArgumentException("Centrifuging recipes support at most two fluid outputs");
+        }
+        if (itemIngredients.isEmpty() && fluidIngredients.isEmpty()) {
+            throw new IllegalArgumentException("Centrifuging recipes need an item or fluid input");
+        }
+        if (itemResults.isEmpty() && fluidResults.isEmpty()) {
+            throw new IllegalArgumentException("Centrifuging recipes need an item or fluid output");
+        }
+        if (processingDuration <= 0) {
+            throw new IllegalArgumentException("Centrifuging recipe duration must be positive");
+        }
+        if (minRpm < 0 || minRpm > 256) {
+            throw new IllegalArgumentException("Centrifuging minimum RPM must be between 0 and 256");
+        }
+        if (maxRpm.isPresent() && (maxRpm.get() < minRpm || maxRpm.get() > 256)) {
+            throw new IllegalArgumentException("Centrifuging maximum RPM must be between minimum RPM and 256");
+        }
+
         this.itemIngredients = List.copyOf(itemIngredients);
         this.fluidIngredients = List.copyOf(fluidIngredients);
         this.itemResults = List.copyOf(itemResults);

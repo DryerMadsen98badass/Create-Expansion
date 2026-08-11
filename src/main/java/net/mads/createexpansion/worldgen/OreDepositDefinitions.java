@@ -16,6 +16,9 @@ final class OreDepositDefinitions {
     private static final int END_SURFACE_HORIZONTAL_RADIUS = 42;
 
     static final List<OreDeposit> ALL = List.of(
+            deposit("redstone", 28, -64, 64, 14, 0.20,
+                    groups(PLAINS, CAVES, DEEP_DARK, DESERTS),
+                    layer(REDSTONE, 70), layer(CINNABAR, 20), layer(QUARTZ, 7), layer(PYRITE, 3)),
             deposit("coal", 100, -32, 96, 18, 0.50,
                     groups(COMMON_OVERWORLD, PLAINS, FORESTS, TAIGA, MOUNTAINS),
                     layer(COAL, 75), layer(CARBON, 15), layer(GRAPHITE, 10)),
@@ -93,7 +96,7 @@ final class OreDepositDefinitions {
                     layer(EMERALD, 55), layer(BERYLLIUM, 20), layer(QUARTZ, 15), layer(TOPAZ, 10)),
             deposit("ruby_sapphire", 8, -64, 24, 12, 0.06,
                     groups(MOUNTAINS, DEEP_DARK, CAVES),
-                    layer(CORUNDUM, 45), layer(RUBY, 18), layer(SAPPHIRE, 18), layer(ILMENITE, 10), layer(CHROMITE, 9)),
+                    layer(CORUNDUM, 45), layer(RUBY, 18), layer(SAPPHIRE, 18), layer(ILMENITE, 10), layer(CHROMITE, 9), layer(REDSTONE, 5)),
             deposit("topaz_quartz", 12, -48, 64, 12, 0.10,
                     groups(MOUNTAINS, DESERTS),
                     layer(TOPAZ, 40), layer(QUARTZ, 40), layer(FLUORITE, 20)),
@@ -148,12 +151,12 @@ final class OreDepositDefinitions {
     );
 
     static final List<OreDeposit> VILLAGE_BONUS = List.of(
-            deposit("village_coal", 100, -32, 48, 14, 0.70, groups(OVERWORLD),
-                    layer(COAL, 82), layer(GRAPHITE, 17), layer(DIAMOND, 1)),
+            deposit("village_coal", 100, -32, 48, 14, 0.70, groups(OVERWORLD), layer(COAL, 82), layer(GRAPHITE, 17), layer(DIAMOND, 1)),
             deposit("village_copper", 100, -32, 48, 14, 0.50, groups(OVERWORLD), layer(CHALCOPYRITE, 75), layer(MALACHITE, 25)),
             deposit("village_iron", 100, -32, 48, 14, 0.50, groups(OVERWORLD), layer(HEMATITE, 75), layer(MAGNETITE, 25)),
             deposit("village_tin", 100, -32, 48, 14, 0.50, groups(OVERWORLD), layer(CASSITERITE, 85), layer(STANNITE, 15)),
-            deposit("village_zinc", 100, -32, 48, 14, 0.50, groups(OVERWORLD), layer(SPHALERITE, 80), layer(SMITHSONITE, 20))
+            deposit("village_zinc", 100, -32, 48, 14, 0.50, groups(OVERWORLD), layer(SPHALERITE, 80), layer(SMITHSONITE, 20)),
+            deposit("village_redstone", 100, -32, 48, 14, 0.50, groups(OVERWORLD), layer(REDSTONE, 80), layer(CINNABAR, 15), layer(QUARTZ, 5))
     );
 
     private static OreDeposit deposit(
@@ -211,6 +214,10 @@ final class OreDepositDefinitions {
                     SurfaceIndicator.STONE_SPOT,
                     SurfaceIndicator.GRAVEL_PATCH,
                     SurfaceIndicator.BOULDER_CLUSTER
+            );
+            case "redstone" -> List.of(
+              SurfaceIndicator.CRYSTAL_SPOT,
+              SurfaceIndicator.BOULDER_CLUSTER
             );
             case "uranium" -> List.of(
                     SurfaceIndicator.DEAD_SOIL,

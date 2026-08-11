@@ -12,10 +12,13 @@ public final class PressingRecipes {
     }
 
     public static void build(List<CompletableFuture<?>> futures, CachedOutput output, PackOutput.PathProvider recipes) {
-        CreateRecipeBuilder.pressing(futures, output, recipes, "pressing/test/iron_ingot_to_sheet")
-                .inputItem("minecraft:iron_ingot")
-                .outputItem("create:iron_sheet")
-                .duration(100)
+        CreateRecipeBuilder.pressing(futures, output, recipes, "pressing/natural_rubber_plate")
+                .inputItem("create_expansion:natural_rubber_ingot")
+                .outputItem("create_expansion:natural_rubber_plate")
+                .save();
+        CreateRecipeBuilder.pressing(futures, output, recipes, "pressing/treated_wood_plate")
+                .inputItem("create_expansion:treated_wood_slab")
+                .outputItem("create_expansion:treated_wood_plate")
                 .save();
     }
 }

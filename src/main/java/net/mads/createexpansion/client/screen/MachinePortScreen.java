@@ -82,7 +82,7 @@ public class MachinePortScreen extends AbstractContainerScreen<MachinePortMenu> 
                 return true;
             }
         }
-        if (button == 1 && minecraft != null && minecraft.gameMode != null) {
+        if ((button == 0 || button == 1) && minecraft != null && minecraft.gameMode != null) {
             int fluidSlot = hoveredFluidSlot((int) mouseX, (int) mouseY);
             if (fluidSlot >= 0) {
                 minecraft.gameMode.handleInventoryButtonClick(menu.containerId, MachinePortMenu.BUTTON_FLUID_SLOT + fluidSlot);

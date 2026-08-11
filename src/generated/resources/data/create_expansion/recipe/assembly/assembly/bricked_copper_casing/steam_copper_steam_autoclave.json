@@ -1,0 +1,27 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create_expansion:bricked_copper_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create:fluid_tank"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:tempered_glass"
+    },
+    {
+      "count": 4,
+      "item": "create_expansion:wrought_iron_rod"
+    },
+    {
+      "count": 10,
+      "item": "create_expansion:wrought_iron_screw"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:steam_copper_steam_autoclave"
+  }
+}

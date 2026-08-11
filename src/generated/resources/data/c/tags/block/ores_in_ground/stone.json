@@ -116,6 +116,7 @@
     "create_expansion:moscovium_ore",
     "create_expansion:livermorium_ore",
     "create_expansion:electrum_ore",
+    "create_expansion:calcite_ore",
     {
       "id": "minecraft:diamond_ore",
       "required": false
@@ -133,6 +134,9 @@
       "required": false
     },
     "create_expansion:quartz_ore",
+    "create_expansion:topaz_ore",
+    "create_expansion:ruby_ore",
+    "create_expansion:sapphire_ore",
     "create_expansion:graphite_ore",
     "create_expansion:sodalite_ore",
     "create_expansion:lazurite_ore",
@@ -141,6 +145,7 @@
     "create_expansion:goethite_ore",
     "create_expansion:siderite_ore",
     "create_expansion:pyrite_ore",
+    "create_expansion:cinnabar_ore",
     "create_expansion:chalcopyrite_ore",
     "create_expansion:malachite_ore",
     "create_expansion:azurite_ore",
@@ -200,7 +205,6 @@
       "required": false
     },
     "create_expansion:carnallite_ore",
-    "create_expansion:calcite_ore",
     "create_expansion:gypsum_ore",
     "create_expansion:fluorite_ore",
     "create_expansion:apatite_ore",
@@ -210,9 +214,6 @@
     "create_expansion:sylvite_ore",
     "create_expansion:orthoclase_ore",
     "create_expansion:bastnasite_ore",
-    "create_expansion:xenotime_ore",
-    "create_expansion:topaz_ore",
-    "create_expansion:ruby_ore",
-    "create_expansion:sapphire_ore"
+    "create_expansion:xenotime_ore"
   ]
 }

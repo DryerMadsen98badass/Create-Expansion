@@ -1,0 +1,42 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 4200,
+  "fluid_outputs": [
+    {
+      "amount": 12000,
+      "id": "create_expansion:oxygen"
+    },
+    {
+      "amount": 2000,
+      "id": "create_expansion:hydrogen"
+    }
+  ],
+  "item_inputs": [
+    {
+      "count": 21,
+      "item": "create_expansion:mica_dust"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:potassium_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 3,
+        "id": "create_expansion:aluminum_dust"
+      }
+    },
+    {
+      "stack": {
+        "count": 3,
+        "id": "create_expansion:silicon_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:electrolyser",
+  "tier": "lv"
+}

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:darmstadtium_netherrack_ore",
-    "create_expansion:darmstadtium_deepslate_ore",
-    "create_expansion:darmstadtium_andesite_ore",
-    "create_expansion:darmstadtium_end_stone_ore",
     "create_expansion:darmstadtium_diorite_ore",
-    "create_expansion:darmstadtium_tuff_ore",
+    "create_expansion:darmstadtium_granite_ore",
+    "create_expansion:darmstadtium_netherrack_ore",
     "create_expansion:darmstadtium_blackstone_ore",
     "create_expansion:darmstadtium_ore",
-    "create_expansion:darmstadtium_granite_ore"
+    "create_expansion:darmstadtium_deepslate_ore",
+    "create_expansion:darmstadtium_tuff_ore",
+    "create_expansion:darmstadtium_andesite_ore",
+    "create_expansion:darmstadtium_end_stone_ore"
   ]
 }

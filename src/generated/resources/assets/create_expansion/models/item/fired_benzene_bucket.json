@@ -1,0 +1,10 @@
+{
+  "parent": "neoforge:item/bucket_drip",
+  "apply_fluid_luminosity": false,
+  "flip_gas": false,
+  "fluid": "create_expansion:benzene",
+  "loader": "neoforge:fluid_container",
+  "textures": {
+    "base": "create_expansion:item/standalone/bucket_brick"
+  }
+}

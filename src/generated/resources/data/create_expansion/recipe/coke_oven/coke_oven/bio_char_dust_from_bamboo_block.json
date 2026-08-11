@@ -1,0 +1,25 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 450,
+  "fluid_outputs": [
+    {
+      "amount": 80,
+      "id": "create_expansion:creosote_oil"
+    }
+  ],
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "minecraft:bamboo_block"
+    }
+  ],
+  "item_outputs": [
+    {
+      "stack": {
+        "count": 2,
+        "id": "create_expansion:bio_char_dust"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:coke_oven"
+}

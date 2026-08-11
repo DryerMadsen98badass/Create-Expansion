@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:chalcopyrite_netherrack_ore",
-    "create_expansion:chalcopyrite_deepslate_ore",
-    "create_expansion:chalcopyrite_andesite_ore",
-    "create_expansion:chalcopyrite_end_stone_ore",
     "create_expansion:chalcopyrite_diorite_ore",
-    "create_expansion:chalcopyrite_tuff_ore",
+    "create_expansion:chalcopyrite_granite_ore",
+    "create_expansion:chalcopyrite_netherrack_ore",
     "create_expansion:chalcopyrite_blackstone_ore",
     "create_expansion:chalcopyrite_ore",
-    "create_expansion:chalcopyrite_granite_ore"
+    "create_expansion:chalcopyrite_deepslate_ore",
+    "create_expansion:chalcopyrite_tuff_ore",
+    "create_expansion:chalcopyrite_andesite_ore",
+    "create_expansion:chalcopyrite_end_stone_ore"
   ]
 }

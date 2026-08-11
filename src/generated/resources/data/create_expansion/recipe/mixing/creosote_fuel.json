@@ -1,0 +1,22 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "type": "neoforge:single",
+      "amount": 750,
+      "fluid": "create_expansion:creosote_oil"
+    },
+    {
+      "type": "neoforge:single",
+      "amount": 250,
+      "fluid": "create_expansion:wood_tar"
+    }
+  ],
+  "processing_time": 500,
+  "results": [
+    {
+      "amount": 1000,
+      "id": "create_expansion:creosote_fuel"
+    }
+  ]
+}

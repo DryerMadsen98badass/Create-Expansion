@@ -3,6 +3,7 @@ package net.mads.createexpansion.machine.machines.electric.multiblock;
 import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.equipment.goggles.GogglesItem;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
+import net.mads.createexpansion.machine.MachineModelTintResolver;
 import net.mads.createexpansion.machine.WrenchPickupHelper;
 import net.mads.createexpansion.registry.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.extensions.IPlayerExtension;
 import org.jetbrains.annotations.Nullable;
@@ -48,6 +50,7 @@ public class MultiblockControllerBlock extends HorizontalDirectionalBlock implem
             ), properties));
     public static final BooleanProperty FORMED = BooleanProperty.create("formed");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+    public static final IntegerProperty OVERLAY_FRAME = IntegerProperty.create("overlay_frame", 0, 9);
 
     private final MultiblockControllerDefinition definition;
     private final ResourceLocation controllerId;
@@ -86,7 +89,8 @@ public class MultiblockControllerBlock extends HorizontalDirectionalBlock implem
         registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(FORMED, false)
-                .setValue(ACTIVE, false));
+                .setValue(ACTIVE, false)
+                .setValue(OVERLAY_FRAME, 0));
     }
 
     public ResourceLocation controllerId() {
@@ -98,17 +102,82 @@ public class MultiblockControllerBlock extends HorizontalDirectionalBlock implem
     }
 
     public boolean usesTint() {
-        return definition.tinted();
+        return java.util.Arrays.stream(MultiblockControllerDefinition.Side.values()).anyMatch(definition::hasSideTextureColor)
+                || MachineModelTintResolver.resolve(definition.model()) != null;
+    }
+
+    public boolean usesTint(int tintIndex) {
+        MultiblockControllerDefinition.Side side = MultiblockControllerDefinition.Side.fromTintIndex(tintIndex);
+        if (side != null && definition.hasSideTextureColor(side)) {
+            return true;
+        }
+        return tintIndex == 0 && MachineModelTintResolver.resolve(definition.model()) != null;
     }
 
     public int tintColor() {
-        return definition.tintColor();
+        Integer sideColor = java.util.Arrays.stream(MultiblockControllerDefinition.Side.values())
+                .map(definition::sideTextureColor)
+                .filter(java.util.Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+        if (sideColor != null) {
+            return sideColor;
+        }
+        Integer modelColor = MachineModelTintResolver.resolve(definition.model());
+        return modelColor == null ? -1 : modelColor;
+    }
+
+    public int tintColor(int tintIndex) {
+        MultiblockControllerDefinition.Side side = MultiblockControllerDefinition.Side.fromTintIndex(tintIndex);
+        if (side != null) {
+            Integer color = definition.sideTextureColor(side);
+            if (color != null) {
+                return color;
+            }
+        }
+        if (tintIndex == 0) {
+            Integer modelColor = MachineModelTintResolver.resolve(definition.model());
+            if (modelColor != null) {
+                return modelColor;
+            }
+        }
+        return -1;
     }
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
         MultiblockRegistry.byController(controllerId).ifPresent(multiblock -> {
+            switch (multiblock.drive()) {
+                case ELECTRIC -> tooltip.add(Component.literal(
+                        "Base Energy Usage: " + multiblock.energyUsage() + " CE/t"
+                ).withStyle(ChatFormatting.GRAY));
+                case STEAM -> tooltip.add(Component.literal(
+                        "Steam Usage: " + multiblock.steamUsage() + " mB/t"
+                ).withStyle(ChatFormatting.GRAY));
+                case KINETIC -> {
+                    multiblock.minRpm().ifPresent(rpm -> tooltip.add(Component.literal(
+                            "Minimum Speed: " + rpm + " RPM"
+                    ).withStyle(ChatFormatting.GRAY)));
+                    multiblock.maxRpm().ifPresent(rpm -> tooltip.add(Component.literal(
+                            "Maximum Speed: " + rpm + " RPM"
+                    ).withStyle(ChatFormatting.GRAY)));
+                }
+                case KINETIC_OUTPUT -> multiblock.outputRpm().ifPresent(rpm -> tooltip.add(
+                        Component.literal("Output Speed: " + rpm + " RPM")
+                                .withStyle(ChatFormatting.GRAY)
+                ));
+                case NONE -> {
+                }
+            }
+
+            for (net.mads.createexpansion.machine.interaction.MachineArea area : multiblock.areas()) {
+                tooltip.add(Component.literal("Operating Area: " +
+                        area.dimensions(net.mads.createexpansion.machine.MachineTier.ULV,
+                                net.mads.createexpansion.machine.MachineTier.ULV).tooltipText())
+                        .withStyle(ChatFormatting.GRAY));
+            }
+
             for (String line : multiblock.tooltip()) {
                 tooltip.add(Component.literal(line).withStyle(ChatFormatting.GRAY));
             }
@@ -125,12 +194,13 @@ public class MultiblockControllerBlock extends HorizontalDirectionalBlock implem
         return defaultBlockState()
                 .setValue(FACING, context.getHorizontalDirection().getOpposite())
                 .setValue(FORMED, false)
-                .setValue(ACTIVE, false);
+                .setValue(ACTIVE, false)
+                .setValue(OVERLAY_FRAME, 0);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, FORMED, ACTIVE);
+        builder.add(FACING, FORMED, ACTIVE, OVERLAY_FRAME);
     }
 
     @Override

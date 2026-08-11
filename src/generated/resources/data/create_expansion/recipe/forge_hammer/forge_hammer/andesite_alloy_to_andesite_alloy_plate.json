@@ -1,0 +1,22 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 100,
+  "item_inputs": [
+    {
+      "count": 2,
+      "item": "create:andesite_alloy"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 5000,
+      "stack": {
+        "count": 1,
+        "id": "create_expansion:andesite_alloy_plate"
+      },
+      "tier_bonus": 5000
+    }
+  ],
+  "recipe_type": "create_expansion:forge_hammer",
+  "tier": "ulv"
+}

@@ -16,6 +16,8 @@ public record IndustrialFluid(
         int density,
         int viscosity,
         int lightLevel,
+        Optional<Integer> phHundredths,
+        int phDrainPerTickMb,
         List<MaterialComponent> components,
         Optional<ResourceLocation> existingFluid
 ) implements IndustrialSubstance {
@@ -24,6 +26,14 @@ public record IndustrialFluid(
         if (displayName == null || displayName.isBlank()) throw new IllegalArgumentException("Industrial fluid display name cannot be blank");
         if (kind == null) throw new IllegalArgumentException("Industrial fluid kind cannot be null");
         if (lightLevel < 0 || lightLevel > 15) throw new IllegalArgumentException("Industrial fluid light level must be between 0 and 15");
+        phHundredths = phHundredths == null ? Optional.empty() : phHundredths;
+        phHundredths.ifPresent(value -> {
+            if (value < 0 || value > 1400) throw new IllegalArgumentException("Industrial fluid pH must be between 0 and 14");
+            if (phDrainPerTickMb <= 0) throw new IllegalArgumentException("Industrial fluid pH drain rate must be greater than 0 mB/t");
+        });
+        if (phHundredths.isEmpty() && phDrainPerTickMb != 0) {
+            throw new IllegalArgumentException("Industrial fluid without pH cannot define a pH drain rate");
+        }
         components = List.copyOf(components);
         existingFluid = existingFluid == null ? Optional.empty() : existingFluid;
     }
@@ -33,6 +43,11 @@ public record IndustrialFluid(
     public boolean isMolten() { return kind == Kind.MOLTEN; }
     public boolean hasComponents() { return !components.isEmpty(); }
     public boolean hasExistingFluid() { return existingFluid.isPresent(); }
+    public boolean hasPh() { return phHundredths.isPresent(); }
+    public double ph() {
+        return phHundredths.map(value -> value / 100.0D).orElseThrow(() ->
+                new IllegalStateException("Industrial fluid '" + id + "' does not define a pH value"));
+    }
 
     public ResourceLocation existingFluidId() {
         return existingFluid.orElseThrow(() -> new IllegalStateException(

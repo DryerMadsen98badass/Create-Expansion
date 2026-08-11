@@ -1,0 +1,45 @@
+{
+  "type": "create_expansion:machine",
+  "duration": 1400,
+  "item_inputs": [
+    {
+      "count": 1,
+      "item": "minecraft:stripped_spruce_wood"
+    },
+    {
+      "count": 4,
+      "item": "create:andesite_alloy"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:wood_gear"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:wood_small_gear"
+    },
+    {
+      "count": 2,
+      "item": "create_expansion:wood_screw"
+    },
+    {
+      "count": 4,
+      "item": "create:andesite_alloy"
+    }
+  ],
+  "item_outputs": [
+    {
+      "chance": 2000,
+      "stack": {
+        "count": 1,
+        "id": "create:andesite_casing"
+      }
+    }
+  ],
+  "recipe_type": "create_expansion:dirty_assembler",
+  "tier": "lv"
+}

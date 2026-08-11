@@ -103,8 +103,8 @@ public class CentrifugingCategory implements IRecipeCategory<RecipeHolder<Centri
         }
 
         List<FluidStack> fluidResults = recipe.fluidResults();
-        if (!fluidResults.isEmpty()) {
-            CreateRecipeCategory.addFluidSlot(builder, 139, 58, fluidResults.getFirst());
+        for (int i = 0; i < Math.min(2, fluidResults.size()); i++) {
+            CreateRecipeCategory.addFluidSlot(builder, 133 + i * 19, 58, fluidResults.get(i));
         }
     }
 

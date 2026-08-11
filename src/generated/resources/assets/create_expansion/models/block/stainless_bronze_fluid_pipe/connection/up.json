@@ -1,0 +1,73 @@
+{
+  "credit": "Made with Blockbench",
+  "elements": [
+    {
+      "faces": {
+        "east": {
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            4,
+            2
+          ]
+        },
+        "north": {
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            4,
+            2
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            4,
+            0,
+            0,
+            2
+          ]
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            4,
+            0,
+            0,
+            2
+          ]
+        }
+      },
+      "from": [
+        4,
+        12,
+        4
+      ],
+      "name": "connection_up",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          16,
+          0,
+          -16
+        ]
+      },
+      "to": [
+        12,
+        16,
+        12
+      ]
+    }
+  ],
+  "texture_size": [
+    32,
+    32
+  ],
+  "textures": {
+    "0": "create_expansion:block/stainless_bronze_pipes",
+    "particle": "create_expansion:block/stainless_bronze_pipes"
+  }
+}

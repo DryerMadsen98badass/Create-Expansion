@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:sylvite_netherrack_ore",
-    "create_expansion:sylvite_deepslate_ore",
-    "create_expansion:sylvite_andesite_ore",
-    "create_expansion:sylvite_end_stone_ore",
     "create_expansion:sylvite_diorite_ore",
-    "create_expansion:sylvite_tuff_ore",
+    "create_expansion:sylvite_granite_ore",
+    "create_expansion:sylvite_netherrack_ore",
     "create_expansion:sylvite_blackstone_ore",
     "create_expansion:sylvite_ore",
-    "create_expansion:sylvite_granite_ore"
+    "create_expansion:sylvite_deepslate_ore",
+    "create_expansion:sylvite_tuff_ore",
+    "create_expansion:sylvite_andesite_ore",
+    "create_expansion:sylvite_end_stone_ore"
   ]
 }

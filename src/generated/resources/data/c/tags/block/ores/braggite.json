@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:braggite_netherrack_ore",
-    "create_expansion:braggite_deepslate_ore",
-    "create_expansion:braggite_andesite_ore",
-    "create_expansion:braggite_end_stone_ore",
     "create_expansion:braggite_diorite_ore",
-    "create_expansion:braggite_tuff_ore",
+    "create_expansion:braggite_granite_ore",
+    "create_expansion:braggite_netherrack_ore",
     "create_expansion:braggite_blackstone_ore",
     "create_expansion:braggite_ore",
-    "create_expansion:braggite_granite_ore"
+    "create_expansion:braggite_deepslate_ore",
+    "create_expansion:braggite_tuff_ore",
+    "create_expansion:braggite_andesite_ore",
+    "create_expansion:braggite_end_stone_ore"
   ]
 }

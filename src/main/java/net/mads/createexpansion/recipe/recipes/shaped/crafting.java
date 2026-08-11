@@ -170,6 +170,49 @@ public class crafting {
                 .unlockedBy("always_unlocked", alwaysTrue())
                 .save(output, CreateExpansion.MOD_ID + ":shaped/propeller");
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("create_expansion:stainless_bronze_fluid_pipe"))
+                .pattern("A")
+                .pattern("B")
+                .pattern("A")
+                .define('A', item("create_expansion:stainless_bronze_plate"))
+                .define('B', item("create_expansion:stainless_bronze_ingot"))
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shaped/stainless_bronze_fluid_pipe_vertical");
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("create_expansion:stainless_bronze_fluid_pipe"))
+                .pattern("ABA")
+                .define('A', item("create_expansion:stainless_bronze_plate"))
+                .define('B', item("create_expansion:stainless_bronze_ingot"))
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shaped/stainless_bronze_fluid_pipe");
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("create_expansion:stainless_bronze_fluid_tank"))
+                .pattern("A")
+                .pattern("B")
+                .pattern("A")
+                .define('A', item("create_expansion:stainless_bronze_plate"))
+                .define('B', item("minecraft:barrel"))
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shaped/stainless_bronze_fluid_tank");
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("create_expansion:drill_head"))
+                .pattern(" A ")
+                .pattern("ABA")
+                .pattern("ABA")
+                .define('A', item("create:iron_sheet"))
+                .define('B', item("create:andesite_alloy"))
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shaped/drill_head");
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("create_expansion:stainless_bronze_hand"))
+                .pattern(" A ")
+                .pattern("AAA")
+                .pattern(" B ")
+                .define('A', item("create_expansion:stainless_bronze_plate"))
+                .define('B', item("create_expansion:wrought_iron_ingot"))
+                .unlockedBy("always_unlocked", alwaysTrue())
+                .save(output, CreateExpansion.MOD_ID + ":shaped/stainless_bronze_hand");
+
 
     }
 

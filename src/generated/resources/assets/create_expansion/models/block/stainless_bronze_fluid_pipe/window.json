@@ -1,0 +1,216 @@
+{
+  "parent": "block/block",
+  "credit": "Made with Blockbench",
+  "elements": [
+    {
+      "faces": {
+        "east": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            16,
+            16,
+            8
+          ]
+        },
+        "north": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            16,
+            16,
+            8
+          ]
+        },
+        "south": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            8,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            8,
+            16,
+            16
+          ]
+        }
+      },
+      "from": [
+        4,
+        0,
+        4
+      ],
+      "name": "Outer",
+      "to": [
+        12,
+        16,
+        12
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            16,
+            16,
+            8
+          ]
+        },
+        "north": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            16,
+            16,
+            8
+          ]
+        },
+        "south": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            8,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            8,
+            16,
+            16
+          ]
+        }
+      },
+      "from": [
+        4.1,
+        0,
+        11.9
+      ],
+      "name": "Inner",
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          0,
+          0,
+          8
+        ]
+      },
+      "to": [
+        11.9,
+        16,
+        4.1
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ]
+        },
+        "west": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ]
+        }
+      },
+      "from": [
+        10,
+        0,
+        4
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          8,
+          8
+        ]
+      },
+      "to": [
+        6,
+        16,
+        12
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ]
+        },
+        "south": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            16,
+            8
+          ]
+        }
+      },
+      "from": [
+        4,
+        0,
+        10
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          4,
+          0,
+          10
+        ]
+      },
+      "to": [
+        12,
+        16,
+        6
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout_mipped",
+  "textures": {
+    "0": "create:block/glass_fluid_pipe",
+    "particle": "create_expansion:block/stainless_bronze_pipes"
+  }
+}

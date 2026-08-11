@@ -1,0 +1,25 @@
+{
+  "type": "create_expansion:centrifuging",
+  "ingredients": [
+    {
+      "count": 6,
+      "item": "create_expansion:crimsite_dust"
+    }
+  ],
+  "max_rpm": 256,
+  "min_rpm": 16,
+  "processing_time": 1200,
+  "results": [
+    {
+      "count": 3,
+      "id": "create_expansion:feldspar_dust"
+    },
+    {
+      "id": "create_expansion:amphibole_dust"
+    },
+    {
+      "count": 2,
+      "id": "create_expansion:iron_dust"
+    }
+  ]
+}

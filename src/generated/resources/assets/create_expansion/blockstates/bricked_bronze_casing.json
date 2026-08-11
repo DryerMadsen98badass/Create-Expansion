@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
+      "model": "create_expansion:block/bricked_bronze_casing",
+      "y": 90
+    },
+    "facing=north": {
       "model": "create_expansion:block/bricked_bronze_casing"
+    },
+    "facing=south": {
+      "model": "create_expansion:block/bricked_bronze_casing",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "create_expansion:block/bricked_bronze_casing",
+      "y": 270
     }
   }
 }

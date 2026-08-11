@@ -1,0 +1,604 @@
+{
+  "variants": {
+    "facing=east,formed=false,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=false,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_1",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_2",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_3",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_4",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_5",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_6",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_7",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_8",
+      "y": 90
+    },
+    "facing=east,formed=true,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_9",
+      "y": 90
+    },
+    "facing=north,formed=false,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=false,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine"
+    },
+    "facing=north,formed=true,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed"
+    },
+    "facing=north,formed=true,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_1"
+    },
+    "facing=north,formed=true,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_2"
+    },
+    "facing=north,formed=true,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_3"
+    },
+    "facing=north,formed=true,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_4"
+    },
+    "facing=north,formed=true,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_5"
+    },
+    "facing=north,formed=true,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_6"
+    },
+    "facing=north,formed=true,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_7"
+    },
+    "facing=north,formed=true,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_8"
+    },
+    "facing=north,formed=true,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_9"
+    },
+    "facing=south,formed=false,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=false,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_1",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_2",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_3",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_4",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_5",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_6",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_7",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_8",
+      "y": 180
+    },
+    "facing=south,formed=true,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_9",
+      "y": 180
+    },
+    "facing=west,formed=false,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=false,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=false,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true,overlay_frame=0": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true,overlay_frame=1": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_1",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true,overlay_frame=2": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_2",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true,overlay_frame=3": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_3",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true,overlay_frame=4": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_4",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true,overlay_frame=5": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_5",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true,overlay_frame=6": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_6",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true,overlay_frame=7": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_7",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true,overlay_frame=8": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_8",
+      "y": 270
+    },
+    "facing=west,formed=true,active=true,overlay_frame=9": {
+      "model": "create_expansion:block/dirty_assembly_machine_formed_9",
+      "y": 270
+    }
+  }
+}

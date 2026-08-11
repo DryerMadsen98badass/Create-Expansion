@@ -1,0 +1,27 @@
+{
+  "type": "create_expansion:assembly",
+  "base": {
+    "item": "create_expansion:bricked_bronze_casing"
+  },
+  "inputs": [
+    {
+      "count": 1,
+      "item": "create_expansion:stainless_bronze_fluid_tank"
+    },
+    {
+      "count": 1,
+      "item": "create_expansion:stainless_bronze_plate"
+    },
+    {
+      "count": 4,
+      "item": "create_expansion:stainless_bronze_rod"
+    },
+    {
+      "count": 10,
+      "item": "create_expansion:stainless_bronze_screw"
+    }
+  ],
+  "result": {
+    "id": "create_expansion:steam_bronze_steam_forge_hammer"
+  }
+}

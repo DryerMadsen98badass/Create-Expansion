@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:lithium_netherrack_ore",
-    "create_expansion:lithium_deepslate_ore",
-    "create_expansion:lithium_andesite_ore",
-    "create_expansion:lithium_end_stone_ore",
     "create_expansion:lithium_diorite_ore",
-    "create_expansion:lithium_tuff_ore",
+    "create_expansion:lithium_granite_ore",
+    "create_expansion:lithium_netherrack_ore",
     "create_expansion:lithium_blackstone_ore",
     "create_expansion:lithium_ore",
-    "create_expansion:lithium_granite_ore"
+    "create_expansion:lithium_deepslate_ore",
+    "create_expansion:lithium_tuff_ore",
+    "create_expansion:lithium_andesite_ore",
+    "create_expansion:lithium_end_stone_ore"
   ]
 }

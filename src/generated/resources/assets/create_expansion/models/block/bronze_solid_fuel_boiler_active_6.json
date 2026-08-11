@@ -1,0 +1,73 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#right_base"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#front_base"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#back_base"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#top_base"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "cullface": "north",
+          "texture": "#front_overlay"
+        }
+      },
+      "from": [
+        0,
+        0,
+        -0.01
+      ],
+      "to": [
+        16,
+        16,
+        0
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "back_base": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "bottom_base": "create_expansion:block/casings/casing/bricked_bronze_casing_bottom",
+    "front_base": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "front_overlay": "create_expansion:block/machines/overlay/boilers/solid_boiler_front_active_1",
+    "left_base": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "muffler": "create_expansion:block/machines/ino/muffler",
+    "particle": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "right_base": "create_expansion:block/casings/casing/bricked_bronze_casing_side",
+    "top_base": "create_expansion:block/casings/casing/bricked_bronze_casing_top"
+  }
+}

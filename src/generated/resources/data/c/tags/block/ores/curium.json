@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:curium_netherrack_ore",
-    "create_expansion:curium_deepslate_ore",
-    "create_expansion:curium_andesite_ore",
-    "create_expansion:curium_end_stone_ore",
     "create_expansion:curium_diorite_ore",
-    "create_expansion:curium_tuff_ore",
+    "create_expansion:curium_granite_ore",
+    "create_expansion:curium_netherrack_ore",
     "create_expansion:curium_blackstone_ore",
     "create_expansion:curium_ore",
-    "create_expansion:curium_granite_ore"
+    "create_expansion:curium_deepslate_ore",
+    "create_expansion:curium_tuff_ore",
+    "create_expansion:curium_andesite_ore",
+    "create_expansion:curium_end_stone_ore"
   ]
 }

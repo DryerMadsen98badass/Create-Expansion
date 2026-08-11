@@ -1,0 +1,8 @@
+{
+  "type": "create_expansion:blaze_burner_fuel",
+  "fluid_ingredient": {
+    "amount": 100,
+    "id": "create_expansion:ethanol"
+  },
+  "heated": 2000
+}

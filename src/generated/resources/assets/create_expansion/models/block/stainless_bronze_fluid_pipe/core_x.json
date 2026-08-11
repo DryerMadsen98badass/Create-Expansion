@@ -1,0 +1,42 @@
+{
+  "credit": "Made with Blockbench",
+  "elements": [
+    {
+      "faces": {
+        "east": {
+          "texture": "#0",
+          "uv": [
+            12,
+            8,
+            16,
+            12
+          ]
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            16,
+            8,
+            12,
+            12
+          ]
+        }
+      },
+      "from": [
+        4,
+        4,
+        4
+      ],
+      "name": "core_x",
+      "to": [
+        12,
+        12,
+        12
+      ]
+    }
+  ],
+  "textures": {
+    "0": "create_expansion:block/stainless_bronze_pipes_connected",
+    "particle": "create_expansion:block/stainless_bronze_pipes"
+  }
+}

@@ -1,13 +1,13 @@
 {
   "values": [
-    "create_expansion:holmium_netherrack_ore",
-    "create_expansion:holmium_deepslate_ore",
-    "create_expansion:holmium_andesite_ore",
-    "create_expansion:holmium_end_stone_ore",
     "create_expansion:holmium_diorite_ore",
-    "create_expansion:holmium_tuff_ore",
+    "create_expansion:holmium_granite_ore",
+    "create_expansion:holmium_netherrack_ore",
     "create_expansion:holmium_blackstone_ore",
     "create_expansion:holmium_ore",
-    "create_expansion:holmium_granite_ore"
+    "create_expansion:holmium_deepslate_ore",
+    "create_expansion:holmium_tuff_ore",
+    "create_expansion:holmium_andesite_ore",
+    "create_expansion:holmium_end_stone_ore"
   ]
 }

@@ -1,5 +1,7 @@
 {
   "values": [
+    "create_expansion:tempered_glass",
+    "create_expansion:hot_tempered_glass",
     "create_expansion:treated_wood",
     "create_expansion:treated_wood_slab",
     "create_expansion:treated_wood_stairs",
@@ -7,6 +9,7 @@
     "create_expansion:treated_wood_fence",
     "create_expansion:treated_wood_fence_gate",
     "create_expansion:treated_wood_button",
-    "create_expansion:treated_wood_pressure_plate"
+    "create_expansion:treated_wood_pressure_plate",
+    "create_expansion:tree_extractor"
   ]
 }

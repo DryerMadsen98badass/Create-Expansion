@@ -1,19 +1,19 @@
 {
   "values": [
-    "create_expansion:iron_netherrack_ore",
-    {
-      "id": "minecraft:deepslate_iron_ore",
-      "required": false
-    },
-    "create_expansion:iron_andesite_ore",
-    "create_expansion:iron_end_stone_ore",
     "create_expansion:iron_diorite_ore",
-    "create_expansion:iron_tuff_ore",
+    "create_expansion:iron_granite_ore",
+    "create_expansion:iron_netherrack_ore",
     "create_expansion:iron_blackstone_ore",
     {
       "id": "minecraft:iron_ore",
       "required": false
     },
-    "create_expansion:iron_granite_ore"
+    {
+      "id": "minecraft:deepslate_iron_ore",
+      "required": false
+    },
+    "create_expansion:iron_tuff_ore",
+    "create_expansion:iron_andesite_ore",
+    "create_expansion:iron_end_stone_ore"
   ]
 }

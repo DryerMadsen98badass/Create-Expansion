@@ -113,6 +113,29 @@ shows the active recipe, uses Jade's progress element, and reports waiting-for-r
 output-full, or invalid-machine states. Electric singleblocks send their real server-side stored
 energy and capacity.
 
+Active recipe IO is rendered before resource use, duration, status, and buffers. `Inputs` and
+`Outputs` each contain one row per stack. Item rows use the item icon and
+`x<count>[Item Name]`; fluid rows use the fluid's bucket icon and `x<amount>[Fluid Name]`. Fluid
+text always names the fluid, never the bucket item. CE machine tooltips remove Jade's universal
+item/fluid storage elements so physical tank and inventory contents do not duplicate recipe IO.
+Steam singleblocks replace the removed universal tank entry with a dedicated steam buffer progress
+element at the bottom. The universal elements are removed in Jade's tooltip-collected callback,
+after all normal providers have run. Their universal server-data compounds are also removed in the
+before-tooltip-collect callback, preventing Jade's chest-style storage provider from constructing
+item or fluid rows for CE singleblocks and multiblock controllers. Multiblocks keep their separate
+formed state, while duration is shown only by the shared fancy progress element; do not add a
+second plain `Time: ... ticks` line.
+
+The authoritative suppression is implemented with empty item/fluid `IServerExtensionProvider`s
+registered specifically for `SingleBlockMachineBlock` and `MultiblockControllerBlock`. Jade's
+universal storage extensions are registered for the broader `Block` class, so the specific empty
+extensions win the hierarchy lookup and prevent chest-style groups from being sent at all.
+
+As a final display boundary, the tooltip-collected callback rebuilds CE machine tooltips from
+scratch. It preserves only Jade's block name and mod name, then appends `MultiblockStatusProvider`
+when applicable and `MachineInfoProvider`. This guarantees that no standard or third-party storage
+component can remain visible on CE singleblocks or multiblock controllers.
+
 JEI remains recipe-type driven. Every singleblock or multiblock definition using a CE recipe type
 is a catalyst for that category. The first real machine is the category icon. A command block is
 used only when no machine currently uses that recipe type.

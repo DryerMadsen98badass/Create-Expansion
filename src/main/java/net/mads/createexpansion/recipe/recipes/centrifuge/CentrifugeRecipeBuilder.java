@@ -131,8 +131,8 @@ public class CentrifugeRecipeBuilder {
         if (itemResults.size() > 4) {
             throw new IllegalStateException("Centrifuging recipe " + id + " has more than four item outputs");
         }
-        if (fluidResults.size() > 1) {
-            throw new IllegalStateException("Centrifuging recipe " + id + " has more than one fluid output");
+        if (fluidResults.size() > 2) {
+            throw new IllegalStateException("Centrifuging recipe " + id + " has more than two fluid outputs");
         }
         if (itemIngredients.isEmpty() && fluidIngredients.isEmpty()) {
             throw new IllegalStateException("Centrifuging recipe " + id + " needs an item or fluid input");

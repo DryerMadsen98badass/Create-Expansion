@@ -104,11 +104,15 @@
     "create_expansion:moscovium_blackstone_ore",
     "create_expansion:livermorium_blackstone_ore",
     "create_expansion:electrum_blackstone_ore",
+    "create_expansion:calcite_blackstone_ore",
     "create_expansion:diamond_blackstone_ore",
     "create_expansion:emerald_blackstone_ore",
     "create_expansion:lapis_blackstone_ore",
     "create_expansion:redstone_blackstone_ore",
     "create_expansion:quartz_blackstone_ore",
+    "create_expansion:topaz_blackstone_ore",
+    "create_expansion:ruby_blackstone_ore",
+    "create_expansion:sapphire_blackstone_ore",
     "create_expansion:graphite_blackstone_ore",
     "create_expansion:sodalite_blackstone_ore",
     "create_expansion:lazurite_blackstone_ore",
@@ -117,6 +121,7 @@
     "create_expansion:goethite_blackstone_ore",
     "create_expansion:siderite_blackstone_ore",
     "create_expansion:pyrite_blackstone_ore",
+    "create_expansion:cinnabar_blackstone_ore",
     "create_expansion:chalcopyrite_blackstone_ore",
     "create_expansion:malachite_blackstone_ore",
     "create_expansion:azurite_blackstone_ore",
@@ -173,7 +178,6 @@
     "create_expansion:dolomite_blackstone_ore",
     "create_expansion:coal_blackstone_ore",
     "create_expansion:carnallite_blackstone_ore",
-    "create_expansion:calcite_blackstone_ore",
     "create_expansion:gypsum_blackstone_ore",
     "create_expansion:fluorite_blackstone_ore",
     "create_expansion:apatite_blackstone_ore",
@@ -183,9 +187,6 @@
     "create_expansion:sylvite_blackstone_ore",
     "create_expansion:orthoclase_blackstone_ore",
     "create_expansion:bastnasite_blackstone_ore",
-    "create_expansion:xenotime_blackstone_ore",
-    "create_expansion:topaz_blackstone_ore",
-    "create_expansion:ruby_blackstone_ore",
-    "create_expansion:sapphire_blackstone_ore"
+    "create_expansion:xenotime_blackstone_ore"
   ]
 }

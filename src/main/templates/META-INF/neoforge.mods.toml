@@ -15,6 +15,9 @@ description='''
 An expansion mod for the Create mod, adding new machinery and features.
 '''
 
+[[mixins]]
+config="createexpansion.mixins.json"
+
 # =========================
 # Dependencies
 # =========================

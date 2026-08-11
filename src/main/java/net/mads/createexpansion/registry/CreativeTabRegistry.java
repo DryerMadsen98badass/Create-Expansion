@@ -3,6 +3,7 @@ package net.mads.createexpansion.registry;
 import net.mads.createexpansion.CreateExpansion;
 import net.mads.createexpansion.material.IndustrialMaterials;
 import net.mads.createexpansion.material.MaterialPart;
+import net.mads.createexpansion.transport.FluidTransportRegistrations;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -44,6 +45,8 @@ public final class CreativeTabRegistry {
                             )
                             .displayItems(
                                     (parameters, output) -> {
+                                        output.accept(ItemRegistry.MACHINE_CONTROL_SCHEDULE.get());
+
                                         ItemRegistry
                                                 .getAllMultiblockControllerItems()
                                                 .forEach(
@@ -109,6 +112,14 @@ public final class CreativeTabRegistry {
                                                         .CREATIVE_ENERGY_CONSUMER
                                                         .get()
                                         );
+
+                                        FluidTransportRegistrations
+                                                .allItems()
+                                                .forEach(registration ->
+                                                        registration.visibleItems().forEach(item ->
+                                                                output.accept(item.get())
+                                                        )
+                                                );
 
                                         ItemRegistry
                                                 .getAllActiveBlockItems()

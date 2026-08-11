@@ -1,0 +1,71 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#bottom_base"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#right_base"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#front_base"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#back_base"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#top_base"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#left_base"
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#front_overlay"
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        -0.01
+      ],
+      "to": [
+        16.0,
+        16.0,
+        0.0
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "back_base": "minecraft:block/dirt",
+    "bottom_base": "minecraft:block/dirt",
+    "front_base": "minecraft:block/dirt",
+    "front_overlay": "minecraft:block/dirt",
+    "left_base": "minecraft:block/dirt",
+    "particle": "minecraft:block/dirt",
+    "right_base": "minecraft:block/dirt",
+    "top_base": "minecraft:block/dirt"
+  }
+}

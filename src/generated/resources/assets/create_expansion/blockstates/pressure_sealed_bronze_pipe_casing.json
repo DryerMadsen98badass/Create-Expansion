@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "create_expansion:block/pressure_sealed_bronze_pipe_casing"
+    }
+  }
+}
