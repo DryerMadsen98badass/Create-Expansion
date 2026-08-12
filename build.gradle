@@ -27,6 +27,23 @@ sourceSets.main.resources {
     exclude("data/create_expansion/recipe/**/test/**") // Create recipe examples are development-only
 }
 
+// Temporarily exclude sources that depend on the not-yet-created machine package
+// so that the compilable modules (material core classes) can be compiled and tested.
+// Remove these exclusions once the machine package is implemented.
+sourceSets.main.java {
+    exclude '**/data/**'
+    exclude '**/registry/**'
+    exclude '**/client/**'
+    exclude '**/commands/**'
+    exclude '**/fluid/**'
+    exclude '**/worldgen/**'
+    exclude '**/material/RadiationEvents.java'
+    exclude '**/material/MaterialLookup.java'
+    exclude '**/material/MaterialTextures.java'
+    exclude '**/CreateExpansion.java'
+    exclude '**/Config/**'
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -116,6 +133,11 @@ neoForge {
             sourceSet(sourceSets.main)
         }
     }
+
+    unitTest {
+        enable()
+        testedMod = mods."${mod_id}"
+    }
 }
 
 // Sets up a dependency configuration called 'localRuntime'.
@@ -128,6 +150,9 @@ configurations {
 
 dependencies {
 
+    // Unit testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // Create Mod and its dependencies
     implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
@@ -187,6 +212,10 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
