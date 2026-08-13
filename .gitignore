@@ -32,6 +32,15 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+### Secrets and environment files ###
+.env
+.env.*
+*.pem
+*.key
+*.keystore
+*.jks
+*.p12
+
 ### Minecraft Modding ###
 run/
 !**/src/**/run/
